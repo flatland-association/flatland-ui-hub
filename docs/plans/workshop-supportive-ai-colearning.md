@@ -7,7 +7,7 @@
 > **Documents:** [facilitator guide](../workshop/facilitator-guide.md) ·
 > [participant guide](../workshop/participant-guide.md) ·
 > [experiment design canvas](../workshop/experiment-design-canvas.md).
-> Slide deck (34 slides): <https://claude.ai/artifact/BijGqFYQ9fsLzhkdCFn4fC>, private until shared.
+> Slide deck (37 slides): <https://claude.ai/artifact/BijGqFYQ9fsLzhkdCFn4fC>, private until shared.
 
 ## 1. What the workshop is
 
@@ -96,8 +96,10 @@ Part 3 uses exactly these limits as teaching material.
 
 | File | What changes |
 |---|---|
-| `frontend/src/app/core/demo/study-conditions.ts` | New legs `WS_WEESEN` and `WS_SINGLE_TRACK` (tempo level 2), the function `workshopCondition()`, the four conditions `ws-a1-rec-weesen`, `ws-a2-col-single-track`, `ws-b1-col-weesen`, `ws-b2-rec-single-track`, added to `STUDY_CONDITIONS` |
+| `frontend/src/app/core/demo/study-conditions.ts` | New legs `WS_WEESEN` and `WS_SINGLE_TRACK` (tempo level 2), the function `workshopCondition()`, `StudyCondition.door` and `isWorkshopCondition()`, the four conditions `ws-a1-rec-weesen`, `ws-a2-col-single-track`, `ws-b1-col-weesen`, `ws-b2-rec-single-track`, added to `STUDY_CONDITIONS` |
 | `frontend/src/app/core/demo/tour-briefings.ts` | New briefings `workshop-recommendation` (from `walensee-recommendation-trust-en`) and `workshop-colearning` (from `co-learning-cost-benefit-en`, seven steps, debrief up to the shift summary), each with an opening page and incident-neutral text; both added to `TOUR_BRIEFINGS` |
+| `frontend/src/app/app.component.ts`, `.html` | A fourth door "Workshop" (`welcomeDoor` gains `'workshop'`, `workshopConditions`), which lists the conditions with `door: 'workshop'`; `guidedConditions` leaves them out; a `#/experiment/<id>` link of such a condition opens that door. `welcomeDoor` starts as `null`: no door selected, Start disabled, summary "Choose how you want to start." |
+| `frontend/e2e/support/pages.ts`, `frontend/e2e/languages.spec.ts` | The page object opens the Introduction door before it picks a tour or looks for the prepared demos; the language test expects the neutral Start label first |
 | `frontend/src/app/core/demo/study-conditions.spec.ts` | The Schichtbilanz guard also allows the workshop's Recommendation runs to go without it; a new test pins the four ids, their modes and legs |
 | `frontend/public/i18n/{en,de,fr}.json` | `tours.ws-*.name` and `.description` (four conditions), `experimentLegs.wsWeesen` and `.wsSingleTrack` ("Walensee A", "Walensee B") |
 | `docs/README.md` | Index entries for this plan and the three workshop documents |
@@ -109,6 +111,27 @@ run, questionnaire, saved record.
 
 The condition ids, leg ids and briefing ids are stored in the records. They
 must not be renamed once data has been collected.
+
+### How this relates to Plan B
+
+The workshop runs use the mechanism Plan B introduced, not its content.
+
+| | Plan B (`plan-b-p01` … `p10`) | Workshop (`ws-*`) |
+|---|---|---|
+| Mechanism | guided condition with legs, briefing, enforced "Study logging", one record per run | the same |
+| Counterbalancing | one authored condition per participant, order fixed in the code | one authored condition per group and position |
+| Legs | tutorial, then four UC2 scenarios from `.pkl` files, locked | one leg per condition, the Walensee preset with one scripted disturbance |
+| Mode | Co-Learning only | Recommendation and Co-Learning |
+| Layout | `preset-plan-b`, the reduced study UI | the two tour layouts, unreduced |
+| Policy | pinned to `deadlock_avoidance` | pinned to `plan`, the scenario's premade plan, which the incidents were built on |
+| Questionnaire | the study's own final questionnaire, German | the built-in parts, English |
+| Schichtbilanz | none | none for Recommendation, kept for Co-Learning |
+| Participant | identified by the condition id | identified by the participant id |
+| Door | Experiments | Workshop |
+
+The pin sets the policy a run starts on. A recommendation the participant
+accepts can still switch it, as in the tour the Recommendation run is built
+from. The UI is not reduced, unlike Plan B.
 
 ### Why two conditions per participant, not one
 
@@ -127,8 +150,14 @@ With `<host>` as the workshop server:
 | A | `<host>/#/experiment/ws-a1-rec-weesen` | `<host>/#/experiment/ws-a2-col-single-track` |
 | B | `<host>/#/experiment/ws-b1-col-weesen` | `<host>/#/experiment/ws-b2-rec-single-track` |
 
-The link opens the start screen with the condition selected. The participant
-types the code and presses "Start experiment".
+The link opens the start screen with the **Workshop** door open and the run
+selected. The participant types the code and presses "Start experiment". The
+four runs are offered only in the Workshop door, not under "Experiments", so
+nobody picks a study condition by mistake. The link keeps the form
+`#/experiment/<id>`.
+
+The start screen opens with no door selected (before: "Introduction", whose
+tour list filled the screen). Start is disabled until a door is chosen.
 
 ## 5. Data collection
 

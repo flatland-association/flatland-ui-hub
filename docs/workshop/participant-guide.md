@@ -29,9 +29,9 @@ possible.**
 ### Run 1
 
 1. Open **link 1** on your card.
-2. On the start screen, check that the experiment named on your card is
-   selected (for example "Workshop A1"). Type your code (for example `A07`)
-   into **Participant ID**.
+2. The start screen opens with **Workshop** selected. Check that "Run" shows
+   the run named on your card (for example "Workshop A1"). Type your code
+   (for example `A07`) into **Participant ID**.
 3. Wait for the signal, then press **Start experiment**.
 4. Read the two pages, then press **Start scenario**. The simulation starts
    by itself.
@@ -65,7 +65,8 @@ different one.
 ### If something goes wrong
 
 - The page does not react: reload it. Your run continues.
-- You are in the wrong experiment: open the link again.
+- You are in the wrong run, or nothing is selected on the start screen: open
+  the link again, or choose **Workshop** and pick your run.
 - Anything else: raise your hand.
 
 ## Part 4 · Design: build your own experiment

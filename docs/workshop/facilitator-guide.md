@@ -5,7 +5,7 @@ For whoever runs the workshop. The design and its reasons are in
 the [participant guide](participant-guide.md) and, in Part 4, the
 [experiment design canvas](experiment-design-canvas.md).
 
-Slide deck (34 slides, with speaker notes): <https://claude.ai/artifact/BijGqFYQ9fsLzhkdCFn4fC>. The link is private
+Slide deck (37 slides, with speaker notes): <https://claude.ai/artifact/BijGqFYQ9fsLzhkdCFn4fC>. The link is private
 until its owner shares it. Slides with text in square brackets need filling in
 (date, names, consent text, GridOps demo, results).
 
@@ -69,6 +69,10 @@ It must answer `"sinkEnabled": true`.
 | A | `<host>/#/experiment/ws-a1-rec-weesen` | `<host>/#/experiment/ws-a2-col-single-track` |
 | B | `<host>/#/experiment/ws-b1-col-weesen` | `<host>/#/experiment/ws-b2-rec-single-track` |
 
+A link opens the start screen with the **Workshop** door open and the run
+selected. Without a link, the four runs are under "Workshop" on the start
+screen. They are not listed under "Experiments".
+
 Group A starts with the supportive AI, group B with the co-learning AI.
 Run 1 is the breakdown in Weesen for everyone, run 2 the stop inside the
 single-track section.
@@ -81,10 +85,19 @@ Plan a break of ten minutes after Part 3. It is not in the 165 minutes.
 
 | Min | What | Slides |
 |---|---|---|
-| 0 to 3 | Welcome, goals, agenda | 1 to 3 |
-| 3 to 8 | Why supportive AI: support, not replacement. Critical infrastructure | 4 to 5 |
-| 8 to 12 | Co-learning: human and AI adapt to each other. The three interaction modes | 6 to 7 |
-| 12 to 15 | The two environments. What you will do today | 8 to 9 |
+| 0 to 2 | Welcome, goals, agenda | 1 to 3 |
+| 2 to 6 | The AI4REALNET concept: the most effective human-AI team. The control loop. The three control modes | 4 to 6 |
+| 6 to 9 | Why a recommendation alone is not enough: the four challenges and joint decision-making | 7 |
+| 9 to 13 | Co-learning: adaptation in both directions. From Kolb's learning phases to functions on the screen | 8 to 9 |
+| 13 to 15 | The two domains and environments. What you will do today | 10 to 11 |
+
+The theory slides follow the project's deliverables: D3.1 (chapters 1, 2 and
+6) for the concept, the control modes and co-learning, D4.1 for the
+evaluation objectives in Part 3. Each slide names its source in the footer.
+
+Eight slides in thirteen minutes is tight. If time is short, skip the control
+loop (slide 5) and the Kolb table (slide 9); the speaker notes of the other
+slides carry the argument without them.
 
 Do not explain the hypotheses of the experiment yet. Participants should
 meet both concepts without knowing what we expect.
@@ -93,11 +106,11 @@ meet both concepts without knowing what we expect.
 
 | Min | What | Slides |
 |---|---|---|
-| 15 to 20 | Consent slide. Hand out the cards. Everyone opens link 1, types the code into "Participant ID". Do not start yet | 10 to 11 |
-| 20 to 35 | **Run 1.** "Start experiment", read the two pages, run, questionnaire. Floor support checks that every screen shows the right run | 12 |
-| 35 to 50 | **Run 2**, with link 2 and the same code | 12 |
-| 50 to 60 | GridOps with InteractiveAI: the same ideas in power grid operation (demo) | 13 |
-| 60 to 65 | In pairs: what differed between the two AIs? Two or three voices in the room | 14 |
+| 15 to 20 | Consent slide. Hand out the cards. Everyone opens link 1, types the code into "Participant ID". Do not start yet | 12 to 13 |
+| 20 to 35 | **Run 1.** "Start experiment", read the two pages, run, questionnaire. Floor support checks that every screen shows the right run | 14 |
+| 35 to 50 | **Run 2**, with link 2 and the same code | 14 |
+| 50 to 60 | GridOps with InteractiveAI: the same ideas in power grid operation (demo) | 15 |
+| 60 to 65 | In pairs: what differed between the two AIs? Two or three voices in the room | 16 |
 
 What to say before run 1:
 
@@ -113,7 +126,7 @@ What goes wrong, and what to do:
 
 | Problem | Fix |
 |---|---|
-| The start screen shows another experiment | Open the link again in a new tab, check the selected experiment by its name (e.g. "Workshop A1") |
+| The start screen shows another run, or no door is open | Open the link again in a new tab, or choose "Workshop" on the start screen and pick the run by its name (e.g. "Workshop A1") |
 | No code typed | It can be typed before run 2; note the session's start time and tell the data person |
 | The page hangs | Reload. The run resumes. If not, start again with the same code |
 | Somebody is done early | They wait for the room; run 2 starts together |
@@ -132,10 +145,10 @@ results slide.
 
 | Min | What | Slides |
 |---|---|---|
-| 65 to 72 | What you just answered: NASA-TLX, trust in automation, understanding. Why validated instruments | 15 to 19 |
-| 72 to 75 | What else was recorded: decisions, timing, delay, clicks | 20 |
-| 75 to 85 | The room's results. First ask: what do you expect? Then show the table | 21 |
-| 85 to 90 | What this experiment cannot show: small sample, novices, two layouts, one run each | 22 |
+| 65 to 72 | Why validated instruments, and the project's evaluation objectives (D4.1). What you just answered: NASA-TLX, trust in automation, understanding | 17 to 22 |
+| 72 to 75 | What else was recorded: decisions, timing, delay, clicks | 23 |
+| 75 to 85 | The room's results. First ask: what do you expect? Then show the table | 24 |
+| 85 to 90 | What this experiment cannot show: small sample, novices, two layouts, one run each | 25 |
 
 Questions for the discussion:
 
@@ -150,10 +163,10 @@ Questions for the discussion:
 
 | Min | What | Slides |
 |---|---|---|
-| 90 to 95 | From participant to designer. The canvas. What can be changed without code | 23 to 26 |
-| 95 to 125 | Groups of three or four fill in the canvas and build their experiment | 27 |
-| 125 to 135 | Pilot: one person of the neighbouring group runs it, the designers watch and take notes | 28 |
-| 135 to 145 | Three groups show theirs in two minutes each: question, what they changed, what the pilot showed | 28 |
+| 90 to 95 | From participant to designer. The canvas. What can be changed without code | 26 to 29 |
+| 95 to 125 | Groups of three or four fill in the canvas and build their experiment | 30 |
+| 125 to 135 | Pilot: one person of the neighbouring group runs it, the designers watch and take notes | 31 |
+| 135 to 145 | Three groups show theirs in two minutes each: question, what they changed, what the pilot showed | 31 |
 
 Steer the groups towards one question and one change. A group that changes
 mode, layout and scenario at once has nothing to compare.
@@ -177,14 +190,14 @@ Theory only, no hands-on.
 
 | Min | What | Slides |
 |---|---|---|
-| 145 to 150 | Sharing an experiment: a condition is a few lines, a layout is a JSON file | 29 to 30 |
-| 150 to 155 | Own widgets and own algorithms: a widget, a policy, a recommender | 31 |
-| 155 to 160 | Own scenarios, and contributing with AI coding tools | 32 |
+| 145 to 150 | Sharing an experiment: a condition is a few lines, a layout is a JSON file | 32 to 33 |
+| 150 to 155 | Own widgets and own algorithms: a widget, a policy, a recommender | 34 |
+| 155 to 160 | Own scenarios, and contributing with AI coding tools | 35 |
 
 ### Part 6 · Wrap-up (2:40 to 2:45)
 
-Three take-aways, where the material is, how to stay in touch (slides 33 to
-34). Save the records a last time before anyone closes the server.
+Three take-aways, where the material is, how to stay in touch (slides 36 to
+37). Save the records a last time before anyone closes the server.
 
 ## After the workshop
 
