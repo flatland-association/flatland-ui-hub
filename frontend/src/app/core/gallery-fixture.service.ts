@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 
+import { GALLERY_FIXTURE_SESSION_ID } from './gallery-fixture.interceptor';
 import { SessionStore } from './session.store';
 import type { CoLearningEntry } from './session.store';
 import {
@@ -113,7 +114,7 @@ export class GalleryFixtureService {
 
   private get _sessionInfo(): SessionInfo {
     return {
-      id: 'gallery-fixture-session',
+      id: GALLERY_FIXTURE_SESSION_ID,
       width: 10,
       height: 5,
       num_agents: 4,

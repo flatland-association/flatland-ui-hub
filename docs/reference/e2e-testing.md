@@ -38,12 +38,10 @@ All commands run in `frontend/`:
 | Open one trace | `npx playwright show-trace test-results/<test folder>/trace.zip` | |
 
 **Not every test is green today.** The tests of [Known bugs](#known-bugs)
-fail red, with their cause named in the message: bug 2 and the five
-Director setups of bug 7. A run "passes" when every failure is a known bug
+fail red, with their cause named in the message. A run "passes" when every failure is a known bug
 (see [Known bug or regression?](#known-bug-or-regression)). The times were
 measured with nothing else running; the Director tests set the pace (the
-corridor ones take about a minute each, and a bug-7 test can take up to
-2.6 min before it fails).
+corridor ones take about a minute each).
 
 `-g` takes a regular expression over the full test title, for example
 `-g "build · director · olten "`. Test titles are the setup names listed by
@@ -78,7 +76,7 @@ Each setup test checks, in this order (`e2e/support/setup-check.ts`):
    above that step plus every step the page itself requested from then on
    (`POST /session/<id>/step`, which is how the session's opening auto-advance
    steps). Only a step of the play loop can do that: "Loading…" disappears
-   between the opening steps ([known bug 8](#known-bugs)), so the counter alone could rise
+   between the opening steps (known bug 8, now fixed), so the counter alone could rise
    without play. In Director, the session must first have a committed plan
    (`GET /session/<id>/director`) whose source is not `unroutable`.
 4. **Clean:** no console errors, and no failed requests to `/session`,
@@ -315,13 +313,8 @@ filter them.
 
 | # | Symptom | Tests that fail | How to recognise it | Fix location |
 | --- | --- | --- | --- | --- |
-| 2 | The Widget Gallery seeds `SessionStore` with its fixture session `gallery-fixture-session`; the store then asks the real backend for it and gets 404, logged as a console error. | `hash-screens.spec.ts` › `#/widgets loads cleanly` | Console error `404` on `/session/gallery-fixture-session/…` | `frontend/src/app/core/`: answer requests for the fixture session in the browser (an HTTP interceptor). |
 | 3 | A forecast thread forks the live env in the middle of a step: intermittent HTTP 500 on `GET /session/<id>/hmi/contention-strategies` (`AssertionError` on `agent.current_configuration is not None`) and "Contentions forecast failed". | Intermittent, any setup. | `backend 500 on GET /session/<id>/hmi/contention-strategies: AssertionError …` | `backend/app/api/sessions.py`, `websockets.py`, `core/scenario_runner.py`: a per-env lock around steps and snapshots. |
-| 4 | A deleted session's forecasts (140–200 s each on Olten) and its play loop keep running and starve later tests. | Intermittent: later tests on the same worker time out, with no backend error. | Timeouts that disappear when the test runs alone. | `DELETE /session/<id>` in `backend/app/api/sessions.py`: cancel the session's work. |
-| 5 | Start pressed before `GET /session/scenario-presets` has answered: a tour or experiment on a preset network silently starts on the guided demo instead. | None: `WelcomePage.goto()` waits for the presets, which is the normal user path. | Only if that wait is removed: preset setups don't run on their network, with no backend error. | `resolveWelcomeSessionOpts()` in `frontend/src/app/app.component.ts`: wait for the presets, or keep Start disabled until they are loaded. |
-| 6 | The Director's first plan runs on the backend's event loop, so while it plans that backend answers no other request. Under full-suite load, PF-CH opening steps took 92–115 s while the measured env step took only 3 ms: policy reset/planning happens before that timer. | Intermittent: Director tests time out under load. | Director timeouts with no backend error; `/health` answers slowly. | `GoalDirectedPolicy.reset` in `backend/app/policies/goal_directed_policy.py` and `policies/registry.py`: plan on a worker thread. |
-| 7 | The Director plans nothing on the larger networks: `director_plan` raises (`52 trains exceeds MAX_TRAINS=16` on the Olten presets, `721 nodes exceeds MAX_NODES=224` on `ecml2026-scene1-level0`), `GoalDirectedPolicy._plan` swallows it, and the fallback finds no plan either, so the plan source is `unroutable` and every train holds. | `build.spec.ts` › `build · director · {olten, olten-dense, olten-disrupted, olten-partially-closed, ecml2026-scene1-level0} · default layout` | `Expected: not "unroutable"` with no backend error. Sometimes, with bug 8, `the Director commits a plan after start (… has none after 150 s …)`. | `GoalDirectedPolicy._plan()` in `backend/app/policies/goal_directed_policy.py`: a fallback where only the trains the planner could not route hold. |
-| 8 | The opening auto-advance (`SessionStore._autoAdvanceToOpeningState`) is not one stable state: every WebSocket `state` message clears "Loading…" between its steps, and its steps keep the policy from its start, so after a switch to Director they still run under the previous policy, even after play has started. | None alone: the "Runs" check works from the backend's play loop. Takes part in bug 7's second message. | See bug 7. | `frontend/src/app/core/session.store.ts`: the WebSocket handler's `loading.set(false)`, and the policy read once in `_autoAdvanceToOpeningState()`. |
+| 4 | A deleted session's in-flight forecasts (140–200 s each on Olten) keep running and starve later tests. The play loop is already stopped by `DELETE` (`play_manager.stop`). | Intermittent: later tests on the same worker time out, with no backend error. | Timeouts that disappear when the test runs alone. | `DELETE /session/<id>` in `backend/app/api/sessions.py`: cancel the session's running forecasts (a per-session cancel flag the forecast workers check). |
 | 9 | The generic E2E setup path does not match the guided-study controls: Plan-B hides mode tabs, and guided conditions do not expose the assumed participant/setup path. | Plan-B Build layout; Interview and Plan-B experiments with/without disturbances. | Hidden `mode-tab-co-learning` / `welcome-participant`, or no POST `/session` after Start. Representative Build, no-disturbance and all-disturbance failures reproduced on pristine `3e6a739`. | `frontend/e2e/support/pages.ts`, `frontend/src/app/core/demo/study-conditions.ts` and `frontend/src/app/core/layout/layout-presets.ts`: align the test path with the intended guided workflow without exposing restricted study controls. |
 | 10 | The three-modes tour Inspector disclosure opens without any decision row. Root cause remains unisolated. | `tours.spec.ts` › `three-modes-original · agent decision disclosures` | Missing `agent-inspector-decision-row-*`; also reproduced on pristine `3e6a739`. | `frontend/src/app/features/agent-inspector/`, the store's opening state and tour/test setup. |
 | 11 | The Olten live-tour play loop can pause at the same step the harness captures as its playback baseline. Cause remains unisolated; the pristine-base check passed once. | `tours.spec.ts` › `tour olten-zug-weg · live · seed 4242` | No increase beyond step 4 or 5 after Play confirmation, while backend logs show prior play steps and the toolbar has returned to Play. Reproduced in the broad run and focused feature-branch check. | Tour milestone/auto-pause handling, `SessionStore` opening advance, and `frontend/e2e/support/pages.ts` playback-baseline capture; investigate before release. |
@@ -332,6 +325,11 @@ filter them.
 | # | Bug | Fix |
 | --- | --- | --- |
 | 1 | Concurrent sessions shared Flatland's default observation builder (`GlobalObsForRailEnv()`, a default argument built once), so stepping an older session after a newer, smaller one was created gave HTTP 500 `IndexError` on `POST /session/<id>/step`. Scene presets and every forecast fork (`RailEnvPersister.load_new`) shared it too. | Every env gets its own builder: `StationAwareRailEnv.__init__` and `own_observation_builder` in `backend/app/core/station_aware_env.py`, applied after each `load_new`. Test: `backend/tests/test_observation_builder.py`. Issue #115. |
+| 2 | The Widget Gallery's fixture session `gallery-fixture-session` made the store ask the real backend, which answered 404 (console error). | `galleryFixtureInterceptor` (`frontend/src/app/core/gallery-fixture.interceptor.ts`) answers requests for the fixture session in the browser. Issue #116. |
+| 5 | Start pressed before the scenario presets answered silently started the guided demo. | Start waits until the presets have loaded. Commit `0c99ba91`. Issue #119. |
+| 6 | The Director's first plan ran on the backend's event loop and blocked every request. | Planned on a worker thread, also in `/step`. Commits `dd2eda5e`, `8952b432`. Issue #120. |
+| 7 | The Director planned nothing on large networks, so every train held. | Only the trains the planner cannot route hold. Commit `d325f0ae`. Issue #121. |
+| 8 | The opening auto-advance flipped Loading and kept the previous policy. | One loading state, follows the current policy. Commit `28201d65`. Issue #122. |
 
 ## Known limits
 
