@@ -307,6 +307,31 @@ def install_trainrun_plan(env: RailEnv, trainruns: TrainrunDict) -> None:
     env._trainrun_plan = trainruns
 
 
+def accept_trainrun_plan(env: RailEnv, trainruns: TrainrunDict) -> None:
+    """The operator took an AI plan: install it and remember that it was accepted.
+
+    An accepted plan is the course from now on, whatever dispatching policy the
+    client keeps sending (a study condition pins one for every step and play);
+    that policy then only drives trains off the plan. See `plan_accepted` and
+    docs/plans/uc2-rl-proposal-agent.md.
+    """
+    install_trainrun_plan(env, trainruns)
+    env._accepted_trainrun_plan = True
+
+
+def plan_accepted(env: RailEnv) -> bool:
+    return bool(getattr(env, "_accepted_trainrun_plan", False)) and bool(trainruns_from_env(env))
+
+
+def revert_accepted_plan(env: RailEnv) -> None:
+    """Back to the plan the session started with (reset, or a deliberate policy switch)."""
+    if not getattr(env, "_accepted_trainrun_plan", False):
+        return
+    env._trainrun_plan = getattr(env, "_baseline_trainrun_plan", None)
+    env._baseline_trainrun_plan = None
+    env._accepted_trainrun_plan = False
+
+
 def planned_arrival_steps(env: RailEnv) -> Dict[int, int]:
     """Step at which each planned train is DONE when it runs to the timetable.
 
@@ -319,6 +344,9 @@ def planned_arrival_steps(env: RailEnv) -> Dict[int, int]:
 
 __all__ = [
     "PlanPolicy",
+    "accept_trainrun_plan",
+    "plan_accepted",
+    "revert_accepted_plan",
     "baseline_trainruns_from_env",
     "install_trainrun_plan",
     "plan_branch_factory",

@@ -50,6 +50,10 @@ class ProposalAgent(ABC):
     #: one-line description
     description: str = ""
 
+    def available(self, env: RailEnv) -> bool:
+        """Whether this agent can propose for `env` (e.g. a model bound to its fixtures)."""
+        return True
+
     @abstractmethod
     def propose(self, env: RailEnv) -> List[Proposal]:
         """Distinct proposals for the current state, in no particular order.

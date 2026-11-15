@@ -47,6 +47,11 @@ export interface StudyCondition {
   legSurveyParts?: readonly string[];
   /** The policy every leg runs, set at each leg's start; absent = the session's own. */
   policy?: PolicyName;
+  /** The agent behind the KI column of Plan / KI / Mensch (backend `app.core.proposal_agents`),
+   *  e.g. `uc2_rl` for the trained UC2 model; absent = the backend default (`pp_replan`).
+   *  Legs the agent cannot serve (another infrastructure) fall back to the default
+   *  (docs/plans/uc2-rl-proposal-agent.md). */
+  proposalAgent?: string;
   /** The Schichtbilanz after the last leg; `false` = straight to the final
    *  questionnaire (#174, docs/plans/remove-shift-summary.md). Absent = shown.
    *  Only for a guided condition. */
@@ -188,6 +193,8 @@ const PLAN_B_CONDITIONS: StudyCondition[] = PLAN_B_ORDERS.map((order, i) => {
     studyLogging: true,
     briefingIds: { de: 'plan-b', en: 'plan-b' },
     policy: 'deadlock_avoidance',
+    // The AI's suggestions come from the trained UC2 model (docs/plans/uc2-rl-proposal-agent.md).
+    proposalAgent: 'uc2_rl',
     shiftSummary: false,
     // The study's own final questionnaire (plan §3.10), once, after the last scenario.
     surveyParts: [PLAN_B_FINAL_PART],
@@ -229,6 +236,8 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     studyLogging: true,
     briefingIds: { de: 'colearning-experiment-2x', en: 'colearning-experiment-2x' },
     policy: 'deadlock_avoidance',
+    // The AI's suggestions come from the trained UC2 model (docs/plans/uc2-rl-proposal-agent.md).
+    proposalAgent: 'uc2_rl',
     shiftSummary: false,
     legSurveyParts: ['nasa-tlx'],
     surveyParts: DEFAULT_SURVEY_PARTS,
