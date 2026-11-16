@@ -798,7 +798,9 @@
     <button class="nav-btn nav-right" (click)="panStep(-1, 0)" [attr.title]="'map.panRight' | transloco">→</button>
     <button class="nav-btn nav-down" (click)="panStep(0, -1)" [attr.title]="'map.panDown' | transloco">↓</button>
   </div>
+  }
 
+  @if (!uiConfig.isHidden('control.mapZoom')) {
   <!-- Zoom controls -->
   <div class="map-zoom-overlay">
     <button class="nav-btn" (click)="zoomIn()" [attr.title]="'map.zoomIn' | transloco">+</button>
@@ -807,6 +809,7 @@
   </div>
   }
 
+  @if (!uiConfig.isHidden('control.mapOpacity')) {
   <!-- Rail opacity control -->
   <div class="map-opacity-overlay">
     <label class="opacity-label" [attr.title]="'map.opacity' | transloco">
@@ -820,6 +823,7 @@
       <span class="opacity-value">{{ opacityPercent() }}%</span>
     </label>
   </div>
+  }
 } @else {
   <div class="welcome-card">
     <sbb-title level="2" visual-level="3">{{ 'map.welcomeTitle' | transloco }}</sbb-title>

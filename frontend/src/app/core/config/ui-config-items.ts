@@ -22,12 +22,16 @@ const WIDGET_IDS: UiConfigItem[] = WIDGET_CATALOG.filter((w) => w.type).map((w) 
 }));
 
 /** Chrome elements that are not panels, so nothing registers them today.
- *  One id per region, not per element inside it: `control.mapNavigation`
- *  already covers two overlays, and the same grain applies to the mode tab
- *  strip and the menu's area links. */
+ *  One id per region, not per element inside it: the same grain applies to
+ *  the mode tab strip and the menu's area links. The map's zoom buttons and
+ *  its rail-opacity slider got ids of their own, because Plan B shows zoom
+ *  without pan arrows and drops the slider (docs/plans/plan-b-small-changes.md,
+ *  item 2). */
 const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.contrast', label: 'Colours / high-contrast setting (Session Settings)', supports: ['hidden'] },
-  { id: 'control.mapNavigation', label: 'Map pan + zoom control overlay', supports: ['hidden'] },
+  { id: 'control.mapNavigation', label: 'Map pan control overlay (arrows, reset)', supports: ['hidden'] },
+  { id: 'control.mapZoom', label: 'Map zoom buttons (+ / − / %)', supports: ['hidden'] },
+  { id: 'control.mapOpacity', label: 'Map rail-tile opacity slider', supports: ['hidden'] },
   { id: 'control.endShift', label: 'End shift button', supports: ['hidden'] },
   // Only with briefings that set `autoStart`: without Play nothing else starts
   // the run (docs/plans/toolbar-under-guide.md §1.1; checked for conditions in
