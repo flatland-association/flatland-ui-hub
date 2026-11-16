@@ -172,7 +172,7 @@
   "stations": [
     {
       "id": 1,
-      "name": "A",
+      "name": "Bahnhof A",
       "city_position": [
         2,
         3
@@ -180,7 +180,7 @@
       "city_orientation": 1,
       "stopping_points": [
         {
-          "name": "A.0",
+          "name": "Bahnhof A.0",
           "node": [
             2,
             3
@@ -203,10 +203,10 @@
       ],
       "gates": {
         "E": {
-          "name": "A.E",
+          "name": "Bahnhof A.E",
           "pins": {
             "0": {
-              "name": "A.E.0",
+              "name": "Bahnhof A.E.0",
               "node": [
                 2,
                 4
@@ -215,10 +215,10 @@
           }
         },
         "W": {
-          "name": "A.W",
+          "name": "Bahnhof A.W",
           "pins": {
             "0": {
-              "name": "A.W.0",
+              "name": "Bahnhof A.W.0",
               "node": [
                 2,
                 2
@@ -236,7 +236,7 @@
     },
     {
       "id": 2,
-      "name": "B",
+      "name": "Bahnhof B",
       "city_position": [
         2,
         21
@@ -244,7 +244,7 @@
       "city_orientation": 1,
       "stopping_points": [
         {
-          "name": "B.0",
+          "name": "Bahnhof B.0",
           "node": [
             2,
             21
@@ -267,10 +267,10 @@
       ],
       "gates": {
         "E": {
-          "name": "B.E",
+          "name": "Bahnhof B.E",
           "pins": {
             "0": {
-              "name": "B.E.0",
+              "name": "Bahnhof B.E.0",
               "node": [
                 2,
                 22
@@ -279,10 +279,10 @@
           }
         },
         "W": {
-          "name": "B.W",
+          "name": "Bahnhof B.W",
           "pins": {
             "0": {
-              "name": "B.W.0",
+              "name": "Bahnhof B.W.0",
               "node": [
                 2,
                 20
