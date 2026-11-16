@@ -599,7 +599,7 @@
   "train": {
     "name": "Zug {{n}}",
     "slackLeft": "noch {{n}}",
-    "late": "+{{n}} spät",
+    "late": "+{{n}} Schritte spät",
     "now": "jetzt",
     "inSteps": "in {{n}}",
     "arr": "Ank.",
@@ -731,7 +731,7 @@
     },
     "status": {
       "arrived": "angekommen",
-      "depIn": "ab in {{n}}",
+      "depIn": "ab in {{n}} Schritten",
       "ready": "bereit"
     }
   },
@@ -1658,7 +1658,7 @@
     "holdMark": "Zug {{train}} wartet hier {{n}} Schritt(e) statt umzufahren",
     "agentTitle": "{{name}} (Zug {{train}}): {{problems}}",
     "released": "{{name}} — als {{rank}}. der Massnahme freigegeben",
-    "predicted": " · {{delta}} min erwartet",
+    "predicted": " · {{delta}} Schritte erwartet",
     "clickToPin": "Zelle anklicken zum Fixieren",
     "optionsAria": "Optionen für {{name}}",
     "compareInPanel": "{{name}} · im Panel vergleichen",
@@ -1823,6 +1823,8 @@
     "wholeLine": "Ganze Strecke",
     "fitTraffic": "Auf Verkehr zoomen",
     "singleTrack": "Einspur",
+    "timeUnit": "Schritt",
+    "delaySteps": "{{n}} Schritte",
     "kind": {
       "blocked": "Behinderung",
       "swap_attempt": "Gegenfahrt",
@@ -1831,7 +1833,7 @@
     "conflicts": {
       "label": "Prognostizierte Konflikte",
       "none": "Keine Konflikte prognostiziert",
-      "inMin": "in {{min}} min",
+      "inMin": "in {{min}} Schritten",
       "now": "jetzt",
       "unnamed": "Unbenannter Abschnitt",
       "offView": "ausserhalb dieser Ansicht",

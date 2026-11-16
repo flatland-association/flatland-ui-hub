@@ -57,9 +57,11 @@ export class CurrentDelayService {
     return out;
   });
 
-  /** "+5′" for a late train, '' when on time or unknown — the label suffix. */
+  /** "+5" (steps) for a late train, '' when on time or unknown — the label
+   *  suffix. No unit sign: times are steps, and the ZWL says so at its axis
+   *  (docs/plans/plan-b-small-changes.md, item 8). */
   label(handle: number): string {
     const m = this.minutes().get(handle);
-    return m != null && m > 0 ? `+${m}′` : '';
+    return m != null && m > 0 ? `+${m}` : '';
   }
 }

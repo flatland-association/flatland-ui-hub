@@ -599,7 +599,7 @@
   "train": {
     "name": "Train {{n}}",
     "slackLeft": "{{n}} left",
-    "late": "+{{n}} late",
+    "late": "+{{n}} steps late",
     "now": "now",
     "inSteps": "in {{n}}",
     "arr": "Arr.",
@@ -731,7 +731,7 @@
     },
     "status": {
       "arrived": "arrived",
-      "depIn": "dep in {{n}}",
+      "depIn": "dep in {{n}} steps",
       "ready": "ready"
     }
   },
@@ -1658,7 +1658,7 @@
     "holdMark": "Train {{train}} waits here {{n}} step(s) instead of taking another route",
     "agentTitle": "{{name}} (train {{train}}): {{problems}}",
     "released": "{{name}} — released {{rank}}. in the action",
-    "predicted": " · {{delta}} min predicted",
+    "predicted": " · {{delta}} steps predicted",
     "clickToPin": "Click the cell to pin",
     "optionsAria": "Options for {{name}}",
     "compareInPanel": "{{name}} · compare in the panel",
@@ -1823,6 +1823,8 @@
     "wholeLine": "Whole line",
     "fitTraffic": "Fit to traffic",
     "singleTrack": "single track",
+    "timeUnit": "Step",
+    "delaySteps": "{{n}} steps",
     "kind": {
       "blocked": "Blocking",
       "swap_attempt": "Head-on",
@@ -1831,7 +1833,7 @@
     "conflicts": {
       "label": "Forecast conflicts",
       "none": "No conflicts forecast",
-      "inMin": "in {{min}} min",
+      "inMin": "in {{min}} steps",
       "now": "now",
       "unnamed": "Unnamed section",
       "offView": "outside this view",

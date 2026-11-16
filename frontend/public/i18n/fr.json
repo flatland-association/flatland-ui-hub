@@ -599,7 +599,7 @@
   "train": {
     "name": "Train {{n}}",
     "slackLeft": "reste {{n}}",
-    "late": "+{{n}} retard",
+    "late": "+{{n}} pas de retard",
     "now": "maintenant",
     "inSteps": "dans {{n}}",
     "arr": "Arr.",
@@ -731,7 +731,7 @@
     },
     "status": {
       "arrived": "arrivé",
-      "depIn": "départ dans {{n}}",
+      "depIn": "départ dans {{n}} pas",
       "ready": "prêt"
     }
   },
@@ -1658,7 +1658,7 @@
     "holdMark": "Le train {{train}} attend ici {{n}} pas au lieu d’être détourné",
     "agentTitle": "{{name}} (train {{train}}) : {{problems}}",
     "released": "{{name}} — libéré en position {{rank}} de l’action",
-    "predicted": " · {{delta}} min prévues",
+    "predicted": " · {{delta}} pas prévus",
     "clickToPin": "Cliquez sur la cellule pour l’épingler",
     "optionsAria": "Options pour {{name}}",
     "compareInPanel": "{{name}} · comparer dans le panneau",
@@ -1823,6 +1823,8 @@
     "wholeLine": "Ligne entière",
     "fitTraffic": "Ajuster au trafic",
     "singleTrack": "voie unique",
+    "timeUnit": "Pas",
+    "delaySteps": "{{n}} pas",
     "kind": {
       "blocked": "Blocage",
       "swap_attempt": "Face-à-face",
@@ -1831,7 +1833,7 @@
     "conflicts": {
       "label": "Conflits prévus",
       "none": "Aucun conflit prévu",
-      "inMin": "dans {{min}} min",
+      "inMin": "dans {{min}} pas",
       "now": "maintenant",
       "unnamed": "Section sans nom",
       "offView": "hors de cette vue",

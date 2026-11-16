@@ -24,7 +24,8 @@ const MIN_FUTURE_STEPS = 20;
 interface Gutters { left: number; right: number; top: number; bottom: number }
 /** Time down, places across (SBB): minutes on the left; the slanted place
  *  names sit in a separate sticky header (`HEADER_H`) above the scrolling plot. */
-const GUTTERS_TIME_VERTICAL: Gutters = { left: 44, right: 24, top: 10, bottom: 10 };
+// top: room for the time unit above the axis (docs/plans/plan-b-small-changes.md, item 8).
+const GUTTERS_TIME_VERTICAL: Gutters = { left: 44, right: 24, top: 22, bottom: 10 };
 const HEADER_H = 84;
 /** With time vertical the plot keeps at least this much time axis and scrolls
  *  rather than squeezing 100 steps into a short panel. */
@@ -69,7 +70,7 @@ interface TrainLine {
   /** The timetable (Soll), empty without a plan. */
   planD: string;
   labelX: number;
-  /** Current delay suffix, e.g. "+5′"; '' when on time. */
+  /** Current delay suffix, e.g. "+5" (steps); '' when on time. */
   delay: string;
   labelY: number;
   labelAnchor: 'start' | 'end';
@@ -571,10 +572,22 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
         lx: tv ? this.plotX0() - 6 : pos,
         ly: tv ? pos + 3 : this.plotY0() + this.plotH() + 16,
         anchor: tv ? 'end' : 'middle',
-        label: `${s * MINUTES_PER_STEP}′`,
+        label: String(s * MINUTES_PER_STEP),
       });
     }
     return out;
+  });
+
+  /** The time axis's unit, written once: above the tick labels when time runs
+   *  down, left of the tick row when it runs across. Times are steps
+   *  (docs/plans/plan-b-small-changes.md, item 8). */
+  readonly timeUnitLabel = computed(() => {
+    const tv = this.timeVertical();
+    return {
+      x: this.plotX0() - 6,
+      y: tv ? this.plotY0() - 8 : this.plotY0() + this.plotH() + 16,
+      text: this.i18n.t('zwd.timeUnit'),
+    };
   });
 
   readonly nowLine = computed(() => {
@@ -700,8 +713,8 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
           x,
           y,
           color: this.colors.getColorSolid(d.handle),
-          label: `${deltaMin > 0 ? '+' : '−'}${Math.abs(deltaMin)}′`,
-          title: `${this.identity.nameFor(d.handle)} · ${place} · ${delayMin > 0 ? '+' : ''}${delayMin}′`,
+          label: `${deltaMin > 0 ? '+' : '−'}${Math.abs(deltaMin)}`,
+          title: `${this.identity.nameFor(d.handle)} · ${place} · ${this.i18n.t('zwd.delaySteps', { n: `${delayMin > 0 ? '+' : ''}${delayMin}` })}`,
         };
       });
   });

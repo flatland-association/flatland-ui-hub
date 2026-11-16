@@ -113,6 +113,9 @@
           <line class="zwd__tgrid" [attr.x1]="t.x1" [attr.x2]="t.x2" [attr.y1]="t.y1" [attr.y2]="t.y2"></line>
           <text class="zwd__time" [attr.x]="t.lx" [attr.y]="t.ly" [attr.text-anchor]="t.anchor">{{ t.label }}</text>
         }
+        @if (timeUnitLabel(); as u) {
+          <text class="zwd__time zwd__time-unit" [attr.x]="u.x" [attr.y]="u.y" text-anchor="end">{{ u.text }}</text>
+        }
 
         <!-- contention ribbons (under the lines, so the trains stay readable) -->
         @for (b of placedBands(); track b.key) {
