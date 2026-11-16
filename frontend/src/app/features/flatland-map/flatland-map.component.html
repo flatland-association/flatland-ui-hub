@@ -702,6 +702,9 @@
       [style.left.%]="t.left"
       [style.top.%]="t.top">
       <span class="map-train-options__name">{{ 'map.compareInPanel' | transloco: { name: t.name } }}</span>
+      <button type="button" class="map-train-options__close" data-log="map.closeTrainOptions"
+              [attr.aria-label]="'map.closeTrainOptions' | transloco" [title]="'map.closeTrainOptions' | transloco"
+              (click)="closeTrainOptions(t.handle); $event.stopPropagation()">×</button>
       @for (c of trainOptionChoices; track c.option) {
         <button
           type="button"
