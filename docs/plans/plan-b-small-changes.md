@@ -1,6 +1,7 @@
 # Plan B: small changes to the working screen
 
-Status: plan, 16 November 2026. Target: `main`. One PR, one commit per item.
+Status: implemented, 16 November 2026. Target: `main`. One PR, one commit per item.
+Screenshots (uc2-1 leg of `plan-b-uc2`) in `plan-b-small-changes/`.
 
 Ten small changes to the Plan B working screen (`preset-plan-b`, co-learning),
 plus the tutorial's new station names. Decisions taken with the study lead are
