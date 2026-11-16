@@ -102,6 +102,11 @@ export interface SessionHeader {
    *  (#146's `UiConfigService`), so a missing click on a hidden control reads
    *  as "not there", not "not used"; changes are `ui_state {key: 'uiRestrictions'}` (Q29). */
   uiRestrictions?: UiRestrictions;
+  /** The order the reflection asked its guided questions in, from the
+   *  deployment's `ui-config.json` or the default. Absent in records made
+   *  before it existed, whose order was drawn per decision
+   *  (docs/plans/reflection-question-order.md). */
+  reflectionQuestionOrder?: string[];
   /** Play tempo level (1-5) at session start; changes are `speed_change`
    *  context events. Absent in records made before it existed
    *  (docs/plans/toolbar-under-guide.md D13). */

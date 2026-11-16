@@ -200,6 +200,15 @@ one is a panel, and the participant works on while it waits. It is
 working screen is the last `session` entry before it, and a click's `panel`
 says where it went. See `docs/plans/reflection-inline.md` D17.
 
+**The order of a reflection's questions.** After «Welche Faktoren waren
+wichtig?», the reflection asks its guided questions in one order for the
+whole installation: `gut`, `missing`, `tradeoff` by default, or the order
+`ui-config.json` sets, e.g. `"reflectionQuestionOrder": ["missing", "gut",
+"tradeoff"]` (questions not listed follow in the default order). The header's
+`reflectionQuestionOrder` names the order in effect. Records made before it
+existed have no such field: there the order was drawn per decision. See
+`docs/plans/reflection-question-order.md`.
+
 **Between sessions.** A record keeps receiving these events after its
 session ended, until the next session starts. The questionnaire after
 leg 1 is therefore in leg 1's record, after its `endedAt`. Each new record

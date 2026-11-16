@@ -543,6 +543,7 @@ export class InteractionLogService {
       backendVersion: this.backendVersion(),
       operatorId: this.operatorModel.operatorId(),
       uiRestrictions: this.uiRestrictions(),
+      reflectionQuestionOrder: [...this.uiConfig.reflectionQuestionOrder()],
       ...(typeof window !== 'undefined'
         ? { screen: { width: window.innerWidth, height: window.innerHeight, dpr: window.devicePixelRatio } }
         : {}),
