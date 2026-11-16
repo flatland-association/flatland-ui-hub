@@ -1797,7 +1797,7 @@
   "reflectionPrompt": {
     "title": "Pourquoi cette décision ?",
     "optional": "facultatif, quelques mots",
-    "ruleHint": "Comme règle : l’IA en tiendra compte dans des situations semblables. Seulement cette fois : elle garde votre raison mais n’en tire rien.",
+    "ruleHint": "Comme règle : l’IA en tiendra compte dans des situations semblables.",
     "q": {
       "factors": "Quels facteurs ont compté ?",
       "gut": "Une intuition a-t-elle joué un rôle ?",

@@ -158,12 +158,22 @@ describe('reflection-prompt: unsent answers', () => {
     expectTyped(again.componentInstance);
   });
 
+  /** docs/plans/plan-b-small-changes.md, item 7: no "Nur diesmal", and fixed
+   *  click ids so the log doesn't read the buttons by position. */
+  it('offers "as a rule" and "no" only, each with its click id', () => {
+    const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    fixture.detectChanges();
+    const ids = [...fixture.nativeElement.querySelectorAll('.rp-actions button')]
+      .map((b: HTMLElement) => b.getAttribute('data-log'));
+    expect(ids).toEqual(['rationale.yes', 'rationale.no']);
+  });
+
   it('drops them once sent', () => {
     const first = store.openReflections()[0].decisionSeq;
     const fixture = TestBed.createComponent(ReflectionPromptComponent);
     fixture.detectChanges();
     type(fixture);
-    fixture.componentInstance.submit('once');
+    fixture.componentInstance.submit('yes');
     fixture.detectChanges();
     expect(store.reflectionDraft(first)).toBeNull();
     expect(fixture.componentInstance.selectedFactors().size).withContext('the next decision starts empty').toBe(0);

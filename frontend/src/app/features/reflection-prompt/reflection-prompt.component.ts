@@ -168,7 +168,7 @@ export class ReflectionPromptComponent {
     return this.selectedFactors().size > 0;
   }
 
-  submit(response: 'yes' | 'once' | 'no'): void {
+  submit(response: 'yes' | 'no'): void {
     if (!this.pending()) return;
     if (response !== 'no' && !this.canConfirm()) return;
     const ids = [...this.selectedFactors()];

@@ -1797,7 +1797,7 @@
   "reflectionPrompt": {
     "title": "Warum diese Entscheidung?",
     "optional": "freiwillig, ein paar Worte",
-    "ruleHint": "Als Regel: Die KI berücksichtigt das künftig in ähnlichen Lagen. Nur diesmal: Sie merkt sich deinen Grund, lernt aber nichts daraus.",
+    "ruleHint": "Als Regel: Die KI berücksichtigt das künftig in ähnlichen Lagen.",
     "q": {
       "factors": "Welche Faktoren waren wichtig?",
       "gut": "Hat ein Bauchgefühl mitgespielt?",

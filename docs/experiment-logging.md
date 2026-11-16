@@ -572,9 +572,11 @@ studies: a control whose meaning changes gets a new one.
 | `proposals.takeAi` | `features/proposal-compare/proposal-compare.component.html` |
 | `proposals.takeHuman` | `features/proposal-compare/proposal-compare.component.html` |
 | `rationale.no` | `features/rationale-capture/rationale-capture.component.html` |
+| `rationale.no` | `features/reflection-prompt/reflection-prompt.component.html` |
 | `rationale.once` | `features/rationale-capture/rationale-capture.component.html` |
 | `rationale.once` | `features/strategy-reflection/strategy-reflection.component.html` |
 | `rationale.yes` | `features/rationale-capture/rationale-capture.component.html` |
+| `rationale.yes` | `features/reflection-prompt/reflection-prompt.component.html` |
 | `rec.accept` | `features/recommendations-classic/recommendations-classic.component.html` |
 | `rec.accept` | `features/recommendations-panel/recommendations-panel.component.html` |
 | `rec.reject` | `features/recommendations-classic/recommendations-classic.component.html` |

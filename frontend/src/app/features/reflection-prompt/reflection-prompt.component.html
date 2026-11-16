@@ -58,9 +58,11 @@
     </div>
 
     <div class="rp-actions">
-      <button type="button" class="rp-btn rp-btn--yes" [disabled]="!canConfirm()" (click)="submit('yes')">{{ 'rationale.yes' | transloco }}</button>
-      <button type="button" class="rp-btn" [disabled]="!canConfirm()" (click)="submit('once')">{{ 'rationale.once' | transloco }}</button>
-      <button type="button" class="rp-btn" (click)="submit('no')">{{ 'rationale.no' | transloco }}</button>
+      <!-- No "Nur diesmal" here (docs/plans/plan-b-small-changes.md, item 7). The
+           ids keep the click log readable: by position, "Nein" would now be the
+           button that used to be "Nur diesmal". -->
+      <button type="button" class="rp-btn rp-btn--yes" data-log="rationale.yes" [disabled]="!canConfirm()" (click)="submit('yes')">{{ 'rationale.yes' | transloco }}</button>
+      <button type="button" class="rp-btn" data-log="rationale.no" (click)="submit('no')">{{ 'rationale.no' | transloco }}</button>
     </div>
     <p class="rp-rule">{{ 'reflectionPrompt.ruleHint' | transloco }}</p>
   </div>
