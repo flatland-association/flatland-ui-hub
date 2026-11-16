@@ -23,7 +23,7 @@
           }
         </div>
         @if (card.imageUrl) {
-          <img class="intro-scenario__image" [src]="card.imageUrl" [alt]="tour.legNamesHidden() ? '' : card.title" />
+          <img class="intro-scenario__image" [src]="card.imageUrl" [alt]="tour.legNamesHidden() ? (replayStep() ?? run.currentLegLabel()) : card.title" />
         }
       </div>
       @if (card.videoUrl) {
