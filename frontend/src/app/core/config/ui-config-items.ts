@@ -37,6 +37,10 @@ const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.sessionInfo', label: 'Session status line ("Loaded scenario preset: …")', supports: ['hidden'] },
   { id: 'control.studyLogging', label: '"Study logging" switch (Session Settings)', supports: ['hidden'] },
   { id: 'control.menuAreas', label: 'Menu "Bereiche" links (Layout Designer, galleries, Contribute)', supports: ['hidden'] },
+  // Not an element but its text: the scenarios stay, numbered "Szenario k/N"
+  // (#198, docs/plans/hide-scenario-bar.md §4.3). The footer and the intro
+  // card keep the names; covering them would be an id of its own.
+  { id: 'control.legNames', label: 'Scenario names in the experiment stepper and the finish button (numbered only)', supports: ['hidden'] },
 ];
 
 /** The two figures inside the `proposal-compare` ("Plan / KI / Mensch")

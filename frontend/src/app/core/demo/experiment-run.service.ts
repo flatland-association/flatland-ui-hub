@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { SessionStore } from '../session.store';
 import { LanguageService } from '../i18n/language.service';
+import { UiConfigService } from '../config/ui-config.service';
 import { InteractionLogService } from '../interaction-log/interaction-log.service';
 import {
   ExperimentQuestionnaire,
@@ -65,6 +66,7 @@ export class ExperimentRunService {
   private readonly guide = inject(TourGuideService);
   private readonly interactionLog = inject(InteractionLogService);
   private readonly i18n = inject(LanguageService);
+  private readonly uiConfig = inject(UiConfigService);
 
   readonly condition = signal<StudyCondition | null>(null);
   readonly phase = signal<ExperimentPhase>('running');
@@ -116,6 +118,20 @@ export class ExperimentRunService {
     return this.i18n.t('experimentRun.legLabel', { name: this.legName(leg), k: index + 1, n: this.legCount() });
   }
 
+  /**
+   * The leg as a step of the run's course (stepper, finish button): its label,
+   * or "Szenario k/N" where the condition hides the names (#198,
+   * docs/plans/hide-scenario-bar.md §4.3). Footer and intro card keep the name.
+   */
+  courseLabel(index: number): string {
+    return this.uiConfig.isHidden('control.legNames') ? this.unnamedLegLabel(index, this.legCount()) : this.legLabel(index);
+  }
+
+  /** "Szenario k/N" for the leg at `index` of `count`; a replay passes its recorded count. */
+  unnamedLegLabel(index: number, count: number): string {
+    return this.i18n.t('experimentRun.legUnnamed', { k: index + 1, n: count });
+  }
+
   readonly currentLegLabel = computed(() => {
     this.i18n.lang();
     return this.active() ? this.legLabel(this.legIndex()) : '';
@@ -136,7 +152,7 @@ export class ExperimentRunService {
         if (this.isLast()) {
           return this.i18n.t(this.hasShiftSummary() ? 'experimentRun.finish.toReview' : 'experimentRun.finish.toQuestionnaire');
         }
-        return this.i18n.t('experimentRun.finish.toLeg', { next: this.legLabel(this.legIndex() + 1) });
+        return this.i18n.t('experimentRun.finish.toLeg', { next: this.courseLabel(this.legIndex() + 1) });
       case 'legSurvey':
         return this.i18n.t('experimentRun.finish.toQuestionnaire');
       case 'review':

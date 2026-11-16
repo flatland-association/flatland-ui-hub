@@ -9,6 +9,7 @@ import { ExperimentRunRecord } from '../interaction-log/experiment-run-record';
 import { EXPERIMENT_RUN_STORAGE_KEY, ExperimentRunService, newExperimentRunId } from './experiment-run.service';
 import { StudyCondition, WAL_FOLLOWER, WAL_SINGLE_TRACK } from './study-conditions';
 import { TourContextService } from './tour-context.service';
+import { UiConfigService } from '../config/ui-config.service';
 
 const TWO_LEGS: StudyCondition = {
   id: 'spec-2x',
@@ -156,6 +157,21 @@ describe('ExperimentRunService', () => {
     expect(run.finishLabel()).toBe('On to the questionnaire');
 
     begin(run, store, TWO_LEGS);
+    expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
+  });
+
+  // #198, docs/plans/hide-scenario-bar.md §4.3: Plan B names the next scenario by number only.
+  it('names the next scenario by number where the condition hides the names', () => {
+    const c = { ...TWO_LEGS, legSurveyParts: undefined };
+    begin(run, store, c);
+    expect(run.finishLabel()).toBe(`Finish scenario → ${run.legLabel(1)}`);
+    expect(run.finishLabel()).not.toContain('Scenario 2/2');
+
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.legNames'] });
+    expect(run.finishLabel()).toBe('Finish scenario → Scenario 2/2');
+    // The footer and the intro card keep the name.
+    expect(run.currentLegLabel()).toBe(run.legLabel(0));
+    run.setPhase('legSurvey');
     expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
   });
 

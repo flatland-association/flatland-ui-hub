@@ -8,6 +8,7 @@ import { SessionStore } from '../../core/session.store';
 import { ReplayService } from '../../core/replay/replay.service';
 import type { SessionRecord } from '../../core/interaction-log/session-record';
 import { ExperimentProgressComponent } from './experiment-progress.component';
+import { UiConfigService } from '../../core/config/ui-config.service';
 
 const TWO_LEGS: StudyCondition = {
   id: 'spec-2x',
@@ -56,6 +57,16 @@ describe('ExperimentProgressComponent', () => {
     expect(s).not.toContain('Shift summary');
     expect(s.slice(-2)).toEqual(['Questionnaire', 'End']);
     expect(left()).not.toContain('shift summary');
+  });
+
+  it('numbers the scenarios without their names where the condition hides them (#198)', () => {
+    begin(TWO_LEGS);
+    expect(steps()).toContain(run.legLabel(0));
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.legNames'] });
+    const s = steps();
+    expect(s).toContain('Scenario 1/2');
+    expect(s).toContain('Scenario 2/2');
+    expect(s).not.toContain(run.legLabel(0));
   });
 
   it('in a replay, follows the recording: an old record has the step, a new one has not', () => {

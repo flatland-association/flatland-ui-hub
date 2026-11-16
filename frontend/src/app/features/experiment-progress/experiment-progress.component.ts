@@ -4,6 +4,7 @@ import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { TourGuideService } from '../../core/demo/tour-guide.service';
 import { ReplayService } from '../../core/replay/replay.service';
+import { UiConfigService } from '../../core/config/ui-config.service';
 
 type StepState = 'done' | 'current' | 'todo';
 
@@ -43,6 +44,7 @@ export class ExperimentProgressComponent {
   private readonly guide = inject(TourGuideService);
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
   private readonly replay = inject(ReplayService);
+  private readonly uiConfig = inject(UiConfigService);
 
   /** The run's phase, legs and leg on screen: live, or the replay's. */
   private readonly phase = computed(() => (this.replay.active() ? this.replay.experimentPhase() ?? 'running' : this.run.phase()));
@@ -111,9 +113,16 @@ export class ExperimentProgressComponent {
       const survey: StepState | null = !this.hasLegSurvey()
         ? null
         : pastLegs || i < at ? 'done' : i === at && phase === 'legSurvey' ? 'current' : 'todo';
-      return { label: this.replay.active() ? this.replay.legLabel(i) : this.run.legLabel(i), state, survey };
+      return { label: this.label(i), state, survey };
     });
   });
+
+  /** A leg's box: "⟨name⟩ (k/N)", or "Szenario k/N" where the condition hides
+   *  the names (#198, docs/plans/hide-scenario-bar.md §4.3). */
+  private label(i: number): string {
+    if (this.uiConfig.isHidden('control.legNames')) return this.run.unnamedLegLabel(i, this.legCount());
+    return this.replay.active() ? this.replay.legLabel(i) : this.run.legLabel(i);
+  }
 
   readonly reviewState = computed<StepState>(() => {
     const phase = this.phase();
