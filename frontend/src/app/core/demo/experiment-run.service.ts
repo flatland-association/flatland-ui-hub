@@ -105,10 +105,6 @@ export class ExperimentRunService {
     return this.phase() === 'legSurvey' ? c.legSurveyParts ?? null : c.surveyParts;
   });
 
-  legName(leg: ExperimentLeg): string {
-    return this.tourContext.legName(leg);
-  }
-
   /** "⟨name⟩ (k/N)" for the leg at `index`, or "Szenario k/N" where names are hidden (#198). */
   legLabel(index: number): string {
     const leg = this.legs()[index];
