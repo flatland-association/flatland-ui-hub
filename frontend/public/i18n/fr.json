@@ -2420,6 +2420,11 @@
       "toReview": "Terminer le scénario → bilan de service",
       "toFinalSurvey": "Vers le questionnaire"
     },
+    "finishConfirm": {
+      "title": "Terminer le scénario en cours ?",
+      "yes": "Oui",
+      "back": "Retour"
+    },
     "done": {
       "title": "Merci",
       "body": "L’expérience est terminée. Les données sont enregistrées.",

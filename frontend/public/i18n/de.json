@@ -2420,6 +2420,11 @@
       "toReview": "Szenario abschliessen → Schichtbilanz",
       "toFinalSurvey": "Weiter zum Fragebogen"
     },
+    "finishConfirm": {
+      "title": "Aktuelles Szenario abschliessen?",
+      "yes": "Ja",
+      "back": "Zurück"
+    },
     "done": {
       "title": "Danke",
       "body": "Das Experiment ist abgeschlossen. Die Daten sind gespeichert.",

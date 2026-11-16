@@ -2420,6 +2420,11 @@
       "toReview": "Finish scenario → shift summary",
       "toFinalSurvey": "On to the questionnaire"
     },
+    "finishConfirm": {
+      "title": "Finish the current scenario?",
+      "yes": "Yes",
+      "back": "Back"
+    },
     "done": {
       "title": "Thank you",
       "body": "The experiment is complete. Its record has been saved.",

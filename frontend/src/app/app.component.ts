@@ -1,5 +1,6 @@
 import '@sbb-esta/lyne-elements/toggle-check.js';
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
+import '@sbb-esta/lyne-elements/dialog.js';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { PLAY_SPEED_DEFAULT_LEVEL } from './core/play-speed';
 import { ToolbarComponent } from './features/toolbar/toolbar.component';
@@ -54,7 +55,7 @@ import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algori
 import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
 import { TOURS, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
-import { ExperimentLeg, STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './core/demo/study-conditions';
+import { ExperimentLeg, STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasFinishConfirm, hasShiftSummary, isGuidedCondition } from './core/demo/study-conditions';
 import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire, newExperimentRunId } from './core/demo/experiment-run.service';
 import { ExperimentProgressComponent } from './features/experiment-progress/experiment-progress.component';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -1432,6 +1433,43 @@ export class AppComponent implements OnInit {
   finishDemoMode() {
     // Every decision needs its reflection first, in a tour that asks for reasons.
     if (this.tourContext.refuseFinish()) return;
+    const dialog = this.finishConfirmDialog()?.nativeElement;
+    if (dialog && this.finishConfirmAsked()) {
+      // Asking costs no simulated time (docs/plans/confirm-finish-scenario.md §4.3).
+      this._resumeAfterFinishConfirm = this.store.playing();
+      if (this._resumeAfterFinishConfirm) this.store.pause();
+      dialog.open();
+      return;
+    }
+    this.finishDemoModeConfirmed();
+  }
+
+  /** The finish dialog (#180): asked before a hand-made finish ends a scenario. */
+  private readonly finishConfirmDialog = viewChild<ElementRef<HTMLElement & { open(): void }>>('finishConfirm');
+  private _resumeAfterFinishConfirm = false;
+
+  /** A run's leg in phase `running`, or a tour's mode, unless the condition or
+   *  tour turns the dialog off. "Weiter zum Fragebogen" ends nothing and doesn't ask. */
+  private finishConfirmAsked(): boolean {
+    const run = this.experimentRun;
+    if (run.active()) return run.phase() === 'running' && run.hasFinishConfirm();
+    return hasFinishConfirm(this.selectedTour());
+  }
+
+  /** "Ja" (result `confirm`) finishes; Zurück, Escape and the backdrop close without a result. */
+  onFinishConfirmClose(event: Event): void {
+    const confirmed = (event as Event & { result?: unknown }).result === 'confirm';
+    const resume = this._resumeAfterFinishConfirm;
+    this._resumeAfterFinishConfirm = false;
+    if (!confirmed && this.experimentRun.active()) this.experimentRun.finishConfirmBack();
+    // A run's leg stops anyway; a tour goes on as it did before the dialog.
+    if (resume && !(confirmed && this.experimentRun.active())) {
+      this.store.play(this.store.activePolicy() || this.store.defaultPolicy(), this.store.playSpeed());
+    }
+    if (confirmed) this.finishDemoModeConfirmed();
+  }
+
+  private finishDemoModeConfirmed(): void {
     if (this.experimentRun.active()) {
       this.advanceExperiment();
       return;

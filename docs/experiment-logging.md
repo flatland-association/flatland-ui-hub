@@ -240,6 +240,18 @@ call stream has the moment itself, as a `WS` entry with
 on. `finishReason` stays how the leg was ended (`clicked`, `endShift`,
 `aborted`).
 
+**Finish confirmation.** A hand-made finish (the finish button) first asks
+"Aktuelles Szenario abschliessen?" with "Ja" and "Zurück"; the simulation
+pauses meanwhile (#180, `docs/plans/confirm-finish-scenario.md`). Each leg
+then carries `finishConfirm: {confirmed, backs}` in its `leg_finished` event
+and in its entry of the run record's `legs`: `confirmed` is `true` when the
+leg ended with "Ja" (`finishReason: 'clicked'`), `false` when it ended
+otherwise; `backs` counts how often the dialog was closed without "Ja"
+(Zurück, Escape, the backdrop) in that leg. A condition with
+`finishConfirm: false` finishes at once and its legs have no such field, nor
+have records made before #180. The two buttons are also clicks
+(`experimentRun.finishConfirm.yes`, `experimentRun.finishConfirm.back`).
+
 ### UI state: panels and viewports
 
 Clicks don't show what was visible: a panel collapsed by default, or a
@@ -562,6 +574,8 @@ studies: a control whose meaning changes gets a new one.
 | `<viewedSeq() === e.seq ? 'log.hideDecision' : 'log.viewDecision'>` | `features/decision-log/decision-log-panel.component.html` |
 | `actions.<opt.action>` | `features/agent-inspector/agent-inspector.component.html` |
 | `ca.card.apply` | `features/combined-actions/components/action-card/action-card.component.html` |
+| `experimentRun.finishConfirm.back` | `app.component.html` |
+| `experimentRun.finishConfirm.yes` | `app.component.html` |
 | `log.action.<opt.action>` | `features/impact-panel/impact-panel.component.html` |
 | `log.reflectionOpen` | `features/decision-log/decision-log-panel.component.html` |
 | `log.showOpenReflections` | `features/decision-log/decision-log-panel.component.html` |

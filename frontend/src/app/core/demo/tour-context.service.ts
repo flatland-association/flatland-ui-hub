@@ -59,6 +59,16 @@ export interface ShiftRecord {
   /** The run stopped on a run error in this leg; absent when it did not
    *  (docs/plans/toolbar-under-guide.md D12). */
   runError?: { message: string; simStep: number; at: number };
+  /** The leg's finish confirmation (#180): `confirmed` when it ended with "Ja",
+   *  `backs` how often the dialog was closed without it. Absent when the
+   *  condition turned the dialog off. */
+  finishConfirm?: FinishConfirmRecord;
+}
+
+/** What a leg's record says about the finish dialog (docs/plans/confirm-finish-scenario.md §4.5). */
+export interface FinishConfirmRecord {
+  confirmed: boolean;
+  backs: number;
 }
 
 /**

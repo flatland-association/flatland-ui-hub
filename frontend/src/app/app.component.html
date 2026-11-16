@@ -1189,5 +1189,13 @@
     <app-replay-controls></app-replay-controls>
     }
   }
-  
+
+  <!-- Confirms a hand-made finish (#180, docs/plans/confirm-finish-scenario.md §4.3). -->
+  <sbb-dialog #finishConfirm backdrop="translucent" (close)="onFinishConfirmClose($event)">
+    <sbb-dialog-title>{{ 'experimentRun.finishConfirm.title' | transloco }}</sbb-dialog-title>
+    <sbb-dialog-actions>
+      <sbb-secondary-button sbb-dialog-close data-log="experimentRun.finishConfirm.back">{{ 'experimentRun.finishConfirm.back' | transloco }}</sbb-secondary-button>
+      <sbb-button sbb-dialog-close="confirm" data-log="experimentRun.finishConfirm.yes">{{ 'experimentRun.finishConfirm.yes' | transloco }}</sbb-button>
+    </sbb-dialog-actions>
+  </sbb-dialog>
 }
