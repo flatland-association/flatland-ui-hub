@@ -404,7 +404,7 @@ references it.
 | ✅ S-2 | - | Fixed order: `shown` reads the pool, `pickQuestions()` and its specs go, an order spec, the docstring | bug | medium | fix(reflection): ask the reflection's questions in a fixed order. | ee65b8d | S-1 | Q-2 |
 | ✅ S-3 | - | `core/reflection-questions.ts` with the resolver; `UiConfig.reflectionQuestionOrder`, the service signal, the schema; the prompt reads the service; specs | feature | medium | feat(ui-config): let the deployment set the order of the reflection's questions. | b5b2479 | S-2 | - |
 | ✅ S-4 | - | `SessionHeader.reflectionQuestionOrder`, written at session start; spec; `docs/experiment-logging.md` | feature | medium | feat(experiment-logging): record the order of the reflection's questions in the session header. | a71ff8f | S-3 | - |
-| 💡 S-5 | - | Before and after screenshots of two decisions, with and without a configured order | docs | low | docs(plans): screenshots of the reflection's question order for #182. |  | S-4 | - |
+| ✅ S-5 | - | Before and after screenshots of two decisions, with and without a configured order | docs | low | docs(plans): screenshots of the reflection's question order for #182. | 4b9009e | S-4 | - |
 
 ## 12. Change inventory
 
