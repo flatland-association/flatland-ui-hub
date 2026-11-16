@@ -26,9 +26,13 @@ marked **(decided)**; defaults this plan chose on its own are marked
     first version fitted the whole time range into the taller area, so the
     ZWL never scrolled; but then it squashed and stretched whenever the
     forecast grew or shrank. The scroll bar is what kept the scale steady.
-  - `followNow` only follows the now-line while the user hasn't scrolled it
-    out of view; once they have, the view stays where they put it until they
-    scroll the now-line back into view. That ends the jump.
+  - The now-line stays 20 steps below the top of the view (`NOW_PAST_STEPS`),
+    so two thirds of the view show the future, and the diagram scrolls up
+    underneath it. **(added after testing)**
+  - Once the reader scrolls by hand, the view stays where they put it (that
+    ends the jump). It follows again when they scroll the now-line back near
+    its place, or press "Zu jetzt", which shows while they're away (new key
+    and click id `zwd.toNow`).
 
 ### 2. Zoom back in the Streckenspiegel, opacity slider gone
 

@@ -1824,6 +1824,7 @@
     "fitTraffic": "Fit to traffic",
     "singleTrack": "single track",
     "timeUnit": "Step",
+    "toNow": "Back to now",
     "delaySteps": "{{n}} steps",
     "kind": {
       "blocked": "Blocking",

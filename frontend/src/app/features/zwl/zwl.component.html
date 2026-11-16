@@ -182,6 +182,11 @@
         }
       </svg>
       </div>
+      @if (timeVertical() && detached()) {
+        <button type="button" class="zwd__toggle zwd__to-now" data-log="zwd.toNow" (click)="followNowAgain()">
+          {{ 'zwd.toNow' | transloco }}
+        </button>
+      }
     }
   </div>
 

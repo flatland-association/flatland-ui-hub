@@ -1824,6 +1824,7 @@
     "fitTraffic": "Auf Verkehr zoomen",
     "singleTrack": "Einspur",
     "timeUnit": "Schritt",
+    "toNow": "Zu jetzt",
     "delaySteps": "{{n}} Schritte",
     "kind": {
       "blocked": "Behinderung",

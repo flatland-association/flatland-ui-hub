@@ -33,6 +33,10 @@ const HEADER_H = 84;
  *  stretched the diagram whenever the forecast changed
  *  (docs/plans/plan-b-small-changes.md, item 1). */
 const STEPS_IN_VIEW = 60;
+/** With time vertical the now-line stays this many steps below the top of the
+ *  view, so most of the view shows the future, and the diagram scrolls up
+ *  underneath it (docs/plans/plan-b-small-changes.md, item 1). */
+const NOW_PAST_STEPS = 20;
 /** Below this the panel is too short to show STEPS_IN_VIEW steps legibly. */
 const MIN_TIME_VIEW_PX = 240;
 /** Time across, places down (classic Marey): names on the left, minutes below. */
@@ -193,40 +197,60 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   private readonly host = viewChild<ElementRef<HTMLElement>>('plot');
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
 
-  /** Keep the now-line on screen while the plot scrolls (time vertical), but
-   *  only until the reader scrolls it out of view: then the ZWL stays where
-   *  they put it, on every step, until they scroll the now-line back into
-   *  view. Before, it pulled the view back to the now-line on each step,
-   *  which read as the ZWL jumping up (docs/plans/plan-b-small-changes.md,
-   *  item 1). */
+  /** Time vertical: the now-line stays NOW_PAST_STEPS steps below the top of
+   *  the view and the diagram scrolls up underneath it, every step (and every
+   *  animation frame of the smooth clock). Once the reader scrolls by hand the
+   *  view stays where they put it; it follows again when they scroll the
+   *  now-line back near its place or press "Zu jetzt" (`detached`). Before,
+   *  the ZWL pulled the view back on each step, which read as a jump
+   *  (docs/plans/plan-b-small-changes.md, item 1). */
   private readonly followNow = effect(() => {
     const y = this.nowLine().y1;
+    this.svgH(); // the content's height changes where scrolling can reach
     const el = this.scroller()?.nativeElement;
-    if (!el || !this.timeVertical()) return;
-    untracked(() => {
-      if (this.readerScrolledAway || this.nowVisible(el, y)) return;
-      el.scrollTop = Math.max(0, y - (el.clientHeight - HEADER_H) / 3);
+    if (!el || !this.timeVertical() || this.detached()) return;
+    // After rendering: before it, a taller diagram isn't laid out yet and the
+    // browser clips the scroll position to the old height.
+    untracked(() => requestAnimationFrame(() => {
+      if (this.detached()) return;
+      const target = this.nowScrollTop(y);
+      if (Math.abs(el.scrollTop - target) < 1) return;
+      el.scrollTop = target;
       this.ownScrollTop = el.scrollTop;
-    });
+    }));
   });
   /** Where this component last scrolled to, to tell its own scroll events
    *  from the reader's. */
   private ownScrollTop: number | null = null;
-  private readerScrolledAway = false;
+  /** The reader scrolled away from the now-line; the view no longer follows. */
+  readonly detached = signal(false);
 
-  /** The sticky header sits above the plot in the scroller's content and
-   *  covers its top HEADER_H pixels of the viewport. */
-  private nowVisible(el: HTMLElement, y: number): boolean {
-    const contentY = HEADER_H + y;
-    return contentY >= el.scrollTop + HEADER_H && contentY <= el.scrollTop + el.clientHeight - 16;
+  /** One step's height on the time axis (time vertical). */
+  private stepPx(): number {
+    const [a, b] = this.stepDomain();
+    return this.timeAxisPx() / Math.max(1, b - a);
+  }
+
+  /** The scroll position that puts the now-line (plot y) NOW_PAST_STEPS steps
+   *  below the top of the view. The sticky header covers the scroller's top
+   *  HEADER_H pixels and sits above the plot in its content, so the two
+   *  cancel out. */
+  private nowScrollTop(y: number): number {
+    return Math.max(0, Math.round(y - NOW_PAST_STEPS * this.stepPx()));
   }
 
   onScroll(): void {
     const el = this.scroller()?.nativeElement;
-    if (!el) return;
+    if (!el || !this.timeVertical()) return;
     if (this.ownScrollTop !== null && Math.abs(el.scrollTop - this.ownScrollTop) < 1) return;
     this.ownScrollTop = null;
-    this.readerScrolledAway = !this.nowVisible(el, this.nowLine().y1);
+    // Back within two steps of its place counts as "follow again".
+    const off = Math.abs(el.scrollTop - this.nowScrollTop(this.nowLine().y1));
+    this.detached.set(off > 2 * this.stepPx());
+  }
+
+  followNowAgain(): void {
+    this.detached.set(false);
   }
   private resizeObserver: ResizeObserver | null = null;
   readonly width = signal(800);

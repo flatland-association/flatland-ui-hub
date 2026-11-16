@@ -1824,6 +1824,7 @@
     "fitTraffic": "Ajuster au trafic",
     "singleTrack": "voie unique",
     "timeUnit": "Pas",
+    "toNow": "Revenir à maintenant",
     "delaySteps": "{{n}} pas",
     "kind": {
       "blocked": "Blocage",
