@@ -61,10 +61,9 @@ Requirements:
 
 *What this PR leaves out, why, and where it goes later.*
 
-| Follow-up | Why not in this PR | From | Findings | Issue |
-|---|---|---|---|---|
-| An order per study condition (a `LayoutPreset`'s `ui` block). | One order serves both groups of the study; per deployment is what was asked (Q-1). | Assumptions | - | - |
-| Name in the analysis of past records that their reflection order was random. | Records made before don't say the order; it can be re-derived from the decision's timestamp, but that is analysis work, not app code. | Limitations | - | - |
+None. The two candidates were decided on 2026-11-16 instead (§9.2): one order
+serves both study groups, so no order per condition; and the missing order
+in older records is an accepted limitation (§2.1).
 
 ## 2. Constraints
 
@@ -82,7 +81,9 @@ Requirements:
 *What the built code gets wrong or ignores, each with the TODO or issue that tracks it.*
 
 - Records made before the change have no `reflectionQuestionOrder`: their
-  order followed from the decision's timestamp (follow-up in §1.4).
+  order followed from the decision's timestamp. Accepted (decided
+  2026-11-16, §9.2): it can be re-derived from the timestamp if an analysis
+  needs it, which is analysis work, not app code.
 
 ### 2.2 Assumptions
 
@@ -92,7 +93,7 @@ Not checked in code; they hold by construction of the study setup.
 
 - One order per installation serves every reason tour and both study groups.
   The study needs no counterbalancing of question order (decided by the study
-  lead, 2026-11-11).
+  lead, 2026-11-11), and no order per condition (decided 2026-11-16, §9.2).
 - A lab machine's `ui-config.json` does not change during a study round. The
   record names the order, so a change would still show.
 
@@ -356,6 +357,8 @@ comes last. The study leads can set another order for their lab machines in
 | 2026-11-11 | ✅ No random order of the reflection's questions (@SamiraAPS in #182; confirmed by @chenkins on 2026-11-16). | A random order varies between participants without being recorded; the study needs no counterbalancing. | REQ-1; `pickQuestions()` goes (§4.3). |
 | 2026-11-16 | ✅ The order is set per deployment, in `ui-config.json` (Q-1). | The order is a study choice, not a code choice; the deployment file is where a lab machine's other study settings live. Not taken: fixed in code. | REQ-2, REQ-3; the ids move to `core` (C-3); the record names the order (§4.4). |
 | 2026-11-16 | ✅ The default order is today's pool: Bauchgefühl → Informationen gefehlt → Nachteil (Q-2). | From a quick choice to the one free-text question; proposed in the issue. Not taken: another order, which the study can still set in `ui-config.json`. | `REFLECTION_QUESTION_POOL` keeps its order; `plan-b.json` needs no entry. |
+| 2026-11-16 | ✅ One order serves both groups of the study: no order per study condition (a `LayoutPreset`'s `ui` block). | Per deployment is what was asked (Q-1); both groups run on the same lab machines and should answer in the same order. | The setting stays deployment-only (DP-3); no follow-up. |
+| 2026-11-16 | ✅ Records made before this change, without `reflectionQuestionOrder`, are an accepted limitation (§2.1). | The order can be re-derived from the decision's timestamp if an analysis needs it; that is analysis work, not app code. | No follow-up. |
 
 ### 9.3 Code Review Findings
 
