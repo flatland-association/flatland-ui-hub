@@ -579,6 +579,8 @@ studies: a control whose meaning changes gets a new one.
 | `actions.<opt.action>` | `features/agent-inspector/agent-inspector.component.html` |
 | `ca.card.apply` | `features/combined-actions/components/action-card/action-card.component.html` |
 | `experimentRun.finishConfirm.back` | `app.component.html` |
+| `experimentRun.finishConfirm.back` | `app.component.html` |
+| `experimentRun.finishConfirm.yes` | `app.component.html` |
 | `experimentRun.finishConfirm.yes` | `app.component.html` |
 | `log.action.<opt.action>` | `features/impact-panel/impact-panel.component.html` |
 | `log.reflectionOpen` | `features/decision-log/decision-log-panel.component.html` |
