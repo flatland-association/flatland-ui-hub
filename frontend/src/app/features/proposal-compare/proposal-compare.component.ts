@@ -290,17 +290,21 @@ export class ProposalCompareComponent implements OnDestroy {
       } : {}),
     }).subscribe({
       next: (r) => {
-        this.applying.set(null);
-        this.appliedVariant.set(variant);
-        this.store.whatIfPreview.set(null);
+        if (this.store.session()?.id !== sess.id) return;
         // 'accept' is the log's word for taking an AI proposal; keeping the
         // timetable is the train proceeding as planned.
         this.store.recordProposalChoice(handle, variant === 'ai' ? 'accept' : 'proceed');
         this.keepSnapshot(handle, variant, shown);
         this.store.refreshState();
-        this.closeFrame();
+        if (this.targetHandle() === handle) {
+          this.applying.set(null);
+          this.appliedVariant.set(variant);
+          this.store.whatIfPreview.set(null);
+          this.closeFrame();
+        }
       },
       error: (err) => {
+        if (this.store.session()?.id !== sess.id || this.targetHandle() !== handle) return;
         this.applying.set(null);
         if (variant === 'ai' && err?.status === 409) {
           this.failed.set(this.i18n.t('proposals.previewExpired'));

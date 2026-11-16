@@ -223,4 +223,20 @@ describe('ProposalCompareComponent — future AI courses', () => {
     expect(component.ai()?.candidate_id).toBe(before);
     expect(http.match((r) => r.url.endsWith('/proposals/apply')).length).toBe(0);
   });
+
+  it('does not record an old session acceptance in the newly opened session', () => {
+    const { fixture, component, http, store } = create();
+    const frames = spyOn(TestBed.inject(PanelFrameService), 'setExpanded');
+    http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));
+    fixture.detectChanges();
+    component.take('ai');
+    const accepted = http.expectOne((r) => r.url.endsWith('/proposals/apply'));
+    store.session.set({ id: 'new-session' } as SessionInfo);
+    fixture.detectChanges();
+    const before = store.decisionLog().length;
+    accepted.flush({ applied: 'ai', label: '', step: 7, policy: 'plan' });
+    expect(store.decisionLog().length).toBe(before);
+    expect(frames).not.toHaveBeenCalled();
+    expect(component.shownApplied()).toBeNull();
+  });
 });
