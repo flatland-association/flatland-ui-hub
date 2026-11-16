@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { LanguageService } from '../../core/i18n/language.service';
 import { SessionInfo } from '../../core/models';
@@ -46,18 +46,26 @@ describe('reflection-prompt: question order', () => {
     }
   });
 
-  it('asks them in the order the deployment sets', () => {
+  // Through the real service and its signal, from the deployment file to the
+  // prompt: the order follows when the file is read after the prompt showed.
+  it('asks them in the order the deployment file sets', async () => {
     TestBed.configureTestingModule({
       imports: [ReflectionPromptComponent],
       providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
     });
     const store = TestBed.inject(SessionStore);
     const config = TestBed.inject(UiConfigService);
-    spyOn(config, 'reflectionQuestionOrder').and.returnValue(['tradeoff', 'gut', 'missing']);
+    const http = TestBed.inject(HttpTestingController);
     store.session.set({ id: 'sess-1' } as SessionInfo);
     store.interactionMode.set('co-learning');
     store.recordProposalChoice(0, 'proceed');
     const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.shown()).toEqual([...REFLECTION_QUESTION_POOL]);
+
+    const loaded = config.load('ui-config.json');
+    http.expectOne('ui-config.json').flush({ reflectionQuestionOrder: ['tradeoff'] });
+    await loaded;
     fixture.detectChanges();
     expect(fixture.componentInstance.shown()).toEqual(['tradeoff', 'gut', 'missing']);
   });
