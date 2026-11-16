@@ -44,8 +44,20 @@ describe('UiConfigService — the deployment\'s order of the reflection\'s quest
     http.expectOne('ui-config.json').flush({ reflectionQuestionOrder: ['tradeoff', 'gut'] });
     await loaded;
     expect(service.reflectionQuestionOrder()).toEqual(['tradeoff', 'gut', 'missing']);
+    const warn = spyOn(console, 'warn');
     service.apply({ reflectionQuestionOrder: ['missing'] });
     expect(service.reflectionQuestionOrder()).toEqual(['tradeoff', 'gut', 'missing']);
+    expect(warn).toHaveBeenCalledOnceWith(jasmine.stringContaining('"reflectionQuestionOrder" is set by the deployment file only'));
+  });
+
+  it('warns about no deployment-only value when a condition sets none', async () => {
+    const loaded = service.load('ui-config.json');
+    http.expectOne('ui-config.json').flush({ reflectionQuestionOrder: ['tradeoff'], studyLogging: true });
+    const warn = spyOn(console, 'warn');
+    await loaded;
+    service.apply({ hidden: ['control.contrast'] });
+    service.apply({});
+    expect(warn).not.toHaveBeenCalled();
   });
 
   it('falls back to the default order when the value is not a list', async () => {
@@ -72,8 +84,10 @@ describe('UiConfigService — the deployment\'s "Study logging" value', () => {
     await loaded;
     expect(service.studyLogging()).toBeFalse();
     expect(service.isHidden('control.studyLogging')).toBeTrue();
+    const warn = spyOn(console, 'warn');
     service.apply({ studyLogging: true } as UiConfig);
     expect(service.studyLogging()).toBeFalse();
+    expect(warn).toHaveBeenCalledOnceWith(jasmine.stringContaining('"studyLogging" is set by the deployment file only'));
   });
 });
 

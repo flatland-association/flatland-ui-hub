@@ -25,6 +25,9 @@ export interface UiConfig {
   reflectionQuestionOrder?: string[];
 }
 
+/** The `UiConfig` keys only `ui-config.json` sets; `apply()` ignores them. */
+const DEPLOYMENT_ONLY = ['studyLogging', 'reflectionQuestionOrder'] as const;
+
 const ITEMS_BY_ID = new Map(UI_CONFIG_ITEMS.map((item) => [item.id, item]));
 
 /**
@@ -88,6 +91,11 @@ export class UiConfigService {
    * what ending a run does, so one condition never leaks into the next.
    */
   apply(config: UiConfig): void {
+    // Values the deployment file alone sets: a condition's block can't change
+    // them, so say so rather than ignore them silently.
+    for (const key of DEPLOYMENT_ONLY) {
+      if (config[key] !== undefined) console.warn(`[uiConfig] "${key}" is set by the deployment file only; a condition's ui block can't change it, ignoring.`);
+    }
     this.hidden.set(this.mergeIds(config, 'hidden'));
     this.collapsedDefaults.set(this.mergeIds(config, 'collapsedByDefault'));
     this.allowlist.set(mergeAllowlists(this.baseline.policyAllowlist, config.policyAllowlist));
