@@ -1,6 +1,6 @@
 # Confirm "Szenario abschliessen" with a dialog (#180)
 
-> **Status:** plan of 2026-11-16, draft. Based on `main` `fd0c70cb`. Issue
+> **Status:** plan of 2026-11-16, built by 2026-11-16. Based on `main` `fd0c70cb`. Issue
 > [#180](https://github.com/flatland-association/flatland-ui-hub/issues/180) ("Dialog einfügen: Szenario abschliessen
 > bestätigen", label "plan b"). Branch `feature/180-confirm-finish-scenario`, PR not opened yet. Open questions: none (§9.1).
 >
@@ -178,15 +178,22 @@ backend; before on `main` `fd0c70cb`, after on this branch, by `scripts/docshots
 
 | ID | Requirement | Test or check | Result | Screenshots |
 |---|---|---|---|---|
-| REQ-1 | Dialog instead of finishing at once | `app.component.spec.ts`: `finishDemoMode()` in phase `running` and in a tour opens the dialog and does not advance; running app | 💡 | [`1-before-finish-button.png`](confirm-finish-scenario/1-before-finish-button.png), `1-after-dialog.png` |
-| REQ-2 | "Ja" finishes as before | spec: close with result `confirm` advances once, `finishReason: 'clicked'`; running app: next scenario's intro | 💡 | `2-after-yes.png` |
-| REQ-3 | "Zurück" goes on | spec: close without result (Zurück, Escape, backdrop) does not advance | 💡 | `3-after-back.png` |
-| REQ-4 | On by default, off per experiment | spec: `finishConfirm: false` on a condition and on a tour advances at once; `study-conditions.spec.ts` for `hasFinishConfirm` | 💡 | - |
-| REQ-5 | Paused while open | spec: playing → paused on open, playing again after "Zurück"; not resumed when it was paused before | 💡 | footer "Läuft" in `1-after-dialog.png` vs `3-after-back.png` |
-| REQ-6 | Answer in the record | `experiment-run.service.spec.ts`: `finishConfirm: {confirmed, backs}` in `ShiftRecord` and `leg_finished`; absent when turned off | 💡 | - |
-| NFR-1 | Study data comparable | `npm run i18n:check` (click ids are keys); regenerated click-id table; field documented in `docs/experiment-logging.md` | 💡 | - |
-| NFR-2 | Translated, keyboard-usable | `npm run i18n:check`; Escape and Tab in the running app, de/en/fr | 💡 | - |
-| DP-2 | No dialog for "Weiter zum Fragebogen" | spec: phase `legSurvey` advances at once | 💡 | - |
+| REQ-1 | Dialog instead of finishing at once | `app.component.spec.ts` ("asks instead of finishing, and pauses meanwhile", "asks in a tour too"); running app | ✅ The click opens the dialog; on `main` it went straight to scenario 2/5. | [`1-before-finish-button.png`](confirm-finish-scenario/1-before-finish-button.png), [`1-after-finish-button.png`](confirm-finish-scenario/1-after-finish-button.png) (unchanged), [`1-after-dialog.png`](confirm-finish-scenario/1-after-dialog.png) |
+| REQ-2 | "Ja" finishes as before | spec ("\"Zurück\" goes on playing, counted; \"Ja\" finishes the leg as a click"); running app | ✅ "Ja" opens scenario 2/5's intro, `finishReason: 'clicked'`, as one click did on `main`. | [`2-before-finish.png`](confirm-finish-scenario/2-before-finish.png), [`2-after-finish.png`](confirm-finish-scenario/2-after-finish.png) |
+| REQ-3 | "Zurück" goes on | spec (close without result); running app, also with Escape | ✅ Back in scenario 1/5, playing. | [`3-after-back.png`](confirm-finish-scenario/3-after-back.png) |
+| REQ-4 | On by default, off per experiment | spec ("finishes at once where the condition turns it off"); `study-conditions.spec.ts` (`hasFinishConfirm`) | ✅ No condition or tour sets it off yet (§4.4). | - |
+| REQ-5 | Paused while open | spec (pause on open, resume after "Zurück", no resume when paused before); running app: the step counter | ✅ Step 6 when the dialog opened and still 6 two seconds later; 7 after "Zurück". | footer without "Läuft" in [`1-after-dialog.png`](confirm-finish-scenario/1-after-dialog.png), with it in [`3-after-back.png`](confirm-finish-scenario/3-after-back.png) |
+| REQ-6 | Answer in the record | `experiment-run.service.spec.ts` (present, per reason, reset per leg, absent when off); running app: the persisted run state | ✅ Leg 1 after one "Zurück" and "Ja": `finishConfirm: {"confirmed": true, "backs": 1}`; on `main` no such field. | - |
+| NFR-1 | Study data comparable | `npm run i18n:check` (49 click ids, all keys; 47 on `main`); click-id table regenerated; field documented in `docs/experiment-logging.md` | ✅ | - |
+| NFR-2 | Translated, keyboard-usable | `npm run i18n:check`; running app: focus and Escape | ✅ Focus is in the dialog on open; Escape closes it like "Zurück". The en/fr texts are checked by `i18n:check` only: `plan-b-p01`'s briefing switches the UI to German. | - |
+| DP-2 | No dialog for "Weiter zum Fragebogen" | spec ("does not ask for \"Weiter zum Fragebogen\"") | ✅ | - |
+
+Read from the page (`scripts/docshots-confirm-finish-scenario.mjs`, 2026-11-16):
+
+| Where | Before (`main` `fd0c70cb`) | After (this branch) |
+|---|---|---|
+| After the finish click | scenario 2/5's intro card | dialog "Aktuelles Szenario abschliessen?" [Zurück] [Ja], step counter stopped |
+| Leg 1's record | `finishReason: 'clicked'` | `finishReason: 'clicked'`, `finishConfirm: {confirmed: true, backs: 1}` |
 
 ### 4.3 The dialog (REQ-1–REQ-3, REQ-5; Q-1, Q-2, Q-3)
 
@@ -448,8 +455,8 @@ None yet.
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
-| 💡 S-1 | - | Switch `finishConfirm` on `StudyCondition`/`Tour` and `hasFinishConfirm` (§4.4); the dialog with pause in `AppComponent` (§4.3); keys in en/de/fr; `finishConfirm` record field (§4.5); spec cases (§4.2); click-id table and the field in `docs/experiment-logging.md`. | feature | medium | `feat(experiment-run): ask "Aktuelles Szenario abschliessen?" before a scenario is finished by hand.` |  | - | - |
-| 💡 S-2 | - | `scripts/docshots-confirm-finish-scenario.mjs`; after screenshots in `docs/plans/confirm-finish-scenario/`; §4.2 results filled in. | docs | low | `docs(plans): confirm finish scenario: screenshots and verification.` |  | S-1 | - |
+| ✅ S-1 | - | Switch `finishConfirm` on `StudyCondition`/`Tour` and `hasFinishConfirm` (§4.4); the dialog with pause in `AppComponent` (§4.3); keys in en/de/fr; `finishConfirm` record field (§4.5); spec cases (§4.2); click-id table and the field in `docs/experiment-logging.md`. | feature | medium | `feat(experiment-run): ask "Aktuelles Szenario abschliessen?" before a scenario is finished by hand.` | a74e605c | - | - |
+| 💡 S-2 | - | `scripts/docshots-confirm-finish-scenario.mjs`; before and after screenshots in `docs/plans/confirm-finish-scenario/`; §4.2 results filled in. | docs | low | `docs(plans): confirm finish scenario: screenshots and verification.` |  | S-1 | - |
 
 ## 12. Change inventory
 
@@ -462,7 +469,7 @@ None yet.
 | File | Adds |
 |---|---|
 | `scripts/docshots-confirm-finish-scenario.mjs` | Screenshots of §4.2 on `plan-b-p01` (S-2). |
-| `docs/plans/confirm-finish-scenario/*.png` | Before shot, the two Q-2 prototype shots, after shots (S-2). |
+| `docs/plans/confirm-finish-scenario/*.png` | The two Q-2 prototype shots; before and after shots `<N>-<before|after>-<slug>.png` per row of §4.2 (S-2). |
 
 ### 12.2 Modified files
 
