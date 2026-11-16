@@ -21,6 +21,38 @@ describe('UiConfigService — the shipped deployment file', () => {
     expect(service.isCollapsedByDefault('widget.decision-log')).toBeFalse();
     expect(service.policyAllowlist()).toBeNull();
     expect(service.studyLogging()).toBeNull();
+    expect(service.reflectionQuestionOrder()).toEqual(['gut', 'missing', 'tradeoff']);
+  });
+});
+
+describe('UiConfigService — the deployment\'s order of the reflection\'s questions', () => {
+  let service: UiConfigService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    service = TestBed.inject(UiConfigService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  it('is the default order before the file is read', () => {
+    expect(service.reflectionQuestionOrder()).toEqual(['gut', 'missing', 'tradeoff']);
+  });
+
+  it('reads it from the deployment file and keeps it when a condition applies', async () => {
+    const loaded = service.load('ui-config.json');
+    http.expectOne('ui-config.json').flush({ reflectionQuestionOrder: ['tradeoff', 'gut'] });
+    await loaded;
+    expect(service.reflectionQuestionOrder()).toEqual(['tradeoff', 'gut', 'missing']);
+    service.apply({ reflectionQuestionOrder: ['missing'] });
+    expect(service.reflectionQuestionOrder()).toEqual(['tradeoff', 'gut', 'missing']);
+  });
+
+  it('falls back to the default order when the value is not a list', async () => {
+    const loaded = service.load('ui-config.json');
+    http.expectOne('ui-config.json').flush({ reflectionQuestionOrder: 'tradeoff' });
+    await loaded;
+    expect(service.reflectionQuestionOrder()).toEqual(['gut', 'missing', 'tradeoff']);
   });
 });
 

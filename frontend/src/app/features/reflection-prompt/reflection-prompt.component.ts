@@ -6,15 +6,14 @@ import { LanguageService } from '../../core/i18n/language.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { buildPreferenceHypothesis } from '../../core/learning-store.service';
 import { valueAxisFromRationaleIds } from '../../core/operator-value-axis';
+import { UiConfigService } from '../../core/config/ui-config.service';
+import { ReflectionQuestionId } from '../../core/reflection-questions';
 
 /** A quick-answer chip; the label is a translation key. */
 interface Chip {
   id: string;
   labelKey: string;
 }
-
-/** The guided questions this prompt draws from, beside the always-asked factors. */
-export type ReflectionQuestionId = 'gut' | 'missing' | 'tradeoff';
 
 /** The factors are the reason chips of `rationale-capture`, same ids: the
  *  preference model reads the value axis from these ids. */
@@ -42,8 +41,6 @@ const MISSING: Chip[] = [
   { id: 'other', labelKey: 'reflectionPrompt.missing.other' },
 ];
 
-export const REFLECTION_QUESTION_POOL: readonly ReflectionQuestionId[] = ['gut', 'missing', 'tradeoff'];
-
 /**
  * Reflection with guided questions — the interview tour's "why?" prompt, a
  * variant of `rationale-capture` rather than a change to it (the experiments
@@ -52,7 +49,8 @@ export const REFLECTION_QUESTION_POOL: readonly ReflectionQuestionId[] = ['gut',
  * Always asked: which factors mattered, as the reason chips, because they feed
  * the preference hypothesis and so "the AI learns". Beside it, a few of the
  * team's reflection questions, all of them, in the same order after every
- * decision (docs/plans/reflection-question-order.md): a gut feeling (chips),
+ * decision, the one the deployment sets (`UiConfigService`,
+ * docs/plans/reflection-question-order.md): a gut feeling (chips),
  * missing information (chips), and the drawback accepted on purpose (a few
  * words). None is hidden behind a "more questions" link,
  * which participants overlooked; `reflectionQuestionLimit` is the Co-Learning
@@ -70,6 +68,7 @@ export const REFLECTION_QUESTION_POOL: readonly ReflectionQuestionId[] = ['gut',
 })
 export class ReflectionPromptComponent {
   readonly store = inject(SessionStore);
+  private readonly uiConfig = inject(UiConfigService);
   private readonly i18n = inject(LanguageService);
   private readonly identity = inject(TrainIdentityService);
   private readonly t = (key: string, params?: Record<string, string>, fallback?: string) =>
@@ -81,9 +80,9 @@ export class ReflectionPromptComponent {
 
   readonly pending = computed(() => this.store.pendingRationale());
 
-  /** Every question, in the same order for every decision. */
+  /** Every question, in the deployment's order, the same for every decision. */
   readonly shown = computed<ReflectionQuestionId[]>(() =>
-    this.pending() ? [...REFLECTION_QUESTION_POOL] : [],
+    this.pending() ? [...this.uiConfig.reflectionQuestionOrder()] : [],
   );
 
   readonly selectedFactors = signal<Set<string>>(new Set());

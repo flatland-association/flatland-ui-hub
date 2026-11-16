@@ -5,7 +5,9 @@ import { LanguageService } from '../../core/i18n/language.service';
 import { SessionInfo } from '../../core/models';
 import { SessionStore } from '../../core/session.store';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
-import { reflectionAnswers, ReflectionPromptComponent, REFLECTION_QUESTION_POOL } from './reflection-prompt.component';
+import { UiConfigService } from '../../core/config/ui-config.service';
+import { REFLECTION_QUESTION_POOL } from '../../core/reflection-questions';
+import { reflectionAnswers, ReflectionPromptComponent } from './reflection-prompt.component';
 
 /** The same order after every decision, not one drawn per decision
  *  (docs/plans/reflection-question-order.md). */
@@ -42,6 +44,22 @@ describe('reflection-prompt: question order', () => {
       expect(fixture.componentInstance.shown()).withContext(`decision ${seq}`).toEqual([...REFLECTION_QUESTION_POOL]);
       expect(labels()).toEqual(REFLECTION_QUESTION_POOL.map((q) => i18n.t(`reflectionPrompt.q.${q}`)));
     }
+  });
+
+  it('asks them in the order the deployment sets', () => {
+    TestBed.configureTestingModule({
+      imports: [ReflectionPromptComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const store = TestBed.inject(SessionStore);
+    const config = TestBed.inject(UiConfigService);
+    spyOn(config, 'reflectionQuestionOrder').and.returnValue(['tradeoff', 'gut', 'missing']);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.recordProposalChoice(0, 'proceed');
+    const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.shown()).toEqual(['tradeoff', 'gut', 'missing']);
   });
 });
 
