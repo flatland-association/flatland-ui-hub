@@ -1,5 +1,13 @@
 # UC2 neural driver with Joint ROAM
 
+**Historical C4 driver/ROAM report (13 November).** The later shared
+UC2-track model preserves the full known-domain results below; see
+[one model per infrastructure](../../plans/uc2-rl-per-infrastructure.md).
+The current adviser adds multi-step alternatives from DLA-driven states;
+its separate evidence and integration contract are in
+[UC2 adviser diagnostics](../uc2-rl-adviser/README.md). The five-model
+architecture and export/source locks below describe the original C4 assets.
+
 The registered `uc2_rl` driver completes the entire declared **1,472-case
 finite domain** with **4,316/4,316 arrivals** and no individual case having
 greater summed native lateness than the fixed PP reference. Total lateness

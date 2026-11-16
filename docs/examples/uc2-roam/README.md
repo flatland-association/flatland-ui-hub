@@ -1,7 +1,7 @@
 # ROAM added to the frozen UC2 neural driver
 
 **Historical V1/V2 ablation report.** The current UI driver now runs Joint
-ROAM and five infrastructure specialists. See the
+ROAM and infrastructure models. See the
 [current implementation and complete finite-domain comparison](../uc2-roam-performance/README.md).
 Results below retain this earlier frozen actor and experiment scope.
 

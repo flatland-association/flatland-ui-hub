@@ -429,7 +429,8 @@ export class ProposalCompareComponent implements OnDestroy {
     const change = v.intervention;
     if (!change) return this.priorityText(v);
     if (change.kind === 'wait') {
-      return this.i18n.t('proposals.course.wait', { step: change.step, n: change.wait_steps });
+      return this.i18n.t(change.wait_steps === 1 ? 'proposals.course.waitOne' : 'proposals.course.wait',
+        { step: change.step, n: change.wait_steps });
     }
     if (change.kind === 'branch') {
       const direction = change.action === 1 ? 'proposals.course.left'

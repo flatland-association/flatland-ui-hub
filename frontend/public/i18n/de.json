@@ -1688,7 +1688,8 @@
       "wait": "Ab Schritt {{step}} für {{n}} Schritte warten",
       "left": "links",
       "forward": "geradeaus",
-      "right": "rechts"
+      "right": "rechts",
+      "waitOne": "Ab Schritt {{step}} für einen Schritt warten"
     }
   },
   "zwl": {

@@ -1,0 +1,4000 @@
+{
+  "schema": "uc2-rl-adviser-paired-results-v1",
+  "evaluation_role": "reused_development_diagnostics_not_holdout",
+  "mode": "baseline",
+  "base_commit": "a1b9c7b01d20064be9e6e37790717ecaeda82f8f",
+  "cases_sha256": "7646f339cbb35e07ed01381cf832b29e7774f193580e1badd63d9d1202d16028",
+  "base_source": {
+    "adviser_sha256": "80c46742dc1ed6a0d716c7a6f2ced71351e8aefb7d6b3391b2065eb4354501e7",
+    "api_sha256": "8201e1f68303fd44c19a650ffd6c363e63893982844642b8b485b62f346db549"
+  },
+  "created_utc": "2026-11-16T16:34:03.382235+00:00",
+  "software": {
+    "python": "3.12.13",
+    "flatland": "4.3.0",
+    "torch": "2.14.0",
+    "threads": 1
+  },
+  "source_files": {
+    "app/api/overrides.py": "3961e4728eaa10bfee3ff8a8ab931389182c4f43ea57dd641f7bd7b39f2d1dd7",
+    "app/core/native_env_cache.py": "b9c57c1936ff1dcb70de51445eef3c89cf055d19029e3fb2ae4a20c9e29dafc9",
+    "app/core/proposal_agents/uc2_rl.py": "c271fa04a5d33cad8a1c6de5d15cf2a8704a26c507683bdd13a7112733bf5dcb",
+    "app/core/scenario_runner.py": "b4ee1c1322fdb109843792ea83c3bd9e5bf3abfd3b51951d54c6ab5313f1e5f7",
+    "app/fixtures/plan-b/tutorial/scenario.pkl": "adda9ebbf1225ca797847505d78db5ae4bae3ab0820687242263cdfd082ef1c6",
+    "app/fixtures/plan-b/uc2-1/scenario.pkl": "15434f37c7795938c8c1891e53671f2491842323ce234713c83a666f6e677d82",
+    "app/fixtures/plan-b/uc2-2/scenario.pkl": "2fe6aa6e03ab8bee624d2ab5a186405393d3088aa0ff740028c423c664f88fe1",
+    "app/fixtures/plan-b/uc2-3/scenario.pkl": "efab2527d51b6dd5f1e7c72065c5d82ddf63df1f0e96ec8c6c9ac440bb23b4b0",
+    "app/fixtures/plan-b/uc2-4/scenario.pkl": "6ab123602911dd37c28919af430b81cfdea89a453f1ba9dedb7254c93b124743",
+    "app/policies/deadlock_avoidance_policy.py": "7b7b864998d09c38da06e34cf86502bb7b8e1a204840ad0e0c2d135c49d60178",
+    "app/policies/learned/checkpoints/uc2_demo_ppo.json": "3eb4255e58f3f8faa492feca7527087cf53f8c195aff6f46acb5bdd81804f944",
+    "app/policies/learned/checkpoints/uc2_demo_ppo.pt": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+    "app/policies/learned/checkpoints/uc2_roam_specialists.json": "b125e9cfef9e8669b4bd733299d418b4e247810eb961e810a6d00d96ac22f689",
+    "app/policies/learned/checkpoints/uc2_roam_tutorial.pt": "ff88e8a4664e51e9bb568c67d91886f757005ff919dbbc1884d69ff53707cc7a",
+    "app/policies/learned/checkpoints/uc2_roam_uc2_track.pt": "8efb91ce718996fc980b3624a637fb70e9a842ec63b865ecad6577e778dcd14a",
+    "app/policies/learned/learned_ppo_policy.py": "1b70c8449b240b77abea06504e5f3ea6490369734658c8d882eefdb256db99ae",
+    "app/policies/learned/uc2_observation.py": "e9291a01931a7db4dfe0a40f923c8f1eb8377acbc981c1f9a1c5249e8e5896dc",
+    "app/policies/learned/uc2_roam_bundle.py": "a9cd95f8a79c45de5ca1e0acf9716e0fe201719d34f351f8ae99f530896c8922",
+    "app/policies/learned/uc2_roam_policy.py": "64e2e196d8534844e1aee41a76fcc8801d80202ff515ee4b9e8431ef619f2f74",
+    "app/policies/plan_policy.py": "ea19d8b858a622f240214b86f1d00cc49a09d8e42994bd19e8486334b0cc6ee5"
+  },
+  "results": [
+    {
+      "id": "tutorial-dla-000-h0",
+      "preset": "tutorial",
+      "handle": 0,
+      "takeover_step": 0,
+      "native_horizon": 40,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.042788,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "954d6cd1f205ad6e55cec71ef3fc0d6ef7c943fd07e39adcb35816ffcde34d1b",
+          "completed": 2,
+          "total": 2,
+          "rank": [
+            0,
+            9,
+            47
+          ],
+          "metrics": {
+            "lateness": 9,
+            "time_in_network": 47,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 9,
+          "historical_api_score": 47,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 47,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 24,
+            "1": 23
+          },
+          "replay_end_step": 24,
+          "deadlocks": 0,
+          "replay_seconds": 0.026174
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "954d6cd1f205ad6e55cec71ef3fc0d6ef7c943fd07e39adcb35816ffcde34d1b",
+        "completed": 2,
+        "total": 2,
+        "rank": [
+          0,
+          9,
+          47
+        ],
+        "metrics": {
+          "lateness": 9,
+          "time_in_network": 47,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 9,
+        "historical_api_score": 47,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 47,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 24,
+          "1": 23
+        },
+        "replay_end_step": 24,
+        "deadlocks": 0,
+        "replay_seconds": 0.026174
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 297140224
+      }
+    },
+    {
+      "id": "tutorial-dla-002-h1",
+      "preset": "tutorial",
+      "handle": 1,
+      "takeover_step": 2,
+      "native_horizon": 40,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.027872,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "954d6cd1f205ad6e55cec71ef3fc0d6ef7c943fd07e39adcb35816ffcde34d1b",
+          "completed": 2,
+          "total": 2,
+          "rank": [
+            0,
+            9,
+            43
+          ],
+          "metrics": {
+            "lateness": 9,
+            "time_in_network": 43,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 9,
+          "historical_api_score": 47,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 43,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 24,
+            "1": 23
+          },
+          "replay_end_step": 24,
+          "deadlocks": 0,
+          "replay_seconds": 0.021409
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "954d6cd1f205ad6e55cec71ef3fc0d6ef7c943fd07e39adcb35816ffcde34d1b",
+        "completed": 2,
+        "total": 2,
+        "rank": [
+          0,
+          9,
+          43
+        ],
+        "metrics": {
+          "lateness": 9,
+          "time_in_network": 43,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 9,
+        "historical_api_score": 47,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 43,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 24,
+          "1": 23
+        },
+        "replay_end_step": 24,
+        "deadlocks": 0,
+        "replay_seconds": 0.021409
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306708480
+      }
+    },
+    {
+      "id": "tutorial-dla-004-h0",
+      "preset": "tutorial",
+      "handle": 0,
+      "takeover_step": 4,
+      "native_horizon": 40,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.028603,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "3a64004d14eae1d4a79bc102f0e2243684848646964cacb65e0da16d6819b4f9",
+          "completed": 2,
+          "total": 2,
+          "rank": [
+            0,
+            11,
+            41
+          ],
+          "metrics": {
+            "lateness": 11,
+            "time_in_network": 41,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 11,
+          "historical_api_score": 49,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 41,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 24,
+            "1": 25
+          },
+          "replay_end_step": 25,
+          "deadlocks": 0,
+          "replay_seconds": 0.021477
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "3a64004d14eae1d4a79bc102f0e2243684848646964cacb65e0da16d6819b4f9",
+        "completed": 2,
+        "total": 2,
+        "rank": [
+          0,
+          11,
+          41
+        ],
+        "metrics": {
+          "lateness": 11,
+          "time_in_network": 41,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 11,
+        "historical_api_score": 49,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 41,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 24,
+          "1": 25
+        },
+        "replay_end_step": 25,
+        "deadlocks": 0,
+        "replay_seconds": 0.021477
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306708480
+      }
+    },
+    {
+      "id": "tutorial-dla-006-h1",
+      "preset": "tutorial",
+      "handle": 1,
+      "takeover_step": 6,
+      "native_horizon": 40,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.028324,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "296c188c966e4ea8a6370299df92678f1733111f732cf9f6916848a0246889d6",
+          "completed": 2,
+          "total": 2,
+          "rank": [
+            0,
+            13,
+            39
+          ],
+          "metrics": {
+            "lateness": 13,
+            "time_in_network": 39,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 13,
+          "historical_api_score": 51,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 39,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 24,
+            "1": 27
+          },
+          "replay_end_step": 27,
+          "deadlocks": 0,
+          "replay_seconds": 0.016781
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "296c188c966e4ea8a6370299df92678f1733111f732cf9f6916848a0246889d6",
+        "completed": 2,
+        "total": 2,
+        "rank": [
+          0,
+          13,
+          39
+        ],
+        "metrics": {
+          "lateness": 13,
+          "time_in_network": 39,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 13,
+        "historical_api_score": 51,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 39,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 24,
+          "1": 27
+        },
+        "replay_end_step": 27,
+        "deadlocks": 0,
+        "replay_seconds": 0.016781
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306708480
+      }
+    },
+    {
+      "id": "tutorial-dla-008-h0",
+      "preset": "tutorial",
+      "handle": 0,
+      "takeover_step": 8,
+      "native_horizon": 40,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.026701,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "88d2bf88834c3fecf8f6aafffdc42823435dfabbf0f3e03af81c86a81a903643",
+          "completed": 2,
+          "total": 2,
+          "rank": [
+            0,
+            15,
+            37
+          ],
+          "metrics": {
+            "lateness": 15,
+            "time_in_network": 37,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 15,
+          "historical_api_score": 53,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 37,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 24,
+            "1": 29
+          },
+          "replay_end_step": 29,
+          "deadlocks": 0,
+          "replay_seconds": 0.018817
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "88d2bf88834c3fecf8f6aafffdc42823435dfabbf0f3e03af81c86a81a903643",
+        "completed": 2,
+        "total": 2,
+        "rank": [
+          0,
+          15,
+          37
+        ],
+        "metrics": {
+          "lateness": 15,
+          "time_in_network": 37,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 15,
+        "historical_api_score": 53,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 37,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 24,
+          "1": 29
+        },
+        "replay_end_step": 29,
+        "deadlocks": 0,
+        "replay_seconds": 0.018817
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306724864
+      }
+    },
+    {
+      "id": "tutorial-dla-010-h1",
+      "preset": "tutorial",
+      "handle": 1,
+      "takeover_step": 10,
+      "native_horizon": 40,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.029714,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "7df035d67b0e1694726877e466f45108cceca0cd11aa9460bd2d1edafb37b19f",
+          "completed": 2,
+          "total": 2,
+          "rank": [
+            0,
+            19,
+            37
+          ],
+          "metrics": {
+            "lateness": 19,
+            "time_in_network": 37,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 19,
+          "historical_api_score": 57,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 37,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 26,
+            "1": 31
+          },
+          "replay_end_step": 31,
+          "deadlocks": 0,
+          "replay_seconds": 0.023384
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "7df035d67b0e1694726877e466f45108cceca0cd11aa9460bd2d1edafb37b19f",
+        "completed": 2,
+        "total": 2,
+        "rank": [
+          0,
+          19,
+          37
+        ],
+        "metrics": {
+          "lateness": 19,
+          "time_in_network": 37,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 19,
+        "historical_api_score": 57,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 37,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 26,
+          "1": 31
+        },
+        "replay_end_step": 31,
+        "deadlocks": 0,
+        "replay_seconds": 0.023384
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "tutorial-dla-012-h0",
+      "preset": "tutorial",
+      "handle": 0,
+      "takeover_step": 12,
+      "native_horizon": 40,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.026543,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "8d859ec044995926c9c5da31c26a3f802210266df0f80be83d240398251a9eba",
+          "completed": 2,
+          "total": 2,
+          "rank": [
+            0,
+            23,
+            37
+          ],
+          "metrics": {
+            "lateness": 23,
+            "time_in_network": 37,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 23,
+          "historical_api_score": 61,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 37,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 28,
+            "1": 33
+          },
+          "replay_end_step": 33,
+          "deadlocks": 0,
+          "replay_seconds": 0.018657
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "8d859ec044995926c9c5da31c26a3f802210266df0f80be83d240398251a9eba",
+        "completed": 2,
+        "total": 2,
+        "rank": [
+          0,
+          23,
+          37
+        ],
+        "metrics": {
+          "lateness": 23,
+          "time_in_network": 37,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 23,
+        "historical_api_score": 61,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 37,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 28,
+          "1": 33
+        },
+        "replay_end_step": 33,
+        "deadlocks": 0,
+        "replay_seconds": 0.018657
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "tutorial-dla-015-h1",
+      "preset": "tutorial",
+      "handle": 1,
+      "takeover_step": 15,
+      "native_horizon": 40,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.029798,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "d5f11ce8fb7ae24e8ca57716d6776fb789e3bb295ed41a0044c4cbe4470dded8",
+          "completed": 2,
+          "total": 2,
+          "rank": [
+            0,
+            29,
+            37
+          ],
+          "metrics": {
+            "lateness": 29,
+            "time_in_network": 37,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 29,
+          "historical_api_score": 67,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 37,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 31,
+            "1": 36
+          },
+          "replay_end_step": 36,
+          "deadlocks": 0,
+          "replay_seconds": 0.017776
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "d5f11ce8fb7ae24e8ca57716d6776fb789e3bb295ed41a0044c4cbe4470dded8",
+        "completed": 2,
+        "total": 2,
+        "rank": [
+          0,
+          29,
+          37
+        ],
+        "metrics": {
+          "lateness": 29,
+          "time_in_network": 37,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 29,
+        "historical_api_score": 67,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 37,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 31,
+          "1": 36
+        },
+        "replay_end_step": 36,
+        "deadlocks": 0,
+        "replay_seconds": 0.017776
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "tutorial-dla-020-h0",
+      "preset": "tutorial",
+      "handle": 0,
+      "takeover_step": 20,
+      "native_horizon": 40,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.023282,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "123c0d10f7ea56690245227a260fec65d37d767237534f5c3591aac7d06722d6",
+          "completed": 1,
+          "total": 2,
+          "rank": [
+            1,
+            6,
+            24
+          ],
+          "metrics": {
+            "lateness": 6,
+            "time_in_network": 24,
+            "not_arrived": 1
+          },
+          "native_completed_lateness": 6,
+          "historical_api_score": 1024,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 24,
+            "not_arrived": 1
+          },
+          "arrival_steps": {
+            "0": 24,
+            "1": null
+          },
+          "replay_end_step": 40,
+          "deadlocks": 0,
+          "replay_seconds": 0.022055
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "123c0d10f7ea56690245227a260fec65d37d767237534f5c3591aac7d06722d6",
+        "completed": 1,
+        "total": 2,
+        "rank": [
+          1,
+          6,
+          24
+        ],
+        "metrics": {
+          "lateness": 6,
+          "time_in_network": 24,
+          "not_arrived": 1
+        },
+        "native_completed_lateness": 6,
+        "historical_api_score": 1024,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 24,
+          "not_arrived": 1
+        },
+        "arrival_steps": {
+          "0": 24,
+          "1": null
+        },
+        "replay_end_step": 40,
+        "deadlocks": 0,
+        "replay_seconds": 0.022055
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "tutorial-dla-026-h1",
+      "preset": "tutorial",
+      "handle": 1,
+      "takeover_step": 26,
+      "native_horizon": 40,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.023652,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "7b5b6ecde6a37eee4aa49d80d7bac58cf0239d8b7acccf9ffe8a5df32ccecdf2",
+          "completed": 1,
+          "total": 2,
+          "rank": [
+            1,
+            0,
+            14
+          ],
+          "metrics": {
+            "lateness": 0,
+            "time_in_network": 14,
+            "not_arrived": 1
+          },
+          "native_completed_lateness": 6,
+          "historical_api_score": 1000,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 28,
+            "not_arrived": 2
+          },
+          "arrival_steps": {
+            "0": 24,
+            "1": null
+          },
+          "replay_end_step": 40,
+          "deadlocks": 0,
+          "replay_seconds": 0.020477
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "7b5b6ecde6a37eee4aa49d80d7bac58cf0239d8b7acccf9ffe8a5df32ccecdf2",
+        "completed": 1,
+        "total": 2,
+        "rank": [
+          1,
+          0,
+          14
+        ],
+        "metrics": {
+          "lateness": 0,
+          "time_in_network": 14,
+          "not_arrived": 1
+        },
+        "native_completed_lateness": 6,
+        "historical_api_score": 1000,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 28,
+          "not_arrived": 2
+        },
+        "arrival_steps": {
+          "0": 24,
+          "1": null
+        },
+        "replay_end_step": 40,
+        "deadlocks": 0,
+        "replay_seconds": 0.020477
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-1-dla-000-h0",
+      "preset": "uc2-1",
+      "handle": 0,
+      "takeover_step": 0,
+      "native_horizon": 168,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.103384,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "1e3f8793be4534ad0aa5215f6fd1e965d4a24653b561fc71a728c8de91b41453",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            19,
+            254
+          ],
+          "metrics": {
+            "lateness": 19,
+            "time_in_network": 254,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 19,
+          "historical_api_score": 254,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 254,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 80,
+            "1": 85,
+            "2": 89
+          },
+          "replay_end_step": 89,
+          "deadlocks": 0,
+          "replay_seconds": 0.108766
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "1e3f8793be4534ad0aa5215f6fd1e965d4a24653b561fc71a728c8de91b41453",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          19,
+          254
+        ],
+        "metrics": {
+          "lateness": 19,
+          "time_in_network": 254,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 19,
+        "historical_api_score": 254,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 254,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 80,
+          "1": 85,
+          "2": 89
+        },
+        "replay_end_step": 89,
+        "deadlocks": 0,
+        "replay_seconds": 0.108766
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-1-dla-008-h1",
+      "preset": "uc2-1",
+      "handle": 1,
+      "takeover_step": 8,
+      "native_horizon": 168,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.107168,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "7b07eaaac459515bf1996c68a712f33fa3b2b70b783e1a39e81898aef91a12c7",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            72,
+            283
+          ],
+          "metrics": {
+            "lateness": 72,
+            "time_in_network": 283,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 72,
+          "historical_api_score": 307,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 283,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 91,
+            "1": 107,
+            "2": 109
+          },
+          "replay_end_step": 109,
+          "deadlocks": 0,
+          "replay_seconds": 0.10095
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "7b07eaaac459515bf1996c68a712f33fa3b2b70b783e1a39e81898aef91a12c7",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          72,
+          283
+        ],
+        "metrics": {
+          "lateness": 72,
+          "time_in_network": 283,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 72,
+        "historical_api_score": 307,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 283,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 91,
+          "1": 107,
+          "2": 109
+        },
+        "replay_end_step": 109,
+        "deadlocks": 0,
+        "replay_seconds": 0.10095
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-1-dla-016-h2",
+      "preset": "uc2-1",
+      "handle": 2,
+      "takeover_step": 16,
+      "native_horizon": 168,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.102506,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "17d15aa9cf957466caa1a3e0372b5245a429c600ce4776c449a518cd93f328e1",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            72,
+            259
+          ],
+          "metrics": {
+            "lateness": 72,
+            "time_in_network": 259,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 72,
+          "historical_api_score": 307,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 259,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 91,
+            "1": 107,
+            "2": 109
+          },
+          "replay_end_step": 109,
+          "deadlocks": 0,
+          "replay_seconds": 0.089032
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "17d15aa9cf957466caa1a3e0372b5245a429c600ce4776c449a518cd93f328e1",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          72,
+          259
+        ],
+        "metrics": {
+          "lateness": 72,
+          "time_in_network": 259,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 72,
+        "historical_api_score": 307,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 259,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 91,
+          "1": 107,
+          "2": 109
+        },
+        "replay_end_step": 109,
+        "deadlocks": 0,
+        "replay_seconds": 0.089032
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-1-dla-024-h0",
+      "preset": "uc2-1",
+      "handle": 0,
+      "takeover_step": 24,
+      "native_horizon": 168,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.097444,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "e2d99de304593c2f424fa8d62945509c50cf7f5a61b112e675a7d533d51aff7d",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            72,
+            235
+          ],
+          "metrics": {
+            "lateness": 72,
+            "time_in_network": 235,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 72,
+          "historical_api_score": 307,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 235,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 91,
+            "1": 107,
+            "2": 109
+          },
+          "replay_end_step": 109,
+          "deadlocks": 0,
+          "replay_seconds": 0.077162
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "e2d99de304593c2f424fa8d62945509c50cf7f5a61b112e675a7d533d51aff7d",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          72,
+          235
+        ],
+        "metrics": {
+          "lateness": 72,
+          "time_in_network": 235,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 72,
+        "historical_api_score": 307,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 235,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 91,
+          "1": 107,
+          "2": 109
+        },
+        "replay_end_step": 109,
+        "deadlocks": 0,
+        "replay_seconds": 0.077162
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-1-dla-030-h1",
+      "preset": "uc2-1",
+      "handle": 1,
+      "takeover_step": 30,
+      "native_horizon": 168,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.091282,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "f4fd8e307bb8f5267dc0214f7f2b1a83d0e170312540733f53504eb2be2c5dee",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            72,
+            217
+          ],
+          "metrics": {
+            "lateness": 72,
+            "time_in_network": 217,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 72,
+          "historical_api_score": 307,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 217,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 91,
+            "1": 107,
+            "2": 109
+          },
+          "replay_end_step": 109,
+          "deadlocks": 0,
+          "replay_seconds": 0.07111
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "f4fd8e307bb8f5267dc0214f7f2b1a83d0e170312540733f53504eb2be2c5dee",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          72,
+          217
+        ],
+        "metrics": {
+          "lateness": 72,
+          "time_in_network": 217,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 72,
+        "historical_api_score": 307,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 217,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 91,
+          "1": 107,
+          "2": 109
+        },
+        "replay_end_step": 109,
+        "deadlocks": 0,
+        "replay_seconds": 0.07111
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-1-dla-040-h2",
+      "preset": "uc2-1",
+      "handle": 2,
+      "takeover_step": 40,
+      "native_horizon": 168,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.107257,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "dec719e56255982c68e365b398a2f19445000279932a56d00c1a0f2c99440cf2",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            143,
+            258
+          ],
+          "metrics": {
+            "lateness": 143,
+            "time_in_network": 258,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 143,
+          "historical_api_score": 378,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 258,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 131,
+            "1": 132,
+            "2": 115
+          },
+          "replay_end_step": 132,
+          "deadlocks": 0,
+          "replay_seconds": 0.081926
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "dec719e56255982c68e365b398a2f19445000279932a56d00c1a0f2c99440cf2",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          143,
+          258
+        ],
+        "metrics": {
+          "lateness": 143,
+          "time_in_network": 258,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 143,
+        "historical_api_score": 378,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 258,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 131,
+          "1": 132,
+          "2": 115
+        },
+        "replay_end_step": 132,
+        "deadlocks": 0,
+        "replay_seconds": 0.081926
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-1-dla-050-h0",
+      "preset": "uc2-1",
+      "handle": 0,
+      "takeover_step": 50,
+      "native_horizon": 168,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.0663,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "8332b71187e00e871d7518462be33a8b1d669efee81bf08114af44531fcd39b9",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            31,
+            116
+          ],
+          "metrics": {
+            "lateness": 31,
+            "time_in_network": 116,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 31,
+          "historical_api_score": 266,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 116,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 94,
+            "1": 95,
+            "2": 77
+          },
+          "replay_end_step": 95,
+          "deadlocks": 0,
+          "replay_seconds": 0.055662
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "8332b71187e00e871d7518462be33a8b1d669efee81bf08114af44531fcd39b9",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          31,
+          116
+        ],
+        "metrics": {
+          "lateness": 31,
+          "time_in_network": 116,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 31,
+        "historical_api_score": 266,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 116,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 94,
+          "1": 95,
+          "2": 77
+        },
+        "replay_end_step": 95,
+        "deadlocks": 0,
+        "replay_seconds": 0.055662
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-1-dla-067-h1",
+      "preset": "uc2-1",
+      "handle": 1,
+      "takeover_step": 67,
+      "native_horizon": 168,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.058022,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "be12d5061c28ddff5a0ed612aa27fe0c7ae02c1d34f6d55bf42c5ebfd18c2f77",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            31,
+            65
+          ],
+          "metrics": {
+            "lateness": 31,
+            "time_in_network": 65,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 31,
+          "historical_api_score": 266,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 65,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 94,
+            "1": 95,
+            "2": 77
+          },
+          "replay_end_step": 95,
+          "deadlocks": 0,
+          "replay_seconds": 0.034289
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "be12d5061c28ddff5a0ed612aa27fe0c7ae02c1d34f6d55bf42c5ebfd18c2f77",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          31,
+          65
+        ],
+        "metrics": {
+          "lateness": 31,
+          "time_in_network": 65,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 31,
+        "historical_api_score": 266,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 65,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 94,
+          "1": 95,
+          "2": 77
+        },
+        "replay_end_step": 95,
+        "deadlocks": 0,
+        "replay_seconds": 0.034289
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-1-dla-084-h0",
+      "preset": "uc2-1",
+      "handle": 0,
+      "takeover_step": 84,
+      "native_horizon": 168,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.039658,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "d5903adbff33600a01e2e967ebff6d601ae87ac026dd591935f5f359ffa54b50",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            26,
+            21
+          ],
+          "metrics": {
+            "lateness": 26,
+            "time_in_network": 21,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 31,
+          "historical_api_score": 189,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 105,
+            "not_arrived": 1
+          },
+          "arrival_steps": {
+            "0": 94,
+            "1": 95,
+            "2": 77
+          },
+          "replay_end_step": 95,
+          "deadlocks": 0,
+          "replay_seconds": 0.028047
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "d5903adbff33600a01e2e967ebff6d601ae87ac026dd591935f5f359ffa54b50",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          26,
+          21
+        ],
+        "metrics": {
+          "lateness": 26,
+          "time_in_network": 21,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 31,
+        "historical_api_score": 189,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 105,
+          "not_arrived": 1
+        },
+        "arrival_steps": {
+          "0": 94,
+          "1": 95,
+          "2": 77
+        },
+        "replay_end_step": 95,
+        "deadlocks": 0,
+        "replay_seconds": 0.028047
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-2-dla-000-h0",
+      "preset": "uc2-2",
+      "handle": 0,
+      "takeover_step": 0,
+      "native_horizon": 102,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.05806,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "fbfa2fc68b59660cf5fa5e86a3b4d883f47ecb0103939b2bac0c1de69ee66121",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            24,
+            143
+          ],
+          "metrics": {
+            "lateness": 24,
+            "time_in_network": 143,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 24,
+          "historical_api_score": 143,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 143,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 45,
+            "1": 46,
+            "2": 52
+          },
+          "replay_end_step": 52,
+          "deadlocks": 0,
+          "replay_seconds": 0.041761
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "fbfa2fc68b59660cf5fa5e86a3b4d883f47ecb0103939b2bac0c1de69ee66121",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          24,
+          143
+        ],
+        "metrics": {
+          "lateness": 24,
+          "time_in_network": 143,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 24,
+        "historical_api_score": 143,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 143,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 45,
+          "1": 46,
+          "2": 52
+        },
+        "replay_end_step": 52,
+        "deadlocks": 0,
+        "replay_seconds": 0.041761
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-2-dla-005-h1",
+      "preset": "uc2-2",
+      "handle": 1,
+      "takeover_step": 5,
+      "native_horizon": 102,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.060336,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "4b0f7fb80003291639de0ca53180f1b9d1c50b55165775bbc03268b64c4a92c8",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            24,
+            128
+          ],
+          "metrics": {
+            "lateness": 24,
+            "time_in_network": 128,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 24,
+          "historical_api_score": 143,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 128,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 45,
+            "1": 46,
+            "2": 52
+          },
+          "replay_end_step": 52,
+          "deadlocks": 0,
+          "replay_seconds": 0.048052
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "4b0f7fb80003291639de0ca53180f1b9d1c50b55165775bbc03268b64c4a92c8",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          24,
+          128
+        ],
+        "metrics": {
+          "lateness": 24,
+          "time_in_network": 128,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 24,
+        "historical_api_score": 143,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 128,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 45,
+          "1": 46,
+          "2": 52
+        },
+        "replay_end_step": 52,
+        "deadlocks": 0,
+        "replay_seconds": 0.048052
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-2-dla-010-h2",
+      "preset": "uc2-2",
+      "handle": 2,
+      "takeover_step": 10,
+      "native_horizon": 102,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.060732,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "89cb5e4d65e7d0a2b1897fe33973efb1cea7ab4b290f24931faafc2aa9beb760",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            24,
+            113
+          ],
+          "metrics": {
+            "lateness": 24,
+            "time_in_network": 113,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 24,
+          "historical_api_score": 143,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 113,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 45,
+            "1": 46,
+            "2": 52
+          },
+          "replay_end_step": 52,
+          "deadlocks": 0,
+          "replay_seconds": 0.038766
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "89cb5e4d65e7d0a2b1897fe33973efb1cea7ab4b290f24931faafc2aa9beb760",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          24,
+          113
+        ],
+        "metrics": {
+          "lateness": 24,
+          "time_in_network": 113,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 24,
+        "historical_api_score": 143,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 113,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 45,
+          "1": 46,
+          "2": 52
+        },
+        "replay_end_step": 52,
+        "deadlocks": 0,
+        "replay_seconds": 0.038766
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-2-dla-015-h0",
+      "preset": "uc2-2",
+      "handle": 0,
+      "takeover_step": 15,
+      "native_horizon": 102,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.054983,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "ca142bde9233874a95f36a34578dcf06404c987d92d597810a859d302afce61e",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            24,
+            98
+          ],
+          "metrics": {
+            "lateness": 24,
+            "time_in_network": 98,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 24,
+          "historical_api_score": 143,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 98,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 45,
+            "1": 46,
+            "2": 52
+          },
+          "replay_end_step": 52,
+          "deadlocks": 0,
+          "replay_seconds": 0.036817
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "ca142bde9233874a95f36a34578dcf06404c987d92d597810a859d302afce61e",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          24,
+          98
+        ],
+        "metrics": {
+          "lateness": 24,
+          "time_in_network": 98,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 24,
+        "historical_api_score": 143,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 98,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 45,
+          "1": 46,
+          "2": 52
+        },
+        "replay_end_step": 52,
+        "deadlocks": 0,
+        "replay_seconds": 0.036817
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-2-dla-020-h1",
+      "preset": "uc2-2",
+      "handle": 1,
+      "takeover_step": 20,
+      "native_horizon": 102,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.05195,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "0fda4bbd8330919843e5b02170a46225290b2b0dab77ee3dfbbf1cc845242188",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            24,
+            83
+          ],
+          "metrics": {
+            "lateness": 24,
+            "time_in_network": 83,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 24,
+          "historical_api_score": 143,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 83,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 45,
+            "1": 46,
+            "2": 52
+          },
+          "replay_end_step": 52,
+          "deadlocks": 0,
+          "replay_seconds": 0.034952
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "0fda4bbd8330919843e5b02170a46225290b2b0dab77ee3dfbbf1cc845242188",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          24,
+          83
+        ],
+        "metrics": {
+          "lateness": 24,
+          "time_in_network": 83,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 24,
+        "historical_api_score": 143,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 83,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 45,
+          "1": 46,
+          "2": 52
+        },
+        "replay_end_step": 52,
+        "deadlocks": 0,
+        "replay_seconds": 0.034952
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-2-dla-025-h2",
+      "preset": "uc2-2",
+      "handle": 2,
+      "takeover_step": 25,
+      "native_horizon": 102,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.051538,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "94f541aaf253c9f41c3bffb5b02bf90de3539ee0c4ae1210cc137ab535c7b2e2",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            36,
+            80
+          ],
+          "metrics": {
+            "lateness": 36,
+            "time_in_network": 80,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 36,
+          "historical_api_score": 155,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 80,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 47,
+            "1": 54,
+            "2": 54
+          },
+          "replay_end_step": 54,
+          "deadlocks": 0,
+          "replay_seconds": 0.036236
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "94f541aaf253c9f41c3bffb5b02bf90de3539ee0c4ae1210cc137ab535c7b2e2",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          36,
+          80
+        ],
+        "metrics": {
+          "lateness": 36,
+          "time_in_network": 80,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 36,
+        "historical_api_score": 155,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 80,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 47,
+          "1": 54,
+          "2": 54
+        },
+        "replay_end_step": 54,
+        "deadlocks": 0,
+        "replay_seconds": 0.036236
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-2-dla-030-h0",
+      "preset": "uc2-2",
+      "handle": 0,
+      "takeover_step": 30,
+      "native_horizon": 102,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.049503,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "e59b7dccd8b753805aae84953446de5890812cfd179865973bf00fbd21795254",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            36,
+            65
+          ],
+          "metrics": {
+            "lateness": 36,
+            "time_in_network": 65,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 36,
+          "historical_api_score": 155,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 65,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 47,
+            "1": 54,
+            "2": 54
+          },
+          "replay_end_step": 54,
+          "deadlocks": 0,
+          "replay_seconds": 0.032218
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "e59b7dccd8b753805aae84953446de5890812cfd179865973bf00fbd21795254",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          36,
+          65
+        ],
+        "metrics": {
+          "lateness": 36,
+          "time_in_network": 65,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 36,
+        "historical_api_score": 155,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 65,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 47,
+          "1": 54,
+          "2": 54
+        },
+        "replay_end_step": 54,
+        "deadlocks": 0,
+        "replay_seconds": 0.032218
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-2-dla-040-h1",
+      "preset": "uc2-2",
+      "handle": 1,
+      "takeover_step": 40,
+      "native_horizon": 102,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.04003,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "2c3d27ccdf36acd07cacdd58681990b550a602fed2565c9f6de187f564f3a4d4",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            24,
+            23
+          ],
+          "metrics": {
+            "lateness": 24,
+            "time_in_network": 23,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 24,
+          "historical_api_score": 143,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 23,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 45,
+            "1": 46,
+            "2": 52
+          },
+          "replay_end_step": 52,
+          "deadlocks": 0,
+          "replay_seconds": 0.030381
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "2c3d27ccdf36acd07cacdd58681990b550a602fed2565c9f6de187f564f3a4d4",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          24,
+          23
+        ],
+        "metrics": {
+          "lateness": 24,
+          "time_in_network": 23,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 24,
+        "historical_api_score": 143,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 23,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 45,
+          "1": 46,
+          "2": 52
+        },
+        "replay_end_step": 52,
+        "deadlocks": 0,
+        "replay_seconds": 0.030381
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-2-dla-051-h2",
+      "preset": "uc2-2",
+      "handle": 2,
+      "takeover_step": 51,
+      "native_horizon": 102,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.032242,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "680cca013e49c21ff2641d8d91b47666f77b5768e8e81ba6f42452fc42d8716c",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            1,
+            1
+          ],
+          "metrics": {
+            "lateness": 1,
+            "time_in_network": 1,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 24,
+          "historical_api_score": 52,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 103,
+            "not_arrived": 2
+          },
+          "arrival_steps": {
+            "0": 45,
+            "1": 46,
+            "2": 52
+          },
+          "replay_end_step": 52,
+          "deadlocks": 0,
+          "replay_seconds": 0.022449
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "680cca013e49c21ff2641d8d91b47666f77b5768e8e81ba6f42452fc42d8716c",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          1,
+          1
+        ],
+        "metrics": {
+          "lateness": 1,
+          "time_in_network": 1,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 24,
+        "historical_api_score": 52,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 103,
+          "not_arrived": 2
+        },
+        "arrival_steps": {
+          "0": 45,
+          "1": 46,
+          "2": 52
+        },
+        "replay_end_step": 52,
+        "deadlocks": 0,
+        "replay_seconds": 0.022449
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-3-dla-000-h0",
+      "preset": "uc2-3",
+      "handle": 0,
+      "takeover_step": 0,
+      "native_horizon": 240,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.111688,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "ba56fda7965f2abe7771f3f63ab4691f0a895520462509810e7e174a143e09c7",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            22,
+            319
+          ],
+          "metrics": {
+            "lateness": 22,
+            "time_in_network": 319,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 22,
+          "historical_api_score": 319,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 319,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 128,
+            "1": 110,
+            "2": 81
+          },
+          "replay_end_step": 128,
+          "deadlocks": 0,
+          "replay_seconds": 0.133291
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "ba56fda7965f2abe7771f3f63ab4691f0a895520462509810e7e174a143e09c7",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          22,
+          319
+        ],
+        "metrics": {
+          "lateness": 22,
+          "time_in_network": 319,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 22,
+        "historical_api_score": 319,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 319,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 128,
+          "1": 110,
+          "2": 81
+        },
+        "replay_end_step": 128,
+        "deadlocks": 0,
+        "replay_seconds": 0.133291
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-3-dla-012-h1",
+      "preset": "uc2-3",
+      "handle": 1,
+      "takeover_step": 12,
+      "native_horizon": 240,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.112749,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "d111164aed8f6c53f10d8669d57ca128e717fee64417b927b776d31c93f81382",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            22,
+            283
+          ],
+          "metrics": {
+            "lateness": 22,
+            "time_in_network": 283,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 22,
+          "historical_api_score": 319,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 283,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 128,
+            "1": 110,
+            "2": 81
+          },
+          "replay_end_step": 128,
+          "deadlocks": 0,
+          "replay_seconds": 0.107616
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "d111164aed8f6c53f10d8669d57ca128e717fee64417b927b776d31c93f81382",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          22,
+          283
+        ],
+        "metrics": {
+          "lateness": 22,
+          "time_in_network": 283,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 22,
+        "historical_api_score": 319,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 283,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 128,
+          "1": 110,
+          "2": 81
+        },
+        "replay_end_step": 128,
+        "deadlocks": 0,
+        "replay_seconds": 0.107616
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-3-dla-024-h2",
+      "preset": "uc2-3",
+      "handle": 2,
+      "takeover_step": 24,
+      "native_horizon": 240,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.102307,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "2b158b736e78f8182029cd6f8127504724a59d0fdb71fbb48fa78df530cfa5f9",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            22,
+            247
+          ],
+          "metrics": {
+            "lateness": 22,
+            "time_in_network": 247,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 22,
+          "historical_api_score": 319,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 247,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 128,
+            "1": 110,
+            "2": 81
+          },
+          "replay_end_step": 128,
+          "deadlocks": 0,
+          "replay_seconds": 0.091169
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "2b158b736e78f8182029cd6f8127504724a59d0fdb71fbb48fa78df530cfa5f9",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          22,
+          247
+        ],
+        "metrics": {
+          "lateness": 22,
+          "time_in_network": 247,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 22,
+        "historical_api_score": 319,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 247,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 128,
+          "1": 110,
+          "2": 81
+        },
+        "replay_end_step": 128,
+        "deadlocks": 0,
+        "replay_seconds": 0.091169
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-3-dla-036-h0",
+      "preset": "uc2-3",
+      "handle": 0,
+      "takeover_step": 36,
+      "native_horizon": 240,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.092773,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "c564fa7aff8a7b30c8440ebf05971e7f841c56241d1d81409426081a558198e2",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            22,
+            211
+          ],
+          "metrics": {
+            "lateness": 22,
+            "time_in_network": 211,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 22,
+          "historical_api_score": 319,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 211,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 128,
+            "1": 110,
+            "2": 81
+          },
+          "replay_end_step": 128,
+          "deadlocks": 0,
+          "replay_seconds": 0.075249
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "c564fa7aff8a7b30c8440ebf05971e7f841c56241d1d81409426081a558198e2",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          22,
+          211
+        ],
+        "metrics": {
+          "lateness": 22,
+          "time_in_network": 211,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 22,
+        "historical_api_score": 319,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 211,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 128,
+          "1": 110,
+          "2": 81
+        },
+        "replay_end_step": 128,
+        "deadlocks": 0,
+        "replay_seconds": 0.075249
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-3-dla-048-h1",
+      "preset": "uc2-3",
+      "handle": 1,
+      "takeover_step": 48,
+      "native_horizon": 240,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.086914,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "acff96bebae0f2705ae12256e80e20f7cb5f9be072e2b9111acc5d53b049ee4d",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            22,
+            175
+          ],
+          "metrics": {
+            "lateness": 22,
+            "time_in_network": 175,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 22,
+          "historical_api_score": 319,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 175,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 128,
+            "1": 110,
+            "2": 81
+          },
+          "replay_end_step": 128,
+          "deadlocks": 0,
+          "replay_seconds": 0.063229
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "acff96bebae0f2705ae12256e80e20f7cb5f9be072e2b9111acc5d53b049ee4d",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          22,
+          175
+        ],
+        "metrics": {
+          "lateness": 22,
+          "time_in_network": 175,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 22,
+        "historical_api_score": 319,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 175,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 128,
+          "1": 110,
+          "2": 81
+        },
+        "replay_end_step": 128,
+        "deadlocks": 0,
+        "replay_seconds": 0.063229
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-3-dla-060-h2",
+      "preset": "uc2-3",
+      "handle": 2,
+      "takeover_step": 60,
+      "native_horizon": 240,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.08132,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "b87d4ed8011a0955b549da8e478f918e655e8a8477a9a354113d361f5bad04dd",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            22,
+            139
+          ],
+          "metrics": {
+            "lateness": 22,
+            "time_in_network": 139,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 22,
+          "historical_api_score": 319,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 139,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 128,
+            "1": 110,
+            "2": 81
+          },
+          "replay_end_step": 128,
+          "deadlocks": 0,
+          "replay_seconds": 0.121902
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "b87d4ed8011a0955b549da8e478f918e655e8a8477a9a354113d361f5bad04dd",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          22,
+          139
+        ],
+        "metrics": {
+          "lateness": 22,
+          "time_in_network": 139,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 22,
+        "historical_api_score": 319,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 139,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 128,
+          "1": 110,
+          "2": 81
+        },
+        "replay_end_step": 128,
+        "deadlocks": 0,
+        "replay_seconds": 0.121902
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-3-dla-072-h0",
+      "preset": "uc2-3",
+      "handle": 0,
+      "takeover_step": 72,
+      "native_horizon": 240,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.073458,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "e14f8448d0649586c6958fd109faa3386361fd0ba4bed832e59ad4dbc5abb675",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            22,
+            103
+          ],
+          "metrics": {
+            "lateness": 22,
+            "time_in_network": 103,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 22,
+          "historical_api_score": 319,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 103,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 128,
+            "1": 110,
+            "2": 81
+          },
+          "replay_end_step": 128,
+          "deadlocks": 0,
+          "replay_seconds": 0.043068
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "e14f8448d0649586c6958fd109faa3386361fd0ba4bed832e59ad4dbc5abb675",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          22,
+          103
+        ],
+        "metrics": {
+          "lateness": 22,
+          "time_in_network": 103,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 22,
+        "historical_api_score": 319,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 103,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 128,
+          "1": 110,
+          "2": 81
+        },
+        "replay_end_step": 128,
+        "deadlocks": 0,
+        "replay_seconds": 0.043068
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-3-dla-096-h1",
+      "preset": "uc2-3",
+      "handle": 1,
+      "takeover_step": 96,
+      "native_horizon": 240,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.05236,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "86219e271f6a7e01d1dec5ff63e80a4c0cd88bf120767e62c3c0599d284b15c4",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            32,
+            65
+          ],
+          "metrics": {
+            "lateness": 32,
+            "time_in_network": 65,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 41,
+          "historical_api_score": 257,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 209,
+            "not_arrived": 1
+          },
+          "arrival_steps": {
+            "0": 128,
+            "1": 129,
+            "2": 81
+          },
+          "replay_end_step": 129,
+          "deadlocks": 0,
+          "replay_seconds": 0.036847
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "86219e271f6a7e01d1dec5ff63e80a4c0cd88bf120767e62c3c0599d284b15c4",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          32,
+          65
+        ],
+        "metrics": {
+          "lateness": 32,
+          "time_in_network": 65,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 41,
+        "historical_api_score": 257,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 209,
+          "not_arrived": 1
+        },
+        "arrival_steps": {
+          "0": 128,
+          "1": 129,
+          "2": 81
+        },
+        "replay_end_step": 129,
+        "deadlocks": 0,
+        "replay_seconds": 0.036847
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-3-dla-120-h0",
+      "preset": "uc2-3",
+      "handle": 0,
+      "takeover_step": 120,
+      "native_horizon": 240,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.038118,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "96b504cd8599072261175bdcbc13f8f65a223fb17480abb01b47cccb8de583df",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            32,
+            17
+          ],
+          "metrics": {
+            "lateness": 32,
+            "time_in_network": 17,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 41,
+          "historical_api_score": 257,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 137,
+            "not_arrived": 1
+          },
+          "arrival_steps": {
+            "0": 128,
+            "1": 129,
+            "2": 81
+          },
+          "replay_end_step": 129,
+          "deadlocks": 0,
+          "replay_seconds": 0.023165
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "96b504cd8599072261175bdcbc13f8f65a223fb17480abb01b47cccb8de583df",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          32,
+          17
+        ],
+        "metrics": {
+          "lateness": 32,
+          "time_in_network": 17,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 41,
+        "historical_api_score": 257,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 137,
+          "not_arrived": 1
+        },
+        "arrival_steps": {
+          "0": 128,
+          "1": 129,
+          "2": 81
+        },
+        "replay_end_step": 129,
+        "deadlocks": 0,
+        "replay_seconds": 0.023165
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-4-dla-000-h0",
+      "preset": "uc2-4",
+      "handle": 0,
+      "takeover_step": 0,
+      "native_horizon": 180,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.09948,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "4690e84ae31d7e353e6d17a718d3842594d283e29e88a4e4ee13f6657d70e2b3",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            30,
+            274
+          ],
+          "metrics": {
+            "lateness": 30,
+            "time_in_network": 274,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 30,
+          "historical_api_score": 274,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 274,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 92,
+            "1": 86,
+            "2": 96
+          },
+          "replay_end_step": 96,
+          "deadlocks": 0,
+          "replay_seconds": 0.118423
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "4690e84ae31d7e353e6d17a718d3842594d283e29e88a4e4ee13f6657d70e2b3",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          30,
+          274
+        ],
+        "metrics": {
+          "lateness": 30,
+          "time_in_network": 274,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 30,
+        "historical_api_score": 274,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 274,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 92,
+          "1": 86,
+          "2": 96
+        },
+        "replay_end_step": 96,
+        "deadlocks": 0,
+        "replay_seconds": 0.118423
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-4-dla-009-h1",
+      "preset": "uc2-4",
+      "handle": 1,
+      "takeover_step": 9,
+      "native_horizon": 180,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.094558,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "e1bba76d3066d05295c3bbea386b5d3e94639c28b60ddfcd308b0f24bcd0c20d",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            30,
+            247
+          ],
+          "metrics": {
+            "lateness": 30,
+            "time_in_network": 247,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 30,
+          "historical_api_score": 274,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 247,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 92,
+            "1": 86,
+            "2": 96
+          },
+          "replay_end_step": 96,
+          "deadlocks": 0,
+          "replay_seconds": 0.117091
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "e1bba76d3066d05295c3bbea386b5d3e94639c28b60ddfcd308b0f24bcd0c20d",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          30,
+          247
+        ],
+        "metrics": {
+          "lateness": 30,
+          "time_in_network": 247,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 30,
+        "historical_api_score": 274,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 247,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 92,
+          "1": 86,
+          "2": 96
+        },
+        "replay_end_step": 96,
+        "deadlocks": 0,
+        "replay_seconds": 0.117091
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-4-dla-018-h2",
+      "preset": "uc2-4",
+      "handle": 2,
+      "takeover_step": 18,
+      "native_horizon": 180,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.10054,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "12c0c8ecda6385be0b7b340a4cae3b854d38b8e2d55ade3f352510aa301496d6",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            30,
+            220
+          ],
+          "metrics": {
+            "lateness": 30,
+            "time_in_network": 220,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 30,
+          "historical_api_score": 274,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 220,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 92,
+            "1": 86,
+            "2": 96
+          },
+          "replay_end_step": 96,
+          "deadlocks": 0,
+          "replay_seconds": 0.110337
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "12c0c8ecda6385be0b7b340a4cae3b854d38b8e2d55ade3f352510aa301496d6",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          30,
+          220
+        ],
+        "metrics": {
+          "lateness": 30,
+          "time_in_network": 220,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 30,
+        "historical_api_score": 274,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 220,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 92,
+          "1": 86,
+          "2": 96
+        },
+        "replay_end_step": 96,
+        "deadlocks": 0,
+        "replay_seconds": 0.110337
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-4-dla-027-h0",
+      "preset": "uc2-4",
+      "handle": 0,
+      "takeover_step": 27,
+      "native_horizon": 180,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.112168,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "8b4deaca6cebb01b2a3d5a368acf381e213b65d5e20d7a32aebc4e3be6b68a2c",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            145,
+            308
+          ],
+          "metrics": {
+            "lateness": 145,
+            "time_in_network": 308,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 145,
+          "historical_api_score": 389,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 308,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 119,
+            "1": 133,
+            "2": 137
+          },
+          "replay_end_step": 137,
+          "deadlocks": 0,
+          "replay_seconds": 0.11017
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "8b4deaca6cebb01b2a3d5a368acf381e213b65d5e20d7a32aebc4e3be6b68a2c",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          145,
+          308
+        ],
+        "metrics": {
+          "lateness": 145,
+          "time_in_network": 308,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 145,
+        "historical_api_score": 389,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 308,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 119,
+          "1": 133,
+          "2": 137
+        },
+        "replay_end_step": 137,
+        "deadlocks": 0,
+        "replay_seconds": 0.11017
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-4-dla-036-h1",
+      "preset": "uc2-4",
+      "handle": 1,
+      "takeover_step": 36,
+      "native_horizon": 180,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.115372,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "bbc2cd77895ff3507892dc0198765c7b2bad3fe3f27df9c1e6c1eedeb2910f2b",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            145,
+            281
+          ],
+          "metrics": {
+            "lateness": 145,
+            "time_in_network": 281,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 145,
+          "historical_api_score": 389,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 281,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 119,
+            "1": 133,
+            "2": 137
+          },
+          "replay_end_step": 137,
+          "deadlocks": 0,
+          "replay_seconds": 0.088837
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "bbc2cd77895ff3507892dc0198765c7b2bad3fe3f27df9c1e6c1eedeb2910f2b",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          145,
+          281
+        ],
+        "metrics": {
+          "lateness": 145,
+          "time_in_network": 281,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 145,
+        "historical_api_score": 389,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 281,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 119,
+          "1": 133,
+          "2": 137
+        },
+        "replay_end_step": 137,
+        "deadlocks": 0,
+        "replay_seconds": 0.088837
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-4-dla-045-h2",
+      "preset": "uc2-4",
+      "handle": 2,
+      "takeover_step": 45,
+      "native_horizon": 180,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.101116,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "3ed3e22bdcb786d79b9667d390795b3d8e405fb07e1ab4a872d8c8b437b95b5e",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            145,
+            254
+          ],
+          "metrics": {
+            "lateness": 145,
+            "time_in_network": 254,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 145,
+          "historical_api_score": 389,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 254,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 119,
+            "1": 133,
+            "2": 137
+          },
+          "replay_end_step": 137,
+          "deadlocks": 0,
+          "replay_seconds": 0.079689
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "3ed3e22bdcb786d79b9667d390795b3d8e405fb07e1ab4a872d8c8b437b95b5e",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          145,
+          254
+        ],
+        "metrics": {
+          "lateness": 145,
+          "time_in_network": 254,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 145,
+        "historical_api_score": 389,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 254,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 119,
+          "1": 133,
+          "2": 137
+        },
+        "replay_end_step": 137,
+        "deadlocks": 0,
+        "replay_seconds": 0.079689
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-4-dla-054-h0",
+      "preset": "uc2-4",
+      "handle": 0,
+      "takeover_step": 54,
+      "native_horizon": 180,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.097711,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "9837656d686674bc472d68ec2e1ed53f5b5ac45aa0b9d38de3593f787f3722da",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            154,
+            236
+          ],
+          "metrics": {
+            "lateness": 154,
+            "time_in_network": 236,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 154,
+          "historical_api_score": 398,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 236,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 137,
+            "1": 138,
+            "2": 123
+          },
+          "replay_end_step": 138,
+          "deadlocks": 0,
+          "replay_seconds": 0.081149
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "9837656d686674bc472d68ec2e1ed53f5b5ac45aa0b9d38de3593f787f3722da",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          154,
+          236
+        ],
+        "metrics": {
+          "lateness": 154,
+          "time_in_network": 236,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 154,
+        "historical_api_score": 398,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 236,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 137,
+          "1": 138,
+          "2": 123
+        },
+        "replay_end_step": 138,
+        "deadlocks": 0,
+        "replay_seconds": 0.081149
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-4-dla-072-h1",
+      "preset": "uc2-4",
+      "handle": 1,
+      "takeover_step": 72,
+      "native_horizon": 180,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.060593,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "bd0c731a70a842c535ea66cb16d8b17fe8cbb0f4f450c3453ee4fa737054b71e",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            64,
+            92
+          ],
+          "metrics": {
+            "lateness": 64,
+            "time_in_network": 92,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 64,
+          "historical_api_score": 308,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 92,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 108,
+            "1": 109,
+            "2": 91
+          },
+          "replay_end_step": 109,
+          "deadlocks": 0,
+          "replay_seconds": 0.039852
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "bd0c731a70a842c535ea66cb16d8b17fe8cbb0f4f450c3453ee4fa737054b71e",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          64,
+          92
+        ],
+        "metrics": {
+          "lateness": 64,
+          "time_in_network": 92,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 64,
+        "historical_api_score": 308,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 92,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 108,
+          "1": 109,
+          "2": 91
+        },
+        "replay_end_step": 109,
+        "deadlocks": 0,
+        "replay_seconds": 0.039852
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    },
+    {
+      "id": "uc2-4-dla-090-h2",
+      "preset": "uc2-4",
+      "handle": 2,
+      "takeover_step": 90,
+      "native_horizon": 180,
+      "source_state_unchanged": true,
+      "generation_seconds": 0.050279,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "candidate_id": "historical-greedy",
+          "intervention": {
+            "kind": "rl"
+          },
+          "course_sha256": "36ad4d8174e64aaef201a79aeefe41660f474dadc1c104555bdf63fb88fe6d1c",
+          "completed": 3,
+          "total": 3,
+          "rank": [
+            0,
+            64,
+            38
+          ],
+          "metrics": {
+            "lateness": 64,
+            "time_in_network": 38,
+            "not_arrived": 0
+          },
+          "native_completed_lateness": 64,
+          "historical_api_score": 308,
+          "historical_api_metrics": {
+            "lateness": 0,
+            "time_in_network": 38,
+            "not_arrived": 0
+          },
+          "arrival_steps": {
+            "0": 108,
+            "1": 109,
+            "2": 91
+          },
+          "replay_end_step": 109,
+          "deadlocks": 0,
+          "replay_seconds": 0.028873
+        }
+      ],
+      "best": {
+        "candidate_id": "historical-greedy",
+        "intervention": {
+          "kind": "rl"
+        },
+        "course_sha256": "36ad4d8174e64aaef201a79aeefe41660f474dadc1c104555bdf63fb88fe6d1c",
+        "completed": 3,
+        "total": 3,
+        "rank": [
+          0,
+          64,
+          38
+        ],
+        "metrics": {
+          "lateness": 64,
+          "time_in_network": 38,
+          "not_arrived": 0
+        },
+        "native_completed_lateness": 64,
+        "historical_api_score": 308,
+        "historical_api_metrics": {
+          "lateness": 0,
+          "time_in_network": 38,
+          "not_arrived": 0
+        },
+        "arrival_steps": {
+          "0": 108,
+          "1": 109,
+          "2": 91
+        },
+        "replay_end_step": 109,
+        "deadlocks": 0,
+        "replay_seconds": 0.028873
+      },
+      "cleanup": {
+        "native_lru_entries": 0,
+        "temporary_override_sessions": 0,
+        "process_peak_rss_bytes": 306872320
+      }
+    }
+  ],
+  "summary": {
+    "all": {
+      "cases": 46,
+      "solved": 44,
+      "completed": 126,
+      "native_completed_lateness": 1966,
+      "api_lateness": 1914,
+      "generation_seconds": 3.103176,
+      "candidate_counts": {
+        "1": 46
+      }
+    },
+    "tutorial": {
+      "cases": 10,
+      "solved": 8,
+      "completed": 18,
+      "native_completed_lateness": 140,
+      "api_lateness": 134,
+      "generation_seconds": 0.287277,
+      "candidate_counts": {
+        "1": 10
+      }
+    },
+    "uc2-1": {
+      "cases": 9,
+      "solved": 9,
+      "completed": 27,
+      "native_completed_lateness": 543,
+      "api_lateness": 538,
+      "generation_seconds": 0.773021,
+      "candidate_counts": {
+        "1": 9
+      }
+    },
+    "uc2-2": {
+      "cases": 9,
+      "solved": 9,
+      "completed": 27,
+      "native_completed_lateness": 240,
+      "api_lateness": 217,
+      "generation_seconds": 0.459374,
+      "candidate_counts": {
+        "1": 9
+      }
+    },
+    "uc2-3": {
+      "cases": 9,
+      "solved": 9,
+      "completed": 27,
+      "native_completed_lateness": 236,
+      "api_lateness": 218,
+      "generation_seconds": 0.751687,
+      "candidate_counts": {
+        "1": 9
+      }
+    },
+    "uc2-4": {
+      "cases": 9,
+      "solved": 9,
+      "completed": 27,
+      "native_completed_lateness": 807,
+      "api_lateness": 807,
+      "generation_seconds": 0.831817,
+      "candidate_counts": {
+        "1": 9
+      }
+    }
+  }
+}
