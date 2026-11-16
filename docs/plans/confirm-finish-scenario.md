@@ -2,7 +2,7 @@
 
 > **Status:** plan of 2026-11-16, built by 2026-11-16. Based on `main` `fd0c70cb`. Issue
 > [#180](https://github.com/flatland-association/flatland-ui-hub/issues/180) ("Dialog einfügen: Szenario abschliessen
-> bestätigen", label "plan b"). Branch `feature/180-confirm-finish-scenario`, PR not opened yet. Open questions: none (§9.1).
+> bestätigen", label "plan b"). Branch `feature/180-confirm-finish-scenario`, PR [#206](https://github.com/flatland-association/flatland-ui-hub/pull/206). Open questions: none (§9.1).
 >
 > **Why:** One click on the finish button ends the scenario for good: the leg is recorded as finished and the run moves
 > to the next scenario or the questionnaire. A participant who clicks it by mistake breaks the experiment; a
