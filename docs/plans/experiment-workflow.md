@@ -1067,6 +1067,9 @@ scenario's "⟨name⟩ (k/N)" and its steps, nothing else (§5.5).
   - "Szenario abschliessen → Fragebogen" when a leg questionnaire follows;
   - otherwise "→ Gotthard (3/4)";
   - on the last leg "→ Schichtbilanz".
+- A click on it first asks "Aktuelles Szenario abschliessen?" ("Ja" /
+  "Zurück") and pauses the run meanwhile, unless the condition sets
+  `finishConfirm: false` (#180, [confirm-finish-scenario.md](confirm-finish-scenario.md)).
 
 **Where the name is configured.** On the leg: `ExperimentLeg.nameKey` is an
 i18n key, translated in `public/i18n/{en,de,fr}.json` under

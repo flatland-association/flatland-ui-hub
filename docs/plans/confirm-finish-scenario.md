@@ -59,7 +59,7 @@ Requirements:
 
 | Follow-up | Why not in this PR | From | Findings | Issue |
 |---|---|---|---|---|
-| Confirm "Schicht beenden" (tour guide, Director panel) too. | It calls `store.endShift()` directly from two other components; Plan B hides it (`control.endShift`). | Q-5 | - | - |
+| Confirm "Schicht beenden" (tour guide, Director panel) too. | It calls `store.endShift()` directly from two other components; Plan B hides it (`control.endShift`, and in the guide also `hasShiftSummary()`). | Q-5 | - | - |
 | A `data-log` id on the finish button itself (today logged with the fallback `target`). | Its label is a computed string, not a key; the deciding click is now "Ja", which gets an id. | §4.5 | - | - |
 | Replace the other `window.confirm` calls (saved runs, layout designer, infrastructure builder) by `sbb-dialog`. | Internal tools, outside the issue. | §3 | - | - |
 
@@ -117,14 +117,17 @@ Context:
 - `AppComponent` already pauses and resumes around a shown reflection (`_resumeAfterReflection`:
   `store.pause()`, then `store.play(store.activePolicy() || store.defaultPolicy(), store.playSpeed())`).
 - "Schicht beenden": `TourGuideComponent.endShift()` and `DirectorDirectiveComponent.endShift()` call
-  `store.endShift()`; in a run `_legEndsWithShift` then calls `advanceExperiment('endShift')`. Hidden by
-  `control.endShift` in Plan B (`layout-presets.ts`).
+  `store.endShift()`; in a run `_legEndsWithShift` then calls `advanceExperiment('endShift')`. The guide shows its
+  button only where `control.endShift` is not hidden and the condition has the Schichtbilanz (`hasShiftSummary()`,
+  `tour-guide.component.html:52`, #174 finding 7); the Director panel's only checks `control.endShift`. Plan B hides
+  both (`layout-presets.ts`) and has no Schichtbilanz.
 - Per-experiment switches: `StudyCondition.shiftSummary?: boolean` with `hasShiftSummary(c)` (absent = on) is the
   pattern; `Tour` has optional switches of the same kind (`studyLogging`, `surveyParts`, …).
 - Clicks are logged by `ClickLogService`; `resolveTarget()` takes the nearest `data-log`.
 - No `sbb-dialog` is used yet; confirmations elsewhere are `window.confirm` (`saved-runs-list.component.ts:138`,
-  layout designer, infrastructure builder). Lyne's dialog is `position: fixed` with a z-index (not the browser's top
-  layer).
+  layout designer, infrastructure builder). Lyne's dialog opens with `showPopover()` (its overlay base,
+  `overlay/overlay-base-element.js`), so it lives in the browser's top layer: above every z-index of the page,
+  wherever it sits in the DOM.
 
 Scope: the change adds the dialog to `AppComponent`, the switch to `StudyCondition` and `Tour`, and the field to the
 leg's record. It only reads `TourContextService.refuseFinish()`; the toolbar, `finishLabel`, `LegFinishReason` and
@@ -378,8 +381,8 @@ Fragebogen" ends nothing and doesn't ask.
 ✅ ~~**(Q-2) Who opens the dialog: the toolbar (a) or `AppComponent` (b)?**~~ **Decided 2026-11-16:** b). Both were prototyped on 2026-11-16 and
 screenshotted in leg 1 of `plan-b-p01`: [a) toolbar](confirm-finish-scenario/q2-a-toolbar-dialog.png),
 [b) `AppComponent`](confirm-finish-scenario/q2-b-app-dialog.png). The pictures are the same; a pixel diff differs
-only in the simulation state (step counter, session id). Lyne's dialog is `position: fixed` and nothing above the
-toolbar clips it, so where it sits in the DOM doesn't show. The difference is in the workflow and the code:
+only in the simulation state (step counter, session id). Lyne's dialog opens in the browser's top layer
+(`showPopover()`), so where it sits in the DOM doesn't show. The difference is in the workflow and the code:
 - a) Toolbar: `requestFinishDemoMode()` opens it, "Ja" emits the unchanged `finishDemoMode`. `AppComponent` stays
   untouched, but the toolbar must call `refuseFinish()` itself first (a second, harmless call), resume with its own
   policy, and get the tour's switch as a new `@Input` (the tour is `AppComponent.selectedTour()`). The dialog goes
@@ -400,7 +403,9 @@ also removes the need to close the dialog on an automatic end: no simulated time
 
 ✅ ~~**(Q-5) Does "Schicht beenden" also ask?**~~ **Decided 2026-11-16:** a), a follow-up (§1.4). New since Q-1: in an experiment run the guide's and the Director panel's
 "Schicht beenden" also end the scenario for good (`store.endShift()` → `advanceExperiment('endShift')`). Outside a run
-it only opens the shift screen, which has "← Zurück zur laufenden Schicht". Plan B hides it (`control.endShift`).
+it only opens the shift screen, which has "← Zurück zur laufenden Schicht". Plan B hides it (`control.endShift`); the
+guide's button also needs the Schichtbilanz (`hasShiftSummary()`, #174 finding 7), so in a run only conditions with a
+Schichtbilanz (e.g. `colearning-experiment`) and the Director panel show it.
 - a) Not in this PR (follow-up, §1.4).
 - b) Ask there too: `TourGuideComponent` and `DirectorDirectiveComponent` would need a way to reach the dialog (a
   request signal in `TourContextService`, which both already inject), and `finishConfirm.confirmed` would also be
@@ -457,6 +462,7 @@ None yet.
 |---|---|---|---|---|---|---|---|---|
 | ✅ S-1 | - | Switch `finishConfirm` on `StudyCondition`/`Tour` and `hasFinishConfirm` (§4.4); the dialog with pause in `AppComponent` (§4.3); keys in en/de/fr; `finishConfirm` record field (§4.5); spec cases (§4.2); click-id table and the field in `docs/experiment-logging.md`. | feature | medium | `feat(experiment-run): ask "Aktuelles Szenario abschliessen?" before a scenario is finished by hand.` | a74e605c | - | - |
 | 💡 S-2 | - | `scripts/docshots-confirm-finish-scenario.mjs`; before and after screenshots in `docs/plans/confirm-finish-scenario/`; §4.2 results filled in. | docs | low | `docs(plans): confirm finish scenario: screenshots and verification.` |  | S-1 | - |
+| 💡 S-3 | - | Align with #174's plan: §3 and Q-5 name the guide's `hasShiftSummary()` gate of "Schicht beenden"; `docs/README.md` lists this plan; `experiment-workflow.md` §5.4 names the dialog; §3 and Q-2 say the dialog opens in the browser's top layer (`showPopover()`), not `position: fixed`. | docs | low | `docs(plans): confirm finish scenario: align with the plan of #174.` |  | S-2 | - |
 
 ## 12. Change inventory
 
@@ -487,6 +493,8 @@ None yet.
 | `frontend/src/app/core/demo/tour-context.service.ts` | `ShiftRecord.finishConfirm?: {confirmed: boolean; backs: number}`. |
 | `frontend/public/i18n/{en,de,fr}.json` | `experimentRun.finishConfirm.{title,yes,back}`. |
 | `docs/experiment-logging.md` | `finishConfirm` next to `runError` in the `leg_finished` section; click-id table regenerated (two new ids). |
+| `docs/plans/experiment-workflow.md` | §5.4: the finish button asks first, unless `finishConfirm: false` (S-3). |
+| `docs/README.md` | A line for this plan, next to #174's (S-3). |
 
 Unchanged on purpose: `toolbar.component.*` (with b) of Q-2), `finishLabel`, `LegFinishReason`, `advanceExperiment`,
 `tour-guide` and `director-directive` (Q-5), `tour-briefings.ts` (its sentence stays true), the backend (records are
