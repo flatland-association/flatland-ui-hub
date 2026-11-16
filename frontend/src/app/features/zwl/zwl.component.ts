@@ -86,11 +86,15 @@ interface TrainLine {
   forecastD: string;
   /** The timetable (Soll), empty without a plan. */
   planD: string;
-  labelX: number;
   /** Current delay suffix, e.g. "+5" (steps); '' when on time. */
   delay: string;
-  labelY: number;
-  labelAnchor: 'start' | 'end';
+}
+
+/** A train's name where its line crosses the now-line, just above it. */
+interface NowLabel {
+  x: number;
+  y: number;
+  anchor: 'start' | 'end';
 }
 
 interface PlacedDelay extends DelayMark {
@@ -660,8 +664,6 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
 
   readonly lines = computed<TrainLine[]>(() => {
     const out: TrainLine[] = [];
-    const right = this.plotX0() + this.plotW();
-    const bottom = this.plotY0() + this.plotH();
     for (const [handle, { past, forecast }] of this.points()) {
       const lastPast = past[past.length - 1];
       // The forecast continues from the last executed point, so the two read as
@@ -673,10 +675,6 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
       const labelAt = lastOnAxis(fc) ?? lastOnAxis(past);
       if (!labelAt || labelAt.pos == null) continue;
       const planRun = this.planOnAxis().get(handle) ?? [];
-      const [ex, ey] = this.pt(labelAt.step, labelAt.pos);
-      // Near the right/bottom edge the name goes inside the plot, not off it.
-      const nearRight = ex > right - 70;
-      const nearBottom = ey > bottom - 14;
       out.push({
         handle,
         name: this.identity.nameFor(handle),
@@ -685,12 +683,35 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
         pastD: this.pathD(past),
         forecastD: this.pathD(fc),
         planD: planRun.length > 1 ? this.pathD(planRun) : '',
-        labelX: nearRight ? ex - 4 : ex + 4,
-        labelAnchor: nearRight ? 'end' : 'start',
-        labelY: this.timeVertical() && !nearBottom ? ey + 12 : ey - 4,
       });
     }
     return out.sort((a, b) => a.handle - b.handle);
+  });
+
+  /** Each train's name sits where its line crosses the now-line, just above
+   *  it, and moves with it (docs/plans/plan-b-small-changes.md, item 5). A
+   *  train whose line doesn't reach the now-line (not departed yet, already
+   *  arrived, or off this axis now) has no name. Kept apart from `lines`,
+   *  which would otherwise rebuild every path on each animation frame. */
+  readonly nowLabels = computed(() => {
+    const out = new Map<number, NowLabel>();
+    const now = this.now();
+    const tv = this.timeVertical();
+    const line = this.nowLine();
+    const right = this.plotX0() + this.plotW();
+    for (const [handle, { past, forecast }] of this.points()) {
+      const last = past[past.length - 1];
+      if (!last || last.pos == null) continue;
+      if (forecast.length === 0 && last.step < now - 1) continue; // arrived
+      const at = this.placePos(last.pos);
+      if (tv) {
+        const nearRight = at > right - 70;
+        out.set(handle, { x: nearRight ? at - 4 : at + 4, y: line.y1 - 4, anchor: nearRight ? 'end' : 'start' });
+      } else {
+        out.set(handle, { x: line.x1 + 4, y: at - 4, anchor: 'start' });
+      }
+    }
+    return out;
   });
 
   private bandNames(handles: number[]): string {
