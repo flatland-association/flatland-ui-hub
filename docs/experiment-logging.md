@@ -206,8 +206,12 @@ whole installation: `gut`, `missing`, `tradeoff` by default, or the order
 `ui-config.json` sets, e.g. `"reflectionQuestionOrder": ["missing", "gut",
 "tradeoff"]` (questions not listed follow in the default order). The header's
 `reflectionQuestionOrder` names the order in effect. Records made before it
-existed have no such field: there the order was drawn per decision. See
-`docs/plans/reflection-question-order.md`.
+existed have no such field: there the order was drawn per decision, by
+`pickQuestions(t, 3)` in
+`frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts`
+(last at commit fd0c70c, removed since), seeded by the decision's `t`. To
+re-derive an older record's order, run that function on each decision's
+`t`. See `docs/plans/reflection-question-order.md`.
 
 **Between sessions.** A record keeps receiving these events after its
 session ended, until the next session starts. The questionnaire after
