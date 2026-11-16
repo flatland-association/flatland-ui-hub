@@ -191,12 +191,13 @@ export class ExperimentRunService {
   }
 
   /** What the run adds to the record of the session that starts now; `RunContext`'s run fields. */
-  runContext(): { experimentRunId: string | null; legId: string | null; legIndex: number; shiftSummary: boolean } {
+  runContext(): { experimentRunId: string | null; legId: string | null; legIndex: number; shiftSummary: boolean; finishConfirm: boolean } {
     return {
       experimentRunId: this.experimentRunId(),
       legId: this.currentLeg()?.id ?? null,
       legIndex: this.legIndex(),
       shiftSummary: this.hasShiftSummary(),
+      finishConfirm: this.hasFinishConfirm(),
     };
   }
 

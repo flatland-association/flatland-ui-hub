@@ -211,7 +211,10 @@ played (tours have no `legId`). A reset keeps both. `header.shiftSummary`
 is `true` or `false` in every session of a guided condition: whether its run
 ends with the Schichtbilanz. Tours and other sessions have no such field,
 nor do records made before it existed (before #174), which all had the
-Schichtbilanz. Group the legs of a run:
+Schichtbilanz. `header.finishConfirm` is `true` or `false` the same way:
+whether a hand-made finish asks first (#180); absent in tours, other
+sessions and records made before #180, which never asked. Group the legs of
+a run:
 
 ```python
 import gzip, json, pandas as pd
@@ -249,7 +252,7 @@ leg ended with "Ja" (`finishReason: 'clicked'`), `false` when it ended
 otherwise; `backs` counts how often the dialog was closed without "Ja"
 (Zurück, Escape, the backdrop) in that leg. A condition with
 `finishConfirm: false` finishes at once and its legs have no such field, nor
-have records made before #180. The two buttons are also clicks
+have records made before #180; `header.finishConfirm` tells the two apart. The two buttons are also clicks
 (`experimentRun.finishConfirm.yes`, `experimentRun.finishConfirm.back`).
 
 ### UI state: panels and viewports

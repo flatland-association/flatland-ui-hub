@@ -313,7 +313,7 @@ describe('ExperimentRunService', () => {
   it('hands the record its run fields, the Schichtbilanz flag included', () => {
     begin(run, store, { ...TWO_LEGS, shiftSummary: false });
     store.advanceDemo();
-    expect(run.runContext()).toEqual({ experimentRunId: run.experimentRunId(), legId: 'wal-follower', legIndex: 1, shiftSummary: false });
+    expect(run.runContext()).toEqual({ experimentRunId: run.experimentRunId(), legId: 'wal-follower', legIndex: 1, shiftSummary: false, finishConfirm: true });
     begin(run, store, TWO_LEGS);
     expect(run.runContext().shiftSummary).toBeTrue();
   });

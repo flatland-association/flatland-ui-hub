@@ -1931,7 +1931,7 @@ export class AppComponent implements OnInit {
       conditionLabel: experiment?.label ?? null,
       ...(run.active()
         ? run.runContext()
-        : { experimentRunId: tour?.runId ?? null, legId: null, legIndex: tour?.legIndex ?? null, shiftSummary: null }),
+        : { experimentRunId: tour?.runId ?? null, legId: null, legIndex: tour?.legIndex ?? null, shiftSummary: null, finishConfirm: null }),
       layoutId: this.selectedRuntimeLayoutId(),
       tourId: tour?.tourId ?? null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,

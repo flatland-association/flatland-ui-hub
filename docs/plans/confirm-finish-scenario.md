@@ -33,6 +33,9 @@ Requirements:
   2026-11-16)
 - **REQ-6** The run record says, per scenario, whether it was finished through the dialog and how often "Zurück" was
   chosen, in a field of its own. (Q-4, added 2026-11-16)
+- **REQ-7** Every session of a guided condition records whether the condition asks (`true` or `false`), so "turned
+  off" can be told from "recorded before #180", as #174 does for `shiftSummary`. (Added 2026-11-16 by the maintainer,
+  from the comparison with #174's plan.)
 
 ### 1.2 Quality goals (non-functional requirements)
 
@@ -167,6 +170,7 @@ Reused concepts:
 | Pause and resume | `AppComponent`'s reflection pause (`store.pause()`, `store.play(activePolicy ‖ defaultPolicy, playSpeed)`) | A new playback state |
 | Refusal for open reflections | `TourContextService.refuseFinish()` where it is called today | Moving the check |
 | Recording the answer | Optional field next to `runError` in `ShiftRecord` and `leg_finished` | A new event type such as `finish_confirmed`, or a new `LegFinishReason` |
+| Recording whether the condition asks (REQ-7) | The session header's run fields from `runContext()`, as `header.shiftSummary` (#174 findings 3, 13) | Inferring it from the leg field's absence, which old records share |
 | Logging each click | `ClickLogService` with `data-log` ids | Own click events |
 
 Not new on purpose: no new endpoint, event, `LegFinishReason`, UI-config item or setting; `finishDemoMode` and
@@ -187,6 +191,7 @@ backend; before on `main` `fd0c70cb`, after on this branch, by `scripts/docshots
 | REQ-4 | On by default, off per experiment | spec ("finishes at once where the condition turns it off"); `study-conditions.spec.ts` (`hasFinishConfirm`) | ✅ No condition or tour sets it off yet (§4.4). | - |
 | REQ-5 | Paused while open | spec (pause on open, resume after "Zurück", no resume when paused before); running app: the step counter | ✅ Step 6 when the dialog opened and still 6 two seconds later; 7 after "Zurück". | footer without "Läuft" in [`1-after-dialog.png`](confirm-finish-scenario/1-after-dialog.png), with it in [`3-after-back.png`](confirm-finish-scenario/3-after-back.png) |
 | REQ-6 | Answer in the record | `experiment-run.service.spec.ts` (present, per reason, reset per leg, absent when off); running app: the persisted run state | ✅ Leg 1 after one "Zurück" and "Ja": `finishConfirm: {"confirmed": true, "backs": 1}`; on `main` no such field. | - |
+| REQ-7 | The switch in every guided session's header | `experiment-run.service.spec.ts` (`runContext()`), `interaction-log.service.spec.ts` (header in and outside a guided run); running app: saved records | ✅ Both Plan B sessions' headers: `"finishConfirm": true`, next to `"shiftSummary": false`. | [`6-record-header.png`](confirm-finish-scenario/6-record-header.png) |
 | NFR-1 | Study data comparable | `npm run i18n:check` (49 click ids, all keys; 47 on `main`); click-id table regenerated; field documented in `docs/experiment-logging.md` | ✅ | - |
 | NFR-2 | Translated, keyboard-usable | `npm run i18n:check`; running app: focus and Escape | ✅ Focus is in the dialog on open; Escape closes it like "Zurück". The en/fr texts are checked by `i18n:check` only: `plan-b-p01`'s briefing switches the UI to German. | - |
 | DP-2 | No dialog for "Weiter zum Fragebogen" | spec ("does not ask for \"Weiter zum Fragebogen\"") | ✅ | - |
@@ -257,6 +262,15 @@ Read from the page (`scripts/docshots-confirm-finish-scenario.mjs`, 2026-11-16):
     `legStarted()`. Not persisted: a resumed leg restarts on a fresh session and counts from 0.
   - Absent when the condition turned the dialog off. The same object goes into `ShiftRecord.finishConfirm` (the run
     record's `legs`). Nothing is removed; values are illustrative.
+- Session header (REQ-7), filled from `ExperimentRunService.runContext()` like `shiftSummary`: `true` or `false` in
+  every session of a guided condition; absent in tours, free sessions and records made before #180.
+
+```diff
+ "header": { "sessionId": "b3f2f07c", "conditionId": "plan-b-p01", "legId": "tutorial", "legIndex": 0,
+   "shiftSummary": false,
++  "finishConfirm": true,   // added: the condition asks before a hand-made finish
+   "…": "…" }
+```
 
 ## 5. Building block view
 
@@ -355,14 +369,16 @@ Compared with `main`. What is reused, and what is not new on purpose, is in §4.
 | ID | New | Defined in |
 |---|---|---|
 | PAT-1 | First use of Lyne `sbb-dialog` in the app, for a participant-facing confirmation (`backdrop="translucent"`, result via `sbb-dialog-close="confirm"`). | §4.3 |
-| PAT-2 | Record field `finishConfirm: {confirmed, backs}` on `ShiftRecord` and `leg_finished`. | §4.5 |
+| PAT-2 | Record field `finishConfirm: {confirmed, backs}` on `ShiftRecord` and `leg_finished`, and `header.finishConfirm` in every guided session (REQ-7). | §4.5 |
 
 ### 8.2 Breaking changes
 
 *What breaks for whom, and the migration path.*
 
-None for callers: `finishDemoMode` and `finishLabel` keep their signatures, `leg_finished` and `ShiftRecord` only gain
-an optional field (absent in old records, so readers treat absent as "no dialog"). Visible change only: a hand-made
+None for callers: `finishDemoMode` and `finishLabel` keep their signatures, `leg_finished`, `ShiftRecord` and the
+session header only gain optional fields (absent in old records, so readers treat absent as "no dialog").
+`RunContext` gains a required `finishConfirm: boolean | null`; its only writers, `ExperimentRunService.runContext()`
+and `AppComponent`'s tour context, set it. Visible change only: a hand-made
 finish now needs a second click ("Ja"). Analyses that count finish-button clicks should count
 `experimentRun.finishConfirm.yes` or read `finishConfirm` instead.
 
@@ -426,6 +442,7 @@ conditions that don't need it yet.
 | 2026-11-16 | ✅ Q-4: the answer in a field of its own (§4.5). | Maintainer. The field also carries the "Zurück" count, the mis-clicks the issue is about. | REQ-6, PAT-2; docs in `docs/experiment-logging.md`. |
 | 2026-11-16 | ✅ Q-2: `AppComponent` asks, not the toolbar (§4.3). | Both prototyped; the same picture. The reflection check, the pause pattern, the condition and the tour are already in `AppComponent`; the toolbar would need them passed in. | DP-1; toolbar unchanged; `AppComponent` +~25 lines. |
 | 2026-11-16 | ✅ Q-5: "Schicht beenden" doesn't ask in this PR. | Hidden in Plan B; asking there needs a new cross-component request. | Follow-up in §1.4; limitation in §2.1. |
+| 2026-11-16 | ✅ The switch goes into every guided session's header (REQ-7, §4.5). | Maintainer, after the comparison with #174's plan: without it "turned off" and "before #180" look the same, the gap #174 closed for `shiftSummary` (its findings 3, 13). | S-4; `RunContext.finishConfirm`. |
 
 ### 9.3 Code Review Findings
 
@@ -462,7 +479,8 @@ None yet.
 |---|---|---|---|---|---|---|---|---|
 | ✅ S-1 | - | Switch `finishConfirm` on `StudyCondition`/`Tour` and `hasFinishConfirm` (§4.4); the dialog with pause in `AppComponent` (§4.3); keys in en/de/fr; `finishConfirm` record field (§4.5); spec cases (§4.2); click-id table and the field in `docs/experiment-logging.md`. | feature | medium | `feat(experiment-run): ask "Aktuelles Szenario abschliessen?" before a scenario is finished by hand.` | a74e605c | - | - |
 | 💡 S-2 | - | `scripts/docshots-confirm-finish-scenario.mjs`; before and after screenshots in `docs/plans/confirm-finish-scenario/`; §4.2 results filled in. | docs | low | `docs(plans): confirm finish scenario: screenshots and verification.` |  | S-1 | - |
-| 💡 S-3 | - | Align with #174's plan: §3 and Q-5 name the guide's `hasShiftSummary()` gate of "Schicht beenden"; `docs/README.md` lists this plan; `experiment-workflow.md` §5.4 names the dialog; §3 and Q-2 say the dialog opens in the browser's top layer (`showPopover()`), not `position: fixed`. | docs | low | `docs(plans): confirm finish scenario: align with the plan of #174.` |  | S-2 | - |
+| ✅ S-3 | - | Align with #174's plan: §3 and Q-5 name the guide's `hasShiftSummary()` gate of "Schicht beenden"; `docs/README.md` lists this plan; `experiment-workflow.md` §5.4 names the dialog; §3 and Q-2 say the dialog opens in the browser's top layer (`showPopover()`), not `position: fixed`. | docs | low | `docs(plans): confirm finish scenario: align with the plan of #174.` | 59dcf352 | S-2 | - |
+| 💡 S-4 | - | `header.finishConfirm` from `runContext()` (§4.5, REQ-7), with specs; `docs/experiment-logging.md`. | feature | low | `feat(experiment-run-record): record whether the condition asks before a scenario is finished.` |  | S-3 | - |
 
 ## 12. Change inventory
 
@@ -484,17 +502,19 @@ None yet.
 | File | Changes |
 |---|---|
 | `frontend/src/app/app.component.html` | `<sbb-dialog #finishConfirm backdrop="translucent">` with title and the "Zurück"/"Ja" buttons and their `data-log` ids. |
-| `frontend/src/app/app.component.ts` | Imports `@sbb-esta/lyne-elements/dialog.js`; `finishDemoMode()` asks after `refuseFinish()` (`finishConfirmAsked()`, pause); today's branches move into `finishDemoModeConfirmed()`; `onFinishConfirmClose(event)`. |
+| `frontend/src/app/app.component.ts` | The tour's run context has `finishConfirm: null` (S-4). Imports `@sbb-esta/lyne-elements/dialog.js`; `finishDemoMode()` asks after `refuseFinish()` (`finishConfirmAsked()`, pause); today's branches move into `finishDemoModeConfirmed()`; `onFinishConfirmClose(event)`. |
 | `frontend/src/app/app.component.spec.ts` | Cases of §4.2 (open, "Ja", "Zurück"/Escape, pause/resume, switch off, tour, `legSurvey`). |
 | `frontend/src/app/core/demo/study-conditions.ts` | `StudyCondition.finishConfirm?: boolean`; `hasFinishConfirm(c)`. |
 | `frontend/src/app/core/demo/tours.ts` | `Tour.finishConfirm?: boolean`. |
-| `frontend/src/app/core/demo/experiment-run.service.ts` | `hasFinishConfirm` computed; `finishConfirmBack()`; the `backs` counter (reset in `legStarted()`, not in `ExperimentRunState`); `finishConfirm` in `recordShift(...)` and `noteLegFinished(...)`. |
+| `frontend/src/app/core/demo/experiment-run.service.ts` | `runContext()` returns `finishConfirm` (S-4); `hasFinishConfirm` computed; `finishConfirmBack()`; the `backs` counter (reset in `legStarted()`, not in `ExperimentRunState`); `finishConfirm` in `recordShift(...)` and `noteLegFinished(...)`. |
 | `frontend/src/app/core/demo/experiment-run.service.spec.ts` | The field present/absent, `confirmed` per reason, `backs` reset per leg. |
 | `frontend/src/app/core/demo/tour-context.service.ts` | `ShiftRecord.finishConfirm?: {confirmed: boolean; backs: number}`. |
 | `frontend/public/i18n/{en,de,fr}.json` | `experimentRun.finishConfirm.{title,yes,back}`. |
 | `docs/experiment-logging.md` | `finishConfirm` next to `runError` in the `leg_finished` section; click-id table regenerated (two new ids). |
 | `docs/plans/experiment-workflow.md` | §5.4: the finish button asks first, unless `finishConfirm: false` (S-3). |
 | `docs/README.md` | A line for this plan, next to #174's (S-3). |
+| `frontend/src/app/core/interaction-log/session-record.ts` | `RunContext.finishConfirm`, `EMPTY_RUN_CONTEXT`, optional `SessionHeader.finishConfirm` (S-4). |
+| `frontend/src/app/core/interaction-log/interaction-log.service.ts` / `.spec.ts` | The header copies `finishConfirm` from the run context; spec in and outside a guided run (S-4). |
 
 Unchanged on purpose: `toolbar.component.*` (with b) of Q-2), `finishLabel`, `LegFinishReason`, `advanceExperiment`,
 `tour-guide` and `director-directive` (Q-5), `tour-briefings.ts` (its sentence stays true), the backend (records are
