@@ -1,6 +1,10 @@
 """
 Override API: User can set/clear per-agent action overrides.
 """
+import copy
+import math
+from types import SimpleNamespace
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -9,6 +13,8 @@ from app.core.scenario_cache import scenario_cache
 from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.proposal_agents.registry import proposal_agent_for
+from app.core.pf_ch_control import command_lock
+from app.core import proposal_preview
 from app.core.route_overrides import REROUTE_ACTION, commit_route, drop_route, route_around_blocks
 from app.policies.plan_policy import (
     PlanPolicy,
@@ -16,7 +22,7 @@ from app.policies.plan_policy import (
     plan_branch_factory,
     planned_arrival_steps,
 )
-from app.policies.registry import PLAN_POLICY_ID, scenario_policy_factories
+from app.policies.registry import PLAN_POLICY_ID, get_policy_spec, scenario_policy_factories
 
 router = APIRouter()
 
@@ -26,6 +32,10 @@ class OverrideRequest(BaseModel):
 
 
 def _policy_factory_for(policy_id: str):
+    # Bounded RL actors are deliberately excluded from the general scenario
+    # catalogue, but a forecast must still follow the actual selected Driver.
+    if policy_id in {"uc2_rl", "pf_ch_rl"}:
+        return get_policy_spec(policy_id).branch_factory
     factories = scenario_policy_factories()
     return factories.get(policy_id, factories["deadlock_avoidance"])
 
@@ -376,12 +386,29 @@ def _course_score(res, planned: dict) -> int:
                 score += _NOT_ARRIVED_PENALTY
             continue
         reference = planned.get(handle)
-        score += int(arrival) - int(reference) if reference is not None else int(arrival)
+        score += max(0, int(arrival) - int(reference)) if reference is not None else int(arrival)
     return score
 
 
 def _arrivals(res) -> dict:
     return {h: o.get("arrival_step") for h, o in sorted(res.agent_outcomes.items())}
+
+
+def proposal_arrival_reference(env) -> dict[int, int]:
+    """Keep native UC2 deadlines as yardstick even after accepting an AI plan."""
+    from app.policies.learned import uc2_roam_bundle
+
+    deadlines = {}
+    for agent in env.agents:
+        latest = getattr(agent, "latest_arrival", None)
+        if latest is not None and math.isfinite(float(latest)):
+            deadlines[int(agent.handle)] = int(latest)
+    if ((env.height, env.width) in {(6, 25), (8, 78)}
+            and uc2_roam_bundle.compatibility_error(env) is None):
+        return deadlines
+    # Explicit scenario trainruns retain their original timetable reference.
+    planned = dict(planned_arrival_steps(env))
+    return {**deadlines, **planned}
 
 
 def _variant_metrics(res, planned: dict, now: int, horizon: int) -> dict:
@@ -402,6 +429,8 @@ def _variant_metrics(res, planned: dict, now: int, horizon: int) -> dict:
     for handle, outcome in res.agent_outcomes.items():
         arrival = outcome.get("arrival_step")
         if arrival is None:
+            if outcome.get("arrived"):
+                continue  # DONE before the fork: no remaining network time
             not_arrived += 1
             time_in_network += int(horizon)
             continue
@@ -414,6 +443,12 @@ def _variant_metrics(res, planned: dict, now: int, horizon: int) -> dict:
         "time_in_network": int(time_in_network),
         "not_arrived": int(not_arrived),
     }
+
+
+def proposal_rank(res, planned: dict, now: int, horizon: int) -> tuple[int, int, int]:
+    """Completion first; early trains cannot cancel another train's lateness."""
+    metrics = _variant_metrics(res, planned, now, horizon)
+    return metrics["not_arrived"], metrics["lateness"], metrics["time_in_network"]
 
 
 def _human_course(env, handle: int, committed: dict, elapsed: int, action, option):
@@ -446,9 +481,11 @@ class ProposalApplyRequest(BaseModel):
     handle: int
     option: str | None = None      # human: hold | hold_until_clear | proceed | reroute
     priority: list[int] | None = None  # ai: the order this replan was computed for
+    candidate_id: str | None = None
+    preview_token: str | None = None
+    source_step: int | None = None
 
 
-@router.post("/{session_id}/proposals/apply")
 def apply_proposal(session_id: str, req: ProposalApplyRequest):
     """Commit one of Plan / KI / Mensch to the running session.
 
@@ -464,12 +501,19 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
     """
     session = session_manager.get(session_id)
     if not session:
+        if req.preview_token is not None:
+            raise HTTPException(409, "This proposal preview's session no longer exists; load proposals again")
         raise HTTPException(404, f"Session {session_id} not found")
 
     env = session.env
     handle = int(req.handle)
     if handle < 0 or handle >= len(env.agents):
+        if req.preview_token is not None:
+            raise HTTPException(409, "This proposal preview belongs to another train")
         raise HTTPException(404, f"Agent {handle} not found")
+
+    if req.preview_token is not None and req.variant != "ai":
+        raise HTTPException(409, "A proposal preview token can only accept its AI course")
 
     step = int(getattr(env, "_elapsed_steps", 0) or 0)
 
@@ -479,10 +523,18 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
         label = "Plan behalten"
 
     elif req.variant == "ai":
-        trainruns = proposal_agent_for(session).resolve(env, req.priority or ())
+        if req.preview_token is not None:
+            trainruns = proposal_preview.exact_course(
+                session, req.preview_token, handle=handle, candidate_id=req.candidate_id,
+                source_step=req.source_step, priority=req.priority)
+        else:
+            # Existing clients and PP priority orders retain their resolver.
+            trainruns = proposal_agent_for(session).resolve_for(
+                env, req.priority or (), handle, candidate_id=req.candidate_id)
         if not trainruns:
             raise HTTPException(409, "The planner found no collision-free plan from here")
         accept_trainrun_plan(env, trainruns)
+        env._plan_off_plan = set()  # the replacement starts a new executable course
         session.trainrun_plan = trainruns
         session.policy = PLAN_POLICY_ID
         # The overrides answered the old course; leaving them would fight the
@@ -506,6 +558,10 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
     else:
         raise HTTPException(400, f"Unknown variant {req.variant!r}")
 
+    proposal_preview.clear_previews(session)
+    from app.api.sessions import _invalidate_scenario_forecasts
+    _invalidate_scenario_forecasts(session_id)
+
     return {
         "applied": req.variant,
         "label": label,
@@ -514,14 +570,40 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
     }
 
 
-@router.get("/{session_id}/proposals")
-def get_proposals(
-    session_id: str,
-    handle: int,
-    action: int | None = None,
-    option: str | None = None,
-    alternatives: int = 3,
-):
+def _capture_proposal_source(session, handle, action, option, alternatives):
+    """Capture synchronously on ASGI while command_lock protects the live state."""
+    if handle < 0 or handle >= len(session.env.agents):
+        raise HTTPException(404, f"Agent {handle} not found")
+    if action is not None and action not in (0, 1, 2, 3, 4):
+        raise HTTPException(400, f"Invalid action {action}")
+    if option is not None and option not in PROPOSAL_OPTIONS:
+        raise HTTPException(400, f"Invalid option {option!r}")
+
+    # A Director factory normally snapshots its live player when invoked. Bind
+    # that replay now, before the live Driver advances during worker rollouts.
+    replay = None
+    if session.policy == "goal_directed":
+        replay = _policy_factory_for_session(session)()
+    root = copy.deepcopy(session.env)
+    snapshot = SimpleNamespace(env=root, policy=session.policy,
+                               proposal_agent_id=getattr(session, "proposal_agent_id", None))
+    factory = ((lambda: copy.deepcopy(replay)) if replay is not None
+               else _policy_factory_for_session(snapshot))
+    return (root, factory, dict(override_manager.get_all(session.id)),
+            _baseline_source(session), proposal_preview.source_state(session),
+            snapshot, handle, action, option, max(1, min(int(alternatives), 8)))
+
+
+def _evaluate_proposals(captured):
+    from app.core.native_env_cache import clear_native_environment_caches
+
+    try:
+        return _evaluate_proposals_unchecked(captured)
+    finally:
+        clear_native_environment_caches()
+
+
+def _evaluate_proposals_unchecked(captured):
     """Plan / KI / Mensch for one train, each simulated to the same horizon.
 
     - ``plan``: what drives the session now (its plan, a Director plan or a
@@ -537,41 +619,36 @@ def get_proposals(
 
     Read-only, like the what-if. Plan: docs/plans/proposal-agents-roadmap.md (2a/2c).
     """
-    session = session_manager.get(session_id)
-    if not session:
-        raise HTTPException(404, f"Session {session_id} not found")
-
-    env = session.env
-    if handle < 0 or handle >= len(env.agents):
-        raise HTTPException(404, f"Agent {handle} not found")
-    if action is not None and action not in (0, 1, 2, 3, 4):
-        raise HTTPException(400, f"Invalid action {action}")
+    env, plan_factory, committed, baseline_source, source, snapshot, handle, action, option, alternatives = captured
 
     elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
     max_ep = int(getattr(env, "_max_episode_steps", 0) or 0)
-    horizon = min(max(50, max_ep - elapsed) if max_ep else 200, 250)
-    planned = planned_arrival_steps(env)
-    committed = dict(override_manager.get_all(session_id))
-    plan_factory = _policy_factory_for_session(session)
+    horizon = max(0, max_ep - elapsed) if max_ep else 200
+    planned = proposal_arrival_reference(env)
 
     plan_res = _branch_run(env, plan_factory, committed, horizon)
-    variants = [_proposal_variant("plan", _baseline_source(session), plan_res, handle, planned)]
+    variants = [_proposal_variant("plan", baseline_source, plan_res, handle, planned)]
     variants[0]["score"] = _course_score(plan_res, planned)
     variants[0]["metrics"] = _variant_metrics(plan_res, planned, elapsed, horizon)
 
-    agent = proposal_agent_for(session)
+    agent = proposal_agent_for(snapshot)
     ranked = []
-    for proposal in agent.propose(env):
+    for proposal in agent.propose_for(env, handle):
         res = _branch_run(env, lambda tr=proposal.trainruns: PlanPolicy(None, tr), {}, horizon)
-        ranked.append((_course_score(res, planned), list(proposal.priority), res))
+        ranked.append((proposal_rank(res, planned, elapsed, horizon), proposal, res))
     ranked.sort(key=lambda entry: entry[0])
 
     ai_alternatives = []
-    for rank, (score, order, res) in enumerate(ranked[: max(1, int(alternatives))]):
+    courses = []
+    for rank, (_, proposal, res) in enumerate(ranked[:alternatives]):
         variant = _proposal_variant("ai" if rank == 0 else f"ai-{rank + 1}", agent.id, res, handle, planned)
-        variant["priority"] = order
-        variant["score"] = score
+        variant["priority"] = list(proposal.priority)
+        variant["candidate_id"] = proposal.candidate_id
+        variant["intervention"] = proposal.intervention
+        variant["matches_plan"] = _arrivals(res) == _arrivals(plan_res)
+        variant["score"] = _course_score(res, planned)
         variant["metrics"] = _variant_metrics(res, planned, elapsed, horizon)
+        courses.append((variant, proposal))
         if rank == 0:
             variants.append(variant)
         else:
@@ -587,9 +664,9 @@ def get_proposals(
         variants.append(variant)
 
     return {
-        "session_id": session_id,
         "handle": int(handle),
         "step": elapsed,
+        "source_step": source.step,
         "horizon": horizon,
         "ai_agent": {"id": agent.id, "label": agent.label},
         "ai_available": bool(ranked),
@@ -597,7 +674,53 @@ def get_proposals(
         "ai_matches_plan": bool(ranked) and _arrivals(ranked[0][2]) == _arrivals(plan_res),
         "variants": variants,
         "ai_alternatives": ai_alternatives,
-    }
+    }, courses
+
+
+def _publish_proposals(session, captured, evaluated):
+    payload, courses = evaluated
+    for variant, proposal in courses:
+        variant["preview_token"] = proposal_preview.remember_course(
+            session, captured[4], captured[6], proposal)
+    payload["session_id"] = session.id
+    return payload
+
+
+def get_proposals(session_id: str, handle: int, action: int | None = None,
+                  option: str | None = None, alternatives: int = 3):
+    """Synchronous service entry for callers that already own the live state."""
+    session = session_manager.get(session_id)
+    if session is None:
+        raise HTTPException(404, f"Session {session_id} not found")
+    captured = _capture_proposal_source(session, handle, action, option, alternatives)
+    return _publish_proposals(session, captured, _evaluate_proposals(captured))
+
+
+@router.get("/{session_id}/proposals")
+async def get_proposals_endpoint(session_id: str, handle: int, action: int | None = None,
+                                 option: str | None = None, alternatives: int = 3):
+    session = session_manager.get(session_id)
+    if session is None:
+        raise HTTPException(404, f"Session {session_id} not found")
+    async with command_lock(session):
+        if session_manager.get(session_id) is not session:
+            raise HTTPException(404, f"Session {session_id} not found")
+        captured = _capture_proposal_source(session, handle, action, option, alternatives)
+    evaluated = await proposal_preview.run_preview_work(lambda: _evaluate_proposals(captured))
+    if session_manager.get(session_id) is not session:
+        raise HTTPException(409, "This proposal preview's session no longer exists")
+    return _publish_proposals(session, captured, evaluated)
+
+
+@router.post("/{session_id}/proposals/apply")
+async def apply_proposal_endpoint(session_id: str, req: ProposalApplyRequest):
+    session = session_manager.get(session_id)
+    if session is None:
+        return apply_proposal(session_id, req)
+    # Middleware leaves this endpoint's single transaction to us. Validation
+    # and installation are synchronous on ASGI, without an intervening await.
+    async with command_lock(session):
+        return apply_proposal(session_id, req)
 
 
 @router.delete("/{session_id}/agent/{handle}/override")

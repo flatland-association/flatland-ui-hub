@@ -567,7 +567,9 @@ studies: a control whose meaning changes gets a new one.
 | `log.showOpenReflections` | `features/decision-log/decision-log-panel.component.html` |
 | `mode.<m.id>` | `app.component.html` |
 | `panels.coLearningReflection` | `features/co-learning-reflection/co-learning-reflection.component.html` |
+| `proposals.inspectCourse` | `features/proposal-compare/proposal-compare.component.html` |
 | `proposals.keepPlan` | `features/proposal-compare/proposal-compare.component.html` |
+| `proposals.refreshCourses` | `features/proposal-compare/proposal-compare.component.html` |
 | `proposals.takeAi` | `features/proposal-compare/proposal-compare.component.html` |
 | `proposals.takeHuman` | `features/proposal-compare/proposal-compare.component.html` |
 | `rationale.no` | `features/rationale-capture/rationale-capture.component.html` |

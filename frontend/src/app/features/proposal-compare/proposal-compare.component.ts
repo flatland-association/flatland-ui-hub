@@ -123,6 +123,8 @@ export class ProposalCompareComponent implements OnDestroy {
   readonly committed = signal(false);
   /** Alternatives are the detail: shown on request, not by default. */
   readonly showAlternatives = signal(false);
+  /** Ignore a previous train/option/session's slower forecast response. */
+  private loadGeneration = 0;
 
   readonly targetHandle = computed(() => (this.decided() ? this.decided()!.handle : this.store.selectedHandle()));
 
@@ -132,13 +134,17 @@ export class ProposalCompareComponent implements OnDestroy {
     // different question, so the old answer goes; a different option only asks
     // again for the same train.
     let lastHandle: number | null | undefined;
+    let lastSessionId: string | undefined;
     effect(() => {
       const handle = this.targetHandle();
       const option = this.chosenOption();
+      const sessionId = this.store.session()?.id;
       if (this.decided()) return;
       untracked(() => {
-        if (handle !== lastHandle) {
+        if (handle !== lastHandle || sessionId !== lastSessionId) {
           lastHandle = handle;
+          lastSessionId = sessionId;
+          ++this.loadGeneration;
           this.showAlternatives.set(false);
           this.liveResult.set(null);
           this.store.whatIfPreview.set(null);
@@ -175,6 +181,7 @@ export class ProposalCompareComponent implements OnDestroy {
     const sess = this.store.session();
     const handle = this.targetHandle();
     if (!sess || handle == null) return;
+    const generation = ++this.loadGeneration;
 
     this.loading.set(true);
     this.failed.set(null);
@@ -187,11 +194,13 @@ export class ProposalCompareComponent implements OnDestroy {
 
     this.api.getProposals(sess.id, handle, option ?? undefined).subscribe({
       next: (r) => {
+        if (generation !== this.loadGeneration || this.store.session()?.id !== sess.id || this.targetHandle() !== handle) return;
         this.liveResult.set(r);
         this.loading.set(false);
         this.drawPreview(r, handle);
       },
       error: (err) => {
+        if (generation !== this.loadGeneration || this.store.session()?.id !== sess.id || this.targetHandle() !== handle) return;
         // The backend refuses an option it cannot offer (409: no reroute here).
         // Its sentence is English; the operator gets the same answer in their language.
         this.failed.set(
@@ -211,6 +220,23 @@ export class ProposalCompareComponent implements OnDestroy {
     if (handle != null) this.choice.choose(handle, option);
   }
 
+  /** Inspect another executable AI course; acceptance remains a separate click. */
+  selectAlternative(course: ProposalVariant): void {
+    const r = this.liveResult();
+    const previous = this.ai();
+    const handle = this.targetHandle();
+    if (!r || !previous || handle == null || this.decided() || this.loading() || this.applying()) return;
+    if (!r.ai_alternatives.some((v) => v === course)) return;
+    const next: ProposalsResult = {
+      ...r,
+      variants: r.variants.map((v) => v.id === 'ai' ? { ...course, id: 'ai' } : v),
+      ai_alternatives: r.ai_alternatives.map((v) => v === course ? { ...previous, id: course.id } : v),
+      ai_matches_plan: course.matches_plan ?? false,
+    };
+    this.liveResult.set(next);
+    this.drawPreview(next, handle);
+  }
+
   /**
    * Two paths on the map, which is what the overlay holds: the operator's course
    * in blue against the AI's in yellow once an option is picked, and the AI's
@@ -221,7 +247,7 @@ export class ProposalCompareComponent implements OnDestroy {
     const ai = r.variants.find((v) => v.id === 'ai')?.trajectories;
     const plan = r.variants.find((v) => v.id === 'plan')?.trajectories;
     const yellow = ai ?? plan;
-    const blue = human ?? ai;
+    const blue = human ?? plan;
     if (!yellow || !blue || yellow === blue) {
       this.store.whatIfPreview.set(null);
       return;
@@ -241,7 +267,7 @@ export class ProposalCompareComponent implements OnDestroy {
   take(variant: 'plan' | 'ai' | 'human'): void {
     const sess = this.store.session();
     const handle = this.targetHandle();
-    if (!sess || handle == null) return;
+    if (!sess || handle == null || this.loading() || this.applying() !== null) return;
 
     if (variant === 'human') {
       this.commit();
@@ -249,11 +275,20 @@ export class ProposalCompareComponent implements OnDestroy {
     }
 
     const priority = variant === 'ai' ? this.ai()?.priority : undefined;
+    const course = variant === 'ai' ? this.ai() : null;
+    if (variant === 'ai' && !course) return;
     // What the panel shows now, at the click: the answer may come after
     // another train was selected (finding 29).
     const shown = this.shownOptions();
     this.applying.set(variant);
-    this.api.applyProposal(sess.id, { variant, handle, priority }).subscribe({
+    this.api.applyProposal(sess.id, {
+      variant, handle, priority,
+      ...(course?.preview_token ? {
+        preview_token: course.preview_token,
+        candidate_id: course.candidate_id,
+        source_step: this.result()?.source_step ?? this.result()?.step,
+      } : {}),
+    }).subscribe({
       next: (r) => {
         this.applying.set(null);
         this.appliedVariant.set(variant);
@@ -267,7 +302,13 @@ export class ProposalCompareComponent implements OnDestroy {
       },
       error: (err) => {
         this.applying.set(null);
-        this.failed.set(err?.error?.detail ?? this.i18n.t('proposals.applyFailed'));
+        if (variant === 'ai' && err?.status === 409) {
+          this.failed.set(this.i18n.t('proposals.previewExpired'));
+          this.liveResult.set(null);
+          this.store.whatIfPreview.set(null);
+        } else {
+          this.failed.set(err?.error?.detail ?? this.i18n.t('proposals.applyFailed'));
+        }
       },
     });
   }
@@ -320,6 +361,7 @@ export class ProposalCompareComponent implements OnDestroy {
   readonly shownApplied = computed(() => this.decided()?.applied ?? this.appliedVariant());
 
   ngOnDestroy(): void {
+    ++this.loadGeneration;
     // A read-only copy never drew the map preview, so it leaves the live one.
     if (!this.decided()) this.store.whatIfPreview.set(null);
   }
@@ -377,6 +419,20 @@ export class ProposalCompareComponent implements OnDestroy {
   /** The order the AI would send the trains through, in train names. */
   priorityText(v: ProposalVariant): string {
     return (v.priority ?? []).map((h) => this.identity.nameFor(h)).join(' → ');
+  }
+
+  courseText(v: ProposalVariant): string {
+    const change = v.intervention;
+    if (!change) return this.priorityText(v);
+    if (change.kind === 'wait') {
+      return this.i18n.t('proposals.course.wait', { step: change.step, n: change.wait_steps });
+    }
+    if (change.kind === 'branch') {
+      const direction = change.action === 1 ? 'proposals.course.left'
+        : change.action === 3 ? 'proposals.course.right' : 'proposals.course.forward';
+      return this.i18n.t('proposals.course.branch', { step: change.step, direction: this.i18n.t(direction) });
+    }
+    return this.i18n.t('proposals.course.rl');
   }
 
   signed(value: number): string {

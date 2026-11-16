@@ -1647,9 +1647,9 @@
     "compare": "Comparaison",
     "lessIsBetter": "moins, c’est mieux",
     "notAvailable": "n/d",
-    "aiMatchesPlan": "L’IA garderait ici le plan : son meilleur ordre ne change aucune arrivée.",
-    "hideAlternatives": "Masquer les autres ordres de l’IA",
-    "showAlternatives": "Autres ordres de l’IA ({{n}})",
+    "aiMatchesPlan": "Ce déroulement de l’IA ne change aucune arrivée par rapport au plan.",
+    "hideAlternatives": "Masquer les autres déroulements de l’IA",
+    "showAlternatives": "Autres déroulements de l’IA ({{n}})",
     "holdCaveat": "Dans le prototype, le train s’arrête ainsi ; vous le libérez vous-même dès que l’endroit est dégagé.",
     "aiTakenCaveat": "Les trains suivent désormais le plan de l’IA. « Par rapport au plan » se mesure toujours à l’horaire d’origine.",
     "option": {
@@ -1678,7 +1678,18 @@
     "and": "et",
     "quoted": "« {{name}} »",
     "computing": "Calcul de « {{option}} » …",
-    "compareNote": "Totaux sur tous les trains, en pas de simulation."
+    "compareNote": "Totaux sur tous les trains, en pas de simulation.",
+    "previewExpired": "La simulation ou le plan a changé. Recalculez les déroulements avant d’en adopter un.",
+    "refreshCourses": "Recalculer les déroulements",
+    "inspectCourse": "Afficher ce déroulement",
+    "course": {
+      "rl": "Déroulement propre au modèle",
+      "branch": "Prendre la branche {{direction}} au pas {{step}}",
+      "wait": "Attendre {{n}} pas à partir du pas {{step}}",
+      "left": "à gauche",
+      "forward": "tout droit",
+      "right": "à droite"
+    }
   },
   "zwl": {
     "empty": "Sélectionnez un train pour voir sa trajectoire espace-temps.",

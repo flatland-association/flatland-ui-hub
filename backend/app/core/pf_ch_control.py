@@ -24,6 +24,12 @@ def is_specialist_policy(policy_id: str | None) -> bool:
     """Keep both bounded neural drivers on the existing inference lifecycle."""
     return policy_id in _SPECIALIST_BUNDLES
 
+
+def requires_command_lock(session, policy_id: str | None = None) -> bool:
+    """RL advisers snapshot/apply against ordinary Drivers under the same lock."""
+    return (getattr(session, "proposal_agent_id", None) == "uc2_rl"
+            or is_specialist_policy(policy_id or getattr(session, "policy", None)))
+
 # Small networks do not need one thread per core/session. This bounds active
 # inference workers, while all sessions share one frozen model object.
 _INFERENCE_POOL = ThreadPoolExecutor(max_workers=2, thread_name_prefix="pf-ch-inference")
@@ -120,11 +126,15 @@ class PFChControlMiddleware(BaseHTTPMiddleware):
         if session is None or request.method in {"GET", "HEAD", "OPTIONS"}:
             return await call_next(request)
         path = match[2] or ""
+        if request.method == "POST" and path == "/proposals/apply":
+            # Its async endpoint owns capture validation + install as one lock
+            # transaction. Acquiring here as well would deadlock that endpoint.
+            return await call_next(request)
         if request.method == "POST" and path in {"/what-if-override", "/director/whatif", "/director/verify"}:
             return await call_next(request)
         previous = play_manager.get(session.id)
         requested = await _requested_policy(request, path, session)
-        if not any(is_specialist_policy(policy) for policy in
+        if not requires_command_lock(session) and not any(is_specialist_policy(policy) for policy in
                    (session.policy, getattr(previous, "policy", None), requested)):
             return await call_next(request)
         actor_change = (requested is not None and previous is not None
@@ -140,4 +150,7 @@ class PFChControlMiddleware(BaseHTTPMiddleware):
         async with command_lock(session):
             if destructive or (actor_change and path == "/policy"):
                 await play_manager.stop(session.id)
+            if destructive:
+                from app.core.proposal_preview import clear_previews
+                clear_previews(session)
             return await call_next(request)

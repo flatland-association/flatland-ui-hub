@@ -23,7 +23,7 @@ from app.core.marey_history import capture_marey_history_snapshot
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
 from app.core.play_manager import play_manager, PlayState
-from app.core.pf_ch_control import command_lock, preflight_policy, run_inference, broadcast_playback, is_specialist_policy
+from app.core.pf_ch_control import command_lock, preflight_policy, run_inference, broadcast_playback, is_specialist_policy, requires_command_lock
 from app.policies.learned import pf_ch_bundle, uc2_bundle
 from app.policies.override_policy import OverridePolicy
 from app.policies.registry import create_driving_policy, create_runtime_policy, driving_policy_id
@@ -95,29 +95,24 @@ async def _play_loop(session_id: str):
 
     env = session.env
 
-    try:
-        driving_id, default_policy = create_driving_policy(state.policy, env, factory=lambda pid, e: create_runtime_policy(pid, e))
-    except KeyError:
-        if is_specialist_policy(state.policy):
-            state.running = False
-            await ws_manager.broadcast(session_id, {"type": "error", "session_id": session_id,
-                                                    "message": "The selected RL policy is unavailable"})
-            return
-        driving_id, default_policy = "deadlock_avoidance", create_runtime_policy("deadlock_avoidance", env)
+    async with (command_lock(session) if requires_command_lock(session, state.policy) else nullcontext()):
+        try:
+            driving_id, default_policy = create_driving_policy(state.policy, env, factory=lambda pid, e: create_runtime_policy(pid, e))
+        except KeyError:
+            if is_specialist_policy(state.policy):
+                state.running = False
+                await ws_manager.broadcast(session_id, {"type": "error", "session_id": session_id,
+                                                        "message": "The selected RL policy is unavailable"})
+                return
+            driving_id, default_policy = "deadlock_avoidance", create_runtime_policy("deadlock_avoidance", env)
 
-    policy = OverridePolicy(default_policy, session_id)
-    policy.reset(env)
-    if driving_id != state.policy:
-        session.policy = driving_id
+        policy = OverridePolicy(default_policy, session_id)
+        policy.reset(env)
+        driving_plan = getattr(env, "_trainrun_plan", None)
+        if driving_id != state.policy:
+            session.policy = driving_id
 
     while state.running:
-        # The operator may take an AI plan while this loop runs; follow it from
-        # the next step (registry.driving_policy_id).
-        if not is_specialist_policy(state.policy) and driving_policy_id(state.policy, env) != driving_id:
-            driving_id, default_policy = create_driving_policy(state.policy, env, factory=lambda pid, e: create_runtime_policy(pid, e))
-            policy = OverridePolicy(default_policy, session_id)
-            policy.reset(env)
-            session.policy = driving_id
         if _is_done(env):
             state.running = False
             await ws_manager.broadcast(session_id, {
@@ -127,10 +122,21 @@ async def _play_loop(session_id: str):
             log_ws(session_id, "episode_done", step=int(env._elapsed_steps))
             break
 
-        async with (command_lock(session) if is_specialist_policy(state.policy) else nullcontext()):
+        async with (command_lock(session) if requires_command_lock(session, state.policy) else nullcontext()):
             if not state.running:
                 break
             try:
+                # Accepting a proposal is serialized with this lookup and the
+                # physical step, including when the pinned Driver is DLA.
+                effective_id = driving_policy_id(state.policy, env)
+                replacement_plan = (effective_id == "plan"
+                                    and getattr(env, "_trainrun_plan", None) is not driving_plan)
+                if not is_specialist_policy(state.policy) and (effective_id != driving_id or replacement_plan):
+                    driving_id, default_policy = create_driving_policy(state.policy, env, factory=lambda pid, e: create_runtime_policy(pid, e))
+                    policy = OverridePolicy(default_policy, session_id)
+                    policy.reset(env)
+                    driving_plan = getattr(env, "_trainrun_plan", None)
+                    session.policy = driving_id
                 handles = env.get_agent_handles()
                 observations: dict[int, Any] = session.last_observations or {}
                 # Split timing: policy.act_many vs env.step. With heavy policies

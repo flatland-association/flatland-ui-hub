@@ -1647,9 +1647,9 @@
     "compare": "Vergleich",
     "lessIsBetter": "weniger ist besser",
     "notAvailable": "n. v.",
-    "aiMatchesPlan": "Die KI würde hier beim Plan bleiben: ihre beste Reihenfolge ändert keine Ankunft.",
-    "hideAlternatives": "Weitere KI-Reihenfolgen ausblenden",
-    "showAlternatives": "Weitere KI-Reihenfolgen ({{n}})",
+    "aiMatchesPlan": "Dieser KI-Verlauf ändert gegenüber dem Plan keine Ankunft.",
+    "hideAlternatives": "Weitere KI-Verläufe ausblenden",
+    "showAlternatives": "Weitere KI-Verläufe ({{n}})",
     "holdCaveat": "Im Prototyp hält der Zug damit an; die Freigabe gibst du selbst, sobald die Stelle frei ist.",
     "aiTakenCaveat": "Die Züge fahren ab jetzt nach dem Plan der KI. «Gegenüber Plan» misst weiterhin am ursprünglichen Fahrplan.",
     "option": {
@@ -1678,7 +1678,18 @@
     "and": "und",
     "quoted": "«{{name}}»",
     "computing": "«{{option}}» wird gerechnet …",
-    "compareNote": "Summen über alle Züge, in Schritten der Simulation."
+    "compareNote": "Summen über alle Züge, in Schritten der Simulation.",
+    "previewExpired": "Die Simulation oder der Plan hat sich geändert. Berechne die Verläufe vor der Übernahme erneut.",
+    "refreshCourses": "Verläufe erneut berechnen",
+    "inspectCourse": "Diesen Verlauf anzeigen",
+    "course": {
+      "rl": "Eigener Verlauf des Modells",
+      "branch": "Ab Schritt {{step}} den Ast {{direction}} nehmen",
+      "wait": "Ab Schritt {{step}} für {{n}} Schritte warten",
+      "left": "links",
+      "forward": "geradeaus",
+      "right": "rechts"
+    }
   },
   "zwl": {
     "empty": "Wähle einen Zug, um seinen Zeit-Weg-Verlauf zu sehen.",

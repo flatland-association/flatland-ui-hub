@@ -56,7 +56,9 @@ def test_ki_column_uses_the_sessions_agent_where_it_applies(client, preset, agen
         assert proposal_agent_for(session_manager.get(sid)).id == expected
         if expected == "uc2_rl":
             ai = next(v for v in payload["variants"] if v["id"] == "ai")
-            assert ai["priority"] == [] and payload["ai_alternatives"] == []
+            assert ai["priority"] == []
+            assert len(payload["ai_alternatives"]) <= 7
+            assert all(v["priority"] == [] for v in payload["ai_alternatives"])
     finally:
         client.delete(f"/session/{sid}")
 

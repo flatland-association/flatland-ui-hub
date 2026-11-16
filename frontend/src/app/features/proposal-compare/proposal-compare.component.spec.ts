@@ -129,3 +129,98 @@ describe('ProposalCompareComponent — decided', () => {
     expect(el.querySelector('.pc-course--empty')).withContext('no empty MENSCH column').toBeNull();
   });
 });
+
+/** A forecast can offer distinct complete RL courses. Inspecting one does not
+ *  actuate anything; acceptance sends the exact course token the human saw. */
+describe('ProposalCompareComponent — future AI courses', () => {
+  function create() {
+    TestBed.configureTestingModule({
+      imports: [ProposalCompareComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting(), provideTourContextStub(false)],
+    });
+    const store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.selectedHandle.set(0);
+    store.interactionMode.set('co-learning');
+    const fixture = TestBed.createComponent(ProposalCompareComponent);
+    fixture.componentInstance.embedded = true;
+    fixture.detectChanges();
+    return { fixture, store, http: TestBed.inject(HttpTestingController), component: fixture.componentInstance };
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  function courses() {
+    const result = proposalSnapshot('ai').result;
+    result.source_step = 7;
+    Object.assign(result.variants[1], {
+      source: 'uc2_rl', candidate_id: 'rl', preview_token: 'shown-rl', intervention: { kind: 'rl' },
+    });
+    Object.assign(result.ai_alternatives[0], {
+      source: 'uc2_rl', candidate_id: 'wait-13-3', preview_token: 'shown-wait', matches_plan: false,
+      intervention: { kind: 'wait', handle: 0, step: 13, wait_steps: 3 },
+    });
+    return result;
+  }
+
+  it('inspects an alternative without applying, then accepts that exact shown course', () => {
+    const { fixture, component, http, store } = create();
+    const result = courses();
+    http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(result));
+    fixture.detectChanges();
+    component.selectAlternative(component.alternatives()[0]);
+    fixture.detectChanges();
+    expect(component.ai()?.candidate_id).toBe('wait-13-3');
+    expect(component.courseText(component.ai()!)).toBe('Wait 3 steps from step 13');
+    expect(component.alternatives()[0].candidate_id).toBe('rl');
+    expect(http.match((r) => r.url.endsWith('/proposals/apply')).length).toBe(0);
+    component.take('ai');
+    const request = http.expectOne((r) => r.url.endsWith('/proposals/apply'));
+    expect(request.request.body).toEqual({
+      variant: 'ai', handle: 0, priority: undefined,
+      preview_token: 'shown-wait', candidate_id: 'wait-13-3', source_step: 7,
+    });
+    request.flush({ applied: 'ai', label: '', step: 7, policy: 'plan' });
+    expect(store.proposalSnapshots().get(store.decisionLog().at(-1)!.seq)?.result.variants[1].candidate_id).toBe('wait-13-3');
+  });
+
+  it('discards a stale preview on conflict without recording an accepted decision', () => {
+    const { fixture, component, http, store } = create();
+    http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));
+    fixture.detectChanges();
+    const before = store.decisionLog().length;
+    component.take('ai');
+    http.expectOne((r) => r.url.endsWith('/proposals/apply')).flush(
+      { detail: 'stale forecast' }, { status: 409, statusText: 'Conflict' },
+    );
+    fixture.detectChanges();
+    expect(component.result()).toBeNull();
+    expect(store.decisionLog().length).toBe(before);
+    expect(fixture.nativeElement.textContent).toContain('Refresh the courses');
+    expect(fixture.nativeElement.querySelector('[data-log="proposals.refreshCourses"]')).toBeTruthy();
+  });
+
+  it('keeps the newer train forecast when an earlier response arrives last', () => {
+    const { fixture, component, http, store } = create();
+    const older = http.match((r) => r.url.endsWith('/proposals'));
+    store.selectedHandle.set(1);
+    fixture.detectChanges();
+    const newer = http.match((r) => r.url.endsWith('/proposals'));
+    const next = { ...courses(), handle: 1 };
+    newer.forEach((r) => r.flush(next));
+    older.forEach((r) => r.flush(courses()));
+    expect(component.result()?.handle).toBe(1);
+  });
+
+  it('does not accept or select a course while a new forecast is pending', () => {
+    const { fixture, component, http } = create();
+    http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));
+    fixture.detectChanges();
+    const before = component.ai()?.candidate_id;
+    component.load('hold');
+    component.selectAlternative(component.alternatives()[0]);
+    component.take('ai');
+    expect(component.ai()?.candidate_id).toBe(before);
+    expect(http.match((r) => r.url.endsWith('/proposals/apply')).length).toBe(0);
+  });
+});

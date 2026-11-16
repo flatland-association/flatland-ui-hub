@@ -232,6 +232,18 @@ export interface ProposalVariant {
   trajectories?: WhatIfTrajById;
   /** AI variants: the priority order the replan gave the trains. */
   priority?: number[];
+  /** Stable model-lookahead choice; independent of PP priority orders. */
+  candidate_id?: string | null;
+  /** Exact executable course from this preview, validated again on accept. */
+  preview_token?: string;
+  matches_plan?: boolean;
+  intervention?: {
+    kind: 'rl' | 'branch' | 'wait';
+    handle?: number;
+    step?: number;
+    action?: number | null;
+    wait_steps?: number;
+  } | null;
   /** Summed arrival delay against the plan; lower is better. */
   score?: number;
   /** Human variant: the option (or `action:<int>`) behind it. */
@@ -245,6 +257,7 @@ export interface ProposalsResult {
   session_id: string;
   handle: number;
   step: number;
+  source_step?: number;
   horizon: number;
   ai_available: boolean;
   /** True when the best replan keeps every arrival of the plan: the AI would
