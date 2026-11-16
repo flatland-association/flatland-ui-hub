@@ -251,6 +251,9 @@ export class TourContextService {
     return this.presetById(leg.scenarioId)?.title ?? leg.id;
   }
 
+  /** Whether the condition hides the scenarios' names (`control.legNames`). */
+  readonly legNamesHidden = computed(() => this.uiConfig.isHidden('control.legNames'));
+
   /**
    * "⟨name⟩ (k/N)" for a leg at `index` of `count`, wherever a leg is shown
    * (stepper, finish button, footer, intro card, Schichtbilanz), live and in a
@@ -258,12 +261,9 @@ export class TourContextService {
    * k/N" (#198, docs/plans/hide-scenario-bar.md §4.3).
    */
   legLabel(leg: ExperimentLeg, index: number, count: number): string {
-    if (this.uiConfig.isHidden('control.legNames')) return this.language.t('experimentRun.legUnnamed', { k: index + 1, n: count });
+    if (this.legNamesHidden()) return this.language.t('experimentRun.legUnnamed', { k: index + 1, n: count });
     return this.language.t('experimentRun.legLabel', { name: this.legName(leg), k: index + 1, n: count });
   }
-
-  /** Whether the condition hides the scenarios' names (`control.legNames`). */
-  readonly legNamesHidden = computed(() => this.uiConfig.isHidden('control.legNames'));
 
   setLeg(leg: ExperimentLeg | null): void {
     this._leg.set(leg);
