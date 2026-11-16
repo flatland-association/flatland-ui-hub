@@ -575,7 +575,7 @@ describe('StrategyOptionsComponent', () => {
     expect(cmp.tiles()[0].changed).toBe(1);
     expect(cmp.tiles()[0].holds).toBe(1);
     const text = (fixture.nativeElement.textContent as string).replace(/\s+/g, ' ');
-    expect(text).toContain('Reroutes 1 train(s)');
+    expect(text).toContain('Changes the route of 1 train(s)');
     expect(text).toContain('1 wait instead of taking another route');
     expect(text).not.toContain('Reroutes 8');
   });
