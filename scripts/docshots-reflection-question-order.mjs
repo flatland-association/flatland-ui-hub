@@ -45,12 +45,18 @@ const shot = async (sel, name, pad = 8) => {
     const r = qs.map((q) => q.getBoundingClientRect());
     const top = Math.min(...r.map((b) => b.top));
     // The clip is in page coordinates, the rectangles in viewport ones.
-    return { x: Math.min(...r.map((b) => b.left)) + window.scrollX, y: top + window.scrollY, top, width: Math.max(...r.map((b) => b.right)) - Math.min(...r.map((b) => b.left)), height: Math.max(...r.map((b) => b.bottom)) - top };
+    return { x: Math.min(...r.map((b) => b.left)) + window.scrollX, y: top + window.scrollY, left: Math.min(...r.map((b) => b.left)), top, width: Math.max(...r.map((b) => b.right)) - Math.min(...r.map((b) => b.left)), height: Math.max(...r.map((b) => b.bottom)) - top };
   }, sel);
   if (!box) { console.log(`${prefix}: no questions in ${sel}, ${name} skipped`); return; }
   // Without captureBeyondViewport: the capture would re-lay out the page and
   // reset the panel's scroll, showing its top instead of the questions.
-  await page.screenshot({ path: `${out}/${prefix}-${name}.png`, captureBeyondViewport: false, clip: { x: Math.max(0, box.x - pad), y: Math.max(0, box.y - pad), width: box.width + 2 * pad, height: Math.min(1000 - box.top, box.height + 2 * pad) } });
+  // The padded box, cut to the viewport on every side (viewport coordinates;
+  // the page itself does not scroll here, the panel does).
+  const vp = page.viewport();
+  const left = Math.max(0, box.left - pad), top = Math.max(0, box.top - pad);
+  const right = Math.min(vp.width, box.left + box.width + pad), bottom = Math.min(vp.height, box.top + box.height + pad);
+  if (right <= left || bottom <= top) { console.log(`${prefix}: questions outside the viewport, ${name} skipped`); return; }
+  await page.screenshot({ path: `${out}/${prefix}-${name}.png`, captureBeyondViewport: false, clip: { x: left + (box.x - box.left), y: top + (box.y - box.top), width: right - left, height: bottom - top } });
 };
 // The guided questions as shown, without the factors question that always comes first.
 const questions = () => page.evaluate(() =>
