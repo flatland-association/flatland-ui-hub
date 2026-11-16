@@ -111,8 +111,7 @@ export class ReplayService {
     const legs = this.condition()?.legs;
     const leg = this._recordedLeg();
     if (!legs || !leg) return null;
-    const name = this.tourContext.legName(leg);
-    return this.i18n.t('experimentRun.legLabel', { name, k: legs.indexOf(leg) + 1, n: legs.length });
+    return this.tourContext.legLabel(leg, legs.indexOf(leg), legs.length);
   });
   /** The condition's leg the screen is about: an intro names it (the next leg's intro is logged
    *  at the end of the previous leg's record), else the leg whose record is on screen. */
@@ -150,8 +149,7 @@ export class ReplayService {
     const legs = this.experimentLegs();
     const leg = legs[index];
     if (!leg) return '';
-    const name = this.tourContext.legName(leg);
-    return this.i18n.t('experimentRun.legLabel', { name, k: index + 1, n: legs.length });
+    return this.tourContext.legLabel(leg, index, legs.length);
   }
 
   /** The guide's current step as logged with the working screen (`view_enter` detail `guideStep`):

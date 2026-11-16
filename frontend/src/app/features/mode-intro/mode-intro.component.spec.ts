@@ -4,6 +4,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { ModeIntroComponent } from './mode-intro.component';
 import { ScenarioCard } from '../../core/demo/tour-context.service';
+import { UiConfigService } from '../../core/config/ui-config.service';
 
 describe('ModeIntroComponent', () => {
   beforeEach(async () => {
@@ -35,6 +36,15 @@ describe('ModeIntroComponent', () => {
     expect(el.querySelector('.intro-wp')).toBeNull();
     // The start button stays.
     expect(el.querySelector('.intro-actions sbb-button')).not.toBeNull();
+  });
+
+  // #198 (docs/plans/hide-scenario-bar.md §4.3): the scenario's title is its name.
+  it('leaves the title out where the condition hides the scenarios\' names', () => {
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.legNames'] });
+    const el = render({ title: 'Türstörung', paragraphs: ['P'], imageUrl: '/img.png' });
+    expect(el.querySelector('.intro-title')).toBeNull();
+    expect(el.textContent).not.toContain('Türstörung');
+    expect(el.querySelector('.intro-scenario__text p')?.textContent).toBe('P');
   });
 
   it('leaves the image out when the scenario has none', () => {

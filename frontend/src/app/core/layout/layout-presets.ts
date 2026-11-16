@@ -704,7 +704,7 @@ const PLAN_B_UI: UiConfig = {
     'widget.view-tabs.title',             // #168, #150: the tabs name the views
     'widget.decision-log.actions',        // #150 item 2d — "JSON exportieren", "Leeren"
     'control.guide',                      // #198 — the guide strip; «Szenario abschliessen» stays in the toolbar
-    'control.legNames',                   // #198 — "Szenario k/N" in the stepper and the finish button
+    'control.legNames',                   // #198 — "Szenario k/N" instead of the scenarios' names
   ],
   // Not hidden, and not collapsed either (issue item 2 offered both): the
   // entries carry «Reflexion nachtragen», so the log starts open

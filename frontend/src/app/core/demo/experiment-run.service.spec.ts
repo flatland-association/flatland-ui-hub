@@ -169,8 +169,8 @@ describe('ExperimentRunService', () => {
 
     TestBed.inject(UiConfigService).apply({ hidden: ['control.legNames'] });
     expect(run.finishLabel()).toBe('Finish scenario → Scenario 2/2');
-    // The footer and the intro card keep the name.
-    expect(run.currentLegLabel()).toBe(run.legLabel(0));
+    // The footer and the intro card count the scenario the same way.
+    expect(run.currentLegLabel()).toBe('Scenario 1/2');
     run.setPhase('legSurvey');
     expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
   });

@@ -115,16 +115,9 @@ export class ExperimentProgressComponent {
       const survey: StepState | null = !this.hasLegSurvey()
         ? null
         : pastLegs || i < at ? 'done' : i === at && phase === 'legSurvey' ? 'current' : 'todo';
-      return { label: this.label(i), state, survey };
+      return { label: this.replay.active() ? this.replay.legLabel(i) : this.run.legLabel(i), state, survey };
     });
   });
-
-  /** A leg's box: "⟨name⟩ (k/N)", or "Szenario k/N" where the condition hides
-   *  the names (#198, docs/plans/hide-scenario-bar.md §4.3). */
-  private label(i: number): string {
-    if (this.uiConfig.isHidden('control.legNames')) return this.run.unnamedLegLabel(i, this.legCount());
-    return this.replay.active() ? this.replay.legLabel(i) : this.run.legLabel(i);
-  }
 
   readonly reviewState = computed<StepState>(() => {
     const phase = this.phase();

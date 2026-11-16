@@ -7,6 +7,7 @@ import { UiStateRegistry } from '../interaction-log/ui-state-registry.service';
 import type { SessionRecord } from '../interaction-log/session-record';
 import type { StateFrame } from '../interaction-log/state-log.service';
 import { LanguageService } from '../i18n/language.service';
+import { UiConfigService } from '../config/ui-config.service';
 import { REPLAY_TICK_MS, ReplayService } from './replay.service';
 
 const map = { width: 3, height: 2, rail_grid: [[0]], rail_tiles: [], decision_cells: [] };
@@ -286,6 +287,10 @@ describe('ReplayService', () => {
     // The follower leg brings its own German card; the step names it as live.
     expect(replay.intro()).toBeTruthy();
     expect(replay.introStep()).toBe('experimentRun.legLabel');
+    // A Plan B replay applies the recorded layout, which hides the names (#198).
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.legNames'] });
+    expect(replay.introStep()).toBe('experimentRun.legUnnamed');
+    expect(replay.legLabel(0)).toBe('experimentRun.legUnnamed');
   });
   it('follows the run for the stepper and the guide, and runs on to the final questionnaire\'s submit', () => {
     const ev = (t: number, view: string, detail?: Record<string, unknown>) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type: 'view_enter', payload: { view, ...(detail ? { detail } : {}) } });

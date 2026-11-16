@@ -22,7 +22,7 @@ import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 })
 export class ModeIntroComponent {
   store = inject(SessionStore);
-  private readonly tour = inject(TourContextService);
+  protected readonly tour = inject(TourContextService);
   readonly run = inject(ExperimentRunService);
 
   readonly totalModes = computed(() => this.store.demoSequence().length);

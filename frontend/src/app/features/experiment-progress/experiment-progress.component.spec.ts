@@ -63,12 +63,13 @@ describe('ExperimentProgressComponent', () => {
 
   it('numbers the scenarios without their names where the condition hides them (#198)', () => {
     begin(TWO_LEGS);
-    expect(steps()).toContain(run.legLabel(0));
+    const named = run.legLabel(0);
+    expect(steps()).toContain(named);
     TestBed.inject(UiConfigService).apply({ hidden: ['control.legNames'] });
     const s = steps();
     expect(s).toContain('Scenario 1/2');
     expect(s).toContain('Scenario 2/2');
-    expect(s).not.toContain(run.legLabel(0));
+    expect(s).not.toContain(named);
   });
 
   it('draws no lines to a guide strip the condition hides (#198)', () => {

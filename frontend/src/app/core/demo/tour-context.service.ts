@@ -10,6 +10,7 @@ import { ShiftKpis } from '../shift-review';
 import type { ExperimentLeg } from './study-conditions';
 import { ScenarioPreset } from '../models';
 import { backendHttpBase } from '../backend-origin';
+import { UiConfigService } from '../config/ui-config.service';
 
 /** An experiment scenario's intro card, from its `scenario.json`
  *  (docs/plans/experiment-scenario-import.md §3.3). */
@@ -111,6 +112,7 @@ export class TourContextService {
   private readonly operatorModel = inject(OperatorModelService);
   private operatorIdBeforeTour: string | null = null;
   private readonly language = inject(LanguageService);
+  private readonly uiConfig = inject(UiConfigService);
   private langBeforeTour: Lang | null = null;
 
   /**
@@ -248,6 +250,20 @@ export class TourContextService {
     if (leg.nameKey) return this.language.t(leg.nameKey, undefined, leg.id);
     return this.presetById(leg.scenarioId)?.title ?? leg.id;
   }
+
+  /**
+   * "⟨name⟩ (k/N)" for a leg at `index` of `count`, wherever a leg is shown
+   * (stepper, finish button, footer, intro card, Schichtbilanz), live and in a
+   * replay. Where the condition hides the names (`control.legNames`), "Szenario
+   * k/N" (#198, docs/plans/hide-scenario-bar.md §4.3).
+   */
+  legLabel(leg: ExperimentLeg, index: number, count: number): string {
+    if (this.uiConfig.isHidden('control.legNames')) return this.language.t('experimentRun.legUnnamed', { k: index + 1, n: count });
+    return this.language.t('experimentRun.legLabel', { name: this.legName(leg), k: index + 1, n: count });
+  }
+
+  /** Whether the condition hides the scenarios' names (`control.legNames`). */
+  readonly legNamesHidden = computed(() => this.uiConfig.isHidden('control.legNames'));
 
   setLeg(leg: ExperimentLeg | null): void {
     this._leg.set(leg);
