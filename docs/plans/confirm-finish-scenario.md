@@ -65,9 +65,9 @@ Requirements:
 
 | Follow-up | Why not in this PR | From | Findings | Issue |
 |---|---|---|---|---|
-| Confirm "Schicht beenden" (tour guide, Director panel) too. | It calls `store.endShift()` directly from two other components; Plan B hides it (`control.endShift`, and in the guide also `hasShiftSummary()`). | Q-5 | - | - |
-| A `data-log` id on the finish button itself (today logged with the fallback `target`). | Its label is a computed string, not a key; the deciding click is now "Ja", which gets an id. | §4.5 | - | - |
-| Replace the other `window.confirm` calls (saved runs, layout designer, infrastructure builder) by `sbb-dialog`. | Internal tools, outside the issue. | §3 | - | - |
+| Confirm "Schicht beenden" (tour guide, Director panel) too. | It calls `store.endShift()` directly from two other components; Plan B hides it (`control.endShift`, and in the guide also `hasShiftSummary()`). | Q-5 | - | untracked |
+| A `data-log` id on the finish button itself (today logged with the fallback `target`). | Its label is a computed string, not a key; the deciding click is now "Ja", which gets an id. | §4.5 | - | untracked |
+| Replace the other `window.confirm` calls (saved runs, layout designer, infrastructure builder) by `sbb-dialog`. | Internal tools, outside the issue. | §3 | - | untracked |
 
 ## 2. Constraints
 
@@ -202,7 +202,7 @@ backend; before on `main` `fd0c70cb`, after on this branch, by `scripts/docshots
 | REQ-6 | Answer in the record | `experiment-run.service.spec.ts` (present, per reason, reset per leg, absent when off); running app: the persisted run state | ✅ Leg 1 after one "Zurück" and "Ja": `finishConfirm: {"confirmed": true, "backs": 1}`; on `main` no such field. | - |
 | REQ-7 | The switch in every guided session's header | `experiment-run.service.spec.ts` (`runContext()`), `interaction-log.service.spec.ts` (header in and outside a guided run); running app: saved records | ✅ Both Plan B sessions' headers: `"finishConfirm": true`, next to `"shiftSummary": false`. | [`7-record-header.png`](confirm-finish-scenario/7-record-header.png) |
 | REQ-8 | The replay shows the dialog | `view-tracker.service.spec.ts` (overlay `finish_confirm`, the working screen after it), `replay.service.spec.ts` (`screen()` while the view is on); running app: a recorded Plan B run with one "Zurück" and one "Ja", replayed | ✅ The record has two `finish_confirm` views (0:14 and 0:23); the replay draws the dialog for both, with the cursor and a splash on "Zurück", then on "Ja". Before, nothing at that moment. | [`8-before-replay-yes.png`](confirm-finish-scenario/8-before-replay-yes.png), [`8-after-replay-back.png`](confirm-finish-scenario/8-after-replay-back.png), [`8-after-replay-yes.png`](confirm-finish-scenario/8-after-replay-yes.png), [`8-record-views.png`](confirm-finish-scenario/8-record-views.png) |
-| NFR-1 | Study data comparable | `npm run i18n:check` (49 click ids, all keys; 47 on `main`); click-id table regenerated; field documented in `docs/experiment-logging.md` | ✅ | - |
+| NFR-1 | Study data comparable | `npm run i18n:check` (51 click ids, all keys: two new ids, each in the dialog and its replay copy; 47 on `main`); click-id table regenerated; field documented in `docs/experiment-logging.md` | ✅ | - |
 | NFR-2 | Translated, keyboard-usable | `npm run i18n:check`; running app: focus and Escape | ✅ Focus is in the dialog on open; Escape closes it like "Zurück". The en/fr texts are checked by `i18n:check` only: `plan-b-p01`'s briefing switches the UI to German. | - |
 | DP-2 | No dialog for "Weiter zum Fragebogen" | spec ("does not ask for \"Weiter zum Fragebogen\"") | ✅ | - |
 
@@ -520,10 +520,10 @@ None yet.
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
 | ✅ S-1 | - | Switch `finishConfirm` on `StudyCondition`/`Tour` and `hasFinishConfirm` (§4.4); the dialog with pause in `AppComponent` (§4.3); keys in en/de/fr; `finishConfirm` record field (§4.5); spec cases (§4.2); click-id table and the field in `docs/experiment-logging.md`. | feature | medium | `feat(experiment-run): ask "Aktuelles Szenario abschliessen?" before a scenario is finished by hand.` | a74e605c | - | - |
-| 💡 S-2 | - | `scripts/docshots-confirm-finish-scenario.mjs`; before and after screenshots in `docs/plans/confirm-finish-scenario/`; §4.2 results filled in. | docs | low | `docs(plans): confirm finish scenario: screenshots and verification.` |  | S-1 | - |
+| ✅ S-2 | - | `scripts/docshots-confirm-finish-scenario.mjs`; before and after screenshots in `docs/plans/confirm-finish-scenario/`; §4.2 results filled in. | docs | low | `docs(plans): confirm finish scenario: screenshots and verification.` | f027fbb8 | S-1 | - |
 | ✅ S-3 | - | Align with #174's plan: §3 and Q-5 name the guide's `hasShiftSummary()` gate of "Schicht beenden"; `docs/README.md` lists this plan; `experiment-workflow.md` §5.4 names the dialog; §3 and Q-2 say the dialog opens in the browser's top layer (`showPopover()`), not `position: fixed`. | docs | low | `docs(plans): confirm finish scenario: align with the plan of #174.` | 59dcf352 | S-2 | - |
 | ✅ S-4 | - | `header.finishConfirm` from `runContext()` (§4.5, REQ-7), with specs; `docs/experiment-logging.md`. | feature | low | `feat(experiment-run-record): record whether the condition asks before a scenario is finished.` | d05dca85 | S-3 | - |
-| 💡 S-5 | - | The overlay view `finish_confirm` and the read-only dialog in the replay (§4.6, REQ-8), with specs; `docs/experiment-logging.md`'s view table; replay screenshots in `docs/plans/confirm-finish-scenario/` (row 8 of §4.2). | feature | low | `feat(replay): show the finish dialog with the participant's clicks on it.` |  | S-4 | - |
+| ✅ S-5 | - | The overlay view `finish_confirm` and the read-only dialog in the replay (§4.6, REQ-8), with specs; `docs/experiment-logging.md`'s view table; replay screenshots in `docs/plans/confirm-finish-scenario/` (row 8 of §4.2). | feature | low | `feat(replay): show the finish dialog with the participant's clicks on it.` | fd2adeae | S-4 | - |
 
 ## 12. Change inventory
 
