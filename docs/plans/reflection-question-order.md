@@ -1,6 +1,6 @@
 # Ask the reflection's questions in a fixed order, set per deployment (#182)
 
-> **Status:** plan of 2026-11-16, draft. Based on `main` fd0c70c (PR #176,
+> **Status:** plan of 2026-11-16, built 2026-11-16. Based on `main` fd0c70c (PR #176,
 > the reflection in the decision log, is merged). Issue
 > [#182](https://github.com/flatland-association/flatland-ui-hub/issues/182)
 > ("Fragen in Reflexion fix oder randomisiert?", @CleverManu). Branch
@@ -172,18 +172,32 @@ Layout Designer export, no change to the recorded answers, no new i18n key.
 *How each requirement and quality goal is shown to work: tests, CI checks, before and after screenshots.*
 
 Screenshots: Plan B condition `plan-b-p01`, Plan B deployment config,
-German, two decisions in leg 1. Before on `main` fd0c70c, after on this
-branch with and without `reflectionQuestionOrder`, taken in the running app.
+German, two decisions in leg 1 (trains AB and BA), the reflection's
+questions after each. Before on `main` fd0c70c, after on this branch
+(a71ff8f) without and with `"reflectionQuestionOrder": ["missing", "gut",
+"tradeoff"]` in the served `ui-config.json`, production builds in the
+running app, by `scripts/docshots-reflection-question-order.mjs`. Before,
+the order is drawn per decision, so a run can draw the same order twice;
+the pictures are from a run that drew two.
 
 | ID | Requirement | Test or check | Result | Screenshots |
 |---|---|---|---|---|
-| REQ-1 | Same order after every decision | Spec: `shown()` is the same for decisions with different timestamps; the `.rp-q` labels in the DOM follow it | open (S-2) | before: two decisions, two orders; after: the same order |
-| REQ-2 | The deployment sets the order | Specs: `resolveReflectionQuestionOrder()` (null, full list, partial list, unknown and repeated ids); `UiConfigService` after `load()`; the prompt follows the service | open (S-3) | after: with a non-default order in `ui-config.json` |
-| REQ-3 | The record names the order | Spec: the header's `reflectionQuestionOrder` equals the order in effect | open (S-4) | - |
-| NFR-1 | Comparable study data | REQ-1 and REQ-3's specs | open | - |
-| NFR-2 | Fail-safe config | REQ-2's specs for unknown and repeated ids; the schema spec | open (S-3) | - |
+| REQ-1 | Same order after every decision | Spec: `shown()` is the same for decisions with different timestamps; the `.rp-q` labels in the DOM follow it | ✅ specs pass (S-2) | before: <img src="reflection-question-order/before-1-first-decision.png" width="300"> <img src="reflection-question-order/before-2-second-decision.png" width="300"><br>after: <img src="reflection-question-order/after-1-first-decision.png" width="300"> <img src="reflection-question-order/after-2-second-decision.png" width="300"> |
+| REQ-2 | The deployment sets the order | Specs: `resolveReflectionQuestionOrder()` (null, full list, partial list, unknown and repeated ids); `UiConfigService` after `load()`; the prompt follows the service | ✅ specs pass (S-3) | after, with `missing` first: <img src="reflection-question-order/after-config-1-first-decision.png" width="300"> <img src="reflection-question-order/after-config-2-second-decision.png" width="300"> |
+| REQ-3 | The record names the order | Spec: the header's `reflectionQuestionOrder` equals the order in effect | ✅ specs pass (S-4) | - |
+| NFR-1 | Comparable study data | REQ-1 and REQ-3's specs | ✅ specs pass (S-2, S-4) | - |
+| NFR-2 | Fail-safe config | REQ-2's specs for unknown and repeated ids; the schema spec | ✅ specs pass (S-3) | - |
 
 All steps: the four CI checks.
+
+Read from the page (the guided questions, after «Welche Faktoren waren
+wichtig?»):
+
+| Run | Decision AB | Decision BA |
+|---|---|---|
+| before (`main`) | Bauchgefühl, Nachteil, Informationen gefehlt | Bauchgefühl, Informationen gefehlt, Nachteil |
+| after, default order | Bauchgefühl, Informationen gefehlt, Nachteil | Bauchgefühl, Informationen gefehlt, Nachteil |
+| after, `missing` first | Informationen gefehlt, Bauchgefühl, Nachteil | Informationen gefehlt, Bauchgefühl, Nachteil |
 
 ### 4.3 The order: setting, resolution and prompt (REQ-1, REQ-2; Q-1, Q-2)
 
@@ -340,6 +354,7 @@ comes last. The study leads can set another order for their lab machines in
 | 2026-11-09 | ✅ The order is handled outside PR #176, in #182 (`reflection-inline.md` finding 26). | #176 was about where the reflection shows. | This plan. |
 | 2026-11-11 | ✅ No random order of the reflection's questions (@SamiraAPS in #182; confirmed by @chenkins on 2026-11-16). | A random order varies between participants without being recorded; the study needs no counterbalancing. | REQ-1; `pickQuestions()` goes (§4.3). |
 | 2026-11-16 | ✅ The order is set per deployment, in `ui-config.json` (Q-1). | The order is a study choice, not a code choice; the deployment file is where a lab machine's other study settings live. Not taken: fixed in code. | REQ-2, REQ-3; the ids move to `core` (C-3); the record names the order (§4.4). |
+| 2026-11-16 | ✅ The default order is today's pool: Bauchgefühl → Informationen gefehlt → Nachteil (Q-2). | From a quick choice to the one free-text question; proposed in the issue. Not taken: another order, which the study can still set in `ui-config.json`. | `REFLECTION_QUESTION_POOL` keeps its order; `plan-b.json` needs no entry. |
 
 ### 9.3 Code Review Findings
 
@@ -385,10 +400,10 @@ references it.
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
-| 💡 S-1 | - | This plan | docs | low | docs(plans): plan for #182, the reflection's questions in an order set per deployment. |  | - | - |
-| 💡 S-2 | - | Fixed order: `shown` reads the pool, `pickQuestions()` and its specs go, an order spec, the docstring | bug | medium | fix(reflection): ask the reflection's questions in a fixed order. |  | S-1 | Q-2 |
-| 💡 S-3 | - | `core/reflection-questions.ts` with the resolver; `UiConfig.reflectionQuestionOrder`, the service signal, the schema; the prompt reads the service; specs | feature | medium | feat(ui-config): let the deployment set the order of the reflection's questions. |  | S-2 | - |
-| 💡 S-4 | - | `SessionHeader.reflectionQuestionOrder`, written at session start; spec; `docs/experiment-logging.md` | feature | medium | feat(experiment-logging): record the order of the reflection's questions in the session header. |  | S-3 | - |
+| ✅ S-1 | - | This plan | docs | low | docs(plans): plan for #182, the reflection's questions in an order set per deployment. | fdc11c9 | - | - |
+| ✅ S-2 | - | Fixed order: `shown` reads the pool, `pickQuestions()` and its specs go, an order spec, the docstring | bug | medium | fix(reflection): ask the reflection's questions in a fixed order. | ee65b8d | S-1 | Q-2 |
+| ✅ S-3 | - | `core/reflection-questions.ts` with the resolver; `UiConfig.reflectionQuestionOrder`, the service signal, the schema; the prompt reads the service; specs | feature | medium | feat(ui-config): let the deployment set the order of the reflection's questions. | b5b2479 | S-2 | - |
+| ✅ S-4 | - | `SessionHeader.reflectionQuestionOrder`, written at session start; spec; `docs/experiment-logging.md` | feature | medium | feat(experiment-logging): record the order of the reflection's questions in the session header. | a71ff8f | S-3 | - |
 | 💡 S-5 | - | Before and after screenshots of two decisions, with and without a configured order | docs | low | docs(plans): screenshots of the reflection's question order for #182. |  | S-4 | - |
 
 ## 12. Change inventory
@@ -403,6 +418,7 @@ references it.
 |---|---|
 | `docs/plans/reflection-question-order.md` | This plan |
 | `docs/plans/reflection-question-order/*.png` | Before and after screenshots (S-5) |
+| `scripts/docshots-reflection-question-order.mjs` | Takes them: two decisions on Plan B, the reflection's questions after each, and the order printed (S-5) |
 | `frontend/src/app/core/reflection-questions.ts` | `ReflectionQuestionId`, `REFLECTION_QUESTION_POOL` (moved), `resolveReflectionQuestionOrder()` (S-3) |
 | `frontend/src/app/core/reflection-questions.spec.ts` | The resolver's specs (S-3) |
 
