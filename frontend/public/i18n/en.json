@@ -1647,9 +1647,9 @@
     "compare": "Comparison",
     "lessIsBetter": "less is better",
     "notAvailable": "n/a",
-    "aiMatchesPlan": "The AI would stay with the plan here: its best order changes no arrival.",
-    "hideAlternatives": "Hide further AI orders",
-    "showAlternatives": "Further AI orders ({{n}})",
+    "aiMatchesPlan": "This AI course changes no arrival compared with the plan.",
+    "hideAlternatives": "Hide further AI courses",
+    "showAlternatives": "Further AI courses ({{n}})",
     "holdCaveat": "In the prototype the train stops with this; you give the release yourself once the spot is clear.",
     "aiTakenCaveat": "The trains now run by the AI’s plan. “vs. plan” still measures against the original timetable.",
     "option": {
@@ -1678,7 +1678,18 @@
     "and": "and",
     "quoted": "“{{name}}”",
     "computing": "Working out “{{option}}” …",
-    "compareNote": "Totals over all trains, in simulation steps."
+    "compareNote": "Totals over all trains, in simulation steps.",
+    "previewExpired": "The simulation or plan has changed. Refresh the courses before taking one.",
+    "refreshCourses": "Refresh courses",
+    "inspectCourse": "Show this course",
+    "course": {
+      "rl": "The model’s own course",
+      "branch": "Take the {{direction}} branch at step {{step}}",
+      "wait": "Wait {{n}} steps from step {{step}}",
+      "left": "left",
+      "forward": "straight",
+      "right": "right"
+    }
   },
   "zwl": {
     "empty": "Select a train to see its time-distance trajectory.",

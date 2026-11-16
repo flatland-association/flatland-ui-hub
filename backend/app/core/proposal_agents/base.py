@@ -38,6 +38,8 @@ class Proposal:
 
     priority: Tuple[int, ...]
     trainruns: TrainrunDict
+    candidate_id: str | None = None
+    intervention: dict | None = None
 
 
 class ProposalAgent(ABC):
@@ -53,6 +55,17 @@ class ProposalAgent(ABC):
     def available(self, env: RailEnv) -> bool:
         """Whether this agent can propose for `env` (e.g. a model bound to its fixtures)."""
         return True
+
+    def propose_for(self, env: RailEnv, handle: int) -> List[Proposal]:
+        """Handle-aware seam; existing priority-order agents stay compatible."""
+        return self.propose(env)
+
+    def resolve_for(
+        self, env: RailEnv, priority: Sequence[int], handle: int,
+        candidate_id: str | None = None,
+    ) -> Optional[TrainrunDict]:
+        """Legacy resolution; exact preview acceptance can cache the course."""
+        return self.resolve(env, priority)
 
     @abstractmethod
     def propose(self, env: RailEnv) -> List[Proposal]:
