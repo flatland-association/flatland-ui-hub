@@ -23,6 +23,8 @@ export interface AppViewSource {
   shiftScreenOpen: Signal<boolean>;
   debrief: Signal<boolean>;
   surveyActive: Signal<boolean>;
+  /** The "Aktuelles Szenario abschliessen?" dialog is open (#180). */
+  finishConfirmOpen: Signal<boolean>;
   helpActive: Signal<boolean>;
   settingsMode: Signal<boolean>;
   settingsTab: Signal<string>;
@@ -68,6 +70,7 @@ export class ViewTracker {
     if (app.settingsMode()) return { view: 'settings', detail: { tab: app.settingsTab() } };
     if (app.scenarioPolicyMode()) return { view: 'settings', detail: { tab: 'scenarioPolicy' } };
     if (app.surveyActive()) return { view: 'survey', detail: this._runDetail() };
+    if (app.finishConfirmOpen()) return { view: 'finish_confirm', detail: this._runDetail() };
     if (!app.sessionActive()) return app.pendingResume() ? { view: 'resume_prompt' } : { view: 'start' };
     const runActive = this.run.active();
     const phase = this.run.phase();

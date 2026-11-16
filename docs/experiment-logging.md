@@ -180,6 +180,7 @@ This is a context event, so it is recorded with "Study logging" off too.
 | `mode_intro` | `{tourId, leg, mode}`, with `legId` in a guided condition |
 | `session` | `{centerTab, layoutId}`, plus `centerView` (the centre tab's view type, e.g. `zug-weg-diagramm` for the ZWL or `flatland-map`; the ZWL's type keeps its old name for the study data, #173) in a layout with view tabs (records made before have only `centerTab`, which says `map` for the ZWL too), plus `guideStep` while the tour guide is open, plus `reflection` (`co-learning`, `rationale` or `strategy`) while a reflection waits |
 | `survey` | `{legId}` in a guided condition |
+| `finish_confirm` | `{legId}` in a guided condition: the dialog "Aktuelles Szenario abschliessen?" over the working screen (#180); the replay draws it from here |
 | `shift_review` | `{debrief}` |
 | `help` | – |
 | `settings` | `{tab}` |

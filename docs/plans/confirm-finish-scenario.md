@@ -36,6 +36,9 @@ Requirements:
 - **REQ-7** Every session of a guided condition records whether the condition asks (`true` or `false`), so "turned
   off" can be told from "recorded before #180", as #174 does for `shiftSummary`. (Added 2026-11-16 by the maintainer,
   from the comparison with #174's plan.)
+- **REQ-8** The replay shows the dialog while the participant saw it, with the cursor and the clicks on "Zurück" and
+  "Ja", as #174 asks of the replay ("what the participant saw"). (Added 2026-11-16 by the maintainer, from the same
+  comparison.)
 
 ### 1.2 Quality goals (non-functional requirements)
 
@@ -85,6 +88,9 @@ Requirements:
 - A tour without an experiment run writes no `leg_finished`, so its dialog answers are only in the click stream (when
   click logging is on), not in a field (REQ-6 covers experiment runs).
 - "Schicht beenden" still ends a scenario without asking (follow-up, Q-5).
+- In the replay the finish click itself has no splash: the finish button has no `data-log` id, so the replay cannot
+  place it (follow-up in §1.4). The dialog's clicks have one (REQ-8).
+- The replay's dialog is a read-only copy (§4.6): a change to the live dialog's look must be made in both places.
 
 ### 2.2 Assumptions
 
@@ -172,8 +178,11 @@ Reused concepts:
 | Recording the answer | Optional field next to `runError` in `ShiftRecord` and `leg_finished` | A new event type such as `finish_confirmed`, or a new `LegFinishReason` |
 | Recording whether the condition asks (REQ-7) | The session header's run fields from `runContext()`, as `header.shiftSummary` (#174 findings 3, 13) | Inferring it from the leg field's absence, which old records share |
 | Logging each click | `ClickLogService` with `data-log` ids | Own click events |
+| When the dialog was open (REQ-8) | `ViewTracker`'s overlay views (`view_enter`), as help, settings and the questionnaire | A new context event type such as `finish_confirm_open` |
+| Drawing it in the replay | `ReplayService.screen()` and the read-only copies in `.replay-screen`, as the questionnaire and the Schichtbilanz | The live `sbb-dialog`, which opens in the browser's top layer, over the replay's cursor, splashes and controls |
 
-Not new on purpose: no new endpoint, event, `LegFinishReason`, UI-config item or setting; `finishDemoMode` and
+Not new on purpose: no new endpoint, event type, `LegFinishReason`, UI-config item or setting (the replay needs one
+new value of `view_enter`'s `view`, PAT-3); `finishDemoMode` and
 `finishLabel` keep their signatures; the toolbar is not touched.
 
 ### 4.2 Verification
@@ -191,7 +200,8 @@ backend; before on `main` `fd0c70cb`, after on this branch, by `scripts/docshots
 | REQ-4 | On by default, off per experiment | spec ("finishes at once where the condition turns it off"); `study-conditions.spec.ts` (`hasFinishConfirm`) | ✅ No condition or tour sets it off yet (§4.4). | - |
 | REQ-5 | Paused while open | spec (pause on open, resume after "Zurück", no resume when paused before); running app: the step counter | ✅ Step 6 when the dialog opened and still 6 two seconds later; 7 after "Zurück". | footer without "Läuft" in [`1-after-dialog.png`](confirm-finish-scenario/1-after-dialog.png), with it in [`3-after-back.png`](confirm-finish-scenario/3-after-back.png) |
 | REQ-6 | Answer in the record | `experiment-run.service.spec.ts` (present, per reason, reset per leg, absent when off); running app: the persisted run state | ✅ Leg 1 after one "Zurück" and "Ja": `finishConfirm: {"confirmed": true, "backs": 1}`; on `main` no such field. | - |
-| REQ-7 | The switch in every guided session's header | `experiment-run.service.spec.ts` (`runContext()`), `interaction-log.service.spec.ts` (header in and outside a guided run); running app: saved records | ✅ Both Plan B sessions' headers: `"finishConfirm": true`, next to `"shiftSummary": false`. | [`6-record-header.png`](confirm-finish-scenario/6-record-header.png) |
+| REQ-7 | The switch in every guided session's header | `experiment-run.service.spec.ts` (`runContext()`), `interaction-log.service.spec.ts` (header in and outside a guided run); running app: saved records | ✅ Both Plan B sessions' headers: `"finishConfirm": true`, next to `"shiftSummary": false`. | [`7-record-header.png`](confirm-finish-scenario/7-record-header.png) |
+| REQ-8 | The replay shows the dialog | `view-tracker.service.spec.ts` (overlay `finish_confirm`, the working screen after it), `replay.service.spec.ts` (`screen()` while the view is on); running app: a recorded Plan B run with one "Zurück" and one "Ja", replayed | ✅ The record has two `finish_confirm` views (0:14 and 0:23); the replay draws the dialog for both, with the cursor and a splash on "Zurück", then on "Ja". Before, nothing at that moment. | [`8-before-replay-yes.png`](confirm-finish-scenario/8-before-replay-yes.png), [`8-after-replay-back.png`](confirm-finish-scenario/8-after-replay-back.png), [`8-after-replay-yes.png`](confirm-finish-scenario/8-after-replay-yes.png), [`8-record-views.png`](confirm-finish-scenario/8-record-views.png) |
 | NFR-1 | Study data comparable | `npm run i18n:check` (49 click ids, all keys; 47 on `main`); click-id table regenerated; field documented in `docs/experiment-logging.md` | ✅ | - |
 | NFR-2 | Translated, keyboard-usable | `npm run i18n:check`; running app: focus and Escape | ✅ Focus is in the dialog on open; Escape closes it like "Zurück". The en/fr texts are checked by `i18n:check` only: `plan-b-p01`'s briefing switches the UI to German. | - |
 | DP-2 | No dialog for "Weiter zum Fragebogen" | spec ("does not ask for \"Weiter zum Fragebogen\"") | ✅ | - |
@@ -272,6 +282,27 @@ Read from the page (`scripts/docshots-confirm-finish-scenario.mjs`, 2026-11-16):
    "…": "…" }
 ```
 
+### 4.6 The dialog in the replay (REQ-8)
+
+- **Logged:** `ViewTracker` treats the open dialog as an overlay view, `finish_confirm` (with `legId` in a guided
+  run), after help, settings and the questionnaire; `AppComponent.finishConfirmOpen` feeds it. When it closes, the
+  working screen is entered again. Its time is the gap to the next `view_enter`, so the record also says how long
+  the participant hesitated.
+
+```diff
+ { "type": "view_enter", "payload": { "view": "session", "detail": { "centerTab": "map", "layoutId": "preset-plan-b" } } }
++{ "type": "view_enter", "payload": { "view": "finish_confirm", "detail": { "legId": "tutorial" }, "from": "session" } }   // added
+ { "type": "view_enter", "payload": { "view": "session", "detail": { "…": "…" }, "from": "finish_confirm" } }
+```
+
+- **Replayed:** `ReplayService.screen()` is `'finishConfirm'` while that view is on. `app.component.html` then draws
+  a read-only copy of the dialog in `.replay-screen` (title and the two buttons with the same `data-log` ids,
+  `inert`), placed where the live dialog is, so the recorded cursor and the click splashes (placed by `data-log`)
+  land on its buttons.
+- **Why a copy:** Lyne's `sbb-dialog` opens in the browser's top layer (`showPopover()`). Reused in the replay, it
+  covered the cursor, the splashes and the replay controls ("Abspielen" could not be pressed); no z-index helps
+  against the top layer. `.replay-screen` sits under them (900 < 960 splashes, 965 cursor, 1000 controls).
+
 ## 5. Building block view
 
 *The components the change adds or changes: an overview, why the system is split this way, what each is responsible
@@ -289,6 +320,9 @@ flowchart LR
   APP -->|"advanceExperiment clicked, finishConfirmBack"| RUN["ExperimentRunService «modified»"]
   APP -.->|"reads finishConfirm"| CFG["StudyCondition, Tour «modified»"]
   RUN -->|"leg_finished with finishConfirm"| LOG["InteractionLogService «unchanged»"]
+  APP -->|"finishConfirmOpen"| VT["ViewTracker «modified»"]
+  VT -->|"view_enter finish_confirm"| LOG
+  RS["ReplayService «modified»"] -.->|"screen finishConfirm, read-only copy"| APP
   style TB fill:#f1f3f5,stroke:#868e96,color:#000
   style APP fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
   style DLG fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
@@ -296,6 +330,8 @@ flowchart LR
   style RUN fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
   style CFG fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
   style LOG fill:#f1f3f5,stroke:#868e96,color:#000
+  style VT fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
+  style RS fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
 ```
 
 Notation: [Flowchart in Mermaid](https://mermaid.js.org/syntax/flowchart.html); green «added», yellow dashed
@@ -314,6 +350,8 @@ answer (DP-4).
 | `ExperimentRunService` | Holds the run's phase and records leg ends. Not for deciding when to ask. | 🟨 modified: the leg's record says whether it was finished through the dialog and how often "Zurück" was chosen. |
 | `StudyCondition`, `Tour` | Describe an experiment or tour as authored. | 🟨 modified: an experiment can turn the dialog off. |
 | `ToolbarComponent` | Shows the finish button and hands the request on. | ⬜ unchanged |
+| `ViewTracker` | Logs which screen the participant sees and when. Not what they do there (clicks, decisions). | 🟨 modified: the record says when the finish dialog was open, and for how long. |
+| `ReplayService` | Replays a recorded run as it was seen. Not for changing the record. | 🟨 modified: a replay shows the finish dialog with the participant's cursor and clicks on it. |
 
 ## 6. Runtime view
 
@@ -369,6 +407,7 @@ Compared with `main`. What is reused, and what is not new on purpose, is in §4.
 | ID | New | Defined in |
 |---|---|---|
 | PAT-1 | First use of Lyne `sbb-dialog` in the app, for a participant-facing confirmation (`backdrop="translucent"`, result via `sbb-dialog-close="confirm"`). | §4.3 |
+| PAT-3 | `view_enter` value `finish_confirm`, and a read-only copy of a top-layer Lyne overlay in `.replay-screen` for the replay. | §4.6 |
 | PAT-2 | Record field `finishConfirm: {confirmed, backs}` on `ShiftRecord` and `leg_finished`, and `header.finishConfirm` in every guided session (REQ-7). | §4.5 |
 
 ### 8.2 Breaking changes
@@ -380,7 +419,9 @@ session header only gain optional fields (absent in old records, so readers trea
 `RunContext` gains a required `finishConfirm: boolean | null`; its only writers, `ExperimentRunService.runContext()`
 and `AppComponent`'s tour context, set it. Visible change only: a hand-made
 finish now needs a second click ("Ja"). Analyses that count finish-button clicks should count
-`experimentRun.finishConfirm.yes` or read `finishConfirm` instead.
+`experimentRun.finishConfirm.yes` or read `finishConfirm` instead. `view_enter` gains the value `finish_confirm`
+(REQ-8): an analysis that sums the time per view now sees the dialog's seconds there, not in `session`.
+`AppViewSource` gains a required `finishConfirmOpen`; its only implementer is `AppComponent`.
 
 ## 9. Decisions
 
@@ -443,6 +484,7 @@ conditions that don't need it yet.
 | 2026-11-16 | ✅ Q-2: `AppComponent` asks, not the toolbar (§4.3). | Both prototyped; the same picture. The reflection check, the pause pattern, the condition and the tour are already in `AppComponent`; the toolbar would need them passed in. | DP-1; toolbar unchanged; `AppComponent` +~25 lines. |
 | 2026-11-16 | ✅ Q-5: "Schicht beenden" doesn't ask in this PR. | Hidden in Plan B; asking there needs a new cross-component request. | Follow-up in §1.4; limitation in §2.1. |
 | 2026-11-16 | ✅ The switch goes into every guided session's header (REQ-7, §4.5). | Maintainer, after the comparison with #174's plan: without it "turned off" and "before #180" look the same, the gap #174 closed for `shiftSummary` (its findings 3, 13). | S-4; `RunContext.finishConfirm`. |
+| 2026-11-16 | ✅ The replay draws the dialog, as a read-only copy logged as the overlay view `finish_confirm` (REQ-8, §4.6). | Maintainer, after the comparison with #174's plan (the replay shows what the participant saw). Prototyped: the live `sbb-dialog` in the replay sits in the top layer over the cursor and the replay controls, so a copy in `.replay-screen`. | S-5; PAT-3; a second place to keep in step with the live dialog (§2.1). |
 
 ### 9.3 Code Review Findings
 
@@ -480,7 +522,8 @@ None yet.
 | ✅ S-1 | - | Switch `finishConfirm` on `StudyCondition`/`Tour` and `hasFinishConfirm` (§4.4); the dialog with pause in `AppComponent` (§4.3); keys in en/de/fr; `finishConfirm` record field (§4.5); spec cases (§4.2); click-id table and the field in `docs/experiment-logging.md`. | feature | medium | `feat(experiment-run): ask "Aktuelles Szenario abschliessen?" before a scenario is finished by hand.` | a74e605c | - | - |
 | 💡 S-2 | - | `scripts/docshots-confirm-finish-scenario.mjs`; before and after screenshots in `docs/plans/confirm-finish-scenario/`; §4.2 results filled in. | docs | low | `docs(plans): confirm finish scenario: screenshots and verification.` |  | S-1 | - |
 | ✅ S-3 | - | Align with #174's plan: §3 and Q-5 name the guide's `hasShiftSummary()` gate of "Schicht beenden"; `docs/README.md` lists this plan; `experiment-workflow.md` §5.4 names the dialog; §3 and Q-2 say the dialog opens in the browser's top layer (`showPopover()`), not `position: fixed`. | docs | low | `docs(plans): confirm finish scenario: align with the plan of #174.` | 59dcf352 | S-2 | - |
-| 💡 S-4 | - | `header.finishConfirm` from `runContext()` (§4.5, REQ-7), with specs; `docs/experiment-logging.md`. | feature | low | `feat(experiment-run-record): record whether the condition asks before a scenario is finished.` |  | S-3 | - |
+| ✅ S-4 | - | `header.finishConfirm` from `runContext()` (§4.5, REQ-7), with specs; `docs/experiment-logging.md`. | feature | low | `feat(experiment-run-record): record whether the condition asks before a scenario is finished.` | d05dca85 | S-3 | - |
+| 💡 S-5 | - | The overlay view `finish_confirm` and the read-only dialog in the replay (§4.6, REQ-8), with specs; `docs/experiment-logging.md`'s view table; replay screenshots in `docs/plans/confirm-finish-scenario/` (row 8 of §4.2). | feature | low | `feat(replay): show the finish dialog with the participant's clicks on it.` |  | S-4 | - |
 
 ## 12. Change inventory
 
@@ -501,8 +544,8 @@ None yet.
 
 | File | Changes |
 |---|---|
-| `frontend/src/app/app.component.html` | `<sbb-dialog #finishConfirm backdrop="translucent">` with title and the "Zurück"/"Ja" buttons and their `data-log` ids. |
-| `frontend/src/app/app.component.ts` | The tour's run context has `finishConfirm: null` (S-4). Imports `@sbb-esta/lyne-elements/dialog.js`; `finishDemoMode()` asks after `refuseFinish()` (`finishConfirmAsked()`, pause); today's branches move into `finishDemoModeConfirmed()`; `onFinishConfirmClose(event)`. |
+| `frontend/src/app/app.component.html` | `<sbb-dialog #finishConfirm backdrop="translucent">` with title and the "Zurück"/"Ja" buttons and their `data-log` ids; its read-only copy in the replay (S-5). |
+| `frontend/src/app/app.component.ts` | The tour's run context has `finishConfirm: null` (S-4); `finishConfirmOpen` for the view log (S-5). Imports `@sbb-esta/lyne-elements/dialog.js`; `finishDemoMode()` asks after `refuseFinish()` (`finishConfirmAsked()`, pause); today's branches move into `finishDemoModeConfirmed()`; `onFinishConfirmClose(event)`. |
 | `frontend/src/app/app.component.spec.ts` | Cases of §4.2 (open, "Ja", "Zurück"/Escape, pause/resume, switch off, tour, `legSurvey`). |
 | `frontend/src/app/core/demo/study-conditions.ts` | `StudyCondition.finishConfirm?: boolean`; `hasFinishConfirm(c)`. |
 | `frontend/src/app/core/demo/tours.ts` | `Tour.finishConfirm?: boolean`. |
@@ -515,6 +558,9 @@ None yet.
 | `docs/README.md` | A line for this plan, next to #174's (S-3). |
 | `frontend/src/app/core/interaction-log/session-record.ts` | `RunContext.finishConfirm`, `EMPTY_RUN_CONTEXT`, optional `SessionHeader.finishConfirm` (S-4). |
 | `frontend/src/app/core/interaction-log/interaction-log.service.ts` / `.spec.ts` | The header copies `finishConfirm` from the run context; spec in and outside a guided run (S-4). |
+| `frontend/src/app/core/interaction-log/view-tracker.service.ts` / `.spec.ts` | `AppViewSource.finishConfirmOpen`; the overlay view `finish_confirm` (S-5). |
+| `frontend/src/app/core/replay/replay.service.ts` / `.spec.ts` | `screen()` is `'finishConfirm'` while the view is on (S-5). |
+| `frontend/src/app/app.component.scss` | `.replay-screen--dialog`, `.replay-finish-confirm` (S-5). |
 
 Unchanged on purpose: `toolbar.component.*` (with b) of Q-2), `finishLabel`, `LegFinishReason`, `advanceExperiment`,
 `tour-guide` and `director-directive` (Q-5), `tour-briefings.ts` (its sentence stays true), the backend (records are

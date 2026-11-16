@@ -64,12 +64,13 @@ export class ReplayService {
   /** The recorded screen (`view_enter`): it decides which recorded screen the replay draws. */
   readonly view = signal<{ view: string; detail?: Record<string, unknown> } | null>(null);
 
-  /** The recorded screens the replay draws itself, read-only: a questionnaire, or the Schichtbilanz.
+  /** The recorded screens the replay draws itself, read-only: a questionnaire, the finish dialog (#180), or the Schichtbilanz.
    *  The Schichtbilanz follows the shift's end (`shift_end`): a dialog over it, such as a pending
    *  rationale, can take the logged view, so the view alone may never name it. */
-  readonly screen = computed<'survey' | 'shiftSummary' | null>(() => {
+  readonly screen = computed<'survey' | 'finishConfirm' | 'shiftSummary' | null>(() => {
     const v = this.view();
     if (v?.view === 'survey') return 'survey';
+    if (v?.view === 'finish_confirm') return 'finishConfirm';
     if (this._runDone()) return null;
     if (this.store.shiftEnded() || v?.view === 'shift_review' || (v?.view === 'experiment' && v.detail?.['phase'] === 'review')) return 'shiftSummary';
     return null;

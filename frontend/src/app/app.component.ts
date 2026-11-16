@@ -211,6 +211,7 @@ export class AppComponent implements OnInit {
       shiftScreenOpen: this.shiftScreenOpen,
       debrief: this.tourContext.hasDebrief,
       surveyActive: this.surveyActive,
+      finishConfirmOpen: this.finishConfirmOpen,
       helpActive: this.helpActive,
       settingsMode: this.settingsMode,
       settingsTab: this.settingsTab,
@@ -1438,6 +1439,7 @@ export class AppComponent implements OnInit {
       // Asking costs no simulated time (docs/plans/confirm-finish-scenario.md §4.3).
       this._resumeAfterFinishConfirm = this.store.playing();
       if (this._resumeAfterFinishConfirm) this.store.pause();
+      this.finishConfirmOpen.set(true);
       dialog.open();
       return;
     }
@@ -1447,7 +1449,8 @@ export class AppComponent implements OnInit {
   /** The finish dialog (#180): asked before a hand-made finish ends a scenario. */
   private readonly finishConfirmDialog = viewChild<ElementRef<HTMLElement & { open(): void }>>('finishConfirm');
   private _resumeAfterFinishConfirm = false;
-
+  /** Logged as the overlay view `finish_confirm`, so the replay can draw it. */
+  readonly finishConfirmOpen = signal(false);
   /** A run's leg in phase `running`, or a tour's mode, unless the condition or
    *  tour turns the dialog off. "Weiter zum Fragebogen" ends nothing and doesn't ask. */
   private finishConfirmAsked(): boolean {
@@ -1458,6 +1461,7 @@ export class AppComponent implements OnInit {
 
   /** "Ja" (result `confirm`) finishes; Zurück, Escape and the backdrop close without a result. */
   onFinishConfirmClose(event: Event): void {
+    this.finishConfirmOpen.set(false);
     const confirmed = (event as Event & { result?: unknown }).result === 'confirm';
     const resume = this._resumeAfterFinishConfirm;
     this._resumeAfterFinishConfirm = false;
