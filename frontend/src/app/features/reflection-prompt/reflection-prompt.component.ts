@@ -43,19 +43,6 @@ const MISSING: Chip[] = [
 ];
 
 export const REFLECTION_QUESTION_POOL: readonly ReflectionQuestionId[] = ['gut', 'missing', 'tradeoff'];
-const POOL = REFLECTION_QUESTION_POOL;
-
-/** A fixed shuffle per decision, so re-rendering or reopening keeps its questions. */
-export function pickQuestions(seed: number, n: number): ReflectionQuestionId[] {
-  const order = [...POOL];
-  let s = Math.abs(Math.floor(seed)) % 233280;
-  for (let i = order.length - 1; i > 0; i--) {
-    s = (s * 9301 + 49297) % 233280;
-    const j = Math.floor((s / 233280) * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
-  }
-  return order.slice(0, Math.max(0, Math.min(n, order.length)));
-}
 
 /**
  * Reflection with guided questions — the interview tour's "why?" prompt, a
@@ -64,9 +51,10 @@ export function pickQuestions(seed: number, n: number): ReflectionQuestionId[] {
  *
  * Always asked: which factors mattered, as the reason chips, because they feed
  * the preference hypothesis and so "the AI learns". Beside it, a few of the
- * team's reflection questions, all of them, in an order drawn per decision: a
- * gut feeling (chips), missing information (chips), and the drawback accepted
- * on purpose (a few words). None is hidden behind a "more questions" link,
+ * team's reflection questions, all of them, in the same order after every
+ * decision (docs/plans/reflection-question-order.md): a gut feeling (chips),
+ * missing information (chips), and the drawback accepted on purpose (a few
+ * words). None is hidden behind a "more questions" link,
  * which participants overlooked; `reflectionQuestionLimit` is the Co-Learning
  * reflection panel's, not this prompt's. Every question is optional. The "most important insight for next
  * time" is asked at the end of the shift instead — right after a decision there
@@ -93,11 +81,10 @@ export class ReflectionPromptComponent {
 
   readonly pending = computed(() => this.store.pendingRationale());
 
-  /** Every question, in the order drawn for this decision. */
-  readonly shown = computed<ReflectionQuestionId[]>(() => {
-    const p = this.pending();
-    return p ? pickQuestions(p.timestamp, POOL.length) : [];
-  });
+  /** Every question, in the same order for every decision. */
+  readonly shown = computed<ReflectionQuestionId[]>(() =>
+    this.pending() ? [...REFLECTION_QUESTION_POOL] : [],
+  );
 
   readonly selectedFactors = signal<Set<string>>(new Set());
   readonly gut = signal<string | null>(null);

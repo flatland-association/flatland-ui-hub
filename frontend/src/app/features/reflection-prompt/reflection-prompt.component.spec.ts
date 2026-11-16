@@ -5,32 +5,43 @@ import { LanguageService } from '../../core/i18n/language.service';
 import { SessionInfo } from '../../core/models';
 import { SessionStore } from '../../core/session.store';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
-import { pickQuestions, reflectionAnswers, ReflectionPromptComponent, REFLECTION_QUESTION_POOL } from './reflection-prompt.component';
+import { reflectionAnswers, ReflectionPromptComponent, REFLECTION_QUESTION_POOL } from './reflection-prompt.component';
 
-describe('reflection-prompt: question selection', () => {
-  it('draws the same questions for the same decision', () => {
-    for (const seed of [0, 1, 1726000000000, 1726000123456.7]) {
-      expect(pickQuestions(seed, 2)).toEqual(pickQuestions(seed, 2));
+/** The same order after every decision, not one drawn per decision
+ *  (docs/plans/reflection-question-order.md). */
+describe('reflection-prompt: question order', () => {
+  afterEach(() => {
+    jasmine.clock().uninstall();
+    TestBed.resetTestingModule();
+  });
+
+  it('asks the questions in the same order for decisions taken at different times', () => {
+    TestBed.configureTestingModule({
+      imports: [ReflectionPromptComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const store = TestBed.inject(SessionStore);
+    const i18n = TestBed.inject(LanguageService);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.queueReflections.set(true);
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date(1726000000000));
+    store.recordProposalChoice(0, 'proceed');
+    jasmine.clock().mockDate(new Date(1726000123457));
+    store.recordProposalChoice(1, 'proceed');
+    const [first, second] = store.openReflections().map((r) => r.decisionSeq);
+    expect(store.openReflections()[0].timestamp).not.toBe(store.openReflections()[1].timestamp);
+
+    const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    const el: HTMLElement = fixture.nativeElement;
+    const labels = () => [...el.querySelectorAll('.rp-q > .rp-q-label')].slice(1).map((l) => l.textContent?.trim());
+    for (const seq of [first, second]) {
+      store.reopenRationale(seq);
+      fixture.detectChanges();
+      expect(fixture.componentInstance.shown()).withContext(`decision ${seq}`).toEqual([...REFLECTION_QUESTION_POOL]);
+      expect(labels()).toEqual(REFLECTION_QUESTION_POOL.map((q) => i18n.t(`reflectionPrompt.q.${q}`)));
     }
-  });
-
-  it('respects the limit and never repeats a question', () => {
-    for (const n of [0, 1, 2, 3]) {
-      const picked = pickQuestions(1726000000000, n);
-      expect(picked.length).toBe(n);
-      expect(new Set(picked).size).toBe(n);
-      picked.forEach((q) => expect(REFLECTION_QUESTION_POOL).toContain(q));
-    }
-  });
-
-  it('clamps limits outside the pool size', () => {
-    expect(pickQuestions(42, -1)).toEqual([]);
-    expect(pickQuestions(42, 99).length).toBe(REFLECTION_QUESTION_POOL.length);
-  });
-
-  it('varies across decisions', () => {
-    const firsts = new Set(Array.from({ length: 50 }, (_, i) => pickQuestions(1726000000000 + i * 7919, 1)[0]));
-    expect(firsts.size).toBeGreaterThan(1);
   });
 });
 
