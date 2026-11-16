@@ -5,8 +5,9 @@
 > [#182](https://github.com/flatland-association/flatland-ui-hub/issues/182)
 > ("Fragen in Reflexion fix oder randomisiert?", @CleverManu). Branch
 > `feature/182-reflection-question-order`, off `main` (on request;
-> contributors usually branch off `explore_db`). PR: none yet. Open
-> questions: §9.1.
+> contributors usually branch off `explore_db`). PR
+> [#203](https://github.com/flatland-association/flatland-ui-hub/pull/203).
+> Open questions: none (§9.1).
 >
 > **Why:** after each decision, the reflection asks its guided questions in a
 > different order. Participants see an inconsistent prompt, and the order
@@ -360,8 +361,9 @@ comes last. The study leads can set another order for their lab machines in
 
 *Findings from code reviews, PR comments and TODOs, with their status and the commits that fix them.*
 
-No PR yet; branch based on `main` fd0c70c. No code review yet, no PR
-comments, no TODOs added. In Fixed, ✅ marks a fixed finding, ⏭️ one taken
+PR [#203](https://github.com/flatland-association/flatland-ui-hub/pull/203);
+branch based on `main` fd0c70c, checked at 46796a3. No code review yet, no
+PR comments, no TODOs added. In Fixed, ✅ marks a fixed finding, ⏭️ one taken
 over by a follow-up, — a dropped one, ⚠️ a comment resolved on GitHub without
 a code change and without a reason; ❌ next to ✅ marks a finding fixed in the
 code whose PR comment is not resolved yet. "resolved" in Source marks threads
