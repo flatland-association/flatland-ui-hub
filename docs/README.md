@@ -62,6 +62,8 @@ Designs and roadmaps not yet (fully) built. Each carries its own status line.
 - [ecml2026-flatland-env.md](plans/ecml2026-flatland-env.md) — reuse the ECML 2026 challenge topology & scenarios (to be discussed)
 
 **Modes, agents & interaction**
+- [flash-ahead-set-path.md](plans/flash-ahead-set-path.md) — #199: a look-ahead slider that flashes each train's set path ("eingestellter Fahrweg") on the Streckenspiegel; the forecasts it can draw from
+- [set-route-on-map.md](plans/set-route-on-map.md) — #199: drawing a train's route on the Streckenspiegel ("Fahrweg einstellen"), override-aware DLA, validated on the Plan B tutorial (built)
 - [agentic-delegation.md](plans/agentic-delegation.md) — handing the Director planner a bounded assignment (scope + constraints + report + release) instead of configuring it up front
 - [co-learning-direction.md](plans/co-learning-direction.md) — Level A (task) vs Level B (AI learns to work with the human)
 - [colearning-across-modes.md](plans/colearning-across-modes.md) — Co-Learning as a cross-cutting layer over the 3 automation levels

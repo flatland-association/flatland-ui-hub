@@ -4,7 +4,7 @@
 > the flash-ahead plan (00fad43d; kept on the same branch on request, may move to its own branch later). Issue
 > [#199](https://github.com/flatland-association/flatland-ui-hub/issues/199), last bullet ("possible extension:
 > Fahrweg einstellen Knoten-Knoten-Knoten"), label "plan b". No PR yet. Open questions: none (§9.1, all decided 2026-11-16).
-> Implemented 2026-11-16 (S-2 to S-4), verified in the Plan B tutorial (§4.2); S-5 (user doc) open.
+> Implemented 2026-11-16 (S-2 to S-4), verified in the Plan B tutorial (§4.2); user doc in `docs/reference/mode-guide.md` (S-5).
 >
 > **Why:** today "Umleiten" computes a route for the operator, only around a broken-down train. A dispatcher sets a
 > route ("stellt einen Fahrweg ein") themselves, e.g. sends a train through the second track of a station so that
@@ -60,11 +60,11 @@ Requirements:
 
 | Follow-up | Why not in this PR | From | Findings | Issue |
 |---|---|---|---|---|
-| Edit or shorten a set route (drag again, remove a via node). | First the setting itself. | Q-1 | - | - |
-| A route that ends before the target and hands back to the policy. | Needs a rule for where the policy takes over (Q-3 b). | Q-3 | - | - |
-| Reroute for trains under `PlanPolicy` that rejoins their plan. | Today a rerouted train is off plan for the rest of the episode (§3.2). | Q-8 | - | - |
-| Override awareness for Director, `PlanPolicy`, PP re-plan and ROAM (implement the Q-4 b interface). | Plan B runs DLA; each needs its own design (re-plan with constraints, plan order with off-plan trains, certificate). | §3.4, Q-4 | - | - |
-| Port upstream DLA with set paths (`SetPathPolicy`), so routes are the policy's own set paths. | A larger change to the default policy; this plan only lets DLA read committed routes through the optional override-aware `Policy` method (Q-4 b). | flash-ahead plan §1.4 | - | - |
+| Edit or shorten a set route (drag again, remove a via node). | First the setting itself. | Q-1 | - | untracked |
+| A route that ends before the target and hands back to the policy. | Needs a rule for where the policy takes over (Q-3 b). | Q-3 | - | untracked |
+| Reroute for trains under `PlanPolicy` that rejoins their plan. | Today a rerouted train is off plan for the rest of the episode (§3.2). | Q-8 | - | untracked |
+| Override awareness for Director, `PlanPolicy`, PP re-plan and ROAM (implement the Q-4 b interface). | Plan B runs DLA; each needs its own design (re-plan with constraints, plan order with off-plan trains, certificate). | §3.4, Q-4 | - | untracked |
+| Port upstream DLA with set paths (`SetPathPolicy`), so routes are the policy's own set paths. | A larger change to the default policy; this plan only lets DLA read committed routes through the optional override-aware `Policy` method (Q-4 b). | flash-ahead plan §1.4 | - | untracked |
 
 ## 2. Constraints
 
@@ -483,8 +483,8 @@ No review yet.
 | 💡 S-1 | - | The plan | docs | low | docs(plans): plan for setting a train's route on the Streckenspiegel (#199). |  | - | - |
 | ✅ S-2 | - | The optional override-aware method on `Policy` (Q-4 b), called by `OverridePolicy`; DLA implements it and walks committed routes; `OverridePolicy` keeps DLA's stop for rerouted trains; tutorial test with a fixed route | feat | high | feat(policies): deadlock avoidance respects committed reroutes. | de4cd3a9 | S-1 | Q-4 |
 | ✅ S-3 | - | Route through via cells to the target, `via` on `/proposals` and `/proposals/apply`, off-map trains, backend tests | feat | medium | feat(overrides): reroute along via cells chosen by the operator. | b2d7131b | S-2 | Q-2, Q-3, Q-5, Q-7 |
-| 💡 S-4 | - | Route mode and drag drawing on the map, from "Umleiten" in the action options and the popover, i18n, specs | feat | medium | feat(map): draw a train's route on the Streckenspiegel. |  | S-3 | Q-1, Q-6 |
-| 💡 S-5 | - | Screenshots and user doc, the tutorial walk-through | docs | low | docs(map): setting a route by drawing it, with the tutorial example. |  | S-4 | - |
+| ✅ S-4 | - | Route mode and drag drawing on the map, from "Umleiten" in the action options and the popover, i18n, specs | feat | medium | feat(map): draw a train's route on the Streckenspiegel. | 7285aed7 | S-3 | Q-1, Q-6 |
+| 💡 S-5 | - | Screenshots and recording (§4.2, in 7285aed7 and 5a47c492); user doc: "Setting a route" in the mode guide, with the tutorial example; the plans in the docs index | docs | low | docs(map): setting a route by drawing it, with the tutorial example. |  | S-4 | - |
 
 ## 12. Change inventory
 
@@ -510,6 +510,7 @@ No review yet.
 | `frontend/src/app/features/proposal-compare/proposal-compare.component.{ts,html}` | "Umleiten" starts route mode; the course of the drawn route. |
 | `frontend/src/app/core/session.store.ts`, `core/proposals/proposal-choice.service.ts` (+ spec), `core/api.service.ts`, `core/dispatch/train-action.service.ts` | Route mode state (`routeDrawing`), via cells, the API parameter; reroute always offered. |
 | `frontend/public/i18n/{en,de,fr}.json` | Hint and error texts. |
+| `docs/reference/mode-guide.md`, `docs/README.md` | "Setting a route (Fahrweg einstellen)" in the Co-Learning section, with the tutorial; both #199 plans in the index. |
 
 Unchanged on purpose: the override values, `PlanPolicy`, the Director. The forecasts' runner only gets the optional
 `routes` parameter.
