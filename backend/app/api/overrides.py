@@ -475,6 +475,21 @@ def _human_course(env, handle: int, committed: dict, elapsed: int, action, optio
     return overrides, release, f"action:{int(action)}"
 
 
+def _kept_overrides(agent, overrides: dict, handle: int) -> dict:
+    """The standing overrides an agent's course keeps: every train's but the
+    selected one's, for an agent that `respects_overrides`; none otherwise.
+    Plan: docs/plans/uc2-rl-keep-human-decisions.md."""
+    if not getattr(agent, "respects_overrides", False):
+        return {}
+    return {int(h): int(a) for h, a in overrides.items() if int(h) != int(handle)}
+
+
+def _plan_without(trainruns: dict, kept: dict) -> dict:
+    """The course as a plan for the trains the operator hasn't decided for: a
+    train with a standing override stays under it, outside the plan."""
+    return {h: run for h, run in trainruns.items() if int(h) not in kept}
+
+
 class ProposalApplyRequest(BaseModel):
     """Which of the three courses the operator takes for real."""
     variant: str            # 'plan' | 'ai' | 'human'
@@ -492,8 +507,10 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
     - ``plan``: drop this train's override — it follows the timetable again.
     - ``ai``: re-solve the replan for `priority` and make it the plan the session
       runs on (`install_trainrun_plan`), with the standing overrides cleared,
-      because they were answers to the course the replan just replaced. The
-      timetable stays the yardstick for "delay vs plan".
+      because they were answers to the course the replan just replaced. An
+      agent that `respects_overrides` (uc2_rl) clears only the selected train's
+      own: the other trains keep the operator's decision and stay outside the
+      plan. The timetable stays the yardstick for "delay vs plan".
     - ``human``: the operator's option as an override, exactly what the what-if
       simulated.
 
@@ -523,24 +540,35 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
         label = "Plan behalten"
 
     elif req.variant == "ai":
+        agent = proposal_agent_for(session)
+        kept = _kept_overrides(agent, override_manager.get_all(session_id), handle)
         if req.preview_token is not None:
             trainruns = proposal_preview.exact_course(
                 session, req.preview_token, handle=handle, candidate_id=req.candidate_id,
                 source_step=req.source_step, priority=req.priority)
         else:
             # Existing clients and PP priority orders retain their resolver.
-            trainruns = proposal_agent_for(session).resolve_for(
-                env, req.priority or (), handle, candidate_id=req.candidate_id)
+            extra = {"overrides": kept} if kept else {}
+            trainruns = agent.resolve_for(
+                env, req.priority or (), handle, candidate_id=req.candidate_id, **extra)
+        if trainruns:
+            trainruns = _plan_without(trainruns, kept)
         if not trainruns:
             raise HTTPException(409, "The planner found no collision-free plan from here")
         accept_trainrun_plan(env, trainruns)
         env._plan_off_plan = set()  # the replacement starts a new executable course
         session.trainrun_plan = trainruns
         session.policy = PLAN_POLICY_ID
-        # The overrides answered the old course; leaving them would fight the
-        # replan the operator just accepted.
-        override_manager.clear_all(session_id)
-        env._route_overrides = {}
+        if getattr(agent, "respects_overrides", False):
+            # The last decision wins per train: the course answers the selected
+            # train's question; the other trains keep the operator's decision.
+            override_manager.clear(session_id, handle)
+            drop_route(env, handle)
+        else:
+            # The overrides answered the old course; leaving them would fight the
+            # replan the operator just accepted.
+            override_manager.clear_all(session_id)
+            env._route_overrides = {}
         label = "KI-Plan übernommen"
 
     elif req.variant == "human":
@@ -637,9 +665,13 @@ def _evaluate_proposals_unchecked(captured):
     variants[0]["score"] = _course_score(plan_res, planned)
     variants[0]["metrics"] = _variant_metrics(plan_res, planned, elapsed, horizon)
 
+    # Each course is scored the way it runs once accepted: the plan for the
+    # trains without a decision, the kept overrides for the others.
+    kept = _kept_overrides(agent, committed, handle)
     ranked = []
-    for proposal in agent.propose_for(env, handle):
-        res = _branch_run(env, lambda tr=proposal.trainruns: PlanPolicy(None, tr), {}, horizon)
+    for proposal in agent.propose_for(env, handle, *([kept] if kept else [])):
+        plan = _plan_without(proposal.trainruns, kept)
+        res = _branch_run(env, lambda tr=plan: PlanPolicy(None, tr), kept, horizon)
         ranked.append((proposal_rank(res, planned, elapsed, horizon), proposal, res))
     ranked.sort(key=lambda entry: entry[0])
 
@@ -674,6 +706,8 @@ def _evaluate_proposals_unchecked(captured):
         "source_step": source.step,
         "horizon": horizon,
         "ai_agent": {"id": agent.id, "label": agent.label},
+        # Accepting keeps the other trains' standing overrides (else: clears them all).
+        "ai_keeps_overrides": bool(getattr(agent, "respects_overrides", False)),
         "ai_available": bool(ranked),
         # The best replan keeps every arrival of the plan: the AI would not change course.
         "ai_matches_plan": bool(ranked) and _arrivals(ranked[0][2]) == _arrivals(plan_res),

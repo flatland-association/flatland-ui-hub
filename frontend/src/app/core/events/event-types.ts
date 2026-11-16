@@ -263,6 +263,9 @@ export interface ProposalsResult {
   /** True when the best replan keeps every arrival of the plan: the AI would
    *  not change course. */
   ai_matches_plan: boolean;
+  /** True when taking the AI course keeps the other trains' standing
+   *  decisions (stops, reroutes); false: it clears them all. */
+  ai_keeps_overrides?: boolean;
   /** plan, the best AI order, and the human's choice when one is given. */
   variants: ProposalVariant[];
   /** Further AI priority orders, ranked after the best one. */

@@ -11,16 +11,22 @@ The handle-aware adviser also explores a bounded number of future branches
 and short holds, then continues with the same frozen actor. Every intervention
 passes through the whole-batch ROAM check before stepping. The model has no
 priority order; the API independently replays and scores each complete course.
+
+The operator's decisions count per train (docs/plans/uc2-rl-keep-human-decisions.md):
+a course for the selected train keeps the standing overrides of every other
+train, applied where the live `OverridePolicy` applies them and before ROAM
+certifies the batch, so ROAM checks the step that will actually run.
 """
 from __future__ import annotations
 
 import copy
 import importlib.util
 from dataclasses import dataclass
-from typing import List, Optional, Sequence
+from typing import Dict, List, Optional, Sequence
 
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_trainrun_data_structures import TrainrunDict, TrainrunWaypoint, Waypoint
+from flatland.envs.step_utils.states import TrainState
 
 from app.core.proposal_agents.base import Proposal, ProposalAgent
 from app.core.native_env_cache import clear_native_environment_caches
@@ -28,6 +34,7 @@ from app.policies.learned.roam_check import predict_configuration
 from app.utils.agent_compat import agent_direction, agent_position
 
 POLICY_ID = "uc2_rl"
+STOP = 4  # RailEnvActions.STOP_MOVING
 MAX_CANDIDATES = 8
 MAX_BRANCH_POINTS = 2
 WAIT_STEPS = (1, 3, 5)
@@ -64,6 +71,7 @@ def _fork_env(env: RailEnv) -> RailEnv:
 class UC2RLProposalAgent(ProposalAgent):
     id = POLICY_ID
     label = "UC2 RL"
+    respects_overrides = True
     description = "The trained UC2 model (one per infrastructure) runs every train on from the current state."
 
     def available(self, env: RailEnv) -> bool:
@@ -81,11 +89,14 @@ class UC2RLProposalAgent(ProposalAgent):
         # Deterministic: the same state gives the same course; there is no order to honour.
         return rollout_trainruns(env) or None
 
-    def propose_for(self, env: RailEnv, handle: int) -> List[Proposal]:
+    def propose_for(self, env: RailEnv, handle: int,
+                    overrides: Optional[Dict[int, int]] = None) -> List[Proposal]:
         handle = int(handle)
         if handle not in {int(a.handle) for a in env.agents}:
             return []
-        greedy, opportunities = _rollout(env, discover_handle=handle)
+        # The selected train's own decision is what the courses answer.
+        kept = {int(h): int(a) for h, a in (overrides or {}).items() if int(h) != handle}
+        greedy, opportunities = _rollout(env, discover_handle=handle, overrides=kept)
         if not greedy:
             return []
         start = int(getattr(env, "_elapsed_steps", 0) or 0)
@@ -97,7 +108,7 @@ class UC2RLProposalAgent(ProposalAgent):
         # Opportunities come from the future greedy trajectory, not just the
         # root action. Retain no fork environments between candidate rollouts.
         for intervention in opportunities[:MAX_CANDIDATES - 1]:
-            trainruns, _ = _rollout(env, intervention=intervention)
+            trainruns, _ = _rollout(env, intervention=intervention, overrides=kept)
             key = _course_key(trainruns)
             if not trainruns or key in seen:
                 continue
@@ -108,11 +119,14 @@ class UC2RLProposalAgent(ProposalAgent):
         return proposals
 
     def resolve_for(self, env: RailEnv, priority: Sequence[int], handle: int,
-                    candidate_id: str | None = None) -> Optional[TrainrunDict]:
-        if candidate_id is None:
+                    candidate_id: str | None = None,
+                    overrides: Optional[Dict[int, int]] = None) -> Optional[TrainrunDict]:
+        if candidate_id is None and not overrides:
             return self.resolve(env, priority)
-        return next((p.trainruns for p in self.propose_for(env, handle)
-                     if p.candidate_id == candidate_id), None)
+        proposals = self.propose_for(env, handle, overrides)
+        if candidate_id is None:
+            return proposals[0].trainruns if proposals else None
+        return next((p.trainruns for p in proposals if p.candidate_id == candidate_id), None)
 
 
 def rollout_trainruns(env: RailEnv, horizon: Optional[int] = None) -> TrainrunDict:
@@ -155,9 +169,47 @@ def _opportunities(env, prepared, certified, handle, branch_cells, wait_found):
     return found, wait_found
 
 
+def _apply_kept_overrides(env: RailEnv, proposals: dict, overrides: Dict[int, int]) -> None:
+    """Put the operator's standing overrides into the proposals, by the live
+    `OverridePolicy`'s rules: a reroute's move every step; any other action
+    only at the train's decision point (switch or merge), where a stop stays
+    and a turn is used up (removed from `overrides`).
+
+    Called before Joint ROAM certifies the batch. Applied after it, ROAM would
+    certify a stopped train's proposed move and withdraw another train's move
+    that only that phantom move blocks (a train held at its origin for good)."""
+    from app.core.cell_classifier import classify_cell_at
+    from app.core.route_overrides import REROUTE_ACTION, route_move
+
+    for handle, action in list(overrides.items()):
+        if handle not in proposals:
+            continue
+        agent = env.agents[handle]
+        if agent.state == TrainState.DONE:
+            continue
+        if int(action) == REROUTE_ACTION:
+            move = route_move(env, handle)
+            if move is not None:
+                proposals[handle] = _action_value(move)
+            continue
+        position, direction = agent_position(agent), agent_direction(agent)
+        if position is None or direction is None:
+            continue
+        if classify_cell_at(env, (int(position[0]), int(position[1])), int(direction)) in ("SWITCH", "MERGING"):
+            proposals[handle] = int(action)
+            if int(action) != STOP:
+                del overrides[handle]
+
+
+def _action_value(action) -> int:
+    """An action as its number; Flatland 4.3's `RailEnvActions` is not an IntEnum."""
+    return int(getattr(action, "value", action))
+
+
 def _rollout(env: RailEnv, horizon: Optional[int] = None,
              intervention: _Intervention | None = None,
-             discover_handle: int | None = None) -> tuple[TrainrunDict, list[_Intervention]]:
+             discover_handle: int | None = None,
+             overrides: Optional[Dict[int, int]] = None) -> tuple[TrainrunDict, list[_Intervention]]:
     from app.policies.registry import create_runtime_policy
 
     fork = policy = None
@@ -181,6 +233,7 @@ def _rollout(env: RailEnv, horizon: Optional[int] = None,
         runs: dict[int, list] = {int(a.handle): [] for a in fork.agents}
         finished = {int(a.handle) for a in fork.agents if getattr(a.state, "name", "") == "DONE"}
         opportunities, branch_cells, wait_found = [], set(), False
+        kept = dict(overrides or {})  # a turn is used up at its switch, so a copy
         applied = 0
 
         def note(now: int) -> None:
@@ -210,6 +263,7 @@ def _rollout(env: RailEnv, horizon: Optional[int] = None,
                 if now == intervention.step and int(raw[intervention.handle]) == intervention.action:
                     return {}, []
                 raw[intervention.handle] = intervention.action
+            _apply_kept_overrides(fork, raw, kept)
             actions = policy.finalize_actions(raw)
             if forcing:
                 if int(actions[intervention.handle]) != intervention.action:

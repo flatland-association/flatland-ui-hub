@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_trainrun_data_structures import TrainrunDict
@@ -51,18 +51,27 @@ class ProposalAgent(ABC):
     label: str = "Base"
     #: one-line description
     description: str = ""
+    #: whether the agent's courses keep the operator's standing overrides on the
+    #: other trains (only the selected train's own decision is up for change).
+    #: False: a course answers for every train, and accepting it clears them all.
+    respects_overrides: bool = False
 
     def available(self, env: RailEnv) -> bool:
         """Whether this agent can propose for `env` (e.g. a model bound to its fixtures)."""
         return True
 
-    def propose_for(self, env: RailEnv, handle: int) -> List[Proposal]:
-        """Handle-aware seam; existing priority-order agents stay compatible."""
+    def propose_for(self, env: RailEnv, handle: int,
+                    overrides: Optional[Dict[int, int]] = None) -> List[Proposal]:
+        """Handle-aware seam; existing priority-order agents stay compatible.
+
+        ``overrides`` are the standing overrides a course must keep (see
+        `respects_overrides`); agents that don't respect them ignore it.
+        """
         return self.propose(env)
 
     def resolve_for(
         self, env: RailEnv, priority: Sequence[int], handle: int,
-        candidate_id: str | None = None,
+        candidate_id: str | None = None, overrides: Optional[Dict[int, int]] = None,
     ) -> Optional[TrainrunDict]:
         """Legacy resolution; exact preview acceptance can cache the course."""
         return self.resolve(env, priority)

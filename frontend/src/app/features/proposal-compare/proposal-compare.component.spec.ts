@@ -184,6 +184,22 @@ describe('ProposalCompareComponent — future AI courses', () => {
     expect(store.proposalSnapshots().get(store.decisionLog().at(-1)!.seq)?.result.variants[1].candidate_id).toBe('wait-13-3');
   });
 
+  /** docs/plans/uc2-rl-keep-human-decisions.md: uc2_rl keeps the other trains' stops. */
+  for (const [keeps, text] of [
+    [true, 'trains you stopped or rerouted keep your decision'],
+    [false, 'The trains now run by the AI’s plan'],
+  ] as const) {
+    it(`says after taking the AI course whether the other trains keep their decisions (${keeps})`, () => {
+      const { fixture, component, http } = create();
+      http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush({ ...courses(), ai_keeps_overrides: keeps }));
+      fixture.detectChanges();
+      component.take('ai');
+      http.expectOne((r) => r.url.endsWith('/proposals/apply')).flush({ applied: 'ai', label: '', step: 7, policy: 'plan' });
+      fixture.detectChanges();
+      expect(fixture.nativeElement.textContent).toContain(text);
+    });
+  }
+
   it('discards a stale preview on conflict without recording an accepted decision', () => {
     const { fixture, component, http, store } = create();
     http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));

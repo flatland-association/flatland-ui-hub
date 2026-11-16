@@ -195,7 +195,7 @@
         <p class="pc-caveat">{{ 'proposals.holdCaveat' | transloco }}</p>
       }
       @if (shownApplied() === 'ai' && !decided()) {
-        <p class="pc-caveat">{{ 'proposals.aiTakenCaveat' | transloco }}</p>
+        <p class="pc-caveat">{{ (r.ai_keeps_overrides ? 'proposals.aiTakenCaveatKept' : 'proposals.aiTakenCaveat') | transloco }}</p>
       }
     }
   }

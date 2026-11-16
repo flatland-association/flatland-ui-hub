@@ -1652,6 +1652,7 @@
     "showAlternatives": "Further AI courses ({{n}})",
     "holdCaveat": "In the prototype the train stops with this; you give the release yourself once the spot is clear.",
     "aiTakenCaveat": "The trains now run by the AI’s plan. “vs. plan” still measures against the original timetable.",
+    "aiTakenCaveatKept": "The other trains now run by the AI’s plan; trains you stopped or rerouted keep your decision. “vs. plan” still measures against the original timetable.",
     "option": {
       "hold": "Hold",
       "holdHint": "The train stays put until you release it again.",
