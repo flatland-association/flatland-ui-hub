@@ -4,7 +4,6 @@ import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { TourGuideService } from '../../core/demo/tour-guide.service';
 import { ReplayService } from '../../core/replay/replay.service';
-import { UiConfigService } from '../../core/config/ui-config.service';
 
 type StepState = 'done' | 'current' | 'todo';
 
@@ -44,7 +43,6 @@ export class ExperimentProgressComponent {
   private readonly guide = inject(TourGuideService);
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
   private readonly replay = inject(ReplayService);
-  private readonly uiConfig = inject(UiConfigService);
 
   /** The run's phase, legs and leg on screen: live, or the replay's. */
   private readonly phase = computed(() => (this.replay.active() ? this.replay.experimentPhase() ?? 'running' : this.run.phase()));
@@ -63,9 +61,7 @@ export class ExperimentProgressComponent {
    * (experiment-workflow §5.5): it mirrors the leg's box, and two lines join
    * the box's bottom corners to the strip's top corners.
    */
-  readonly connected = computed(
-    () => this.phase() === 'running' && this.guide.active() && !this.uiConfig.isHidden('control.guide'),
-  );
+  readonly connected = computed(() => this.phase() === 'running' && this.guide.stripShown());
   readonly connector = signal<Connector | null>(null);
 
   constructor() {

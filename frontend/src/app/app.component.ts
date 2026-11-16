@@ -680,8 +680,7 @@ export class AppComponent implements OnInit {
    *  strip; the guide still ticks and logs, and the toolbar stays at the top
    *  (#198, docs/plans/hide-scenario-bar.md §4.4). */
   readonly guideShown = computed(() =>
-    this.tourGuide.active() &&
-    !this.uiConfig.isHidden('control.guide') &&
+    this.tourGuide.stripShown() &&
     (this.replay.active() ? this.replay.guideVisible() : this.experimentRun.guideVisible()),
   );
   /** The toolbar's slot under the guide only exists with a session; until then
