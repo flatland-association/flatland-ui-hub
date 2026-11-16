@@ -33,6 +33,20 @@ describe('study conditions', () => {
     }
   });
 
+  // The guide strip carries «Schicht beenden» and «Reflexion öffnen»; without
+  // it, the run must need neither (docs/plans/hide-scenario-bar.md §4.5).
+  it('hides the guide strip only where the run has no Schichtbilanz and keeps the decision log', () => {
+    const hidesGuide = STUDY_CONDITIONS.filter((c) =>
+      LAYOUT_PRESETS.find((p) => p.id === c.layoutId)?.ui?.hidden?.includes('control.guide'),
+    );
+    expect(hidesGuide.length).toBeGreaterThan(0);
+    for (const c of hidesGuide) {
+      const hidden = LAYOUT_PRESETS.find((p) => p.id === c.layoutId)!.ui!.hidden!;
+      expect(hasShiftSummary(c)).withContext(conditionId(c)).toBeFalse();
+      expect(hidden).withContext(conditionId(c)).not.toContain('widget.decision-log');
+    }
+  });
+
   const guided = STUDY_CONDITIONS.filter(isGuidedCondition);
 
   it('has one id per condition, and the four study conditions keep their layout id', () => {

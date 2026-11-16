@@ -39,6 +39,10 @@ const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.menuAreas', label: 'Menu "Bereiche" links (Layout Designer, galleries, Contribute)', supports: ['hidden'] },
   // The guide strip of a running leg; the toolbar then stays at the top (#198,
   // docs/plans/hide-scenario-bar.md §4.4). The guide still ticks and logs.
+  // Only where nothing needs the strip's buttons: no Schichtbilanz («Schicht
+  // beenden») and a decision log («Reflexion nachtragen» for «Reflexion
+  // öffnen») — checked for conditions in study-conditions.spec.ts, not for a
+  // deployment ui-config.json.
   { id: 'control.guide', label: 'Guide strip: steps and hints of the running scenario', supports: ['hidden'] },
   // Not an element but its text: the scenarios stay, numbered "Szenario k/N",
   // wherever a leg is shown, and the intro card leaves out the scenario's title
