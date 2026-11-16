@@ -652,7 +652,8 @@ session record (`surveys`) and, in a guided condition, in the run file
 (`questionnaires`), each with the language it was answered in (`lang`). In
 a guided condition each answer set also names the leg it followed
 (`afterLegId`, `null` for the final questionnaire). This is recorded with
-"Study logging" off too. The questionnaires themselves are in English.
+"Study logging" off too. The post-session questionnaires (`post-session-<mode>`)
+are in English; Plan B's final questionnaire (`plan-b-final`) is in German.
 
 **Tables.** The saved-runs list on the start screen exports the answers as
 tables (one `.xlsx` per run and one over all selected runs, see "Saved
@@ -671,11 +672,23 @@ runs"):
 - **wide**: one row per submitted questionnaire, one column per item (free
   text left out) and the scores as `<part>.<score>`, e.g. `nasa-tlx.raw`,
   `trust.trust`, `trust.distrust`, `ueq-s.pragmatic`, `understanding.perceived`.
-  Scores are computed when exporting, with the app's own scoring.
-- **codebook**: every item once: `survey_part, item_id, question, type,
-  min, max, reverse, subscale, instrument, source`. `source` is the item's
-  file and position in AI4REALNET `hmisurveys`, e.g.
-  `trust/trust.html #7`, where the item comes from there.
+  Scores are computed when exporting, with the app's own scoring. Plan B's
+  questionnaire has item columns (`pb_1` … `pb_37`, `pb_ai_use`, `pb_age`,
+  `pb_gender`, `pb_years`) but no scores: none are defined for it.
+- **codebook**: every item of every questionnaire the app can show, once:
+  `survey_id, survey_part, page, item_id, question, type, min, max, step,
+  unit, options, reverse, subscale, instrument, source`.
+  - `survey_id` names every questionnaire that asks the item, e.g.
+    `post-session-recommendation, post-session-co-learning,
+    post-session-director` for a shared building block, `plan-b-final` for
+    Plan B's.
+  - `options` lists a choice's answers (`nie | seltener als einmal pro
+    Monat | …`) or a scale's labels with the value each is stored as
+    (`1=stimme überhaupt nicht zu; …; 7=stimme voll und ganz zu`).
+  - `page` is the page of a paged questionnaire (Plan B's), `unit` and
+    `step` belong to number fields.
+  - `source` is the item's file and position in AI4REALNET `hmisurveys`,
+    e.g. `trust/trust.html #7`, where the item comes from there.
 
 **Privacy:** free-text answers (`free_text = true`, the "Open feedback"
 part) can contain anything the participant typed. Remove those rows from the

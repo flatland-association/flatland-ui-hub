@@ -56,6 +56,34 @@ describe('survey-export', () => {
     expect(Object.keys(rows[0])).toEqual([...CODEBOOK_COLUMNS]);
   });
 
+  /** docs/plans/plan-b-small-changes.md, item 9: the Plan B questionnaire. */
+  describe('Plan B final questionnaire', () => {
+    const PB = { surveyId: 'plan-b-final', submittedAt: Date.UTC(2026, 9, 29, 9, 0), lang: 'de', afterLegId: null };
+    const pbRecords = [record('s3', 2, [{ ...PB, answers: { pb_1: 6, pb_4: 70, pb_ai_use: 'nie', pb_age: 34 } }])];
+
+    it('codebook: its items with their survey, page, scale labels and options', () => {
+      const rows = codebook();
+      expect(rows.find((r) => r.item_id === 'pb_1')).toEqual(jasmine.objectContaining({
+        survey_id: 'plan-b-final', survey_part: 'pb-responsibility', page: 1, type: 'likert', min: 1, max: 7,
+      }));
+      expect(rows.find((r) => r.item_id === 'pb_1')!.options).toMatch(/^1=stimme überhaupt nicht zu; .*7=stimme voll und ganz zu$/);
+      expect(rows.find((r) => r.item_id === 'pb_ai_use')!.options).toContain('nie | seltener als einmal pro Monat');
+      expect(rows.find((r) => r.item_id === 'pb_age')).toEqual(jasmine.objectContaining({ type: 'number', unit: 'Jahre', min: 15, max: 99 }));
+      // The building blocks stay, listing every questionnaire that asks them.
+      expect(rows.find((r) => r.item_id === 'und_2')!.survey_id).toBe('post-session-recommendation, post-session-co-learning, post-session-director');
+    });
+
+    it('long and wide: its answers come with their question and item columns', () => {
+      const long = toLongRows(pbRecords);
+      expect(long.map((r) => r.item_id)).toEqual(['pb_1', 'pb_4', 'pb_ai_use', 'pb_age']);
+      expect(long[0].question).toBe('Ich fühlte mich für das Ergebnis der Aufgabe verantwortlich.');
+      expect(long[0].subscale).toBe('pb-responsibility');
+      const { columns, rows } = toWideRows(pbRecords);
+      expect(columns).toContain('pb_37');
+      expect(rows[0]['pb_4']).toBe(70);
+    });
+  });
+
   it('csv quotes commas, quotes and line breaks', () => {
     const csv = toCsv(LONG_COLUMNS, toLongRows(records));
     expect(csv.split('\n')[0]).toBe(LONG_COLUMNS.join(','));
