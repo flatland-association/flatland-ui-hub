@@ -27,9 +27,14 @@ interface Gutters { left: number; right: number; top: number; bottom: number }
 // top: room for the time unit above the axis (docs/plans/plan-b-small-changes.md, item 8).
 const GUTTERS_TIME_VERTICAL: Gutters = { left: 44, right: 24, top: 22, bottom: 10 };
 const HEADER_H = 84;
-/** With time vertical the plot keeps at least this much time axis and scrolls
- *  rather than squeezing 100 steps into a short panel. */
-const MIN_TIME_AXIS_PX = 300;
+/** With time vertical the time axis has a fixed scale: the visible part of the
+ *  plot shows this many steps, whatever the forecast's length, and the rest
+ *  scrolls. Fitting the whole range into the panel instead squashed and
+ *  stretched the diagram whenever the forecast changed
+ *  (docs/plans/plan-b-small-changes.md, item 1). */
+const STEPS_IN_VIEW = 60;
+/** Below this the panel is too short to show STEPS_IN_VIEW steps legibly. */
+const MIN_TIME_VIEW_PX = 240;
 /** Time across, places down (classic Marey): names on the left, minutes below. */
 const GUTTERS_TIME_HORIZONTAL: Gutters = { left: 150, right: 16, top: 12, bottom: 26 };
 /** Station names above the plot are slanted so neighbours don't collide. */
@@ -527,15 +532,25 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   readonly plotX0 = computed(() => this.gutter().left);
   readonly plotY0 = computed(() => this.gutter().top);
   readonly plotW = computed(() => Math.max(10, this.width() - this.gutter().left - this.gutter().right));
-  /** SVG height: the panel's, or taller when time runs vertically and the
-   *  panel is short — the plot area then scrolls. */
+  /** Time vertical: the time axis's length at the fixed scale, STEPS_IN_VIEW
+   *  steps per visible plot height. */
+  readonly timeAxisPx = computed(() => {
+    const g = this.gutter();
+    const view = Math.max(MIN_TIME_VIEW_PX, this.height() - HEADER_H - g.top - g.bottom);
+    const [a, b] = this.stepDomain();
+    return Math.max(10, Math.round((view / STEPS_IN_VIEW) * Math.max(1, b - a)));
+  });
+  /** SVG height: the panel's; with time vertical as long as the time axis
+   *  needs at its fixed scale, so the plot scrolls instead of squashing. */
   readonly svgH = computed(() => {
     const g = this.gutter();
     return this.timeVertical()
-      ? Math.max(this.height() - HEADER_H, g.top + g.bottom + MIN_TIME_AXIS_PX)
+      ? Math.max(this.height() - HEADER_H, g.top + g.bottom + this.timeAxisPx())
       : this.height();
   });
-  readonly plotH = computed(() => Math.max(10, this.svgH() - this.gutter().top - this.gutter().bottom));
+  readonly plotH = computed(() => (this.timeVertical()
+    ? this.timeAxisPx()
+    : Math.max(10, this.svgH() - this.gutter().top - this.gutter().bottom)));
 
   /** Pixel position along the time axis (down, or right). */
   private timePos(step: number): number {

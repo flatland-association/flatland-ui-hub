@@ -763,10 +763,9 @@ const PLAN_B: LayoutPreset = {
             collapsible: false,
             minHeight: 520,
             // #168: the ZWL first and open, the tabs big enough to stand in
-            // for the title that PLAN_B_UI hides. The body is tall enough for
-            // the whole ZWL (station header, minimum time axis, route row and
-            // legend), so it never scrolls inside (docs/plans/plan-b-small-changes.md,
-            // item 1).
+            // for the title that PLAN_B_UI hides. The body is taller than
+            // the default, so the ZWL shows more of its fixed-scale time axis
+            // before it scrolls (docs/plans/plan-b-small-changes.md, item 1).
             settings: {
               tabs: ['zug-weg-diagramm', 'flatland-map'],
               defaultTab: 'zug-weg-diagramm',

@@ -20,13 +20,15 @@ marked **(decided)**; defaults this plan chose on its own are marked
   about 0 as soon as the now-line is outside the visible band, which is
   exactly the case after the user scrolled away. That is the jump.
 - **Change:**
-  - Plan B gives the tab area the free height of the screen: a
-    `minBodyHeight` and `max-height` for `preset-pb-views` that fill the
-    viewport beside the right column, so the ZWL fits without scrolling on
-    a normal laptop screen (1080 px high) **(default)**.
-  - `followNow` only follows the now-line while the user hasn't scrolled by
-    hand, and never moves the view on a mere re-render. With the taller
-    area this mostly never triggers, but it stops the jump on small screens.
+  - Plan B's tab area is taller (`minBodyHeight` 560 instead of 340).
+  - The time axis has a fixed scale: the visible plot shows 60 steps
+    (`STEPS_IN_VIEW`), and the rest scrolls. **(changed after testing)** A
+    first version fitted the whole time range into the taller area, so the
+    ZWL never scrolled; but then it squashed and stretched whenever the
+    forecast grew or shrank. The scroll bar is what kept the scale steady.
+  - `followNow` only follows the now-line while the user hasn't scrolled it
+    out of view; once they have, the view stays where they put it until they
+    scroll the now-line back into view. That ends the jump.
 
 ### 2. Zoom back in the Streckenspiegel, opacity slider gone
 
