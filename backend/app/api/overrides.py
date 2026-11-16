@@ -621,9 +621,15 @@ def _evaluate_proposals_unchecked(captured):
     """
     env, plan_factory, committed, baseline_source, source, snapshot, handle, action, option, alternatives = captured
 
+    agent = proposal_agent_for(snapshot)
     elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
     max_ep = int(getattr(env, "_max_episode_steps", 0) or 0)
-    horizon = max(0, max_ep - elapsed) if max_ep else 200
+    if agent.id == "uc2_rl":
+        horizon = max(0, max_ep - elapsed) if max_ep else 200
+    else:
+        # Keep ordinary PP forecasts bounded as before; full native replay is
+        # the specialised UC2 adviser's contract, not a global cost increase.
+        horizon = min(max(50, max_ep - elapsed) if max_ep else 200, 250)
     planned = proposal_arrival_reference(env)
 
     plan_res = _branch_run(env, plan_factory, committed, horizon)
@@ -631,7 +637,6 @@ def _evaluate_proposals_unchecked(captured):
     variants[0]["score"] = _course_score(plan_res, planned)
     variants[0]["metrics"] = _variant_metrics(plan_res, planned, elapsed, horizon)
 
-    agent = proposal_agent_for(snapshot)
     ranked = []
     for proposal in agent.propose_for(env, handle):
         res = _branch_run(env, lambda tr=proposal.trainruns: PlanPolicy(None, tr), {}, horizon)

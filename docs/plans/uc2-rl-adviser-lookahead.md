@@ -47,6 +47,8 @@ forecasting operates on copies.
 | `backend/app/core/proposal_preview.py` (if needed) | Bounded token cache, source-state identity and exact trainrun retrieval |
 | `backend/tests/test_uc2_rl_adviser_lookahead.py` | Native future alternatives, source immutability, bounded search, ROAM and replay contracts |
 | `backend/tests/test_proposal_preview_acceptance.py` | Exact alternative acceptance, stale rejection, Driver separation and concurrency |
+| `backend/tests/test_proposal_horizon_scope.py` | Full native horizon for the UC2 adviser; preserve the existing 250-step cap for other proposal agents |
+| `backend/tools/evaluate_uc2_adviser.py` | Paired frozen DLA-takeover diagnostics, exact greedy parity and source/model identities |
 | `docs/examples/uc2-rl-adviser/` | Portable paired takeover/latency evidence and real-browser results |
 
 ## Modified files
@@ -64,6 +66,7 @@ forecasting operates on copies.
 | `backend/tests/test_uc2_rl_proposal_agent.py` | Replace obsolete single-course assertions, preserve existing tests |
 | Existing proposal component specs | Candidate selection and exact request regression coverage |
 | `docs/plans/uc2-rl-proposal-agent.md` | Link the implemented follow-up and current results |
+| `docs/examples/uc2-{rl,roam,roam-performance}/README.md` | Mark earlier actor/ROAM benchmark architecture as historical and link the current adviser |
 
 ## Acceptance
 
@@ -73,6 +76,8 @@ The PlanPolicy implementation and frozen model assets are unchanged.
 
 - Real multi-step alternatives from future decision points; no live-state or
   Driver mutation during preview; no planner fallback inside UC2 adviser.
+- The full native remaining horizon applies to UC2 advice only; other agents
+  retain the existing bounded forecast horizon and cost profile.
 - Whole-batch ROAM checks include forced alternatives before native stepping.
 - Independent scoring of all trains, completion ahead of lateness; deduplicate
   identical executable courses and bound computational/memory cost.
