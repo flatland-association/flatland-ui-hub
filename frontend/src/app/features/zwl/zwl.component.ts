@@ -34,6 +34,23 @@ const MIN_TIME_AXIS_PX = 300;
 const GUTTERS_TIME_HORIZONTAL: Gutters = { left: 150, right: 16, top: 12, bottom: 26 };
 /** Station names above the plot are slanted so neighbours don't collide. */
 const STATION_LABEL_ANGLE = -45;
+/** The station names' font (`.zwd__station`), for measuring how far a slanted
+ *  name reaches to the right of its tick. */
+const STATION_LABEL_FONT = '600 11px';
+
+let measureCtx: CanvasRenderingContext2D | null | undefined;
+/** Width of a station name in px; a rough estimate where no canvas exists. */
+function stationLabelWidth(name: string): number {
+  if (measureCtx === undefined) {
+    try {
+      measureCtx = document.createElement('canvas').getContext('2d');
+      if (measureCtx) measureCtx.font = `${STATION_LABEL_FONT} ${getComputedStyle(document.body).fontFamily || 'sans-serif'}`;
+    } catch {
+      measureCtx = null;
+    }
+  }
+  return measureCtx ? measureCtx.measureText(name).width : name.length * 6.6;
+}
 
 type Orientation = 'time-vertical' | 'time-horizontal';
 const ORIENTATION_KEY = 'zwd.orientation';
@@ -459,7 +476,33 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
     try { localStorage.setItem(ORIENTATION_KEY, next); } catch { /* storage unavailable */ }
   }
 
-  readonly gutter = computed(() => (this.timeVertical() ? GUTTERS_TIME_VERTICAL : GUTTERS_TIME_HORIZONTAL));
+  readonly gutter = computed(() => (this.timeVertical()
+    ? { ...GUTTERS_TIME_VERTICAL, right: this.stationNamesRight() }
+    : GUTTERS_TIME_HORIZONTAL));
+
+  /** Time vertical: the slanted station names run up and to the right of their
+   *  ticks, so the right gutter is as wide as the name nearest the right edge
+   *  needs, or the header would cut it off (docs/plans/plan-b-small-changes.md,
+   *  item 10). Positions map linearly onto the plot, so the gutter follows from
+   *  the panel width without depending on itself. */
+  readonly stationNamesRight = computed(() => {
+    const base = GUTTERS_TIME_VERTICAL.right;
+    const [lo, hi] = this.posDomain();
+    const span = Math.max(1, hi - lo);
+    const width = this.width();
+    const left = GUTTERS_TIME_VERTICAL.left;
+    const reach = Math.cos((STATION_LABEL_ANGLE * Math.PI) / 180);
+    let right = base;
+    for (const t of this.axis()?.ticks ?? []) {
+      if (t.pos < lo || t.pos > hi) continue;
+      const f = (t.pos - lo) / span;
+      if (f <= 0) continue;
+      // left + f * (width - left - right) + reach * w <= width - 2
+      const need = (width - left) - (width - 2 - left - reach * stationLabelWidth(t.name)) / f;
+      right = Math.max(right, Math.ceil(need));
+    }
+    return Math.min(right, Math.max(base, Math.floor(width / 3)));
+  });
   readonly plotX0 = computed(() => this.gutter().left);
   readonly plotY0 = computed(() => this.gutter().top);
   readonly plotW = computed(() => Math.max(10, this.width() - this.gutter().left - this.gutter().right));
