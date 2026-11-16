@@ -3,23 +3,25 @@
 // every stage of the run, from the start screen to the end.
 //   <prefix>-01-picker.png              start screen with the condition,
 //   <prefix>-02-briefing.png            the briefing's opening page,
-//   <prefix>-<k>a-intro.png             scenario k's intro card (k = 1..5, files 03..07),
+//   <prefix>-<k>a-intro.png             scenario k's intro card (k = 1..N, files 03.. for N scenarios,
+//                                       counted from the stepper; 03..07 for Plan B's five),
 //   <prefix>-<k>b-running.png           scenario k running: stepper, guide strip, toolbar,
 //   <prefix>-<k>c-bars.png              the same, cropped to the bars above the map,
-//   <prefix>-08-final-survey.png        the final questionnaire,
-//   <prefix>-09-end.png                 the end page.
+//   <prefix>-<N+3>-final-survey.png     the final questionnaire (08 for five scenarios),
+//   <prefix>-<N+4>-end.png              the end page (09).
 // Prefix `before`: the app as it is. Prefix `proposal`: the same run with the
 // plan's proposal previewed in the page only (no code change): the guide strip
 // and its connector lines hidden (REQ-2), the stepper's scenarios read
 // "Szenario k/N" (REQ-1, Q-3), the finish button reads «Szenario abschliessen →
-// Szenario k/N» (REQ-5), the toolbar at the top (Q-4). Once the plan is built, run it
-// with prefix `after` and PREVIEW=0 on the branch. Prints the texts read from
-// the page.
+// Szenario k/N» (REQ-5), the toolbar at the top (Q-4). Prefix `after`: the built
+// branch, without the preview (the committed after shots). Prints the texts read
+// from the page.
 //
 // Run:
 //   UI_CONFIG=frontend/public/ui-configs/plan-b.json ./start-demo.sh   # production build on :8000
 //   NODE_PATH=<puppeteer-core>/node_modules node scripts/docshots-hide-scenario-bar.mjs docs/plans/hide-scenario-bar before
 //   NODE_PATH=<puppeteer-core>/node_modules node scripts/docshots-hide-scenario-bar.mjs docs/plans/hide-scenario-bar proposal
+//   NODE_PATH=<puppeteer-core>/node_modules node scripts/docshots-hide-scenario-bar.mjs docs/plans/hide-scenario-bar after
 //
 // Env: BASE (default http://127.0.0.1:8000), CHROME (Chrome/Chromium binary),
 // PREVIEW (default: on for prefix `proposal` only).
@@ -112,7 +114,8 @@ await wait(5000);
 await shot('02-briefing');
 await click('.briefing-actions sbb-button');
 
-const legs = 5;
+/** The number of scenarios, from the stepper once the first one runs. */
+let legs = 1;
 for (let k = 1; k <= legs; k++) {
   const n = String(k + 2).padStart(2, '0');
   await page.waitForSelector('app-mode-intro sbb-button', { timeout: 30000 });
@@ -121,6 +124,7 @@ for (let k = 1; k <= legs; k++) {
   await shot(`${n}a-intro`);
   await click('app-mode-intro sbb-button');
   await wait(8000);
+  if (k === 1) legs = (await page.$$('.xp__legs > .xp__step:not(.xp__step--survey)')).length || 1;
   await shot(`${n}b-running`);
   await report(`scenario ${k}`);
   await crop(`${n}c-bars`, ['app-experiment-progress', 'app-tour-guide', 'app-toolbar']);
@@ -130,7 +134,8 @@ for (let k = 1; k <= legs; k++) {
 
 await page.waitForSelector('app-survey', { timeout: 30000 });
 await wait(1500);
-await shot('08-final-survey');
+const tail = (i) => String(legs + i).padStart(2, '0');
+await shot(`${tail(3)}-final-survey`);
 // The end: page through the final questionnaire, answering every item with a
 // middle value (required items block "Weiter"), and submit it.
 const fillPage = () => page.evaluate(() => {
@@ -149,7 +154,7 @@ for (let i = 0; i < 20 && !(await page.$('app-survey [data-log="surveyUi.submit"
 await fillPage();
 await click('app-survey [data-log="surveyUi.submit"]');
 await wait(4000);
-await shot('09-end');
+await shot(`${tail(4)}-end`);
 
 await page.evaluate(() => localStorage.removeItem('flatland_experiment_run_v1'));
 await browser.close();
