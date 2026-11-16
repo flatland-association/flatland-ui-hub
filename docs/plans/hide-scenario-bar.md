@@ -187,7 +187,7 @@ these; they matched.
 | REQ-5 | Finish button by number | `experiment-run.service.spec.ts`: with `control.legNames` hidden `finishLabel` reads «Finish scenario → Scenario 2/2» (en)| ✅ «Szenario abschliessen → Szenario 2/5 … 5/5», then «→ Fragebogen» | 03c–07c below |
 | REQ-6 | Footer and intro card by number | `experiment-run.service.spec.ts`: `currentLegLabel` reads "Scenario 1/2"; `mode-intro.component.spec.ts`: no title; `replay.service.spec.ts`: a replay numbers too | ✅ footer "… · Szenario 4/5 · Co-Learning", intro card "SZENARIO 4/5" without title; except the tutorial's own description, which says «Das Tutorial-Szenario …» (§1.4) | 03a–07a below |
 | REQ-4 | Only Plan B | `ui-config.service.spec.ts`: `preset-plan-b` hides both ids, no other layout does | ✅ | - |
-| NFR-2 | Replay shows what was seen | `replay.service.spec.ts`: `uiRestrictions` from the header, null without; `app.component.spec.ts`: a record from before this PR replays with the strip and the names, one without `uiRestrictions` with today's block (S-7) | ✅ | - |
+| NFR-2 | Replay shows what was seen | `replay.service.spec.ts`: `uiRestrictions` from the header, null without; `app.component.spec.ts`: a record from before this PR replays with the strip and the names, one without `uiRestrictions` with today's block (S-7); running app: a Plan B record made on `main` and one made on this branch, both replayed on this branch (replay walk-through below) | ✅ the old record replays with the names and the guide strip, the new one with "Szenario k/N" and without the strip | R1–R4 below |
 | NFR-1 | Same study data | Full suite green; `app.component.spec.ts`: the guide stays active (ticks and logs) with the strip hidden; leg ids and records untouched | ✅ | - |
 
 Walk-through of every Plan B stage (scenario order of `plan-b-p01`): before
@@ -196,30 +196,50 @@ Walk-through of every Plan B stage (scenario order of `plan-b-p01`): before
 
 | Stage | What | Before | After |
 |---|---|---|---|
-| 01 | Start screen (unchanged) | [before](hide-scenario-bar/before-01-picker.png) | [after](hide-scenario-bar/after-01-picker.png) |
-| 02 | Briefing (unchanged) | [before](hide-scenario-bar/before-02-briefing.png) | [after](hide-scenario-bar/after-02-briefing.png) |
-| 03a | Scenario 1/5 (Tutorial): intro card | [before](hide-scenario-bar/before-03a-intro.png) | [after](hide-scenario-bar/after-03a-intro.png) |
-| 03b | Scenario 1/5: working screen | [before](hide-scenario-bar/before-03b-running.png) | [after](hide-scenario-bar/after-03b-running.png) |
-| 03c | Scenario 1/5: the bars above the map | [before](hide-scenario-bar/before-03c-bars.png) | [after](hide-scenario-bar/after-03c-bars.png) |
-| 04a | Scenario 2/5 (Verschobene Kreuzung an der Einspur): intro card | [before](hide-scenario-bar/before-04a-intro.png) | [after](hide-scenario-bar/after-04a-intro.png) |
-| 04b | Scenario 2/5: working screen | [before](hide-scenario-bar/before-04b-running.png) | [after](hide-scenario-bar/after-04b-running.png) |
-| 04c | Scenario 2/5: the bars above the map | [before](hide-scenario-bar/before-04c-bars.png) | [after](hide-scenario-bar/after-04c-bars.png) |
-| 05a | Scenario 3/5 (Mühlehorn - Tiefenwinkel): intro card | [before](hide-scenario-bar/before-05a-intro.png) | [after](hide-scenario-bar/after-05a-intro.png) |
-| 05b | Scenario 3/5: working screen | [before](hide-scenario-bar/before-05b-running.png) | [after](hide-scenario-bar/after-05b-running.png) |
-| 05c | Scenario 3/5: the bars above the map | [before](hide-scenario-bar/before-05c-bars.png) | [after](hide-scenario-bar/after-05c-bars.png) |
-| 06a | Scenario 4/5 (Türstörung): intro card | [before](hide-scenario-bar/before-06a-intro.png) | [after](hide-scenario-bar/after-06a-intro.png) |
-| 06b | Scenario 4/5: working screen | [before](hide-scenario-bar/before-06b-running.png) | [after](hide-scenario-bar/after-06b-running.png) |
-| 06c | Scenario 4/5: the bars above the map | [before](hide-scenario-bar/before-06c-bars.png) | [after](hide-scenario-bar/after-06c-bars.png) |
-| 07a | Scenario 5/5 (Blockierte Fahrbahn): intro card | [before](hide-scenario-bar/before-07a-intro.png) | [after](hide-scenario-bar/after-07a-intro.png) |
-| 07b | Scenario 5/5: working screen | [before](hide-scenario-bar/before-07b-running.png) | [after](hide-scenario-bar/after-07b-running.png) |
-| 07c | Scenario 5/5: the bars above the map | [before](hide-scenario-bar/before-07c-bars.png) | [after](hide-scenario-bar/after-07c-bars.png) |
-| 08 | Final questionnaire (unchanged) | [before](hide-scenario-bar/before-08-final-survey.png) | [after](hide-scenario-bar/after-08-final-survey.png) |
-| 09 | End (unchanged) | [before](hide-scenario-bar/before-09-end.png) | [after](hide-scenario-bar/after-09-end.png) |
+| 01 | Start screen (unchanged) | <img src="hide-scenario-bar/before-01-picker.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-01-picker.png" alt="after" width="300"> |
+| 02 | Briefing (unchanged) | <img src="hide-scenario-bar/before-02-briefing.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-02-briefing.png" alt="after" width="300"> |
+| 03a | Scenario 1/5 (Tutorial): intro card | <img src="hide-scenario-bar/before-03a-intro.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-03a-intro.png" alt="after" width="300"> |
+| 03b | Scenario 1/5: working screen | <img src="hide-scenario-bar/before-03b-running.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-03b-running.png" alt="after" width="300"> |
+| 03c | Scenario 1/5: the bars above the map | <img src="hide-scenario-bar/before-03c-bars.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-03c-bars.png" alt="after" width="300"> |
+| 04a | Scenario 2/5 (Verschobene Kreuzung an der Einspur): intro card | <img src="hide-scenario-bar/before-04a-intro.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-04a-intro.png" alt="after" width="300"> |
+| 04b | Scenario 2/5: working screen | <img src="hide-scenario-bar/before-04b-running.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-04b-running.png" alt="after" width="300"> |
+| 04c | Scenario 2/5: the bars above the map | <img src="hide-scenario-bar/before-04c-bars.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-04c-bars.png" alt="after" width="300"> |
+| 05a | Scenario 3/5 (Mühlehorn - Tiefenwinkel): intro card | <img src="hide-scenario-bar/before-05a-intro.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-05a-intro.png" alt="after" width="300"> |
+| 05b | Scenario 3/5: working screen | <img src="hide-scenario-bar/before-05b-running.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-05b-running.png" alt="after" width="300"> |
+| 05c | Scenario 3/5: the bars above the map | <img src="hide-scenario-bar/before-05c-bars.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-05c-bars.png" alt="after" width="300"> |
+| 06a | Scenario 4/5 (Türstörung): intro card | <img src="hide-scenario-bar/before-06a-intro.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-06a-intro.png" alt="after" width="300"> |
+| 06b | Scenario 4/5: working screen | <img src="hide-scenario-bar/before-06b-running.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-06b-running.png" alt="after" width="300"> |
+| 06c | Scenario 4/5: the bars above the map | <img src="hide-scenario-bar/before-06c-bars.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-06c-bars.png" alt="after" width="300"> |
+| 07a | Scenario 5/5 (Blockierte Fahrbahn): intro card | <img src="hide-scenario-bar/before-07a-intro.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-07a-intro.png" alt="after" width="300"> |
+| 07b | Scenario 5/5: working screen | <img src="hide-scenario-bar/before-07b-running.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-07b-running.png" alt="after" width="300"> |
+| 07c | Scenario 5/5: the bars above the map | <img src="hide-scenario-bar/before-07c-bars.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-07c-bars.png" alt="after" width="300"> |
+| 08 | Final questionnaire (unchanged) | <img src="hide-scenario-bar/before-08-final-survey.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-08-final-survey.png" alt="after" width="300"> |
+| 09 | End (unchanged) | <img src="hide-scenario-bar/before-09-end.png" alt="before" width="300"> | <img src="hide-scenario-bar/after-09-end.png" alt="after" width="300"> |
 
 Scenario 4 (`06c`), before and after:
 
 ![Bars before](hide-scenario-bar/before-06c-bars.png)
 ![Bars after](hide-scenario-bar/after-06c-bars.png)
+
+Replay walk-through (NFR-2): two Plan B records in one browser, participant 01
+recorded on the build of `main` fd0c70cb (old) and participant 02 on this branch
+(new), scenarios 1 and 2 each; both replayed from the start screen's saved runs
+on this branch, scenario 2 «Verschobene Kreuzung an der Einspur». Taken by
+`scripts/docshots-hide-scenario-bar-replay.mjs`; as a movie:
+[`replay-walkthrough.gif`](hide-scenario-bar/replay-walkthrough.gif) (old, then
+new, 2 s per picture).
+
+| Picture | What | Old record (before this PR) | New record (this PR) |
+|---|---|---|---|
+| R1 | The saved runs on the start screen | <img src="hide-scenario-bar/replay-old-1-list.png" alt="old" width="300"> | <img src="hide-scenario-bar/replay-new-1-list.png" alt="new" width="300"> |
+| R2 | The replay of scenario 2 at 0:00 | <img src="hide-scenario-bar/replay-old-2-start.png" alt="old" width="300"> | <img src="hide-scenario-bar/replay-new-2-start.png" alt="new" width="300"> |
+| R3 | The replay halfway through | <img src="hide-scenario-bar/replay-old-3-running.png" alt="old" width="300"> | <img src="hide-scenario-bar/replay-new-3-running.png" alt="new" width="300"> |
+| R4 | The bars above the map | <img src="hide-scenario-bar/replay-old-4-bars.png" alt="old" width="300"> | <img src="hide-scenario-bar/replay-new-4-bars.png" alt="new" width="300"> |
+
+Read from the replays: old "Tutorial (1/5) ─ Verschobene Kreuzung an der Einspur
+(2/5) ─ … ─ Blockierte Fahrbahn (5/5)", guide strip shown; new "Szenario 1/5 ─ …
+─ Szenario 5/5", guide strip hidden. The replay controls cover the toolbar's finish
+button in both, as on `main`.
 
 Read from the page:
 
@@ -505,6 +525,7 @@ Design in §4.5. Fixes first, then refactorings, then docs; S-6 keeps its ID fro
 |---|---|
 | `docs/plans/hide-scenario-bar.md` | This plan. |
 | `docs/plans/hide-scenario-bar/*.png`, `*.gif` | Before and after screenshots and walk-throughs of every Plan B stage (§4.2). |
+| `scripts/docshots-hide-scenario-bar-replay.mjs` | The replay walk-through (§4.2, NFR-2): records a Plan B run on the served build, replays an old and a new record. |
 | `scripts/docshots-hide-scenario-bar.mjs` | The walk-through: every stage of `plan-b-p01`, `before`, `proposal` (CSS preview) or `after`. |
 
 ### 12.2 Modified files
