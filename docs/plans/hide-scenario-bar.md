@@ -4,7 +4,7 @@
 > S-6 to S-15) built 2026-11-16. Based on `main` fd0c70cb (#164 merged). Issue
 > [#198](https://github.com/flatland-association/flatland-ui-hub/issues/198) ("Szenario-Balken ausblenden", label
 > `plan b`). Branch `feature/198-hide-scenario-bar`, off `main` (on request; contributors usually branch off
-> `explore_db`), PR not opened yet. Q-1 to Q-4 decided 2026-11-16 (§9.2).
+> `explore_db`), PR [#205](https://github.com/flatland-association/flatland-ui-hub/pull/205). Q-1 to Q-4 decided 2026-11-16 (§9.2).
 >
 > **Why:** in the Plan B study the participant should see only where they are in the experiment, not which scenario
 > comes next, and should work without the step-by-step guide strip. Finishing a scenario («Szenario abschliessen»)
@@ -64,8 +64,8 @@ Requirements:
 
 | Follow-up | Why not in this PR | From | Findings | Issue |
 |---|---|---|---|---|
-| The intro card's description (`scenarioCard.paragraphs`, from the scenario's `scenario.json`) may name the scenario in its text. | Authored text, not a label; the study lead decides whether the texts change. | §2.1 | - | - |
-| The hints of the Plan B guide (`PLAN_B_GUIDE_HINTS`) are no longer seen. | Requested by REQ-2; the strings stay for other uses (replay of older runs, a later decision to show the strip again). | §2.1 | - | - |
+| The intro card's description (`scenarioCard.paragraphs`, from the scenario's `scenario.json`) may name the scenario in its text. | Authored text, not a label; the study lead decides whether the texts change. | §2.1 | - | untracked |
+| The hints of the Plan B guide (`PLAN_B_GUIDE_HINTS`) are no longer seen. | Requested by REQ-2; the strings stay for other uses (replay of older runs, a later decision to show the strip again). | §2.1 | - | untracked |
 
 ## 2. Constraints
 
@@ -419,7 +419,7 @@ the map.
 
 *Findings from code reviews, PR comments and TODOs, with their status and the commits that fix them.*
 
-No PR open yet; branch based on `main` fd0c70cb, checked 2026-11-16 at 9144c28f. F-1 comes from the issue-reference
+PR [#205](https://github.com/flatland-association/flatland-ui-hub/pull/205), no review comments yet; branch based on `main` fd0c70cb, checked 2026-11-16 at 9144c28f. F-1 comes from the issue-reference
 check of the `main..HEAD` diff; there are no review comments and no TODOs added. Code review findings (F-2–F-10)
 were added on 2026-11-16, at 9144c28f; their line numbers refer to it. In Fixed, ✅ marks a fixed finding and
 ⏭️ one taken over by a follow-up (§1.4); "resolved" in Source marks threads resolved and checkboxes ticked on GitHub;
@@ -439,7 +439,7 @@ in the code whose PR comment is not resolved on GitHub yet.
 | ✅ | F-9 | code review | docs | low | `README.md:255-257`: "the scenario status line and the Menü's \"Bereiche\" links and the guide strip" has two "and"s, and the lines are no longer wrapped like the paragraph. Fix: "…, the Menü's \"Bereiche\" links and the guide strip, numbers …", rewrapped. Fixed in 7156bdbf (S-13). | docs(readme): list the guide strip among Plan B's removals in one sentence. |
 | ✅ | F-10 | code review | docs | low | `scripts/docshots-hide-scenario-bar.mjs:118`, header lines 19-21: the scenario count is hardcoded (`const legs = 5`), and the Run section shows `before` and `proposal` but not `after` with `PREVIEW=0`, which made the committed shots. Fix: count the legs from the stepper; add the `after` line. Fixed in a223d972 (S-14). | docs(scripts): count Plan B's scenarios from the stepper and show how the after shots are taken. |
 
-Issue references: the PR is to close #198 (no PR open yet, so no closing keyword exists). Since cb2bae3d (S-6) the
+Issue references: PR [#205](https://github.com/flatland-association/flatland-ui-hub/pull/205) closes #198 (`Closes #198` in its body). Since cb2bae3d (S-6) the
 code no longer references #198.
 
 ## 10. Glossary
