@@ -1,7 +1,7 @@
 # Plan B control group: a copy of `plan-b-p01` without the Co-Learning modules (#134)
 
 > **Status:** plan, 2026-11-05. Based on `main` 333013c. Open questions in
-> §8 (Q1, Q3, Q4); Q1 and Q3 block S3. Q2 decided 2026-11-05.
+> §8 (Q-1, Q-3, Q-4); Q-1 and Q-3 block S-3. Q-2 decided 2026-11-05.
 > Before screenshots in §2.1.
 > Issue [#134](https://github.com/flatland-association/flatland-ui-hub/issues/134)
 > ("Darstellung Experiment für Kontrollgruppe definieren"), with the
@@ -17,12 +17,6 @@
 > study is about: no reflection after a decision, no impact analysis, and the
 > AI's options with a recommendation instead of neutral options and the
 > human's own course.
-
-### Status
-
-| ID | Commit message | SHA |
-|---|---|---|
-| S0 | docs(plans): plan for #134, the Plan B control group, with before screenshots. | - |
 
 ### Terms
 
@@ -74,7 +68,7 @@
 | 3 | No impact analysis: no comparison of Plan / KI / Mensch | comment 1, "Impact Analyse: tbd", #149 |
 | 4 | Recommendation-based: the AI's options are shown, one of them marked as the recommendation | comment 1 |
 | 5 | In "Plan / KI / Mensch" only PLAN and KI, without the option chips | comment "Recommendation based", first picture |
-| 6 | No option strip on the map ("⟨Zug⟩ · im Panel vergleichen") | comment "Recommendation based", second picture; decided 2026-11-05 (Q2) |
+| 6 | No option strip on the map ("⟨Zug⟩ · im Panel vergleichen") | comment "Recommendation based", second picture; decided 2026-11-05 (Q-2) |
 
 ### 1.1 Assumptions and exclusions
 
@@ -88,7 +82,7 @@
     the same way, naming the same layout.
   - "Recommendation-based" is the `recommendation` mode of the brief
     (`docs/reference/interaction-modes-brief.md`, WP 3.1): the AI suggests
-    with a recommendation, the human decides (Q1).
+    with a recommendation, the human decides (Q-1).
 - **Exclusions:**
   - The experimental group (`plan-b-p01`, `PLAN_B`, its briefing) does not
     change.
@@ -97,7 +91,7 @@
     screen and differs only where §1 says.
   - No new questionnaire: both groups answer `nasa-tlx` after each leg and
     `DEFAULT_SURVEY_PARTS` at the end. Items that ask about the reflection
-    or the AI learning are for the PO to drop (Q4).
+    or the AI learning are for the PO to drop (Q-4).
   - French texts for the new briefing: the study runs in German; the English
     twin is for showing it. The new i18n keys get a French draft.
 
@@ -162,7 +156,7 @@ condition:
 Taken by `scripts/docshots-plan-b-control.mjs` on leg 1 with the Plan B
 deployment config, after the breakdown: ICE_42 selected in "Lage: Risiko &
 Auswirkung", "Halten" picked, then "Halten übernehmen". The same script with
-`after plan-b-control-p01` takes the after pictures (S4).
+`after plan-b-control-p01` takes the after pictures (S-4).
 
 | Read from the page | Value |
 |---|---|
@@ -182,18 +176,34 @@ Auswirkung", "Halten" picked, then "Halten übernehmen". The same script with
 
 ## 3. Decisions
 
-Proposed; Q1 and Q3 to confirm, Q2 decided 2026-11-05.
+Proposed; Q-1 and Q-3 to confirm, Q-2 decided 2026-11-05.
 
 | ID | Decision | Why |
 |---|---|---|
-| D1 | A new condition `plan-b-control-p01` and a new layout `preset-plan-b-control`, copied from `plan-b-p01` and `PLAN_B` | A study layout is reviewable on its own (`PLAN_B`'s comment); the experimental group stays untouched |
-| D2 | `PLAN_B_CONTROL_UI = { ...PLAN_B_UI, hidden: [...PLAN_B_UI.hidden, 'widget.proposal-compare.axis.lateness'] }` | A later Plan B restriction reaches both groups, so they cannot drift apart except where §1 says |
-| D3 | The control group runs in mode `recommendation` (Q1) | The issue names it; the mode is the brief's switch for "AI suggests with a recommendation", so no parallel flag |
-| D4 | No reflection through a new briefing without `reasonDialog` and without the `reflect` step, not through a UiConfig id | The reflection is a briefing flag today; the dialog is not a panel |
-| D5 | `proposal-compare` offered in Recommendation; there it hides the option chips and the Mensch course and tags the KI course "Empfehlung"; take buttons for Plan and KI stay (decided 2026-11-05, Q2) | Requirement 5; behaviour per mode lives in the panel. The human still decides, by taking one of the two |
-| D6 | The map strip shows only where the panel has option chips, i.e. not in Recommendation | Without the chips the strip would ask a panel that cannot answer |
-| D7 | The decision moment of the control group: see Q3 | Recommendation's countdown auto-applies the AI's option; the issue does not list it as a deviation |
-| D8 | Leg 2 of the control group is `WAL_FOLLOWER` spread with its own German card | The leg's card replaces the briefing's whole (§4.1); spreading keeps `id`, scenario and seed identical |
+| D-1 | A new condition `plan-b-control-p01` and a new layout `preset-plan-b-control`, copied from `plan-b-p01` and `PLAN_B` | A study layout is reviewable on its own (`PLAN_B`'s comment); the experimental group stays untouched |
+| D-2 | `PLAN_B_CONTROL_UI = { ...PLAN_B_UI, hidden: [...PLAN_B_UI.hidden, 'widget.proposal-compare.axis.lateness'] }` | A later Plan B restriction reaches both groups, so they cannot drift apart except where §1 says |
+| D-3 | The control group runs in mode `recommendation` (Q-1) | The issue names it; the mode is the brief's switch for "AI suggests with a recommendation", so no parallel flag |
+| D-4 | No reflection through a new briefing without `reasonDialog` and without the `reflect` step, not through a UiConfig id | The reflection is a briefing flag today; the dialog is not a panel |
+| D-5 | `proposal-compare` offered in Recommendation; there it hides the option chips and the Mensch course and tags the KI course "Empfehlung"; take buttons for Plan and KI stay (decided 2026-11-05, Q-2) | Requirement 5; behaviour per mode lives in the panel. The human still decides, by taking one of the two |
+| D-6 | The map strip shows only where the panel has option chips, i.e. not in Recommendation | Without the chips the strip would ask a panel that cannot answer |
+| D-7 | The decision moment of the control group: see Q-3 | Recommendation's countdown auto-applies the AI's option; the issue does not list it as a deviation |
+| D-8 | Leg 2 of the control group is `WAL_FOLLOWER` spread with its own German card | The leg's card replaces the briefing's whole (§4.1); spreading keeps `id`, scenario and seed identical |
+
+### 3.1 Code Review Findings
+
+PR [#201](https://github.com/flatland-association/flatland-ui-hub/pull/201);
+branch based on `main` 333013c, checked at 0d61fb5. No code review yet, no
+PR comments, no TODOs added. In Fixed, ✅ marks a fixed
+finding, ⏭️ one taken over by a follow-up, — a dropped one, ⚠️ a comment
+resolved on GitHub without a code change and without a reason; ❌ next to ✅
+marks a finding fixed in the code whose PR comment is not resolved yet.
+"resolved" in Source marks threads resolved and checkboxes ticked on GitHub.
+
+| Fixed | ID | Source | Category | Severity | Finding | Commit message |
+|---|---|---|---|---|---|---|
+
+**Issue references:** the PR is to close #134. No TODO or comment in the
+code references it.
 
 ## 4. Design
 
@@ -221,8 +231,8 @@ Proposed; Q1 and Q3 to confirm, Q2 decided 2026-11-05.
   `WAL_FOLLOWER_RECOMMENDATION = { ...WAL_FOLLOWER, intro: { de:
   WAL_FOLLOWER_INTRO_REC_DE } }`: same `id`, scenario, disturbance and seed
   (spread, so they cannot drift), the card built on the control briefing's
-  `modeIntros.recommendation` with the same title and situation text (D8).
-- `layout-presets.ts`: `PLAN_B_CONTROL_UI` (D2) and `PLAN_B_CONTROL`, a copy
+  `modeIntros.recommendation` with the same title and situation text (D-8).
+- `layout-presets.ts`: `PLAN_B_CONTROL_UI` (D-2) and `PLAN_B_CONTROL`, a copy
   of `PLAN_B` with ids `preset-pbc-*`, `name: 'Plan B · Kontrollgruppe'`,
   the right column named `Empfehlung` instead of `Co-Learning`. Same panels,
   same order, same sizes, same centre-panel settings (#168). Added to
@@ -237,13 +247,13 @@ Proposed; Q1 and Q3 to confirm, Q2 decided 2026-11-05.
     `mapFocusCols` as there.
   - `guide`: without `reflect`; the `alternatives` and `decide` hints say
     that the KI recommends one course and the human takes Plan or KI.
-  - `moduleBadges`: without the Co-Learning violet marks (Q4).
+  - `moduleBadges`: without the Co-Learning violet marks (Q-4).
   - `modeIntros.recommendation`: the Co-Learning intro's situation text,
     without "Co-Learning" and with the step count of the shorter guide.
   - `opening`: the same pages, with "rechts die Empfehlung der KI" instead
     of "die Co-Learning-Module". The working-screen picture
     (`experiments/arbeitsansicht.png`) shows the Mensch course; a control
-    picture is taken in S4.
+    picture is taken in S-4.
 - `freshOperatorProfile: true` stays: nothing is learned, but a fresh id keeps
   the records of two participants apart as in the experimental group.
 - The store still sets `pendingRationale` after a decision that deviates
@@ -267,8 +277,8 @@ Proposed; Q1 and Q3 to confirm, Q2 decided 2026-11-05.
     Zug: der Plan ohne Eingriff und die Empfehlung der KI. …");
   - "Plan behalten" and "KI übernehmen" stay, with their `data-log` ids;
   - the alternatives ("weitere Reihenfolgen") stay: they are the AI's other
-    options (Q2).
-- `FlatlandMapComponent.trainOptions()`: also `null` in Recommendation (D6).
+    options (Q-2).
+- `FlatlandMapComponent.trainOptions()`: also `null` in Recommendation (D-6).
 - The comparison section needs no code: `PLAN_B_CONTROL_UI` hides its last
   axis (§2).
 
@@ -286,8 +296,8 @@ Proposed; Q1 and Q3 to confirm, Q2 decided 2026-11-05.
 
 | File | What it adds |
 |---|---|
-| `scripts/docshots-plan-b-control.mjs` | Screenshots of both groups on leg 1 for the PR, as `scripts/docshots-zwl-default.mjs` (added with S0) |
-| `docs/plans/plan-b-control-group/*.png` | Before (S0, §2.1) and after (S4) screenshots |
+| `scripts/docshots-plan-b-control.mjs` | Screenshots of both groups on leg 1 for the PR, as `scripts/docshots-zwl-default.mjs` (added with S-0) |
+| `docs/plans/plan-b-control-group/*.png` | Before (S-0, §2.1) and after (S-4) screenshots |
 
 ### Modified files
 
@@ -316,36 +326,37 @@ Proposed; Q1 and Q3 to confirm, Q2 decided 2026-11-05.
   opens and the guide has no Reflexion step; "Plan / KI / Mensch" shows
   Plan and KI, the KI tagged "Empfehlung", no chips, no Mensch, no
   "Vergleich"; no strip on the map at the selected train; the decision
-  moment as decided in Q3; Schichtbilanz and questionnaires as in
+  moment as decided in Q-3; Schichtbilanz and questionnaires as in
   `plan-b-p01`; the saved record names the condition.
 - `plan-b-p01` unchanged: chips, Mensch, Vergleich (lateness), reflection
   dialog, map strip.
 
 ## 7. Steps
 
-| ID | Step | Needs |
-|---|---|---|
-| S1 | `proposal-compare` in Recommendation: availability, `recommending()`, tag, map strip, specs, matrix doc | - |
-| S2 | `recommendation-experiment-2x` briefing (de, en) | Q4 |
-| S3 | `PLAN_B_CONTROL_UI`, `PLAN_B_CONTROL`, condition `plan-b-control-p01`, i18n, specs, plan docs | S1, S2, Q1, Q3 |
-| S4 | Screenshots of both groups, script, plan status | S3 |
+| ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
+|---|---|---|---|---|---|---|---|---|
+| ✅ S-0 | - | Plan, before screenshots and their script | — | — | docs(plans): plan for #134, the Plan B control group, with before screenshots. | 0d61fb5 | - | - |
+| 💡 S-1 | - | `proposal-compare` in Recommendation: availability, `recommending()`, tag, map strip, specs, matrix doc | — | — | feat(proposal-compare): offer the panel in Recommendation, with Plan and KI only and the KI course tagged as the recommendation. |  | - | - |
+| 💡 S-2 | - | `recommendation-experiment-2x` briefing (de, en) | — | — | feat(tours): add a Recommendation briefing for the control group, without the reflection. |  | - | Q-4 |
+| 💡 S-3 | - | `PLAN_B_CONTROL_UI`, `PLAN_B_CONTROL`, condition `plan-b-control-p01`, i18n, specs, plan docs | — | — | feat(study): add the Plan B control group condition plan-b-control-p01. |  | S-1, S-2 | Q-1, Q-3 |
+| 💡 S-4 | - | Screenshots of both groups, script, plan status | — | — | docs(plans): after screenshots of the Plan B control group for #134. |  | S-3 | - |
 
 Each step passes the CI checks on its own.
 
 ## 8. Open questions
 
-- **(Q1) Mode of the control group: `recommendation`, or `co-learning` with
-  more hidden parts?** Recommended: `recommendation` (D3). It is what the
+- **(Q-1) Mode of the control group: `recommendation`, or `co-learning` with
+  more hidden parts?** Recommended: `recommendation` (D-3). It is what the
   issue names, and the brief's mode for "AI suggests with a recommendation".
   The alternative keeps `co-learning` and hides chips, Mensch and the strip
   through new UiConfig ids; the recommendation tag would then be a
   condition flag beside the mode, which the guardrails rule out.
-- ✅ ~~**(Q2) What stays in "Plan / KI" under Recommendation?**~~
+- ✅ ~~**(Q-2) What stays in "Plan / KI" under Recommendation?**~~
   **Decided 2026-11-05:** only the Plan and KI courses; the option chips
   (Halten, Halten bis frei, Weiterfahren, Umleiten) go, and with them the
   Mensch course, and no "⟨Zug⟩ · im Panel vergleichen" strip on the map at
-  the selected train (D5, D6). The take buttons of Plan and KI stay.
-- **(Q3) Decision moment in the control group?** Recommendation's
+  the selected train (D-5, D-6). The take buttons of Plan and KI stay.
+- **(Q-3) Decision moment in the control group?** Recommendation's
   `countdown` pauses the whole run on a new conflict and applies the AI's
   option after 10 s unless the human acts. The experimental group holds the
   affected trains and lets the world run (`hold`). The issue does not list
@@ -356,7 +367,7 @@ Each step passes the CI checks on its own.
      the same kind of tour-level switch as `assessmentOnly`.
   Recommended: b), so the groups differ only where §1 says. For the study
   leads.
-- **(Q4) Co-Learning wording outside the panels?** The violet module badges,
+- **(Q-4) Co-Learning wording outside the panels?** The violet module badges,
   the guide's "Neu: …" module hints and questionnaire items about learning
   or reflection (in `DEFAULT_SURVEY_PARTS`) all name Co-Learning. Proposed:
   the control briefing drops the badges and rewrites the hints; the
