@@ -188,24 +188,41 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   private readonly host = viewChild<ElementRef<HTMLElement>>('plot');
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
 
-  /** Keep the now-line on screen while the plot scrolls (time vertical): only
-   *  when it has left the visible part, so a reader scrolling back in time is
-   *  not yanked away on every step. */
+  /** Keep the now-line on screen while the plot scrolls (time vertical), but
+   *  only until the reader scrolls it out of view: then the ZWL stays where
+   *  they put it, on every step, until they scroll the now-line back into
+   *  view. Before, it pulled the view back to the now-line on each step,
+   *  which read as the ZWL jumping up (docs/plans/plan-b-small-changes.md,
+   *  item 1). */
   private readonly followNow = effect(() => {
     const y = this.nowLine().y1;
     const el = this.scroller()?.nativeElement;
     if (!el || !this.timeVertical()) return;
     untracked(() => {
-      // The sticky header sits above the plot in the scroller's content and
-      // covers its top HEADER_H pixels of the viewport.
-      const contentY = HEADER_H + y;
-      const visibleTop = el.scrollTop + HEADER_H;
-      const visibleBottom = el.scrollTop + el.clientHeight - 16;
-      if (contentY < visibleTop || contentY > visibleBottom) {
-        el.scrollTop = Math.max(0, y - (el.clientHeight - HEADER_H) / 3);
-      }
+      if (this.readerScrolledAway || this.nowVisible(el, y)) return;
+      el.scrollTop = Math.max(0, y - (el.clientHeight - HEADER_H) / 3);
+      this.ownScrollTop = el.scrollTop;
     });
   });
+  /** Where this component last scrolled to, to tell its own scroll events
+   *  from the reader's. */
+  private ownScrollTop: number | null = null;
+  private readerScrolledAway = false;
+
+  /** The sticky header sits above the plot in the scroller's content and
+   *  covers its top HEADER_H pixels of the viewport. */
+  private nowVisible(el: HTMLElement, y: number): boolean {
+    const contentY = HEADER_H + y;
+    return contentY >= el.scrollTop + HEADER_H && contentY <= el.scrollTop + el.clientHeight - 16;
+  }
+
+  onScroll(): void {
+    const el = this.scroller()?.nativeElement;
+    if (!el) return;
+    if (this.ownScrollTop !== null && Math.abs(el.scrollTop - this.ownScrollTop) < 1) return;
+    this.ownScrollTop = null;
+    this.readerScrolledAway = !this.nowVisible(el, this.nowLine().y1);
+  }
   private resizeObserver: ResizeObserver | null = null;
   readonly width = signal(800);
   readonly height = signal(360);

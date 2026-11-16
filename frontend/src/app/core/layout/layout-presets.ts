@@ -763,12 +763,15 @@ const PLAN_B: LayoutPreset = {
             collapsible: false,
             minHeight: 520,
             // #168: the ZWL first and open, the tabs big enough to stand in
-            // for the title that PLAN_B_UI hides.
+            // for the title that PLAN_B_UI hides. The body is tall enough for
+            // the whole ZWL (station header, minimum time axis, route row and
+            // legend), so it never scrolls inside (docs/plans/plan-b-small-changes.md,
+            // item 1).
             settings: {
               tabs: ['zug-weg-diagramm', 'flatland-map'],
               defaultTab: 'zug-weg-diagramm',
               tabSize: 'l',
-              minBodyHeight: 340,
+              minBodyHeight: 560,
             },
           },
           { id: 'preset-pb-timetable', type: 'timetable', title: 'Fahrplan', expanded: true, collapsible: true, minHeight: 160 },

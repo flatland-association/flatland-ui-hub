@@ -76,7 +76,7 @@
         }
       </p>
     } @else {
-      <div class="zwd__scroller" #scroller>
+      <div class="zwd__scroller" #scroller (scroll)="onScroll()">
       @if (timeVertical()) {
         <!-- place names stay put while time scrolls underneath -->
         <svg class="zwd__header" [attr.width]="width()" [attr.height]="headerH" aria-hidden="true">
