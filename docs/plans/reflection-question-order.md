@@ -94,8 +94,19 @@ Not checked in code; they hold by construction of the study setup.
 - One order per installation serves every reason tour and both study groups.
   The study needs no counterbalancing of question order (decided by the study
   lead, 2026-11-11), and no order per condition (decided 2026-11-16, §9.2).
-- A lab machine's `ui-config.json` does not change during a study round. The
-  record names the order, so a change would still show.
+- Every lab machine runs the same build of this branch or later, started
+  from the Plan B config in git (`UI_CONFIG=frontend/public/ui-configs/plan-b.json
+  ./start-demo.sh`). That file sets no `reflectionQuestionOrder`, so every
+  machine asks in the default order from the code; so does a machine started
+  without `UI_CONFIG` (the shipped `ui-config.json` sets none either). A
+  different order on all machines goes into `plan-b.json` in git, not into a
+  machine's copy.
+- No machine's served `ui-config.json` is changed by hand (an edited copy in
+  `backend/static`, or a file mounted into the Docker image). If one is, the
+  sessions on that machine use its order; the header's
+  `reflectionQuestionOrder` records it, so the analysis can see it, and an
+  older build shows in `appVersion` and in a header without the field. A
+  replay does not draw this reflection at all, so it shows neither order.
 
 ## 3. Context and scope (checked 2026-11-16 on `main` fd0c70c)
 
