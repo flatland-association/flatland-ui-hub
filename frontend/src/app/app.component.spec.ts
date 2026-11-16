@@ -8,6 +8,7 @@ import { SessionInfo, SessionState } from './core/models';
 import { TourContextService } from './core/demo/tour-context.service';
 import { briefingById, TourBriefing } from './core/demo/tour-briefings';
 import { StudyCondition } from './core/demo/study-conditions';
+import { UiConfigService } from './core/config/ui-config.service';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -53,6 +54,21 @@ describe('AppComponent', () => {
 
     store.session.set({ id: 'sess-1' } as SessionInfo);
     expect(cmp.toolbarUnderGuide()).toBeTrue();
+  });
+
+  // #198 (docs/plans/hide-scenario-bar.md §4.4): Plan B hides the strip, the toolbar stays at the top.
+  it('leaves the guide strip out where the condition hides it, and keeps the toolbar at the top', () => {
+    const cmp = TestBed.createComponent(AppComponent).componentInstance;
+    const store = TestBed.inject(SessionStore);
+    store.startDemo(['co-learning'], false);
+    TestBed.inject(TourContextService).set(briefingById('colearning-experiment'));
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    expect(cmp.guideShown()).toBeTrue();
+
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.guide'] });
+    expect(cmp.tourGuide.active()).withContext('the guide still ticks').toBeTrue();
+    expect(cmp.guideShown()).toBeFalse();
+    expect(cmp.toolbarUnderGuide()).toBeFalse();
   });
 
   // docs/plans/reflection-inline.md §4.4 (D6, D13): the toolbar's finish waits for every reflection.

@@ -40,6 +40,9 @@ const CONTROL_IDS: UiConfigItem[] = [
   // Not an element but its text: the scenarios stay, numbered "Szenario k/N"
   // (#198, docs/plans/hide-scenario-bar.md §4.3). The footer and the intro
   // card keep the names; covering them would be an id of its own.
+  // The guide strip of a running leg; the toolbar then stays at the top (#198,
+  // docs/plans/hide-scenario-bar.md §4.4). The guide still ticks and logs.
+  { id: 'control.guide', label: 'Guide strip: steps and hints of the running scenario', supports: ['hidden'] },
   { id: 'control.legNames', label: 'Scenario names in the experiment stepper and the finish button (numbered only)', supports: ['hidden'] },
 ];
 

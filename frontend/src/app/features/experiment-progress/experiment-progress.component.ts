@@ -63,7 +63,9 @@ export class ExperimentProgressComponent {
    * (experiment-workflow §5.5): it mirrors the leg's box, and two lines join
    * the box's bottom corners to the strip's top corners.
    */
-  readonly connected = computed(() => this.phase() === 'running' && this.guide.active());
+  readonly connected = computed(
+    () => this.phase() === 'running' && this.guide.active() && !this.uiConfig.isHidden('control.guide'),
+  );
   readonly connector = signal<Connector | null>(null);
 
   constructor() {

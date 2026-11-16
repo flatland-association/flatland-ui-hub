@@ -9,6 +9,8 @@ import { ReplayService } from '../../core/replay/replay.service';
 import type { SessionRecord } from '../../core/interaction-log/session-record';
 import { ExperimentProgressComponent } from './experiment-progress.component';
 import { UiConfigService } from '../../core/config/ui-config.service';
+import { TourContextService } from '../../core/demo/tour-context.service';
+import { briefingById } from '../../core/demo/tour-briefings';
 
 const TWO_LEGS: StudyCondition = {
   id: 'spec-2x',
@@ -67,6 +69,16 @@ describe('ExperimentProgressComponent', () => {
     expect(s).toContain('Scenario 1/2');
     expect(s).toContain('Scenario 2/2');
     expect(s).not.toContain(run.legLabel(0));
+  });
+
+  it('draws no lines to a guide strip the condition hides (#198)', () => {
+    begin(TWO_LEGS);
+    const tour = TestBed.inject(TourContextService);
+    tour.set(briefingById('colearning-experiment'));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.connected()).toBeTrue();
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.guide'] });
+    expect(fixture.componentInstance.connected()).toBeFalse();
   });
 
   it('in a replay, follows the recording: an old record has the step, a new one has not', () => {

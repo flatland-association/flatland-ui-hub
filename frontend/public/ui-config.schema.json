@@ -61,6 +61,7 @@
           "control.sessionInfo",
           "control.studyLogging",
           "control.menuAreas",
+          "control.guide",
           "control.legNames",
           "widget.proposal-compare.axis.lateness",
           "widget.proposal-compare.axis.time",

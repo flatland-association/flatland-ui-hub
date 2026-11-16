@@ -252,7 +252,7 @@ The **Plan B** study condition
 ([issue #145](https://github.com/flatland-association/flatland-ui-hub/issues/145))
 is the worked example: it hides the contrast setting, the map pan/zoom overlay,
 the end-shift button, the comparison section's "time in network" figure, the
-mode tabs, the scenario status line and the Menü's "Bereiche" links, numbers
+mode tabs, the scenario status line and the Menü's "Bereiche" links and the guide strip, numbers
 its scenarios without their names in the stepper and the finish button
 («Szenario abschliessen → Szenario 2/5»), and limits the policy dropdown. Design and rationale:
 [`docs/plans/configurable-ui-plan.md`](docs/plans/configurable-ui-plan.md).
