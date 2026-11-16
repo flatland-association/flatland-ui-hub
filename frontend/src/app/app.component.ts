@@ -1671,15 +1671,25 @@ export class AppComponent implements OnInit {
     inject(UiStateRegistry).register('selection', this.store.selectedHandle);
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).
     effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()?.closing));
-    // A replay shows the recorded layout; leaving it restores the one chosen before.
+    // A replay shows the recorded layout with the UI restrictions it was recorded
+    // with, not the layout's block of today (docs/plans/hide-scenario-bar.md §4.5);
+    // leaving it restores the layout chosen before, and that layout's restrictions.
     let layoutBeforeReplay: string | null = null;
     effect(() => {
       const layoutId = this.replay.layoutId();
       const active = this.replay.active();
+      const recorded = this.replay.uiRestrictions();
       untracked(() => {
         if (active) {
           layoutBeforeReplay ??= this.selectedRuntimeLayoutId();
           this.setRuntimeLayout(layoutId ?? this.systemRuntimeLayoutId);
+          if (recorded) {
+            this.uiConfig.apply({
+              hidden: recorded.hidden,
+              collapsedByDefault: recorded.collapsedByDefault,
+              policyAllowlist: recorded.policyAllowlist ?? undefined,
+            });
+          }
         } else if (!active && layoutBeforeReplay !== null) {
           this.setRuntimeLayout(layoutBeforeReplay);
           layoutBeforeReplay = null;

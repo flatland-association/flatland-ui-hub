@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import type { SessionState } from '../models';
 import { SessionStore } from '../session.store';
 import { WebSocketService } from '../websocket.service';
-import type { ContextEvent, SessionRecord, SurveySubmission } from '../interaction-log/session-record';
+import type { ContextEvent, SessionRecord, SurveySubmission, UiRestrictions } from '../interaction-log/session-record';
 import { ShiftKpis, interventionsFrom, shiftKpis } from '../shift-review';
 import { STUDY_CONDITIONS, StudyCondition, conditionId } from '../demo/study-conditions';
 import { GuideStepId, TourBriefing, TourGuideStep, briefingById } from '../demo/tour-briefings';
@@ -57,6 +57,10 @@ export class ReplayService {
   readonly leg = computed<SessionRecord | null>(() => this.legs()[this.legIndex()] ?? null);
   /** The layout on screen at the replay time: the leg's, then its `layout_change` events (AppComponent applies it). */
   readonly layoutId = signal<string | null>(null);
+  /** The UI restrictions the leg on screen was recorded with (its header's `uiRestrictions`), which AppComponent
+   *  applies over the layout's block, so a replay shows what the participant had and not today's block of the same
+   *  layout; null for a record made before they were recorded (docs/plans/hide-scenario-bar.md §4.5, PAT-2). */
+  readonly uiRestrictions = computed<UiRestrictions | null>(() => this.leg()?.header.uiRestrictions ?? null);
   /** The recorded screen (`view_enter`): it decides which recorded screen the replay draws. */
   readonly view = signal<{ view: string; detail?: Record<string, unknown> } | null>(null);
 

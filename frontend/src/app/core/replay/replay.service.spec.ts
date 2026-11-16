@@ -120,6 +120,18 @@ describe('ReplayService', () => {
     replay.pause();
   }));
 
+  // docs/plans/hide-scenario-bar.md §4.5 (PAT-2): what the participant had, per leg.
+  it('hands over the UI restrictions of the leg on screen, none for a record without them', () => {
+    const recorded = { hidden: ['control.contrast'], collapsedByDefault: [], policyAllowlist: null, values: {} };
+    const first = leg('s1', 1000);
+    first.header = { ...first.header, uiRestrictions: recorded };
+    replay.load([first, leg('s2', 2000)]);
+    replay.seek(1100);
+    expect(replay.uiRestrictions()).toEqual(recorded);
+    replay.seek(2100);
+    expect(replay.uiRestrictions()).toBeNull();
+  });
+
   it('refuses sessions without train movements and leaves cleanly', () => {
     expect(replay.load([leg('s0', 1000, { states: [] })])).toBeFalse();
     expect(store.replayActive()).toBeFalse();
