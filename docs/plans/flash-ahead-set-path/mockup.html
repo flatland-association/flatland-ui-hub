@@ -1,0 +1,25 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{font-family:Helvetica,Arial,sans-serif;margin:0;padding:16px;background:#f6f6f6;width:900px;color:#222}
+.controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #ddd;border-radius:6px;padding:8px 10px}
+.lbl{font-size:12px;color:#666;margin-right:4px}
+.chip{font-size:12px;border:1px solid #bbb;border-radius:12px;padding:3px 9px;background:#fff}
+.chip.on{background:#2d327d;color:#fff;border-color:#2d327d}
+.ahead-ctl{display:flex;align-items:center;gap:6px;margin-left:8px;padding:3px 8px;border:2px solid #eb0000;border-radius:12px;background:#fff5f5}
+.ahead-ctl span{font-size:12px} input[type=range]{width:140px}
+.new{font-size:10px;color:#eb0000;font-weight:bold}
+svg{background:#fff;border:1px solid #ddd;border-radius:6px;margin-top:10px}
+.track{stroke:#9a9a9a;stroke-width:6;fill:none}
+.ahead{fill:none;stroke-width:7;stroke-dasharray:10 6;stroke-linecap:round;animation:flash 1s steps(2,jump-none) infinite}
+@keyframes flash{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.ahead{animation:none}}
+text{font-size:12px;font-weight:bold;fill:#333}
+.note{font-size:12px;color:#555;margin-top:8px}
+</style></head><body>
+<div class="controls"><span class="lbl">Layers</span>
+<span class="chip on">Grid</span><span class="chip">Decisions</span><span class="chip on">Trajectory</span><span class="chip">Cell info</span><span class="chip on">Switches</span><span class="chip">Signals</span><span class="chip on">Stations</span><span class="chip on">Contentions</span><span class="chip">All routes</span>
+<span class="ahead-ctl"><span class="new">NEW</span><span>Set path ahead</span><input type="range" min="0" max="20" value="8"><span><b>8</b> steps</span></span>
+<span class="chip">Legend</span></div>
+<svg width="900" height="270"><path d="M20 140 H880 M200 140 L240 80 H520 L560 140 M600 140 L660 220 H880" class="track"/><path d="M120 140 H200 L240 80 H330" class="ahead" style="stroke:hsl(210,42%,57%)"/><path d="M700 140 H600 H470" class="ahead" style="stroke:hsl(348,42%,64%)"/><path d="M680 220 H820" class="ahead" style="stroke:hsl(125,42%,57%)"/><g><circle cx="120" cy="140" r="11" style="fill:hsl(210,42%,57%);stroke:#fff;stroke-width:2.5"/><text x="120" y="122" text-anchor="middle">IC 1</text></g><g><circle cx="700" cy="140" r="11" style="fill:hsl(348,42%,64%);stroke:#fff;stroke-width:2.5"/><text x="700" y="122" text-anchor="middle">R 2</text></g><g><circle cx="680" cy="220" r="11" style="fill:hsl(125,42%,57%);stroke:#fff;stroke-width:2.5"/><text x="680" y="202" text-anchor="middle">S 3</text></g></svg>
+<div class="note">Mockup of Q-2 a (slider in the layer bar above the map), Q-3 (blinking dashed path ahead, one colour per train)
+and the train symbol in the same colour while the slider is above 0. 0 = off. Blinking stops with "reduce motion".</div>
+</body></html>
