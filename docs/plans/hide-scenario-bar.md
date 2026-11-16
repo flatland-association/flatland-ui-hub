@@ -1,6 +1,6 @@
 # Plan B without the guide strip and without scenario names (#198)
 
-> **Status:** plan of 2026-11-16, built 2026-11-16 (S-0 to S-3). Based on `main` fd0c70cb (#164 merged). Issue
+> **Status:** plan of 2026-11-16, built 2026-11-16 (S-0 to S-5). Based on `main` fd0c70cb (#164 merged). Issue
 > [#198](https://github.com/flatland-association/flatland-ui-hub/issues/198) ("Szenario-Balken ausblenden", label
 > `plan b`). Branch `feature/198-hide-scenario-bar`, off `main` (on request; contributors usually branch off
 > `explore_db`), PR not opened yet. Q-1 to Q-4 decided 2026-11-16 (§9.2).
@@ -34,8 +34,9 @@ Requirements:
 - **REQ-4** Only Plan B changes (label `plan b`); other experiments and tours keep both bars as they are (Q-1).
 - **REQ-5** The finish button names the next scenario by its number only: «Szenario abschliessen → Szenario 2/5»
   (added by the maintainer on 2026-11-16, after the walk-through; Q-2 revisited).
-
-The names stay in the footer and the intro card: only the stepper and the finish button lose them (Q-2).
+- **REQ-6** No other place names the scenario either: the footer reads "Plan B · Teilnehmer:in 01 · Szenario 4/5",
+  the intro card's step "Szenario 4/5", and the card leaves out the scenario's title (added by the maintainer on
+  2026-11-16, after S-3; Q-2 revisited again).
 
 ### 1.2 Quality goals (non-functional requirements)
 
@@ -61,8 +62,7 @@ The names stay in the footer and the intro card: only the stepper and the finish
 
 | Follow-up | Why not in this PR | From | Findings | Issue |
 |---|---|---|---|---|
-| Drop the names also from the footer and the intro card. | Decided out: only the stepper and the finish button (Q-2, revisited). | §2.1 | - | - |
-| The scenario card of the intro (`scenarioCard`, the leg's own intro text) may name the scenario in its text. | Authored text, not the leg label; the study lead decides whether the cards change. | §2.1 | - | - |
+| The intro card's description (`scenarioCard.paragraphs`, from the scenario's `scenario.json`) may name the scenario in its text. | Authored text, not a label; the study lead decides whether the texts change. | §2.1 | - | - |
 | The hints of the Plan B guide (`PLAN_B_GUIDE_HINTS`) are no longer seen. | Requested by REQ-2; the strings stay for other uses (replay of older runs, a later decision to show the strip again). | §2.1 | - | - |
 
 ## 2. Constraints
@@ -80,10 +80,9 @@ The names stay in the footer and the intro card: only the stepper and the finish
 
 *What the built code gets wrong or ignores, each with the TODO or issue that tracks it.*
 
-- The footer ("Plan B · Teilnehmer:in 01 · Türstörung (4/5)") and the intro card still show the leg's name, by
-  decision (Q-2, §1.4).
-- The scenario card of a leg's intro is authored text and is left as it is; if it names the scenario, the name is
-  still seen there (§1.4).
+- The intro card's description is authored text and is left as it is; if it names the scenario, the name is still
+  seen there (§1.4). Checked 2026-11-16: only the tutorial's does («Das Tutorial-Szenario läuft langsam ab …»), the
+  four UC2 descriptions don't.
 - Without the strip, the step hints and the closing hint ("Alle Schritte während der Fahrt sind abgeschlossen …")
   are not seen; the strip's «Reflexion öffnen» is gone, the decision log's «Reflexion nachtragen» stays (§4.4).
 
@@ -137,7 +136,7 @@ flow, the guide's ticking, the records or the logs.
 
 | Quality goal | Scenario | Solution approach | Details |
 |---|---|---|---|
-| NFR-1 | Same ids, events, records | Gate only the presentation, through the existing UI restrictions; the guide service, the leg ids, the leg label and the run phases are untouched. | §4.3, §4.4 |
+| NFR-1 | Same ids, events, records | Gate only the presentation, through the existing UI restrictions; the guide service, the leg ids and the run phases are untouched. | §4.3, §4.4 |
 
 ### 4.1 Design principles
 
@@ -146,9 +145,9 @@ is not new on purpose.*
 
 - **DP-1 What a condition removes from the screen is a UI restriction of its layout.** Two new `hidden` ids in
   `PLAN_B_UI`, not a `StudyCondition` field: the run's flow does not change, only what is drawn (Q-1).
-- **DP-2 The course is shown by number, the shared leg label stays.** The name is dropped only where the run's course
-  is shown: the stepper (`ExperimentProgressComponent`) and the finish button (`ExperimentRunService.finishLabel`).
-  The shared leg label "⟨name⟩ (k/N)" and the other places that show it stay as they are (Q-2).
+- **DP-2 One place builds the leg label.** `TourContextService.legLabel()` decides between "⟨name⟩ (k/N)" and
+  "Szenario k/N", for live runs and replays, so the stepper, the finish button, the footer, the intro card and the
+  Schichtbilanz agree (Q-2, revisited twice).
 - **DP-3 Gate presentation, not behaviour.** The guide service keeps running and logging; only `app-tour-guide` and
   its connector lines are not drawn (NFR-1, `AGENTS.md` "Gate presentation in the frontend").
 
@@ -157,7 +156,7 @@ Reused concepts:
 | Need | Reused concept | Instead of |
 |---|---|---|
 | Plan B turns a bar off | `UiConfig.hidden` + `UI_CONFIG_ITEMS` + `PLAN_B_UI` | A new `StudyCondition` flag (like `shiftSummary`) or a briefing flag |
-| A label without the name | The existing `experimentRun.legLabel` pattern, as a sibling key | Hiding the stepper's leg boxes, or a gate in the shared leg label |
+| A label without the name | The existing `experimentRun.legLabel` pattern, as a sibling key, built where `legName()` already is | Hiding the stepper's leg boxes, or one gate per place that shows a leg |
 | A route to an open reflection without the strip | The decision log's «Reflexion nachtragen» (`reopenReflection()`) | A new button elsewhere |
 | Finish a scenario | The toolbar's finish button (`finishLabel`) | A new button |
 
@@ -169,7 +168,7 @@ Not new on purpose: no new endpoint, record field, log event, setting or conditi
 *How each requirement and quality goal is shown to work: tests, CI checks, before and after screenshots.*
 
 Screenshots: Plan B `plan-b-p01` with `ui-configs/plan-b.json`, German, 1600×1000, production build served by the
-backend; before on `main` fd0c70cb, after on this branch at bd1fbfb2 (S-2), both by
+backend; before on `main` fd0c70cb, after on this branch at f4f59f8e (S-4), both by
 [`scripts/docshots-hide-scenario-bar.mjs`](../../scripts/docshots-hide-scenario-bar.mjs) (`before`, and `after` with
 `PREVIEW=0`). The proposal shots of the plan (the same run with the change previewed in the page) were replaced by
 these; they matched.
@@ -179,9 +178,10 @@ these; they matched.
 | REQ-1 | Stepper without names | `experiment-progress.component.spec.ts`: with `control.legNames` hidden the legs read "Scenario k/N" (en); a replay applies the recorded layout (§2.2) | ✅ "Szenario 1/5 … 5/5" in all five scenarios | 03c–07c below |
 | REQ-2 | Guide strip hidden | `app.component.spec.ts`: with `control.guide` hidden `guideShown()` is false and the toolbar stays at the top; `experiment-progress.component.spec.ts`: no connector | ✅ no strip, no lines, toolbar at the top | 03b–07b below |
 | REQ-3 | «Szenario abschliessen» stays | Running app: the toolbar shows «Szenario abschliessen → …» and leads to the next scenario | ✅ the walk-through finishes every scenario with it | 03c–07c below |
-| REQ-5 | Finish button by number | `experiment-run.service.spec.ts`: with `control.legNames` hidden `finishLabel` reads «Finish scenario → Scenario 2/2» (en); footer label keeps the name | ✅ «Szenario abschliessen → Szenario 2/5 … 5/5», then «→ Fragebogen» | 03c–07c below |
+| REQ-5 | Finish button by number | `experiment-run.service.spec.ts`: with `control.legNames` hidden `finishLabel` reads «Finish scenario → Scenario 2/2» (en)| ✅ «Szenario abschliessen → Szenario 2/5 … 5/5», then «→ Fragebogen» | 03c–07c below |
+| REQ-6 | Footer and intro card by number | `experiment-run.service.spec.ts`: `currentLegLabel` reads "Scenario 1/2"; `mode-intro.component.spec.ts`: no title; `replay.service.spec.ts`: a replay numbers too | ✅ footer "… · Szenario 4/5 · Co-Learning", intro card "SZENARIO 4/5" without title | 03a–07a below |
 | REQ-4 | Only Plan B | `ui-config.service.spec.ts`: `preset-plan-b` hides both ids, no other layout does | ✅ | - |
-| NFR-1 | Same study data | Full suite green (796 specs); `app.component.spec.ts`: the guide stays active (ticks and logs) with the strip hidden; leg ids and records untouched | ✅ | - |
+| NFR-1 | Same study data | Full suite green; `app.component.spec.ts`: the guide stays active (ticks and logs) with the strip hidden; leg ids and records untouched | ✅ | - |
 
 Walk-through of every Plan B stage (scenario order of `plan-b-p01`): before
 [`before-walkthrough.gif`](hide-scenario-bar/before-walkthrough.gif), after
@@ -191,19 +191,19 @@ Walk-through of every Plan B stage (scenario order of `plan-b-p01`): before
 |---|---|---|---|
 | 01 | Start screen (unchanged) | [before](hide-scenario-bar/before-01-picker.png) | [after](hide-scenario-bar/after-01-picker.png) |
 | 02 | Briefing (unchanged) | [before](hide-scenario-bar/before-02-briefing.png) | [after](hide-scenario-bar/after-02-briefing.png) |
-| 03a | Scenario 1/5 (Tutorial): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-03a-intro.png) | [after](hide-scenario-bar/after-03a-intro.png) |
+| 03a | Scenario 1/5 (Tutorial): intro card | [before](hide-scenario-bar/before-03a-intro.png) | [after](hide-scenario-bar/after-03a-intro.png) |
 | 03b | Scenario 1/5: working screen | [before](hide-scenario-bar/before-03b-running.png) | [after](hide-scenario-bar/after-03b-running.png) |
 | 03c | Scenario 1/5: the bars above the map | [before](hide-scenario-bar/before-03c-bars.png) | [after](hide-scenario-bar/after-03c-bars.png) |
-| 04a | Scenario 2/5 (Verschobene Kreuzung an der Einspur): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-04a-intro.png) | [after](hide-scenario-bar/after-04a-intro.png) |
+| 04a | Scenario 2/5 (Verschobene Kreuzung an der Einspur): intro card | [before](hide-scenario-bar/before-04a-intro.png) | [after](hide-scenario-bar/after-04a-intro.png) |
 | 04b | Scenario 2/5: working screen | [before](hide-scenario-bar/before-04b-running.png) | [after](hide-scenario-bar/after-04b-running.png) |
 | 04c | Scenario 2/5: the bars above the map | [before](hide-scenario-bar/before-04c-bars.png) | [after](hide-scenario-bar/after-04c-bars.png) |
-| 05a | Scenario 3/5 (Mühlehorn - Tiefenwinkel): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-05a-intro.png) | [after](hide-scenario-bar/after-05a-intro.png) |
+| 05a | Scenario 3/5 (Mühlehorn - Tiefenwinkel): intro card | [before](hide-scenario-bar/before-05a-intro.png) | [after](hide-scenario-bar/after-05a-intro.png) |
 | 05b | Scenario 3/5: working screen | [before](hide-scenario-bar/before-05b-running.png) | [after](hide-scenario-bar/after-05b-running.png) |
 | 05c | Scenario 3/5: the bars above the map | [before](hide-scenario-bar/before-05c-bars.png) | [after](hide-scenario-bar/after-05c-bars.png) |
-| 06a | Scenario 4/5 (Türstörung): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-06a-intro.png) | [after](hide-scenario-bar/after-06a-intro.png) |
+| 06a | Scenario 4/5 (Türstörung): intro card | [before](hide-scenario-bar/before-06a-intro.png) | [after](hide-scenario-bar/after-06a-intro.png) |
 | 06b | Scenario 4/5: working screen | [before](hide-scenario-bar/before-06b-running.png) | [after](hide-scenario-bar/after-06b-running.png) |
 | 06c | Scenario 4/5: the bars above the map | [before](hide-scenario-bar/before-06c-bars.png) | [after](hide-scenario-bar/after-06c-bars.png) |
-| 07a | Scenario 5/5 (Blockierte Fahrbahn): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-07a-intro.png) | [after](hide-scenario-bar/after-07a-intro.png) |
+| 07a | Scenario 5/5 (Blockierte Fahrbahn): intro card | [before](hide-scenario-bar/before-07a-intro.png) | [after](hide-scenario-bar/after-07a-intro.png) |
 | 07b | Scenario 5/5: working screen | [before](hide-scenario-bar/before-07b-running.png) | [after](hide-scenario-bar/after-07b-running.png) |
 | 07c | Scenario 5/5: the bars above the map | [before](hide-scenario-bar/before-07c-bars.png) | [after](hide-scenario-bar/after-07c-bars.png) |
 | 08 | Final questionnaire (unchanged) | [before](hide-scenario-bar/before-08-final-survey.png) | [after](hide-scenario-bar/after-08-final-survey.png) |
@@ -222,21 +222,24 @@ Read from the page:
 | Guide strip | shown, under the stepper | hidden |
 | Finish button, scenario 4 | «Szenario abschliessen → Blockierte Fahrbahn (5/5)» | «Szenario abschliessen → Szenario 5/5» |
 | Finish button, scenario 5 | «Szenario abschliessen → Fragebogen» | the same |
-| Intro card, footer | "Türstörung (4/5)" | the same (Q-2) |
+| Intro card | step "Türstörung (4/5)", title "Türstörung" | step "Szenario 4/5", no title |
+| Footer | "Plan B · Teilnehmer:in 01 · Türstörung (4/5) · Co-Learning" | "Plan B · Teilnehmer:in 01 · Szenario 4/5 · Co-Learning" |
 
-### 4.3 Scenario names in the stepper and the finish button (REQ-1, REQ-5; Q-2, Q-3)
+### 4.3 Scenario names (REQ-1, REQ-5, REQ-6; Q-2, Q-3)
 
-- New UI-config id `control.legNames` ("Scenario names in the experiment stepper and the finish button; numbered
-  only"). The footer and the intro card are not covered (§1.4); extending the id to them later would change what a
-  stored `ui-config.json` hides, so that gets an id of its own (C-1).
+- New UI-config id `control.legNames` ("Scenario names of an experiment: stepper, finish button, footer, intro card;
+  numbered only").
 - New i18n key `experimentRun.legUnnamed` ("Szenario {{k}}/{{n}}", en "Scenario {{k}}/{{n}}", fr
-  "Scénario {{k}}/{{n}}", Q-3), the sibling of `experimentRun.legLabel`. With the id hidden it is used at two gate
-  points:
-  - `ExperimentProgressComponent.legs()`: each leg's box, for live runs and replays alike; else `run.legLabel(i)` /
-    `replay.legLabel(i)` as today. The component gets `UiConfigService` and `LanguageService` injected.
-  - `ExperimentRunService.finishLabel`, case `toLeg`: «Szenario abschliessen → Szenario k/N» for the next leg; the
-    other cases («→ Fragebogen») are unchanged. The service gets `UiConfigService` injected (no cycle:
-    `UiConfigService` depends only on `HttpClient` and `ui-config-items`).
+  "Scénario {{k}}/{{n}}", Q-3), the sibling of `experimentRun.legLabel`.
+- New `TourContextService.legLabel(leg, index, count)`: with the id hidden `experimentRun.legUnnamed`, else
+  `experimentRun.legLabel` with `legName(leg)` as before. `ExperimentRunService.legLabel()` and `ReplayService`
+  (`legLabel()`, `introStep`) call it instead of building the label themselves, so every place that shows a leg
+  follows: the stepper, the finish button («Szenario abschliessen → Szenario k/N»), the footer and the intro card's
+  step (`currentLegLabel`), the guide strip's title and the Schichtbilanz rows (neither shown in Plan B).
+  `TourContextService` gets `UiConfigService` injected (no cycle: `UiConfigService` depends only on `HttpClient` and
+  `ui-config-items`).
+- The intro card's title is the scenario's title, which is its name: `ModeIntroComponent` leaves it out where
+  `TourContextService.legNamesHidden()`, and the image's alt text is empty then (the step above counts it).
 
 ### 4.4 Guide strip (REQ-2, REQ-3; Q-4)
 
@@ -262,19 +265,21 @@ flowchart TD
   PLANB["PLAN_B_UI (layout preset ui block) 🟨"] --> UIC["UiConfigService ⬜"]
   UIC --> APP["AppComponent (guideShown) 🟨"]
   UIC --> XP["ExperimentProgressComponent (stepper) 🟨"]
-  UIC --> RUN["ExperimentRunService (finishLabel) 🟨"]
+  UIC --> TC["TourContextService (legLabel) 🟨"]
+  TC --> RUN["ExperimentRunService (legLabel) 🟨"]
+  TC --> REP["ReplayService (legLabel) 🟨"]
+  TC --> MI["ModeIntroComponent (intro card) 🟨"]
   RUN --> XP
-  REP["ReplayService (leg label) ⬜"] --> XP
   REP --> XP
-  RUN --> TB["Toolbar finish button ⬜"]
+  RUN --> TB["Toolbar finish button, footer ⬜"]
   APP --> TG["TourGuideComponent (guide strip) ⬜"]
 ```
 
 Notation: [flowchart in Mermaid](https://mermaid.js.org/syntax/flowchart.html); 🟩 added, 🟨 modified, ⬜ unchanged;
 an arrow reads "is used by".
 
-**Motivation:** the restriction is declared once, on the layout (DP-1); the stepper and the finish button drop the
-names, the shared leg label stays (DP-2); the strip itself stays as it is and is just not placed (DP-3).
+**Motivation:** the restriction is declared once, on the layout (DP-1); the leg label is decided once, where the
+leg's name is looked up (DP-2); the strip itself stays as it is and is just not placed (DP-3).
 
 **Contained building blocks:**
 
@@ -283,9 +288,10 @@ names, the shared leg label stays (DP-2); the strip itself stays as it is and is
 | `PLAN_B_UI` | What the Plan B study removes from the screen. Not the run's flow (that is the `StudyCondition`). | 🟨 modified: Plan B participants see no guide strip and no scenario names. |
 | `UI_CONFIG_ITEMS` / `ui-config.schema.json` | The ids a layout or deployment may hide. Not where they are applied. | 🟨 modified: two new ids, `control.guide` and `control.legNames`. |
 | `AppComponent` | Places the working screen's bars. Not what they show. | 🟨 modified: leaves the guide strip out where it is hidden. |
-| `ExperimentProgressComponent` | The stepper of a multi-leg run. Not the steps inside a leg. | 🟨 modified: numbers the scenarios ("Szenario 2/5") where names are hidden, and draws no lines to a hidden guide strip. |
-| `ExperimentRunService` | The run's legs and phases, the leg label "⟨name⟩ (k/N)" and what the finish button says. Not the stepper. | 🟨 modified: the finish button names the next scenario by number where names are hidden. |
-| `ReplayService` | The recorded run's legs and phases, and their labels. | ⬜ unchanged |
+| `TourContextService` | The running tour's or leg's texts and scenario data, and how a leg is labelled. Not the run's phases (`ExperimentRunService`). | 🟨 modified: names a leg "Szenario k/N" where names are hidden. |
+| `ExperimentProgressComponent` | The stepper of a multi-leg run. Not the steps inside a leg. | 🟨 modified: draws no lines to a hidden guide strip. |
+| `ExperimentRunService` / `ReplayService` | The run's legs and phases, live or recorded. Not how a leg is labelled. | 🟨 modified: take the leg label from `TourContextService`, so the stepper, finish button and footer number the scenarios. |
+| `ModeIntroComponent` | The intro card before a scenario. Not the scenario's text. | 🟨 modified: no scenario title where names are hidden. |
 | `TourGuideComponent` | The steps and hints of the running leg. | ⬜ unchanged |
 | Toolbar finish button | Finishes the scenario; shows `finishLabel`. | ⬜ unchanged |
 
@@ -330,8 +336,8 @@ All decided 2026-11-16 by the maintainer; the options stay for the record.
 #167, #168).
 
 ~~**(Q-2) Where are the scenario names dropped?**~~ **Decided 2026-11-16:** b), only in the stepper. **Revisited
-2026-11-16** after the walk-through: the stepper and the finish button («Szenario abschliessen → Szenario 2/5», REQ-5);
-the footer and the intro card keep the name.
+2026-11-16** after the walk-through: the stepper and the finish button («Szenario abschliessen → Szenario 2/5», REQ-5).
+**Revisited again 2026-11-16** after S-3: everywhere, a) (REQ-6).
 - a) Everywhere the leg label "⟨name⟩ (k/N)" shows: stepper, finish button («Szenario abschliessen → Szenario 3/5»),
   footer, intro card (and the hidden strip's title).
 - b) Only in the stepper, as the issue's first bullet says; the finish button still names the next scenario
@@ -364,7 +370,8 @@ the map.
 | 2026-11-16 | ~~✅ Names dropped in the stepper only (Q-2, §4.3).~~ Replaced by the decision below of the same day. | As the issue's bullet says. | - |
 | 2026-11-16 | ✅ "Szenario 2/5", the tutorial included (Q-3, §4.3). | Reads as a course step; "2/5" alone is terse, a named tutorial needs a per-leg flag. | One new i18n key in en, de, fr. |
 | 2026-11-16 | ✅ Toolbar at the top without the strip (Q-4, §4.4). | Where it is in any run without a guide; no code. | Checked in the running app in S-2. |
-| 2026-11-16 | ✅ (Q-2) revisited: names dropped in the stepper and the finish button (REQ-5, §4.3). | The walk-through showed «Szenario abschliessen → Blockierte Fahrbahn (5/5)» naming the next scenario, which the stepper no longer does. The footer and the intro card were not asked for. | One id covers both (`control.legNames`); a second gate point in `ExperimentRunService.finishLabel`; footer and intro card stay a follow-up (§1.4). |
+| 2026-11-16 | ~~✅ (Q-2) revisited: names dropped in the stepper and the finish button (REQ-5, §4.3).~~ Replaced by the decision below of the same day. | The walk-through showed «Szenario abschliessen → Blockierte Fahrbahn (5/5)» naming the next scenario, which the stepper no longer does. The footer and the intro card were not asked for. | One id covers both (`control.legNames`); a second gate point in `ExperimentRunService.finishLabel`; footer and intro card stay a follow-up (§1.4). |
+| 2026-11-16 | ✅ (Q-2) revisited again: no place names the scenario (REQ-6, §4.3). | After S-3 the footer and the intro card were the last places with the name; the maintainer asked to close that follow-up. `control.legNames` was not pushed yet, so it was widened instead of adding a second id. | The gate moved into one place, `TourContextService.legLabel()`, replacing S-1's two gate points; the intro card leaves out the scenario's title. |
 
 ### 9.3 Code Review Findings
 
@@ -403,7 +410,9 @@ None yet.
 | ✅ S-0 | - | This plan, with before and proposal screenshots and the walk-through script | docs | low | docs(plans): plan for #198, Plan B without the guide strip and the scenario names. | 561b9a82 | - | - |
 | ✅ S-1 | - | `control.legNames`: id, schema, `ExperimentProgressComponent.legs()`, `ExperimentRunService.finishLabel`, i18n key (en, de, fr), `PLAN_B_UI`, README, specs (§4.3) | feature | medium | feat(experiment-run): let a condition number its scenarios in the stepper and the finish button, without their names. | 751caa98 | S-0 | - |
 | ✅ S-2 | - | `control.guide`: id, schema, `guideShown()`, `connected()`, `PLAN_B_UI`, README, specs; check the replay (§2.2) and the toolbar's place (Q-4) | feature | medium | feat(tour-guide): let a condition hide the guide strip and keep «Szenario abschliessen». | bd1fbfb2 | S-0 | - |
-| 💡 S-3 | - | After screenshots (`PREVIEW=0`) in place of the proposal ones, and results in §4.2 | docs | low | docs(plans): screenshots of Plan B without the guide strip and the scenario names for #198. |  | S-1, S-2 | - |
+| ✅ S-3 | - | After screenshots (`PREVIEW=0`) in place of the proposal ones, and results in §4.2 | docs | low | docs(plans): screenshots of Plan B without the guide strip and the scenario names for #198. | 5b3c2782 | S-1, S-2 | - |
+| ✅ S-4 | - | `TourContextService.legLabel()` as the one gate (replacing S-1's two), `ReplayService`, the intro card's title, specs, README; the `control.guide` entry moved above `control.legNames`' comment (S-2 put it in between) (§4.3) | feature | medium | feat(experiment-run): name no scenario in the footer and the intro card either where a condition hides the names. | f4f59f8e | S-3 | - |
+| 💡 S-5 | - | After screenshots retaken, results for REQ-6 in §4.2 | docs | low | docs(plans): screenshots of the footer and the intro card without scenario names for #198. |  | S-4 | - |
 
 ## 12. Change inventory
 
@@ -429,12 +438,14 @@ None yet.
 | `frontend/public/ui-config.schema.json` | The two ids in `hidden`'s `enum`. |
 | `frontend/src/app/core/layout/layout-presets.ts` | `PLAN_B_UI.hidden`: the two ids, with the issue. |
 | `frontend/src/app/app.component.ts` | `guideShown()` checks `control.guide`. |
-| `frontend/src/app/core/demo/experiment-run.service.ts` | `finishLabel` (`toLeg`) names the next leg by number where `control.legNames` is hidden; injects `UiConfigService`. |
-| `frontend/src/app/features/experiment-progress/experiment-progress.component.ts` | `legs()` numbers the legs where `control.legNames` is hidden; `connected()` checks `control.guide`. |
+| `frontend/src/app/core/demo/tour-context.service.ts` | `legLabel(leg, index, count)` and `legNamesHidden`, gated by `control.legNames`; injects `UiConfigService`. |
+| `frontend/src/app/core/demo/experiment-run.service.ts` | `legLabel()` calls `TourContextService.legLabel()`. |
+| `frontend/src/app/core/replay/replay.service.ts` | `legLabel()` and `introStep` call `TourContextService.legLabel()`. |
+| `frontend/src/app/features/mode-intro/mode-intro.component.{ts,html}` | No scenario title (and an empty image alt) where names are hidden. |
+| `frontend/src/app/features/experiment-progress/experiment-progress.component.ts` | `connected()` checks `control.guide`. |
 | `frontend/public/i18n/{en,de,fr}.json` | `experimentRun.legUnnamed`. |
 | `README.md` | The Plan B list of what is hidden: the two new ids (and drop "starts the Decision Log collapsed", which `PLAN_B_UI` no longer does). |
-| `experiment-progress.component.spec.ts`, `experiment-run.service.spec.ts`, `app.component.spec.ts`, `ui-config.service.spec.ts` | The checks of §4.2. |
+| `experiment-progress.component.spec.ts`, `experiment-run.service.spec.ts`, `replay.service.spec.ts`, `mode-intro.component.spec.ts`, `app.component.spec.ts`, `ui-config.service.spec.ts` | The checks of §4.2. |
 
-Unchanged on purpose: `TourGuideComponent`, `TourGuideService`, the leg label (`ExperimentRunService.legLabel()`, `ExperimentRunService.currentLegLabel`,
-`ReplayService.legLabel()`, `TourContextService.legName()`), the toolbar, `StudyCondition`, records, logs, the
+Unchanged on purpose: `TourGuideComponent`, `TourGuideService`, `TourContextService.legName()`, the toolbar, `StudyCondition`, records, logs, the
 backend.
