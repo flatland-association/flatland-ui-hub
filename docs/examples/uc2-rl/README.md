@@ -1,7 +1,7 @@
 # UC2 / tutorial trained neural driver
 
 **Historical unguarded-actor report.** The current tours run Joint ROAM and
-five infrastructure specialists. See the
+infrastructure models. See the
 [current results and reproducible finite-domain comparison](../uc2-roam-performance/README.md).
 The measurements below retain the original model, which remains a pinned
 baseline; they are not the current specialist results.

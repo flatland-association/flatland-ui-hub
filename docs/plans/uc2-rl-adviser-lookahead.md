@@ -1,6 +1,6 @@
 # UC2 RL adviser: multiple future courses and exact acceptance
 
-Status: implementation, 16 November 2026. Base: Manuel's
+Status: implemented and validated, 16 November 2026. Base: Manuel's
 `feat/uc2-rl-proposal-agent` (`a1b9c7b0`), including recovery-trained models.
 Previous driver performance is not evidence of adviser quality from DLA states.
 
@@ -88,3 +88,25 @@ The PlanPolicy implementation and frozen model assets are unchanged.
   states on all five supported maps. Report regressions and latency honestly.
 - Focused meaningful backend/frontend checks, required full checks, production
   browser verification and reviewable commits on the existing main-target PR.
+
+## Results
+
+The frozen 46-case DLA takeover diagnostic set improves eight cases, preserves
+38 and regresses none. Both advisers complete 44/46 cases and 126/128 train
+missions; the two late Tutorial cases remain incomplete. On cases both solve,
+native lateness falls from 1,954 to 1,652 steps (15.5%). Search generation
+returns two to six deduplicated courses in this suite. This is repeated
+development evidence on the five fixed native maps, not a new holdout.
+
+The real Plan B browser proves inspect-without-apply, stale409+refresh, exact
+best-course and non-default-course acceptance, and matching realised train
+positions/arrivals while Play keeps requesting DLA. The UC2-1 future branch
+at step30, selected at step16, realises 3/3 arrivals and lateness19. The
+deliberately selected Tutorial alternative realises 2/2 and lateness14.
+
+Local full backend:1,057 passed/22 skipped; final scoped-horizon tests:3 passed.
+Final Linux CI on `9a0af324` passes 1,060 backend tests/22 skipped and20 slow
+tests/2 opt-in-training skips, plus frontend style/i18n49IDs/production build.
+All model assets are unchanged from Manuel's base. Evidence, exact source/model
+hashes, scope and API handoff are in
+[`docs/examples/uc2-rl-adviser/`](../examples/uc2-rl-adviser/README.md).

@@ -1,5 +1,12 @@
 # UC2 RL as the "KI" proposal agent in the user study
 
+**16 November follow-up:** the handle-aware adviser now explores future
+branches and short waits, and exact preview tokens bind the selected course
+to its acceptance. See [design and contracts](uc2-rl-adviser-lookahead.md) and
+[paired takeover results and integration](../examples/uc2-rl-adviser/README.md).
+The single-course behavior and remaining work below describe the original
+15 November implementation; the recorded measurements remain historical.
+
 Status: done, 15 November 2026. Builds on
 [uc2-rl-per-infrastructure.md](uc2-rl-per-infrastructure.md) and the proposal
 seam of [proposal-agents-roadmap.md](proposal-agents-roadmap.md) (stage 3,

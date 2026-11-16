@@ -1,0 +1,192 @@
+{
+  "schema": "uc2-rl-adviser-ci-evidence-v1",
+  "candidate": "final application source with non-UC2 forecast horizon compatibility fix",
+  "scope": "Final application source includes the bounded handle-aware RL adviser and exact preview acceptance. The native remaining horizon is restricted to the effective UC2 RL adviser; ordinary PP forecasts preserve the legacy50-step floor and250-step cap. These software/native regression checks are separate from the46 reused development takeover cases and browser evidence; no unseen-map generalisation is claimed.",
+  "repository": "flatland-association/flatland-ui-hub",
+  "run_id": 43908914662,
+  "run_url": "https://github.com/flatland-association/flatland-ui-hub/actions/runs/43908914662",
+  "event": "workflow_dispatch",
+  "source_commit": "9a0af324c1bea5933507b0edc68f4540fd803249",
+  "backend_tree": "51eaaf7980a07bb46e25d8157af9091c33204e91",
+  "branch": "codex/uc2-rl-adviser-20261116",
+  "conclusion": "success",
+  "started_at": "2026-11-16T16:34:05Z",
+  "completed_updated_at": "2026-11-16T16:38:01Z",
+  "jobs": [
+    {
+      "id": 133445185144,
+      "name": "backend-slow",
+      "conclusion": "success",
+      "url": "https://github.com/flatland-association/flatland-ui-hub/actions/runs/43908914662/job/133445185144",
+      "step_count": 8,
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Test (slow, and training when full)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 133445185824,
+      "name": "backend",
+      "conclusion": "success",
+      "url": "https://github.com/flatland-association/flatland-ui-hub/actions/runs/43908914662/job/133445185824",
+      "step_count": 8,
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Test (unit + integration)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 133445185974,
+      "name": "frontend",
+      "conclusion": "success",
+      "url": "https://github.com/flatland-association/flatland-ui-hub/actions/runs/43908914662/job/133445185974",
+      "step_count": 10,
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "No hardcoded colours (stylelint)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Translation keys (i18n check)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "results": {
+    "backend": {
+      "passed": 1060,
+      "skipped": 22,
+      "warnings": 284,
+      "seconds": 114.21
+    },
+    "backend_slow": {
+      "passed": 20,
+      "skipped": 2,
+      "warnings": 71,
+      "seconds": 169.75,
+      "skip_scope": "Opt-in full training tests were not requested by backend_tests=slow."
+    },
+    "frontend": {
+      "stylelint": "success",
+      "translation_check": "success",
+      "data_log_ids": 49,
+      "production_build": "success",
+      "build_seconds": 17.892
+    }
+  },
+  "native_fatal_crash_lines": {
+    "backend": 0,
+    "backend_slow": 0
+  },
+  "parallel_evidence": {
+    "platform": "ubuntu-latest",
+    "workflow_director_parallel_override": false,
+    "slow_command": "pytest -q -n 2 --run-slow $RUN_TRAINING -m \"slow or training\""
+  },
+  "excerpts": {
+    "backend": [
+      "2026-11-16T16:37:00.9992095Z 1060 passed, 22 skipped, 284 warnings in 114.21s (0:01:54)"
+    ],
+    "backend_slow": [
+      "2026-11-16T16:37:58.2110248Z 20 passed, 2 skipped, 71 warnings in 169.75s (0:02:49)"
+    ],
+    "frontend": [
+      "2026-11-16T16:34:36.2294125Z ✔ every literal key used in src/ exists in en.json; no stale de/fr keys; no hardcoded template text",
+      "2026-11-16T16:34:36.2746419Z ✔ 49 data-log ids, all translation keys",
+      "2026-11-16T16:34:54.9787779Z Application bundle generation complete. [17.892 seconds] - 2026-11-16T16:34:54.975Z"
+    ]
+  }
+}
