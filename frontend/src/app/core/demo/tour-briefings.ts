@@ -1127,7 +1127,7 @@ const WALENSEE_RECOMMENDATION_TRUST_EN: TourBriefing = {
       loop: 'operational',
       panelType: 'impact',
       title: 'Decide for the affected train',
-      hint: 'In Impact, choose a measure for the train that is held up: hold, reroute or let it proceed. If you don’t, the AI decides after the countdown.',
+      hint: 'In Impact, choose a measure for the train that is held up: hold, change its route or let it proceed. If you don’t, the AI decides after the countdown.',
     },
     {
       id: 'execute',
@@ -1202,7 +1202,7 @@ const WALENSEE_RECOMMENDATION_TRUST_DE: TourBriefing = {
       loop: 'operational',
       panelType: 'impact',
       title: 'Für den betroffenen Zug entscheiden',
-      hint: 'Wähle in Impact eine Massnahme für den aufgehaltenen Zug: halten, umleiten oder weiterfahren lassen. Tust du es nicht, entscheidet die KI nach Ablauf des Countdowns.',
+      hint: 'Wähle in Impact eine Massnahme für den aufgehaltenen Zug: halten, Fahrweg ändern oder weiterfahren lassen. Tust du es nicht, entscheidet die KI nach Ablauf des Countdowns.',
     },
     {
       id: 'execute',
@@ -1280,7 +1280,7 @@ const CORRIDOR_DIRECTOR_EN: TourBriefing = {
         'Pause, resume or end the shift',
       ],
       watchFor: [
-        'The options differ here: a different number of trains is rerouted under each objective',
+        'The options differ here: a different number of trains changes route under each objective',
         'Where the option bars start: that is where an objective still makes a difference',
         'The AI-activity feed: what the planner decided and when it re-planned',
         'The three option plans take about a minute together; the running session is not touched meanwhile',
