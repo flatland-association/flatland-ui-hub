@@ -59,8 +59,8 @@ export class TrainActionService {
   }
 
   /** Set an override without toggle semantics (the caller already decided). */
-  set(handle: number, action: number, origin: ActionOrigin, owner: DecisionOwner = 'human'): void {
-    this.store.setOverride(handle, action, owner, origin);
+  set(handle: number, action: number, origin: ActionOrigin, owner: DecisionOwner = 'human', via?: [number, number][]): void {
+    this.store.setOverride(handle, action, owner, origin, via);
   }
 
   /** Release the standing override on this train. */

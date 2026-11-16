@@ -1661,7 +1661,7 @@
       "proceed": "Proceed",
       "proceedHint": "The train carries on without intervention.",
       "reroute": "Change route",
-      "rerouteHint": "The train takes the other branch at the next switch."
+      "rerouteHint": "Draw the train's route on the map, over the switches you choose."
     },
     "computeFailed": "The courses could not be computed.",
     "applyFailed": "The course could not be taken.",
@@ -1691,7 +1691,9 @@
       "forward": "straight",
       "right": "right",
       "waitOne": "Wait one step from step {{step}}"
-    }
+    },
+    "drawRoute": "Press on the train on the map and drag its route over the switches. Release to see the course; Esc cancels.",
+    "noDrawnRoute": "There is no route through the cells you drew."
   },
   "zwl": {
     "empty": "Select a train to see its time-distance trajectory.",

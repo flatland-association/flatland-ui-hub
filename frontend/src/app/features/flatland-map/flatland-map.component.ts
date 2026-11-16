@@ -33,6 +33,7 @@ import { CurrentDelayService } from '../../core/timetable/current-delay.service'
 import { ClickLogService } from '../../core/interaction-log/click-log.service';
 import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 import { ClickLocator } from '../../core/replay/click-locator';
+import { extendRoute, RouteNode, viaCells } from '../../core/routing/route-drawing';
 
 
 interface DirectionalMarker {
@@ -1859,11 +1860,84 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     };
   }
 
+  // ========== Route drawing (Fahrweg einstellen, docs/plans/set-route-on-map.md) ==========
+
+  /** «Umleiten» picked for a train: a drag from that train draws its route instead of panning. */
+  readonly routeMode = computed(() => this.store.routeDrawing() != null);
+  private drawingRoute = false;
+  private suppressAgentClick = false;
+
+  /** The drawn route as a line in the train's plan colour; dashed while the button is down. */
+  readonly drawnRoute = computed(() => {
+    const drawing = this.store.routeDrawing();
+    if (!drawing || drawing.nodes.length < 2) return null;
+    const half = this.cellSize / 2;
+    const d = drawing.nodes
+      .map(([r, c], i) => `${i ? 'L' : 'M'}${c * this.cellSize + half},${r * this.cellSize + half}`)
+      .join(' ');
+    return { d, color: this.agentColors.getPlanColor(drawing.handle), done: drawing.via != null };
+  });
+
+  private cellAt(event: MouseEvent): { row: number; col: number } | null {
+    const ctm = this.svgRef()?.nativeElement.getScreenCTM();
+    if (!ctm) return null;
+    const p = new DOMPoint(event.clientX, event.clientY).matrixTransform(ctm.inverse());
+    return { row: Math.floor(p.y / this.cellSize), col: Math.floor(p.x / this.cellSize) };
+  }
+
+  /** The routed train's cell and heading, or its origin's while it waits off the map. */
+  private routeStart(handle: number): RouteNode | null {
+    const a = this.store.agents().find((x) => x.handle === handle);
+    const pos = a?.position ?? a?.initial_position;
+    const heading = a?.position ? a?.direction : a?.initial_direction;
+    return pos && heading != null ? [Number(pos[0]), Number(pos[1]), Number(heading)] : null;
+  }
+
+  /** Mouse down on the routed train starts the drawing; true if it did. */
+  private startRouteDrawing(event: MouseEvent): boolean {
+    const drawing = this.store.routeDrawing();
+    const cell = this.cellAt(event);
+    if (!drawing || !cell) return false;
+    const start = this.routeStart(drawing.handle);
+    if (!start || start[0] !== cell.row || start[1] !== cell.col) return false;
+    this.drawingRoute = true;
+    this.store.routeDrawing.set({ handle: drawing.handle, nodes: [start], via: null });
+    event.preventDefault();
+    return true;
+  }
+
+  private extendRouteDrawing(event: MouseEvent): void {
+    const drawing = this.store.routeDrawing();
+    const cell = this.cellAt(event);
+    if (!drawing || !cell) return;
+    const nodes = extendRoute(this.store.railGrid(), drawing.nodes, cell.row, cell.col);
+    if (nodes !== drawing.nodes) this.store.routeDrawing.set({ ...drawing, nodes });
+  }
+
+  /** Mouse up: the switches passed become the via cells, and the panel asks for the course. */
+  private finishRouteDrawing(): void {
+    this.drawingRoute = false;
+    this.suppressAgentClick = true;
+    setTimeout(() => (this.suppressAgentClick = false));
+    const drawing = this.store.routeDrawing();
+    if (!drawing) return;
+    const via = viaCells(this.store.railGrid(), drawing.nodes);
+    this.store.routeDrawing.set(via.length ? { ...drawing, via } : { ...drawing, nodes: [], via: null });
+  }
+
+  @HostListener('document:keydown.escape')
+  onRouteDrawingEscape(): void {
+    if (!this.store.routeDrawing()) return;
+    this.drawingRoute = false;
+    this.proposalChoice.cancelRouteDrawing();
+  }
+
   // ========== Pan Handlers ==========
 
   onMouseDown(event: MouseEvent) {
     // Nur Linke Maustaste, und nicht auf interaktiven Elementen
     if (event.button !== 0) return;
+    if (this.routeMode() && this.startRouteDrawing(event)) return;
     const target = event.target as Element;
     if (target.closest('.agent') || target.closest('.pill')) {
       return;
@@ -1880,6 +1954,10 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   }
 
   onMouseMove(event: MouseEvent) {
+    if (this.drawingRoute) {
+      this.extendRouteDrawing(event);
+      return;
+    }
     if (!this.isDragging) return;
     const dx = event.clientX - this.dragStartX;
     const dy = event.clientY - this.dragStartY;
@@ -1920,6 +1998,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   }
 
   onMouseUp() {
+    if (this.drawingRoute) this.finishRouteDrawing();
     if (this.isDragging) {
       this.isDragging = false;
       if (this.svgEl) {
@@ -2324,6 +2403,11 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
 
 
   toggleSelect(handle: number) {
+    // The click that ends drawing a route on the train is not a selection.
+    if (this.suppressAgentClick) {
+      this.suppressAgentClick = false;
+      return;
+    }
     this.clickLog.object({ kind: 'agent', handle });
     // A click on the train whose strip was closed with "×" brings the strip
     // back and keeps the train selected, instead of deselecting it (F-7).

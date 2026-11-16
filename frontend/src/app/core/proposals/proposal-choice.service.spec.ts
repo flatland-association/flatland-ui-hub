@@ -68,3 +68,44 @@ describe('ProposalChoiceService — opening «Handlungsoptionen»', () => {
     expect(setExpanded).not.toHaveBeenCalled();
   });
 });
+
+/** «Umleiten» is drawn on the map (docs/plans/set-route-on-map.md §4.3). */
+describe('ProposalChoiceService — route mode', () => {
+  let store: SessionStore;
+  let choice: ProposalChoiceService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    store = TestBed.inject(SessionStore);
+    choice = TestBed.inject(ProposalChoiceService);
+    TestBed.tick();
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('starts route mode for «Umleiten» and ends it for another option', () => {
+    choice.choose(1, 'reroute');
+    expect(store.routeDrawing()).toEqual({ handle: 1, nodes: [], via: null });
+    choice.choose(1, 'hold');
+    expect(store.routeDrawing()).toBeNull();
+  });
+
+  it('gives the via cells only for the selected train, and drops route mode with another selection', () => {
+    choice.choose(1, 'reroute');
+    store.routeDrawing.set({ handle: 1, nodes: [], via: [[1, 14]] });
+    expect(choice.drawnVia()).toEqual([[1, 14]]);
+    store.selectedHandle.set(0);
+    TestBed.tick();
+    expect(store.routeDrawing()).toBeNull();
+    expect(choice.drawnVia()).toBeNull();
+  });
+
+  it('lets a route be drawn without a block, not for a train that arrived', () => {
+    store.state.set({ agents: [{ handle: 1, state: 'DONE' }] } as never);
+    expect(choice.rerouteAvailable(0)).toBeTrue();
+    expect(choice.rerouteAvailable(1)).toBeFalse();
+    expect(choice.rerouteAvailable(null)).toBeFalse();
+  });
+});

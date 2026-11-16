@@ -4,6 +4,7 @@
 > the flash-ahead plan (00fad43d; kept on the same branch on request, may move to its own branch later). Issue
 > [#199](https://github.com/flatland-association/flatland-ui-hub/issues/199), last bullet ("possible extension:
 > Fahrweg einstellen Knoten-Knoten-Knoten"), label "plan b". No PR yet. Open questions: none (§9.1, all decided 2026-11-16).
+> Implemented 2026-11-16 (S-2 to S-4), verified in the Plan B tutorial (§4.2); S-5 (user doc) open.
 >
 > **Why:** today "Umleiten" computes a route for the operator, only around a broken-down train. A dispatcher sets a
 > route ("stellt einen Fahrweg ein") themselves, e.g. sends a train through the second track of a station so that
@@ -79,7 +80,16 @@ Requirements:
 
 *What the built code gets wrong or ignores, each with the TODO or issue that tracks it.*
 
-None yet (not built).
+- Only DLA is override-aware (Q-4 b). Under the other policies a drawn route is driven unchecked, as computed
+  reroutes are today, and nobody else knows it (follow-up in §1.4).
+- A train that leaves its drawn route ends the override; the route is not recomputed through the remaining via cells
+  (`route_move`). Under DLA the train does not leave it.
+- A drawn route ends at the target (Q-3 a); a route that ends early is a follow-up.
+- `route_through` takes the shortest leg between via cells and does not avoid broken-down trains: the operator chose
+  the switches.
+- A drag samples cells; a fast drag skips cells, which are filled by the shortest way along the track (up to 8 cells,
+  `pathTo`). A cell farther away is ignored.
+- Holds reach DLA (`set_committed_overrides`) but change nothing there: a held train already occupies its cell.
 
 ### 2.2 Assumptions
 
@@ -209,11 +219,14 @@ stands with its malfunction (steps 8–11), then passes straight on while BA is 
 
 | ID | Requirement | Test or check | Result | Screenshots |
 |---|---|---|---|---|
-| REQ-1 | Draw by dragging | Spec: pointer cells to via cells, snapping to reachable cells; in the app: drag BA through row 1 | | `set-route-on-map/drag.png` |
-| REQ-2 | Mouse up sets the reroute | Backend test: override with a route through via cells is stored and driven | | - |
-| REQ-3 | Others respect the route | Backend test: DLA walks BA's committed route through the loop, and no train enters the single track against it | | - |
-| REQ-4 | Tutorial better | Backend test on the tutorial fixture: with BA's drawn route both trains arrive, summed lateness below the DLA run (§3.3); in the app the same | | `set-route-on-map/tutorial-after.png` |
-| NFR-1 | No head-on standstill | The §3.3 rerouted run, repeated with S-2, ends without a standstill | | - |
+| REQ-1 | Draw by dragging | `route-drawing.spec.ts` (track following, filling skipped cells, via cells); in the app: BA selected, «Umleiten», drag through row 1 | ✅ The line follows the track through the loop; via cells `1,14;2,8` | [drag.png](set-route-on-map/drag.png) |
+| REQ-2 | Mouse up sets the reroute | `test_route_drawn.py`: `/proposals` and `/proposals/apply` with `via`, the override endpoint with `via`; in the app: release, «Mensch» course, «Umleiten übernehmen» | ✅ Mensch: step 26, 2/2 at the target (Plan: BA does not arrive) | [course.png](set-route-on-map/course.png) |
+| REQ-3 | Others respect the route | `test_route_drawn.py::test_tutorial_drawn_route_lets_both_trains_arrive` | ✅ BA takes the loop, no head-on standstill | - |
+| REQ-4 | Tutorial better | The same test; in the app (route taken at step 6) | ✅ AB step 24, BA step 27; without the route BA does not arrive by step 40 | [tutorial-after.png](set-route-on-map/tutorial-after.png) |
+| NFR-1 | No head-on standstill | The §3.3 rerouted run, repeated with S-2 | ✅ Both arrive | - |
+
+In the app, DLA keeps BA at B until step 9 (AB comes towards it and breaks down at step 8), so BA arrives at step 27,
+not 25 as in the preview.
 
 ### 4.3 Drawing on the map (REQ-1; Q-1, Q-2, Q-5, Q-7)
 
@@ -344,6 +357,10 @@ Compared with `main`. What is reused, and what is not new on purpose, is in §4.
 - **Reroutes become safer and possibly slower:** with Q-4 b (DLA override-aware), a computed reroute (today's "Umleiten" around a block)
   also waits when DLA says stop, where today it drives on. Forecasts of existing tours with reroutes may change.
   No API or stored format changes; existing calls without `via` behave as today apart from this.
+- **«Umleiten» in the action options and the map popover always draws** (Q-5 a): it is offered for every train that
+  has not arrived (`rerouteAvailable` no longer asks the impact analysis), and the «Mensch» course waits for the
+  drawn route. The computed reroute around a block stays on the impact panel and on the override endpoint without
+  `via`.
 
 ## 9. Decisions
 
@@ -458,8 +475,8 @@ No review yet.
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
 | 💡 S-1 | - | The plan | docs | low | docs(plans): plan for setting a train's route on the Streckenspiegel (#199). |  | - | - |
-| 💡 S-2 | - | The optional override-aware method on `Policy` (Q-4 b), called by `OverridePolicy`; DLA implements it and walks committed routes; `OverridePolicy` keeps DLA's stop for rerouted trains; tutorial test with a fixed route | feat | high | feat(policies): deadlock avoidance respects committed reroutes. |  | S-1 | Q-4 |
-| 💡 S-3 | - | Route through via cells to the target, `via` on `/proposals` and `/proposals/apply`, off-map trains, backend tests | feat | medium | feat(overrides): reroute along via cells chosen by the operator. |  | S-2 | Q-2, Q-3, Q-5, Q-7 |
+| ✅ S-2 | - | The optional override-aware method on `Policy` (Q-4 b), called by `OverridePolicy`; DLA implements it and walks committed routes; `OverridePolicy` keeps DLA's stop for rerouted trains; tutorial test with a fixed route | feat | high | feat(policies): deadlock avoidance respects committed reroutes. | de4cd3a9 | S-1 | Q-4 |
+| ✅ S-3 | - | Route through via cells to the target, `via` on `/proposals` and `/proposals/apply`, off-map trains, backend tests | feat | medium | feat(overrides): reroute along via cells chosen by the operator. | b2d7131b | S-2 | Q-2, Q-3, Q-5, Q-7 |
 | 💡 S-4 | - | Route mode and drag drawing on the map, from "Umleiten" in the action options and the popover, i18n, specs | feat | medium | feat(map): draw a train's route on the Streckenspiegel. |  | S-3 | Q-1, Q-6 |
 | 💡 S-5 | - | Screenshots and user doc, the tutorial walk-through | docs | low | docs(map): setting a route by drawing it, with the tutorial example. |  | S-4 | - |
 
@@ -470,7 +487,8 @@ No review yet.
 | File | Adds |
 |---|---|
 | `docs/plans/set-route-on-map.md` | This plan. |
-| `backend/tests/test_route_drawn.py` | Via-cell routes, off-map trains, the tutorial crossing. |
+| `backend/tests/test_route_drawn.py` | Via-cell routes, off-map trains, the tutorial crossing, the endpoints with `via`. |
+| `frontend/src/app/core/routing/route-drawing.ts` (+ spec) | Following the track from the rail grid, filling skipped cells, via cells. |
 
 ### 12.2 Modified files
 
@@ -480,13 +498,15 @@ No review yet.
 | `backend/app/policies/base.py` | The optional override-aware method (default: no-op). |
 | `backend/app/policies/override_policy.py` | Passes the committed holds and routes to the policy; rerouted trains: route direction, the policy's stop kept. |
 | `backend/app/policies/deadlock_avoidance_policy.py`, `backend/app/utils/deadlock_avoidance_walker.py` | Walk committed routes. |
-| `backend/app/api/overrides.py` | `via` on `/proposals` and `/proposals/apply`; reroute offered without a block (Q-5). |
+| `backend/app/api/overrides.py` | `via` on `/proposals`, `/proposals/apply` and `POST /agent/{h}/override`; 400 when no route passes the cells. |
+| `backend/app/core/scenario_runner.py` | `run_branch(routes=…)`: a fork keeps a drawn route the operator has not committed yet. |
 | `frontend/src/app/features/flatland-map/flatland-map.component.{ts,html,scss}` | Route mode, drag drawing, the drawn line. |
 | `frontend/src/app/features/proposal-compare/proposal-compare.component.{ts,html}` | "Umleiten" starts route mode; the course of the drawn route. |
-| `frontend/src/app/core/session.store.ts`, `core/proposals/proposal-choice.service.ts`, `core/api.service.ts` | Route mode state, via cells, the API parameter. |
+| `frontend/src/app/core/session.store.ts`, `core/proposals/proposal-choice.service.ts` (+ spec), `core/api.service.ts`, `core/dispatch/train-action.service.ts` | Route mode state (`routeDrawing`), via cells, the API parameter; reroute always offered. |
 | `frontend/public/i18n/{en,de,fr}.json` | Hint and error texts. |
 
-Unchanged on purpose: the override values, the forecasts' runner, `PlanPolicy`, the Director.
+Unchanged on purpose: the override values, `PlanPolicy`, the Director. The forecasts' runner only gets the optional
+`routes` parameter.
 
 ### 12.3 Size estimate
 
@@ -497,3 +517,7 @@ Unchanged on purpose: the override values, the forecasts' runner, `PlanPolicy`, 
 | S-4 drawing on the map | +150 | +60 | ~ +210 |
 | S-5 docs | +30 | - | ~ +30 |
 | **Sum** | ~ +310 / -10 | ~ +200 | **~ +510 / -10** |
+
+Actual (2026-11-16): code ~ +410 / -54, tests ~ +215 (backend 139, frontend 75); larger than estimated
+mainly in the map (route mode, line, Esc: +119) and `route_overrides` (+107: `route_through`, off-map start, drawn
+routes kept).

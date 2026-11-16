@@ -75,6 +75,7 @@
     class="flatland-svg"
     [attr.viewBox]="viewBox()"
     preserveAspectRatio="xMidYMid meet"
+    [class.route-mode]="routeMode()"
     (mousedown)="onMouseDown($event)"
     (click)="onSvgClick($event)"
     (mousemove)="onMouseMove($event)"
@@ -467,6 +468,15 @@
             fill="none"
             pointer-events="none" />
         }
+      </g>
+    }
+
+    <!-- The route the operator draws after «Umleiten» (docs/plans/set-route-on-map.md):
+         in the train's plan colour, dashed while the button is down. -->
+    @if (drawnRoute(); as route) {
+      <g class="route-draw" pointer-events="none">
+        <path [attr.d]="route.d" class="route-draw-casing" fill="none" />
+        <path [attr.d]="route.d" [attr.stroke]="route.color" class="route-draw-line" [class.is-drawing]="!route.done" fill="none" />
       </g>
     }
 

@@ -1661,7 +1661,7 @@
       "proceed": "Poursuivre",
       "proceedHint": "Le train continue sans intervention.",
       "reroute": "Changer d’itinéraire",
-      "rerouteHint": "Le train prend l’autre branche au prochain aiguillage."
+      "rerouteHint": "Tracez l’itinéraire du train sur la carte, par les aiguillages de votre choix."
     },
     "computeFailed": "Les déroulements n’ont pas pu être calculés.",
     "applyFailed": "Le déroulement n’a pas pu être adopté.",
@@ -1691,7 +1691,9 @@
       "forward": "tout droit",
       "right": "à droite",
       "waitOne": "Attendre un pas à partir du pas {{step}}"
-    }
+    },
+    "drawRoute": "Appuyez sur le train sur la carte et tracez son itinéraire sur les aiguillages. Relâchez pour voir le déroulement ; Échap annule.",
+    "noDrawnRoute": "Aucun itinéraire ne passe par les cases tracées."
   },
   "zwl": {
     "empty": "Sélectionnez un train pour voir sa trajectoire espace-temps.",

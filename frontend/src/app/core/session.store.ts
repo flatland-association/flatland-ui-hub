@@ -51,6 +51,7 @@ import {
 import { AgentDTO, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
 import { CombinedActionPreview } from './combined-actions/combined-actions-preview';
 import type { ProposalOption, ProposalsResult } from './events/event-types';
+import type { RouteDrawing } from './routing/route-drawing';
 import { PLAY_SPEED_DEFAULT_BASE, PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedBaseFor, playSpeedForLevel } from './play-speed';
 
 /**
@@ -188,6 +189,12 @@ export class SessionStore {
   /** When user hovers a scenario card, store its id here so the Marey
    *  can swap its forecast preview. null = use the active baseline. */
   readonly previewScenarioId = signal<string | null>(null);
+
+  /** The route the operator draws on the map after «Umleiten» (route mode):
+   *  the train, the cells so far and, once the drag ended, the via cells the
+   *  Mensch course and the override use. Null outside route mode.
+   *  Plan: docs/plans/set-route-on-map.md (§4.3). */
+  readonly routeDrawing = signal<RouteDrawing | null>(null);
 
   /** What-if Compare map preview: the two branch forecast paths the map
    *  draws when the operator picks an action. baseline = AI course (yellow),
@@ -2412,6 +2419,7 @@ export class SessionStore {
     action: number,
     owner: DecisionOwner = 'human',
     origin?: ActionOrigin,
+    via?: [number, number][],
   ) {
     const s = this.session();
     if (!s) return;
@@ -2476,7 +2484,7 @@ export class SessionStore {
       });
     }
 
-    this.api.setOverride(s.id, handle, action as any).subscribe({
+    this.api.setOverride(s.id, handle, action as any, via).subscribe({
       next: () => {
         // Backend remains source of truth, but do not wait for it to make
         // the button look active.

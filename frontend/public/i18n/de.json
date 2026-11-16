@@ -1661,7 +1661,7 @@
       "proceed": "Weiterfahren",
       "proceedHint": "Der Zug fährt ohne Eingriff weiter.",
       "reroute": "Fahrweg ändern",
-      "rerouteHint": "Der Zug nimmt an der nächsten Weiche den anderen Ast."
+      "rerouteHint": "Zeichne den Fahrweg des Zugs auf der Karte, über die Weichen deiner Wahl."
     },
     "computeFailed": "Die Varianten konnten nicht gerechnet werden.",
     "applyFailed": "Die Variante konnte nicht übernommen werden.",
@@ -1691,7 +1691,9 @@
       "forward": "geradeaus",
       "right": "rechts",
       "waitOne": "Ab Schritt {{step}} für einen Schritt warten"
-    }
+    },
+    "drawRoute": "Drück auf der Karte auf den Zug und zieh seinen Fahrweg über die Weichen. Loslassen zeigt den Verlauf; Esc bricht ab.",
+    "noDrawnRoute": "Durch die gezogenen Zellen führt kein Fahrweg."
   },
   "zwl": {
     "empty": "Wähle einen Zug, um seinen Zeit-Weg-Verlauf zu sehen.",

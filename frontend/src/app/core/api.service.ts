@@ -364,10 +364,9 @@ export class ApiService {
     return this.http.get<any>(`${API_BASE}/session/${id}/play_status`);
   }
 
-  setOverride(id: string, handle: number, action: ActionInt): Observable<any> {
-    return this.http.post(`${API_BASE}/session/${id}/agent/${handle}/override`, {
-      action,
-    });
+  /** `via`: for a reroute (5), the cells the operator drew it through. */
+  setOverride(id: string, handle: number, action: ActionInt, via?: [number, number][]): Observable<any> {
+    return this.http.post(`${API_BASE}/session/${id}/agent/${handle}/override`, via?.length ? { action, via } : { action });
   }
 
   clearOverride(id: string, handle: number): Observable<any> {
@@ -550,9 +549,11 @@ export class ApiService {
     );
   }
 
-  getProposals(id: string, handle: number, option?: ProposalOption) {
+  /** `via`: for `option` reroute, the cells the operator drew the route through. */
+  getProposals(id: string, handle: number, option?: ProposalOption, via?: [number, number][]) {
     let params = new HttpParams().set('handle', handle).set('alternatives', 8);
     if (option) params = params.set('option', option);
+    if (via?.length) params = params.set('via', via.map(([r, c]) => `${r},${c}`).join(';'));
     return this.http.get<ProposalsResult>(`${API_BASE}/session/${id}/proposals`, { params });
   }
 
