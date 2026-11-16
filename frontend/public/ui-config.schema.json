@@ -55,6 +55,8 @@
           "widget.risk-uncertainty",
           "control.contrast",
           "control.mapNavigation",
+          "control.mapZoom",
+          "control.mapOpacity",
           "control.endShift",
           "control.playback",
           "control.modeTabs",
