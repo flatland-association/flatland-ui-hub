@@ -22,7 +22,7 @@ def test_proposals_use_effective_agent_horizon_for_every_branch(
     session.proposal_agent_id = requested_agent
     seen = []
 
-    def branch(env, factory, committed, horizon, release_at=None):
+    def branch(env, factory, committed, horizon, release_at=None, routes=None):
         assert int(env._max_episode_steps) == native_horizon
         seen.append(horizon)
         return BranchResult(total_agents=len(env.agents), agent_outcomes={

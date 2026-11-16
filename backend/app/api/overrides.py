@@ -15,7 +15,7 @@ from app.core.notification_manager import notification_manager
 from app.core.proposal_agents.registry import proposal_agent_for
 from app.core.pf_ch_control import command_lock
 from app.core import proposal_preview
-from app.core.route_overrides import REROUTE_ACTION, commit_route, drop_route, route_around_blocks
+from app.core.route_overrides import REROUTE_ACTION, commit_route, drop_route, route_around_blocks, route_through
 from app.policies.plan_policy import (
     PlanPolicy,
     accept_trainrun_plan,
@@ -30,6 +30,7 @@ router = APIRouter()
 
 class OverrideRequest(BaseModel):
     action: int  # 0=DO_NOTHING, 1=LEFT, 2=FORWARD, 3=RIGHT, 4=STOP, 5=REROUTE
+    via: list[list[int]] | None = None  # REROUTE: the cells the operator drew through
 
 
 def _policy_factory_for(policy_id: str):
@@ -94,13 +95,14 @@ def _branch_kpis_full(env, policy_factory, overrides: dict, horizon: int) -> dic
     return _kpis_from_result(res)
 
 
-def _branch_run(env, policy_factory, overrides: dict, horizon: int, release_at: dict | None = None):
+def _branch_run(env, policy_factory, overrides: dict, horizon: int, release_at: dict | None = None,
+                routes: dict | None = None):
     """Run a what-if branch and return the full BranchResult (system KPIs
     + per-agent outcomes + snapshots for trajectory extraction)."""
     from app.core.scenario_runner import TrajectoryBranchRunner
 
     runner = TrajectoryBranchRunner(env, policy_factory)
-    return runner.run_branch(overrides=overrides, max_steps=horizon, release_at=release_at)
+    return runner.run_branch(overrides=overrides, max_steps=horizon, release_at=release_at, routes=routes)
 
 
 def _kpis_from_result(res) -> dict:
@@ -188,10 +190,30 @@ def _require_route(env, handle: int) -> None:
         raise HTTPException(409, f"No reroute is available for train {handle} now")
 
 
-def _commit_override(env, session_id: str, handle: int, action: int) -> None:
+def _parse_via(via: str | list | None) -> list[tuple[int, int]]:
+    """Via cells from ``"r,c;r,c"`` (query) or ``[[r, c], ...]`` (body); 400 if malformed."""
+    if not via:
+        return []
+    cells = [part.split(",") for part in via.split(";") if part.strip()] if isinstance(via, str) else list(via)
+    try:
+        if any(len(cell) != 2 for cell in cells):
+            raise ValueError
+        return [(int(cell[0]), int(cell[1])) for cell in cells]
+    except (TypeError, ValueError):
+        raise HTTPException(400, "via must be cells 'row,col;row,col'") from None
+
+
+def _drawn_route(env, handle: int, via: list) -> list:
+    route = route_through(env, handle, via)
+    if route is None:
+        raise HTTPException(400, f"No route for train {handle} through the drawn cells")
+    return route
+
+
+def _commit_override(env, session_id: str, handle: int, action: int, via: list | None = None) -> None:
     """Set `action` as the train's standing override; a reroute fixes its route now."""
     if action == REROUTE_ACTION:
-        if commit_route(env, handle) is None:
+        if commit_route(env, handle, via or None) is None:
             raise HTTPException(409, f"No reroute is available for train {handle} now")
     else:
         drop_route(env, handle)
@@ -213,7 +235,8 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
 
     # Keep current overrides for before/after impact estimate.
     before_overrides = dict(override_manager.get_all(session_id))
-    _commit_override(session.env, session_id, handle, req.action)
+    via = _parse_via(req.via) if req.action == REROUTE_ACTION else []
+    _commit_override(session.env, session_id, handle, req.action, via)
 
     # Estimate impact of the new override from the current env state.
     # If deadlocks increase or done-count drops, emit a warning notification.
@@ -455,10 +478,11 @@ def proposal_rank(res, planned: dict, now: int, horizon: int) -> tuple[int, int,
     return metrics["not_arrived"], metrics["lateness"], metrics["time_in_network"]
 
 
-def _human_course(env, handle: int, committed: dict, elapsed: int, action, option):
-    """Overrides and release steps for the operator's choice, and its label."""
+def _human_course(env, handle: int, committed: dict, elapsed: int, action, option, via: list | None = None):
+    """Overrides, release steps and drawn routes for the operator's choice, and its label."""
     overrides = dict(committed)
     release: dict = {}
+    routes: dict = {}
     handle = int(handle)
     if option is not None:
         if option not in PROPOSAL_OPTIONS:
@@ -471,12 +495,15 @@ def _human_course(env, handle: int, committed: dict, elapsed: int, action, optio
                 item = _impact_item(env, handle)
                 clears = int(item["clears_in_steps"]) if item else 0
                 release[handle] = elapsed + max(1, clears)
+        elif via:  # reroute along the cells the operator drew
+            routes[handle] = _drawn_route(env, handle, via)
+            overrides[handle] = REROUTE_ACTION
         else:  # reroute: a whole route around the blocks (app.core.route_overrides)
             _require_route(env, handle)
             overrides[handle] = REROUTE_ACTION
-        return overrides, release, option
+        return overrides, release, routes, option
     overrides[handle] = int(action)
-    return overrides, release, f"action:{int(action)}"
+    return overrides, release, routes, f"action:{int(action)}"
 
 
 def _kept_overrides(agent, overrides: dict, handle: int) -> dict:
@@ -497,6 +524,7 @@ class ProposalApplyRequest(BaseModel):
     candidate_id: str | None = None
     preview_token: str | None = None
     source_step: int | None = None
+    via: list[list[int]] | None = None  # human reroute: the cells the operator drew through
 
 
 def apply_proposal(session_id: str, req: ProposalApplyRequest):
@@ -577,13 +605,14 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
     elif req.variant == "human":
         if not req.option:
             raise HTTPException(400, "variant 'human' needs an option")
-        overrides, _release, choice = _human_course(env, handle, {}, step, None, req.option)
+        via = _parse_via(req.via) if req.option == "reroute" else []
+        overrides, _release, _routes, choice = _human_course(env, handle, {}, step, None, req.option, via)
         action = overrides.get(handle)
         if action is None:
             override_manager.clear(session_id, handle)
             drop_route(env, handle)
         else:
-            _commit_override(env, session_id, handle, int(action))
+            _commit_override(env, session_id, handle, int(action), via)
         label = f"Mensch: {choice}"
 
     else:
@@ -601,7 +630,7 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
     }
 
 
-def _capture_proposal_source(session, handle, action, option, alternatives):
+def _capture_proposal_source(session, handle, action, option, alternatives, via=None):
     """Capture synchronously on ASGI while command_lock protects the live state."""
     if handle < 0 or handle >= len(session.env.agents):
         raise HTTPException(404, f"Agent {handle} not found")
@@ -609,6 +638,7 @@ def _capture_proposal_source(session, handle, action, option, alternatives):
         raise HTTPException(400, f"Invalid action {action}")
     if option is not None and option not in PROPOSAL_OPTIONS:
         raise HTTPException(400, f"Invalid option {option!r}")
+    drawn = _parse_via(via) if option == "reroute" else []
 
     # A Director factory normally snapshots its live player when invoked. Bind
     # that replay now, before the live Driver advances during worker rollouts.
@@ -622,7 +652,7 @@ def _capture_proposal_source(session, handle, action, option, alternatives):
                else _policy_factory_for_session(snapshot))
     return (root, factory, dict(override_manager.get_all(session.id)),
             _baseline_source(session), proposal_preview.source_state(session),
-            snapshot, handle, action, option, max(1, min(int(alternatives), 8)))
+            snapshot, handle, action, option, max(1, min(int(alternatives), 8)), drawn)
 
 
 def _evaluate_proposals(captured):
@@ -647,10 +677,12 @@ def _evaluate_proposals_unchecked(captured):
       here is the same for plan, AI and human.
     - ``human``: the plan course with the operator's choice — an ``option``
       (hold, hold_until_clear, proceed, reroute) or a raw ``action`` — when given.
+      A reroute with ``via`` (``"row,col;row,col"``) follows the cells the
+      operator drew, then the shortest way to the target (set-route-on-map).
 
     Read-only, like the what-if. Plan: docs/plans/proposal-agents-roadmap.md (2a/2c).
     """
-    env, plan_factory, committed, baseline_source, source, snapshot, handle, action, option, alternatives = captured
+    env, plan_factory, committed, baseline_source, source, snapshot, handle, action, option, alternatives, drawn = captured
 
     agent = proposal_agent_for(snapshot)
     elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
@@ -688,8 +720,8 @@ def _evaluate_proposals_unchecked(captured):
             ai_alternatives.append(variant)
 
     if action is not None or option is not None:
-        overrides, release, choice = _human_course(env, handle, committed, elapsed, action, option)
-        human_res = _branch_run(env, plan_factory, overrides, horizon, release_at=release)
+        overrides, release, routes, choice = _human_course(env, handle, committed, elapsed, action, option, drawn)
+        human_res = _branch_run(env, plan_factory, overrides, horizon, release_at=release, routes=routes)
         variant = _proposal_variant("human", "operator", human_res, handle, planned)
         variant["choice"] = choice
         variant["score"] = _course_score(human_res, planned)
@@ -723,25 +755,26 @@ def _publish_proposals(session, captured, evaluated):
 
 
 def get_proposals(session_id: str, handle: int, action: int | None = None,
-                  option: str | None = None, alternatives: int = 3):
+                  option: str | None = None, alternatives: int = 3, via: str | None = None):
     """Synchronous service entry for callers that already own the live state."""
     session = session_manager.get(session_id)
     if session is None:
         raise HTTPException(404, f"Session {session_id} not found")
-    captured = _capture_proposal_source(session, handle, action, option, alternatives)
+    captured = _capture_proposal_source(session, handle, action, option, alternatives, via)
     return _publish_proposals(session, captured, _evaluate_proposals(captured))
 
 
 @router.get("/{session_id}/proposals")
 async def get_proposals_endpoint(session_id: str, handle: int, action: int | None = None,
-                                 option: str | None = None, alternatives: int = 3):
+                                 option: str | None = None, alternatives: int = 3,
+                                 via: str | None = None):
     session = session_manager.get(session_id)
     if session is None:
         raise HTTPException(404, f"Session {session_id} not found")
     async with command_lock(session):
         if session_manager.get(session_id) is not session:
             raise HTTPException(404, f"Session {session_id} not found")
-        captured = _capture_proposal_source(session, handle, action, option, alternatives)
+        captured = _capture_proposal_source(session, handle, action, option, alternatives, via)
     evaluated = await proposal_preview.run_preview_work(lambda: _evaluate_proposals(captured))
     if session_manager.get(session_id) is not session:
         raise HTTPException(409, "This proposal preview's session no longer exists")
