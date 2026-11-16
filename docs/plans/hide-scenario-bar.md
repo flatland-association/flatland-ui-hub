@@ -1,6 +1,6 @@
 # Plan B without the guide strip and without scenario names (#198)
 
-> **Status:** plan of 2026-11-16, draft. Based on `main` fd0c70cb (#164 merged). Issue
+> **Status:** plan of 2026-11-16, built 2026-11-16 (S-0 to S-3). Based on `main` fd0c70cb (#164 merged). Issue
 > [#198](https://github.com/flatland-association/flatland-ui-hub/issues/198) ("Szenario-Balken ausblenden", label
 > `plan b`). Branch `feature/198-hide-scenario-bar`, off `main` (on request; contributors usually branch off
 > `explore_db`), PR not opened yet. Q-1 to Q-4 decided 2026-11-16 (§9.2).
@@ -95,8 +95,8 @@ Not checked in code; they hold by construction of `PLAN_B_UI` and `STUDY_CONDITI
 
 - Every Plan B condition (`plan-b-p01` … `plan-b-p10`, and the test run `plan-b-uc2`) uses the layout
   `preset-plan-b`, so `PLAN_B_UI` reaches all of them and no other condition.
-- A replay of a Plan B run applies the recorded layout's UI restrictions as a live run does; checked in S-2 (§4.2), a
-  mismatch becomes a question.
+- A replay of a Plan B run applies the recorded layout's UI restrictions as a live run does: the replay calls
+  `AppComponent.setRuntimeLayout()` with the recorded layout, which applies its `ui` block (checked in the code in S-2).
 - The `TourGuideService` keeps ticking the steps while the strip is hidden, so what it logs does not change (NFR-1).
 
 ## 3. Context and scope (checked 2026-11-16 on `main` fd0c70cb)
@@ -169,56 +169,54 @@ Not new on purpose: no new endpoint, record field, log event, setting or conditi
 *How each requirement and quality goal is shown to work: tests, CI checks, before and after screenshots.*
 
 Screenshots: Plan B `plan-b-p01` with `ui-configs/plan-b.json`, German, 1600×1000, production build served by the
-backend; before on `main` fd0c70cb; proposal on the same build with the plan previewed in the page only (guide strip
-and connector hidden, stepper legs "Szenario k/N", finish button «Szenario abschliessen → Szenario k/N», toolbar at
-the top), all by
-[`scripts/docshots-hide-scenario-bar.mjs`](../../scripts/docshots-hide-scenario-bar.mjs) (`before`, `proposal`).
-After S-2 the same script takes `after` with `PREVIEW=0` on this branch, and the `after-*` files replace the
-`proposal-*` ones in the table below.
+backend; before on `main` fd0c70cb, after on this branch at bd1fbfb2 (S-2), both by
+[`scripts/docshots-hide-scenario-bar.mjs`](../../scripts/docshots-hide-scenario-bar.mjs) (`before`, and `after` with
+`PREVIEW=0`). The proposal shots of the plan (the same run with the change previewed in the page) were replaced by
+these; they matched.
 
 | ID | Requirement | Test or check | Result | Screenshots |
 |---|---|---|---|---|
-| REQ-1 | Stepper without names | `experiment-progress.component.spec.ts`: with `control.legNames` hidden the legs read "Szenario k/N", live and in a replay | 💡 | 03c–07c below |
-| REQ-2 | Guide strip hidden | `app.component.spec.ts`: with `control.guide` hidden no `app-tour-guide`; `experiment-progress.component.spec.ts`: no connector | 💡 | 03b–07b below |
-| REQ-3 | «Szenario abschliessen» stays | Running app: the toolbar shows «Szenario abschliessen → …» and leads to the next scenario | 💡 | 03c–07c below |
-| REQ-5 | Finish button by number | `experiment-run.service.spec.ts`: with `control.legNames` hidden `finishLabel` reads «Szenario abschliessen → Szenario k/N»; the last leg's «→ Fragebogen» unchanged | 💡 | 03c–07c below |
-| REQ-4 | Only Plan B | `study-conditions.spec.ts` or `layout-presets` spec: only `preset-plan-b` hides the two ids; other conditions' specs unchanged | 💡 | - |
-| NFR-1 | Same study data | Existing logging specs green; guide ticks still logged with the strip hidden (spec) | 💡 | - |
+| REQ-1 | Stepper without names | `experiment-progress.component.spec.ts`: with `control.legNames` hidden the legs read "Scenario k/N" (en); a replay applies the recorded layout (§2.2) | ✅ "Szenario 1/5 … 5/5" in all five scenarios | 03c–07c below |
+| REQ-2 | Guide strip hidden | `app.component.spec.ts`: with `control.guide` hidden `guideShown()` is false and the toolbar stays at the top; `experiment-progress.component.spec.ts`: no connector | ✅ no strip, no lines, toolbar at the top | 03b–07b below |
+| REQ-3 | «Szenario abschliessen» stays | Running app: the toolbar shows «Szenario abschliessen → …» and leads to the next scenario | ✅ the walk-through finishes every scenario with it | 03c–07c below |
+| REQ-5 | Finish button by number | `experiment-run.service.spec.ts`: with `control.legNames` hidden `finishLabel` reads «Finish scenario → Scenario 2/2» (en); footer label keeps the name | ✅ «Szenario abschliessen → Szenario 2/5 … 5/5», then «→ Fragebogen» | 03c–07c below |
+| REQ-4 | Only Plan B | `ui-config.service.spec.ts`: `preset-plan-b` hides both ids, no other layout does | ✅ | - |
+| NFR-1 | Same study data | Full suite green (796 specs); `app.component.spec.ts`: the guide stays active (ticks and logs) with the strip hidden; leg ids and records untouched | ✅ | - |
 
 Walk-through of every Plan B stage (scenario order of `plan-b-p01`): before
-[`before-walkthrough.gif`](hide-scenario-bar/before-walkthrough.gif), proposal
-[`proposal-walkthrough.gif`](hide-scenario-bar/proposal-walkthrough.gif) (full screens, 1.8 s per stage).
+[`before-walkthrough.gif`](hide-scenario-bar/before-walkthrough.gif), after
+[`after-walkthrough.gif`](hide-scenario-bar/after-walkthrough.gif) (full screens, 1.8 s per stage).
 
-| Stage | What | Before | Proposal |
+| Stage | What | Before | After |
 |---|---|---|---|
-| 01 | Start screen (unchanged) | [before](hide-scenario-bar/before-01-picker.png) | [proposal](hide-scenario-bar/proposal-01-picker.png) |
-| 02 | Briefing (unchanged) | [before](hide-scenario-bar/before-02-briefing.png) | [proposal](hide-scenario-bar/proposal-02-briefing.png) |
-| 03a | Scenario 1/5 (Tutorial): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-03a-intro.png) | [proposal](hide-scenario-bar/proposal-03a-intro.png) |
-| 03b | Scenario 1/5: working screen | [before](hide-scenario-bar/before-03b-running.png) | [proposal](hide-scenario-bar/proposal-03b-running.png) |
-| 03c | Scenario 1/5: the bars above the map | [before](hide-scenario-bar/before-03c-bars.png) | [proposal](hide-scenario-bar/proposal-03c-bars.png) |
-| 04a | Scenario 2/5 (Verschobene Kreuzung an der Einspur): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-04a-intro.png) | [proposal](hide-scenario-bar/proposal-04a-intro.png) |
-| 04b | Scenario 2/5: working screen | [before](hide-scenario-bar/before-04b-running.png) | [proposal](hide-scenario-bar/proposal-04b-running.png) |
-| 04c | Scenario 2/5: the bars above the map | [before](hide-scenario-bar/before-04c-bars.png) | [proposal](hide-scenario-bar/proposal-04c-bars.png) |
-| 05a | Scenario 3/5 (Mühlehorn - Tiefenwinkel): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-05a-intro.png) | [proposal](hide-scenario-bar/proposal-05a-intro.png) |
-| 05b | Scenario 3/5: working screen | [before](hide-scenario-bar/before-05b-running.png) | [proposal](hide-scenario-bar/proposal-05b-running.png) |
-| 05c | Scenario 3/5: the bars above the map | [before](hide-scenario-bar/before-05c-bars.png) | [proposal](hide-scenario-bar/proposal-05c-bars.png) |
-| 06a | Scenario 4/5 (Türstörung): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-06a-intro.png) | [proposal](hide-scenario-bar/proposal-06a-intro.png) |
-| 06b | Scenario 4/5: working screen | [before](hide-scenario-bar/before-06b-running.png) | [proposal](hide-scenario-bar/proposal-06b-running.png) |
-| 06c | Scenario 4/5: the bars above the map | [before](hide-scenario-bar/before-06c-bars.png) | [proposal](hide-scenario-bar/proposal-06c-bars.png) |
-| 07a | Scenario 5/5 (Blockierte Fahrbahn): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-07a-intro.png) | [proposal](hide-scenario-bar/proposal-07a-intro.png) |
-| 07b | Scenario 5/5: working screen | [before](hide-scenario-bar/before-07b-running.png) | [proposal](hide-scenario-bar/proposal-07b-running.png) |
-| 07c | Scenario 5/5: the bars above the map | [before](hide-scenario-bar/before-07c-bars.png) | [proposal](hide-scenario-bar/proposal-07c-bars.png) |
-| 08 | Final questionnaire (unchanged) | [before](hide-scenario-bar/before-08-final-survey.png) | [proposal](hide-scenario-bar/proposal-08-final-survey.png) |
-| 09 | End (unchanged) | [before](hide-scenario-bar/before-09-end.png) | [proposal](hide-scenario-bar/proposal-09-end.png) |
+| 01 | Start screen (unchanged) | [before](hide-scenario-bar/before-01-picker.png) | [after](hide-scenario-bar/after-01-picker.png) |
+| 02 | Briefing (unchanged) | [before](hide-scenario-bar/before-02-briefing.png) | [after](hide-scenario-bar/after-02-briefing.png) |
+| 03a | Scenario 1/5 (Tutorial): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-03a-intro.png) | [after](hide-scenario-bar/after-03a-intro.png) |
+| 03b | Scenario 1/5: working screen | [before](hide-scenario-bar/before-03b-running.png) | [after](hide-scenario-bar/after-03b-running.png) |
+| 03c | Scenario 1/5: the bars above the map | [before](hide-scenario-bar/before-03c-bars.png) | [after](hide-scenario-bar/after-03c-bars.png) |
+| 04a | Scenario 2/5 (Verschobene Kreuzung an der Einspur): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-04a-intro.png) | [after](hide-scenario-bar/after-04a-intro.png) |
+| 04b | Scenario 2/5: working screen | [before](hide-scenario-bar/before-04b-running.png) | [after](hide-scenario-bar/after-04b-running.png) |
+| 04c | Scenario 2/5: the bars above the map | [before](hide-scenario-bar/before-04c-bars.png) | [after](hide-scenario-bar/after-04c-bars.png) |
+| 05a | Scenario 3/5 (Mühlehorn - Tiefenwinkel): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-05a-intro.png) | [after](hide-scenario-bar/after-05a-intro.png) |
+| 05b | Scenario 3/5: working screen | [before](hide-scenario-bar/before-05b-running.png) | [after](hide-scenario-bar/after-05b-running.png) |
+| 05c | Scenario 3/5: the bars above the map | [before](hide-scenario-bar/before-05c-bars.png) | [after](hide-scenario-bar/after-05c-bars.png) |
+| 06a | Scenario 4/5 (Türstörung): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-06a-intro.png) | [after](hide-scenario-bar/after-06a-intro.png) |
+| 06b | Scenario 4/5: working screen | [before](hide-scenario-bar/before-06b-running.png) | [after](hide-scenario-bar/after-06b-running.png) |
+| 06c | Scenario 4/5: the bars above the map | [before](hide-scenario-bar/before-06c-bars.png) | [after](hide-scenario-bar/after-06c-bars.png) |
+| 07a | Scenario 5/5 (Blockierte Fahrbahn): intro card (unchanged, Q-2) | [before](hide-scenario-bar/before-07a-intro.png) | [after](hide-scenario-bar/after-07a-intro.png) |
+| 07b | Scenario 5/5: working screen | [before](hide-scenario-bar/before-07b-running.png) | [after](hide-scenario-bar/after-07b-running.png) |
+| 07c | Scenario 5/5: the bars above the map | [before](hide-scenario-bar/before-07c-bars.png) | [after](hide-scenario-bar/after-07c-bars.png) |
+| 08 | Final questionnaire (unchanged) | [before](hide-scenario-bar/before-08-final-survey.png) | [after](hide-scenario-bar/after-08-final-survey.png) |
+| 09 | End (unchanged) | [before](hide-scenario-bar/before-09-end.png) | [after](hide-scenario-bar/after-09-end.png) |
 
-Scenario 4 (`06c`), before and proposal:
+Scenario 4 (`06c`), before and after:
 
 ![Bars before](hide-scenario-bar/before-06c-bars.png)
-![Bars proposal](hide-scenario-bar/proposal-06c-bars.png)
+![Bars after](hide-scenario-bar/after-06c-bars.png)
 
-Read from the page (proposal):
+Read from the page:
 
-| Where | Before | Proposal |
+| Where | Before | After |
 |---|---|---|
 | Stepper, scenario 4 running | ✓ Tutorial (1/5) · ✓ Verschobene Kreuzung an der Einspur (2/5) · ✓ Mühlehorn - Tiefenwinkel (3/5) · **Türstörung (4/5)** · Blockierte Fahrbahn (5/5) | ✓ Szenario 1/5 · ✓ Szenario 2/5 · ✓ Szenario 3/5 · **Szenario 4/5** · Szenario 5/5 |
 | Guide strip | shown, under the stepper | hidden |
@@ -402,9 +400,9 @@ None yet.
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
-| 💡 S-0 | - | This plan, with before and proposal screenshots and the walk-through script | docs | low | docs(plans): plan for #198, Plan B without the guide strip and the scenario names. |  | - | - |
-| 💡 S-1 | - | `control.legNames`: id, schema, `ExperimentProgressComponent.legs()`, `ExperimentRunService.finishLabel`, i18n key (en, de, fr), `PLAN_B_UI`, README, specs (§4.3) | feature | medium | feat(experiment-run): let a condition number its scenarios in the stepper and the finish button, without their names. |  | S-0 | - |
-| 💡 S-2 | - | `control.guide`: id, schema, `guideShown()`, `connected()`, `PLAN_B_UI`, README, specs; check the replay (§2.2) and the toolbar's place (Q-4) | feature | medium | feat(tour-guide): let a condition hide the guide strip and keep «Szenario abschliessen». |  | S-0 | - |
+| ✅ S-0 | - | This plan, with before and proposal screenshots and the walk-through script | docs | low | docs(plans): plan for #198, Plan B without the guide strip and the scenario names. | 561b9a82 | - | - |
+| ✅ S-1 | - | `control.legNames`: id, schema, `ExperimentProgressComponent.legs()`, `ExperimentRunService.finishLabel`, i18n key (en, de, fr), `PLAN_B_UI`, README, specs (§4.3) | feature | medium | feat(experiment-run): let a condition number its scenarios in the stepper and the finish button, without their names. | 751caa98 | S-0 | - |
+| ✅ S-2 | - | `control.guide`: id, schema, `guideShown()`, `connected()`, `PLAN_B_UI`, README, specs; check the replay (§2.2) and the toolbar's place (Q-4) | feature | medium | feat(tour-guide): let a condition hide the guide strip and keep «Szenario abschliessen». | bd1fbfb2 | S-0 | - |
 | 💡 S-3 | - | After screenshots (`PREVIEW=0`) in place of the proposal ones, and results in §4.2 | docs | low | docs(plans): screenshots of Plan B without the guide strip and the scenario names for #198. |  | S-1, S-2 | - |
 
 ## 12. Change inventory
@@ -418,7 +416,7 @@ None yet.
 | File | Adds |
 |---|---|
 | `docs/plans/hide-scenario-bar.md` | This plan. |
-| `docs/plans/hide-scenario-bar/*.png`, `*.gif` | Before, proposal and after screenshots and walk-throughs of every Plan B stage (§4.2). |
+| `docs/plans/hide-scenario-bar/*.png`, `*.gif` | Before and after screenshots and walk-throughs of every Plan B stage (§4.2). |
 | `scripts/docshots-hide-scenario-bar.mjs` | The walk-through: every stage of `plan-b-p01`, `before`, `proposal` (CSS preview) or `after`. |
 
 ### 12.2 Modified files
@@ -435,7 +433,7 @@ None yet.
 | `frontend/src/app/features/experiment-progress/experiment-progress.component.ts` | `legs()` numbers the legs where `control.legNames` is hidden; `connected()` checks `control.guide`. |
 | `frontend/public/i18n/{en,de,fr}.json` | `experimentRun.legUnnamed`. |
 | `README.md` | The Plan B list of what is hidden: the two new ids (and drop "starts the Decision Log collapsed", which `PLAN_B_UI` no longer does). |
-| `experiment-progress.component.spec.ts`, `experiment-run.service.spec.ts`, `app.component.spec.ts`, `study-conditions.spec.ts` | The checks of §4.2. |
+| `experiment-progress.component.spec.ts`, `experiment-run.service.spec.ts`, `app.component.spec.ts`, `ui-config.service.spec.ts` | The checks of §4.2. |
 
 Unchanged on purpose: `TourGuideComponent`, `TourGuideService`, the leg label (`ExperimentRunService.legLabel()`, `ExperimentRunService.currentLegLabel`,
 `ReplayService.legLabel()`, `TourContextService.legName()`), the toolbar, `StudyCondition`, records, logs, the
