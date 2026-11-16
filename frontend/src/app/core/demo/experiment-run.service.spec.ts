@@ -160,7 +160,7 @@ describe('ExperimentRunService', () => {
     expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
   });
 
-  // #198, docs/plans/hide-scenario-bar.md §4.3: Plan B names the next scenario by number only.
+  // docs/plans/hide-scenario-bar.md §4.3: Plan B names the next scenario by number only.
   it('names the next scenario by number where the condition hides the names', () => {
     const c = { ...TWO_LEGS, legSurveyParts: undefined };
     begin(run, store, c);

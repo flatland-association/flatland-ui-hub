@@ -61,7 +61,7 @@ describe('ExperimentProgressComponent', () => {
     expect(left()).not.toContain('shift summary');
   });
 
-  it('numbers the scenarios without their names where the condition hides them (#198)', () => {
+  it('numbers the scenarios without their names where the condition hides them', () => {
     begin(TWO_LEGS);
     const named = run.legLabel(0);
     expect(steps()).toContain(named);
@@ -72,7 +72,7 @@ describe('ExperimentProgressComponent', () => {
     expect(s).not.toContain(named);
   });
 
-  it('draws no lines to a guide strip the condition hides (#198)', () => {
+  it('draws no lines to a guide strip the condition hides', () => {
     begin(TWO_LEGS);
     const tour = TestBed.inject(TourContextService);
     tour.set(briefingById('colearning-experiment'));

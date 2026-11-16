@@ -105,7 +105,8 @@ export class ExperimentRunService {
     return this.phase() === 'legSurvey' ? c.legSurveyParts ?? null : c.surveyParts;
   });
 
-  /** "⟨name⟩ (k/N)" for the leg at `index`, or "Szenario k/N" where names are hidden (#198). */
+  /** "⟨name⟩ (k/N)" for the leg at `index`, or "Szenario k/N" where names are hidden
+   *  (docs/plans/hide-scenario-bar.md §4.3). */
   legLabel(index: number): string {
     const leg = this.legs()[index];
     if (!leg) return '';

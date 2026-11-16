@@ -58,7 +58,7 @@ describe('AppComponent', () => {
     expect(cmp.toolbarUnderGuide()).toBeTrue();
   });
 
-  // #198 (docs/plans/hide-scenario-bar.md §4.4): Plan B hides the strip, the toolbar stays at the top.
+  // docs/plans/hide-scenario-bar.md §4.4: Plan B hides the strip, the toolbar stays at the top.
   it('leaves the guide strip out where the condition hides it, and keeps the toolbar at the top', () => {
     const cmp = TestBed.createComponent(AppComponent).componentInstance;
     const store = TestBed.inject(SessionStore);
@@ -92,7 +92,7 @@ describe('AppComponent', () => {
         states: [{ seq: 1, t: 1100, simStep: 0, maxSteps: 10, episodeDone: false, agents: [], map: { width: 3, height: 2, rail_grid: [[0]], rail_tiles: [], decision_cells: [] } }],
       }) as unknown as SessionRecord;
 
-    // Recorded before #198: no guide or names hidden then.
+    // Recorded before Plan B hid the guide and the names.
     expect(replay.load([record({ hidden: ['control.mapNavigation'], collapsedByDefault: [], policyAllowlist: ['deadlock_avoidance'], values: {} })])).toBeTrue();
     fixture.detectChanges();
     expect(uiConfig.isHidden('control.mapNavigation')).toBeTrue();

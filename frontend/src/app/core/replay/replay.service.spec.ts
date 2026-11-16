@@ -299,7 +299,7 @@ describe('ReplayService', () => {
     // The follower leg brings its own German card; the step names it as live.
     expect(replay.intro()).toBeTruthy();
     expect(replay.introStep()).toBe('experimentRun.legLabel');
-    // A Plan B replay applies the recorded layout, which hides the names (#198).
+    // A Plan B replay applies the recorded layout, which hides the names (docs/plans/hide-scenario-bar.md §4.3).
     TestBed.inject(UiConfigService).apply({ hidden: ['control.legNames'] });
     expect(replay.introStep()).toBe('experimentRun.legUnnamed');
     expect(replay.legLabel(0)).toBe('experimentRun.legUnnamed');

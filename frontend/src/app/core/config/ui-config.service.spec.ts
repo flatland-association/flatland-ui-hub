@@ -82,7 +82,7 @@ describe('UiConfigService — the Plan B preset block', () => {
     }));
   });
 
-  // #198 (docs/plans/hide-scenario-bar.md §4.3): only Plan B numbers its scenarios.
+  // docs/plans/hide-scenario-bar.md §4.3: only Plan B numbers its scenarios.
   it('numbers the scenarios without their names and hides the guide strip, and no other layout does', () => {
     service.apply(planB());
     for (const id of ['control.legNames', 'control.guide']) {

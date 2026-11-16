@@ -678,7 +678,7 @@ export class AppComponent implements OnInit {
   /** The guide strip is on the working screen; the toolbar then sits under it
    *  (#167, docs/plans/toolbar-under-guide.md §4.1). A condition can hide the
    *  strip; the guide still ticks and logs, and the toolbar stays at the top
-   *  (#198, docs/plans/hide-scenario-bar.md §4.4). */
+   *  (docs/plans/hide-scenario-bar.md §4.4). */
   readonly guideShown = computed(() =>
     this.tourGuide.stripShown() &&
     (this.replay.active() ? this.replay.guideVisible() : this.experimentRun.guideVisible()),

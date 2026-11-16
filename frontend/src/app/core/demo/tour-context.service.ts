@@ -258,7 +258,7 @@ export class TourContextService {
    * "⟨name⟩ (k/N)" for a leg at `index` of `count`, wherever a leg is shown
    * (stepper, finish button, footer, intro card, Schichtbilanz), live and in a
    * replay. Where the condition hides the names (`control.legNames`), "Szenario
-   * k/N" (#198, docs/plans/hide-scenario-bar.md §4.3).
+   * k/N" (docs/plans/hide-scenario-bar.md §4.3).
    */
   legLabel(leg: ExperimentLeg, index: number, count: number): string {
     if (this.legNamesHidden()) return this.language.t('experimentRun.legUnnamed', { k: index + 1, n: count });

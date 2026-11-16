@@ -37,8 +37,8 @@ const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.sessionInfo', label: 'Session status line ("Loaded scenario preset: …")', supports: ['hidden'] },
   { id: 'control.studyLogging', label: '"Study logging" switch (Session Settings)', supports: ['hidden'] },
   { id: 'control.menuAreas', label: 'Menu "Bereiche" links (Layout Designer, galleries, Contribute)', supports: ['hidden'] },
-  // The guide strip of a running leg; the toolbar then stays at the top (#198,
-  // docs/plans/hide-scenario-bar.md §4.4). The guide still ticks and logs.
+  // The guide strip of a running leg; the toolbar then stays at the top
+  // (docs/plans/hide-scenario-bar.md §4.4). The guide still ticks and logs.
   // Only where nothing needs the strip's buttons: no Schichtbilanz («Schicht
   // beenden») and a decision log («Reflexion nachtragen» for «Reflexion
   // öffnen») — checked for conditions in study-conditions.spec.ts, not for a
@@ -46,7 +46,7 @@ const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.guide', label: 'Guide strip: steps and hints of the running scenario', supports: ['hidden'] },
   // Not an element but its text: the scenarios stay, numbered "Szenario k/N",
   // wherever a leg is shown, and the intro card leaves out the scenario's title
-  // (#198, docs/plans/hide-scenario-bar.md §4.3).
+  // (docs/plans/hide-scenario-bar.md §4.3).
   { id: 'control.legNames', label: 'Scenario names of an experiment: stepper, finish button, footer, intro card (numbered only)', supports: ['hidden'] },
 ];
 
