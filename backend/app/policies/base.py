@@ -15,7 +15,7 @@ Extended with:
   maps each step.
 """
 from abc import ABC, abstractmethod
-from typing import Dict, List, Generic, TypeVar, Optional
+from typing import Dict, List, Generic, Set, Tuple, TypeVar, Optional
 
 from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.core.env_prediction_builder import PredictionBuilder
@@ -61,6 +61,23 @@ class Policy(ABC, Generic[T_obs]):
 
     def end_episode(self, train: bool = False) -> None:
         pass
+
+    def set_committed_overrides(
+        self,
+        holds: Set[int],
+        routes: Dict[int, List[Tuple[int, int, int]]],
+    ) -> bool:
+        """The operator's committed overrides, before each step (opt-in).
+
+        ``holds``: trains with a standing STOP. ``routes``: the committed
+        reroutes, ``[(row, col, heading), ...]`` per train
+        (`app.core.route_overrides`). `OverridePolicy` calls this before
+        `start_step` and `act_many`. A policy that takes them into account
+        returns True; `OverridePolicy` then keeps its STOP for a rerouted train
+        instead of driving the route unchecked. The default ignores them.
+        Plan: docs/plans/set-route-on-map.md (Q-4).
+        """
+        return False
 
     def step(self, handle, state, action, reward, next_state, done) -> None:
         pass

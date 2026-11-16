@@ -8,7 +8,7 @@ Adapted from flatland-baselines:
 Used by DeadLockAvoidancePolicy (R3 Part 2) to decide whether an agent
 can safely move forward or must stop to avoid a head-to-head conflict.
 """
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from flatland.envs.fast_methods import fast_count_nonzero
@@ -38,6 +38,25 @@ class DeadlockAvoidanceShortestDistanceWalker(ShortestDistanceWalker):
         self.agent_positions: np.ndarray | None = None
         self.opp_agent_map: Dict[int, List[int]] = {}
         self.same_agent_map: Dict[int, List[int]] = {}
+        # Committed reroutes, (row, col, heading) per train: walked instead of
+        # the shortest path (docs/plans/set-route-on-map.md, Q-4).
+        self.routes: Dict[int, List[Tuple[int, int, int]]] = {}
+
+    # ── route-aware step ─────────────────────────────────────────────
+    def _walk(self, handle: int, position: Position, direction: int):
+        route = self.routes.get(handle)
+        if route:
+            here = (int(position[0]), int(position[1]), int(direction))
+            try:
+                index = route.index(here)
+            except ValueError:
+                index = None
+            if index is not None and index + 1 < len(route):
+                row, col, heading = route[index + 1]
+                possible_transitions = _get_transitions(self.env.rail, position[0], position[1], direction)
+                action = self._direction_change_to_action(direction, heading)
+                return (row, col), heading, action, possible_transitions
+        return super()._walk(handle, position, direction)
 
     # ── lifecycle ────────────────────────────────────────────────────
     def reset(self, env: RailEnv) -> None:
