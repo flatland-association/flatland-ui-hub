@@ -27,7 +27,7 @@ describe('ModeIntroComponent', () => {
   });
 
   it('shows an experiment scenario as title, paragraphs and image, without the mode sections', () => {
-    const el = render({ title: 'Störung am Einspurabschnitt', paragraphs: ['Erster.', 'Zweiter.'], imageUrl: '/img.png' });
+    const el = render({ title: 'Störung am Einspurabschnitt', paragraphs: ['Erster.', 'Zweiter.'], imageUrl: '/img.png', videoUrl: null });
     expect(el.querySelector('.intro-title')?.textContent).toContain('Störung am Einspurabschnitt');
     expect([...el.querySelectorAll('.intro-scenario__text p')].map((p) => p.textContent)).toEqual(['Erster.', 'Zweiter.']);
     expect(el.querySelector<HTMLImageElement>('.intro-scenario__image')?.getAttribute('src')).toBe('/img.png');
@@ -38,7 +38,18 @@ describe('ModeIntroComponent', () => {
   });
 
   it('leaves the image out when the scenario has none', () => {
-    const el = render({ title: 'T', paragraphs: ['P'], imageUrl: null });
+    const el = render({ title: 'T', paragraphs: ['P'], imageUrl: null, videoUrl: null });
     expect(el.querySelector('.intro-scenario__image')).toBeNull();
+    expect(el.querySelector('.intro-scenario__video')).toBeNull();
+  });
+
+  it('shows the video below the text, with the player\'s controls', () => {
+    const el = render({ title: 'T', paragraphs: ['P'], imageUrl: null, videoUrl: '/intro.mp4' });
+    const video = el.querySelector<HTMLVideoElement>('.intro-scenario__video')!;
+    expect(video.getAttribute('src')).toBe('/intro.mp4');
+    expect(video.controls).toBeTrue();
+    // After the text block, not beside it in the text/image grid.
+    expect(video.parentElement?.classList.contains('intro-scenario')).toBeFalse();
+    expect(el.querySelector('.intro-scenario')!.compareDocumentPosition(video) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

@@ -107,6 +107,8 @@ def test_the_scheduled_malfunction_survives_the_pkl_and_breaks_the_train_for_exa
     ({"id": "other", "title": "t", "description": "d"}, "folder name"),
     ({"id": "test-scenario", "title": "t", "description": "d", "image": "missing.png"}, "missing.png"),
     ({"id": "test-scenario", "title": "t", "description": "d", "image": "../scenario.png"}, "../scenario.png"),
+    ({"id": "test-scenario", "title": "t", "description": "d", "video": "missing.mp4"}, "missing.mp4"),
+    ({"id": "test-scenario", "title": "t", "description": "d", "video": "scenario.png"}, ".mp4"),
     ({"id": "test-scenario", "title": "t", "description": "d", "colour": "red"}, "unknown field"),
     ({"id": "test-scenario", "title": "t", "description": "d", "locked": "yes"}, "'locked'"),
 ])
@@ -350,6 +352,40 @@ def test_the_image_route_runs_no_script_in_an_svg(tmp_path, monkeypatch):
     csp = r.headers["content-security-policy"]
     assert "default-src 'none'" in csp and "sandbox" in csp
     assert r.headers["x-content-type-options"] == "nosniff"
+
+
+def _with_video(tmp_path, monkeypatch):
+    folder = _write_scenario(tmp_path, meta={**_META, "image": "scenario.png", "video": "intro.mp4"})
+    (folder / "intro.mp4").write_bytes(b"\x00\x00\x00\x18ftypmp42" + bytes(range(256)) * 4)
+    found = discover_scenarios(tmp_path)
+    for preset_id, preset in found.items():
+        monkeypatch.setitem(scenario_presets._PRESETS, preset_id, preset)
+    return found["test-scenario"]
+
+
+def test_a_video_is_listed_by_its_route_not_its_path(tmp_path, monkeypatch):
+    scenario = _with_video(tmp_path, monkeypatch)
+    assert scenario["video_url"] == "/session/scenario-presets/test-scenario/video"
+    entry = next(p for p in scenario_presets.list_presets() if p["id"] == "test-scenario")
+    assert entry["video_url"].endswith("/video") and "video" not in entry
+
+
+def test_the_video_route_serves_the_named_file_in_ranges(tmp_path, monkeypatch):
+    """The player seeks with range requests; without them it cannot skip ahead."""
+    _with_video(tmp_path, monkeypatch)
+    client = TestClient(app)
+    r = client.get("/session/scenario-presets/test-scenario/video")
+    assert r.status_code == 200 and r.headers["content-type"] == "video/mp4"
+    assert r.headers["accept-ranges"] == "bytes"
+    part = client.get("/session/scenario-presets/test-scenario/video", headers={"Range": "bytes=4-11"})
+    assert part.status_code == 206 and part.content == b"ftypmp42"
+
+
+def test_the_video_route_serves_nothing_else(scenario):
+    client = TestClient(app)
+    assert client.get("/session/scenario-presets/test-scenario/video").status_code == 404
+    assert client.get("/session/scenario-presets/no-such/video").status_code == 404
+    assert scenario["video_url"] is None
 
 
 def test_the_image_route_serves_nothing_else(tmp_path, monkeypatch):

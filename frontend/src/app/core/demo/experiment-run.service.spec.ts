@@ -30,7 +30,7 @@ const NO_REVIEW: StudyCondition = {
   ...TWO_LEGS, id: 'spec-no-review', legSurveyParts: undefined, shiftSummary: false, legs: [SCENARIO_LEG_A, SCENARIO_LEG_B],
 };
 const PRESETS = [
-  { id: 'scenario-a', name: 'A', title: 'Störung am Einspurabschnitt', description: 'Erster Absatz.\n\n  Zweiter Absatz. \n', image_url: '/session/scenario-presets/scenario-a/image', width: 30, height: 30, agents: 2, experiment_only: true },
+  { id: 'scenario-a', name: 'A', title: 'Störung am Einspurabschnitt', description: 'Erster Absatz.\n\n  Zweiter Absatz. \n', image_url: '/session/scenario-presets/scenario-a/image', video_url: '/session/scenario-presets/scenario-a/video', width: 30, height: 30, agents: 2, experiment_only: true },
   { id: 'scenario-b', name: 'B', title: 'Zweite Lage', description: 'Nur einer.', width: 30, height: 30, agents: 2, experiment_only: true },
 ];
 
@@ -196,7 +196,9 @@ describe('ExperimentRunService', () => {
     expect(card.title).toBe('Störung am Einspurabschnitt');
     expect(card.paragraphs).toEqual(['Erster Absatz.', 'Zweiter Absatz.']);
     expect(card.imageUrl).toMatch(/\/session\/scenario-presets\/scenario-a\/image$/);
+    expect(card.videoUrl).toMatch(/\/session\/scenario-presets\/scenario-a\/video$/);
     expect(tour.scenarioCardFor(SCENARIO_LEG_B)!.imageUrl).toBeNull();
+    expect(tour.scenarioCardFor(SCENARIO_LEG_B)!.videoUrl).toBeNull();
     // A leg with its own intro, or a scenario without a title, keeps the mode card.
     expect(tour.scenarioCardFor({ ...SCENARIO_LEG_A, intro: { en: WAL_FOLLOWER.intro!.de! } })).toBeNull();
     expect(tour.scenarioCardFor(WAL_SINGLE_TRACK)).toBeNull();

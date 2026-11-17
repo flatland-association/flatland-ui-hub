@@ -15,7 +15,7 @@ from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
 from app.core.env_step import step_env
-from app.core.scenario_presets import check_session_request, list_presets, preset_image, select_disturbances
+from app.core.scenario_presets import check_session_request, list_presets, preset_image, preset_video, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
     SessionInfo,
@@ -358,6 +358,20 @@ def get_scenario_preset_image(preset_id: str):
     # An .svg opened directly would run its scripts with the app's origin: no
     # scripts, no requests, a sandboxed document. An <img> is not affected.
     return FileResponse(path, media_type=media_type, headers=_IMAGE_HEADERS)
+
+
+@router.get("/scenario-presets/{preset_id}/video")
+def get_scenario_preset_video(preset_id: str):
+    """The video an experiment scenario's `scenario.json` names — that one file
+    only. `FileResponse` answers range requests, so the player can seek."""
+    try:
+        video = preset_video(preset_id)
+    except (KeyError, FileNotFoundError):
+        video = None
+    if video is None:
+        raise HTTPException(404, f"No video for scenario preset {preset_id!r}")
+    path, media_type = video
+    return FileResponse(path, media_type=media_type, headers={"X-Content-Type-Options": "nosniff"})
 
 
 @router.get("/{session_id}/state")

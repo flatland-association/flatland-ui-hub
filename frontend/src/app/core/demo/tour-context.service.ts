@@ -18,6 +18,8 @@ export interface ScenarioCard {
   /** The description, split at blank lines. */
   paragraphs: string[];
   imageUrl: string | null;
+  /** Shown below the text, the card's full width. */
+  videoUrl: string | null;
 }
 
 /** How a guided condition's leg ended: the finish button, the guide's "Schicht
@@ -234,6 +236,7 @@ export class TourContextService {
       title: preset.title,
       paragraphs: (preset.description ?? '').split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean),
       imageUrl: preset.image_url ? `${backendHttpBase()}${preset.image_url}` : null,
+      videoUrl: preset.video_url ? `${backendHttpBase()}${preset.video_url}` : null,
     };
   }
 
