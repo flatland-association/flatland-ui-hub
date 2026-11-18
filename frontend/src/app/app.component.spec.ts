@@ -95,7 +95,9 @@ describe('AppComponent', () => {
     // Recorded before Plan B hid the guide and the names.
     expect(replay.load([record({ hidden: ['control.mapNavigation'], collapsedByDefault: [], policyAllowlist: ['deadlock_avoidance'], values: {} })])).toBeTrue();
     fixture.detectChanges();
-    expect(uiConfig.isHidden('control.mapNavigation')).toBeTrue();
+    // The legacy id stands for pan arrows and zoom (plan-b-small-changes.md, item 2).
+    expect(uiConfig.isHidden('control.mapPan')).toBeTrue();
+    expect(uiConfig.isHidden('control.mapZoom')).toBeTrue();
     expect(uiConfig.isHidden('control.guide')).toBeFalse();
     expect(uiConfig.isHidden('control.legNames')).toBeFalse();
 

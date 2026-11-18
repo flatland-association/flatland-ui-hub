@@ -42,7 +42,7 @@ describe('ModeIntroComponent', () => {
   // docs/plans/hide-scenario-bar.md §4.3: the scenario's title is its name.
   it('leaves the title out where the condition hides the scenarios\' names', () => {
     TestBed.inject(UiConfigService).apply({ hidden: ['control.legNames'] });
-    const el = render({ title: 'Türstörung', paragraphs: ['P'], imageUrl: '/img.png' }, 'Szenario 4/5');
+    const el = render({ title: 'Türstörung', paragraphs: ['P'], imageUrl: '/img.png', videoUrl: null }, 'Szenario 4/5');
     expect(el.querySelector('.intro-title')).toBeNull();
     expect(el.textContent).not.toContain('Türstörung');
     // The image keeps a text for screen readers: the step, not the name.
