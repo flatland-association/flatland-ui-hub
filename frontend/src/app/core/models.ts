@@ -11,11 +11,6 @@ export type PolicyName =
   | 'pf_ch_rl'
   | 'uc2_rl';
 
-/** Frozen demo actors must stay selected while unavailable or awaiting acceptance. */
-export function isFixedActorPolicy(policy: string | null | undefined): policy is 'pf_ch_rl' | 'uc2_rl' {
-  return policy === 'pf_ch_rl' || policy === 'uc2_rl';
-}
-
 export interface PolicyInfo {
   id: PolicyName;
   label: string;
@@ -35,6 +30,10 @@ export interface PolicyInfo {
   provenance: string;
   licence: string;
   grounding: string;
+  /** A trained network bound to its infrastructures (registry `PolicySpec.bundle`):
+   *  never swapped for a fallback, kept selected while unavailable or awaiting
+   *  acceptance (`SessionStore.isSpecialistPolicy`). */
+  specialist?: boolean;
 }
 
 export interface ScenarioPoliciesConfig {

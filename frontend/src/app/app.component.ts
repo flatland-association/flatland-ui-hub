@@ -29,7 +29,7 @@ import { HelpAboutComponent } from './features/help-about/help-about.component';
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
 import { UiConfigService } from './core/config/ui-config.service';
-import { isFixedActorPolicy, PolicyName, ScenarioDisturbance, ScenarioPreset } from './core/models';
+import { PolicyName, ScenarioDisturbance, ScenarioPreset } from './core/models';
 import { SmoothMotionService } from './core/motion/smooth-motion.service';
 import { SessionStore } from './core/session.store';
 // NewSessionOpts: the exact options object accepted by SessionStore.newSession —
@@ -262,11 +262,12 @@ export class AppComponent implements OnInit {
   readonly systemRuntimeLayoutId = 'system-default-runtime-layout';
 
   readonly selectedRuntimeLayoutId = signal<string>(this.systemRuntimeLayoutId);
-  /** Direct actors use playback/policy controls instead of PP objective planning. */
-  readonly directDriverControls = computed(() => isFixedActorPolicy(this.store.activePolicy())
-    || ['preset-pf-ch-rl', 'preset-uc2-rl'].includes(this.selectedRuntimeLayoutId()));
-  readonly footerSurveyAllowed = computed(() => !this.directDriverControls()
-    || !this.store.demoActive() || this.store.demoSurveyEnabled());
+  /** A runtime layout hides the header toolbar unless its preset keeps it
+   *  (`LayoutPreset.headerToolbar`). */
+  readonly presetHeaderToolbar = computed(() =>
+    LAYOUT_PRESETS.find((preset) => preset.id === this.selectedRuntimeLayoutId())?.headerToolbar === true);
+  /** A demo without its survey offers none in the footer either. */
+  readonly footerSurveyAllowed = computed(() => !this.store.demoActive() || this.store.demoSurveyEnabled());
 
   readonly runtimeLayoutOptions = signal<RuntimeLayoutOption[]>(this.loadRuntimeLayoutOptions());
   readonly runtimeInfrastructureScenes = signal<InfrastructureSceneSummary[]>(this.infrastructureStorage.listScenes());

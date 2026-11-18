@@ -39,6 +39,9 @@ describe('ToolbarComponent — the policy selector', () => {
 
   for (const actor of ['pf_ch_rl', 'uc2_rl'] as const) {
     it(`does not substitute a baseline for a blocked ${actor} selection`, () => {
+      // The catalog marks the RL drivers as specialists (`PolicySpec.bundle`).
+      (store as unknown as { _policies: { set(v: PolicyInfo[]): void } })._policies.set(
+        [...POLICIES, { id: actor, label: actor, show_in_ui: true, specialist: true } as PolicyInfo]);
       store.setActivePolicy(actor);
       store.setEnabledControlPolicyIds(['deadlock_avoidance']);
       fixture.detectChanges();

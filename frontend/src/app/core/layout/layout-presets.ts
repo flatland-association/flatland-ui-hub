@@ -82,6 +82,13 @@ export interface LayoutPreset {
    * Absent — the usual case — means the preset is a layout and nothing else.
    */
   ui?: UiConfig;
+  /**
+   * Keep the header toolbar (play, pause, step, speed, policy, the demo's
+   * finish) in this runtime layout; runtime layouts hide it otherwise. For a
+   * condition whose driver is not steered by the Director's directives, where
+   * these controls run the shift instead of the directive bar.
+   */
+  headerToolbar?: boolean;
 }
 
 /**
@@ -1093,11 +1100,19 @@ const DIRECTOR_THREE_ZONES: LayoutPreset = {
   },
 };
 
+/** The RL drivers take no directives: their tours run the shift from the
+ *  header toolbar, without the directive bar. */
+const RL_SUPERVISION_CONTROLS: Pick<LayoutPreset, 'ui' | 'headerToolbar'> = {
+  ui: { hidden: ['widget.director-directive'] },
+  headerToolbar: true,
+};
+
 /** Frozen RL supervision: show actual movement, not a PP objective planner. */
 const PF_CH_RL: LayoutPreset = {
   id: 'preset-pf-ch-rl',
   name: 'PF-CH RL',
   purpose: 'Supervise the trained PF-CH policy: actual train state, map, timetable and manual inspection.',
+  ...RL_SUPERVISION_CONTROLS,
   layout: {
     columns: [
       { id: 'pfch-rl-left', zone: 'left', rowId: 'pfch-rl-row', name: 'Situation', width: 20, role: 'sidebar', panels: [
@@ -1122,6 +1137,7 @@ const UC2_RL: LayoutPreset = {
   nameKey: 'layouts.uc2Rl.name',
   purpose: 'Supervise the trained UC2/tutorial policy on the original native scenarios.',
   purposeKey: 'layouts.uc2Rl.purpose',
+  ...RL_SUPERVISION_CONTROLS,
   layout: { columns: PF_CH_RL.layout.columns.map(column => ({
     ...column,
     id: column.id.replace('pfch-rl', 'uc2-rl'),

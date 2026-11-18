@@ -198,6 +198,20 @@ and survives a mode switch; a chip resets to the mode's set.
 Pure availability panels — each is the signature surface of exactly one mode
 (see the availability table). They do not need internal mode branching.
 
+### Director mode with any driver
+
+Director mode means the same whichever policy drives: the AI drives, the human
+supervises and may intervene. Entering Director switches to `goal_directed`,
+except where the human picked another policy or the session pinned one (a tour's
+`backendPolicy`, a study condition's `policy`): then that driver stays. Only
+`goal_directed` takes the directive (the strategy tiles' weights); with another
+driver the objective-level widgets have nothing to steer, the policy and
+single-train levers still work. The RL tours' presets (`preset-uc2-rl`,
+`preset-pf-ch-rl`) therefore hide the directive bar and keep the header toolbar
+(`ui.hidden`, `headerToolbar`), and their shift review leaves out the plan check
+as for any session without a committed Director plan
+(docs/plans/rl-modularization.md, Q-1).
+
 ## Design guidance (from this matrix)
 
 - **Availability** belongs in the layout/registry layer (a declarative

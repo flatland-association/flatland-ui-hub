@@ -1,4 +1,5 @@
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
+import { finalize } from 'rxjs';
 import { ApiService, DirectorDivergence, DirectorStrategy } from './api.service';
 import {
   VISUAL_ENCODING_PRESETS,
@@ -47,7 +48,7 @@ import {
   strategyLabelForAction,
   LONG_BLOCK_STEPS,
 } from './learning-store.service';
-import { AgentDTO, isFixedActorPolicy, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
+import { AgentDTO, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
 import { CombinedActionPreview } from './combined-actions/combined-actions-preview';
 import type { ProposalOption, ProposalsResult } from './events/event-types';
 import { PLAY_SPEED_DEFAULT_BASE, PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedBaseFor, playSpeedForLevel } from './play-speed';
@@ -553,15 +554,41 @@ export class SessionStore {
     this.enabledControlPolicyIds.set([...ids]);
   }
 
+  /** Whether `policy` is a specialist (the catalog's `specialist`, backend
+   *  `PolicySpec.bundle`): a trained network bound to its infrastructures, which
+   *  the store never swaps for a fallback policy. */
+  isSpecialistPolicy(policy: string | null | undefined): boolean {
+    return !!policy && this._policies().some((p) => p.id === policy && p.specialist === true);
+  }
+
+  private _policiesRequested = false;
+  private _policiesSettled = false;
+  private readonly _afterPolicies: Array<() => void> = [];
+
+  /** Runs `run` once the catalog is known: a deep link can open a tour before
+   *  `/policies` answered, and a pinned specialist must be recognised. */
+  private _whenPoliciesKnown(run: () => void): void {
+    if (this._policiesSettled || this._policies().length > 0) {
+      run();
+      return;
+    }
+    this._afterPolicies.push(run);
+    if (!this._policiesRequested) this.loadPolicies();
+  }
+
   loadPolicies(): void {
-    this.api.listPolicies().subscribe({
+    this._policiesRequested = true;
+    this.api.listPolicies().pipe(finalize(() => {
+      this._policiesSettled = true;
+      this._afterPolicies.splice(0).forEach((run) => run());
+    })).subscribe({
       next: (list) => {
         this._policies.set(list);
         const active = this.activePolicy();
-        if (this.session() && isFixedActorPolicy(active)) {
+        if (this.session() && this.isSpecialistPolicy(active)) {
           if (!list.some((p) => p.id === active && p.show_in_ui)) {
             if (this.playing()) this.pause();
-            this._fixedActorOpening = false;
+            this._specialistOpening = false;
             this.loading.set(false);
             this.error.set(this.i18n.t(`policies.${active}.unavailable`));
           }
@@ -1213,8 +1240,10 @@ export class SessionStore {
     // selects the goal_directed policy for the session, leaving restores
     // whatever was active before. If the user hand-picked a different
     // policy *while in* Director, that choice wins — no restore over it.
+    // A policy the session was opened with pinned (a tour's, a condition's)
+    // wins the same way: Director then runs with that driver.
     if (mode === 'director' && this.activePolicy() !== 'goal_directed'
-        && !isFixedActorPolicy(this.activePolicy())) {
+        && !this._pinsActivePolicy()) {
       this._policyBeforeDirector = this.activePolicy();
       this._applySessionPolicy('goal_directed');
     } else if (prev === 'director') {
@@ -1247,7 +1276,7 @@ export class SessionStore {
       error: (e) => {
         if (this._createRequest !== request || this.session()?.id !== sess.id) return;
         if (onAccepted) {
-          this._fixedActorOpening = false;
+          this._specialistOpening = false;
           this.loading.set(false);
         } else this.setActivePolicy(before);
         this.error.set(`Set policy failed: ${e?.message ?? e}`);
@@ -1651,7 +1680,7 @@ export class SessionStore {
         if (msg.type === 'state' && msg.state) {
           this.state.set(msg.state);
           this._recordTrajectory(msg.state);
-          this.loading.set(this._fixedActorOpening);
+          this.loading.set(this._specialistOpening);
         } else if (msg.type === 'play_status' && msg.session_id === this.session()?.id) {
           this.playing.set(!!msg.playing);
         } else if (msg.type === 'episode_done') {
@@ -1851,7 +1880,7 @@ export class SessionStore {
     let stepped = 0;
 
     const run = () => {
-      if (this.session()?.id !== s.id || (isFixedActorPolicy(policy) && !this._fixedActorOpening)) return;
+      if (this.session()?.id !== s.id || (this.isSpecialistPolicy(policy) && !this._specialistOpening)) return;
       const st = this.state();
       if (!st) {
         this.loading.set(false);
@@ -1860,7 +1889,7 @@ export class SessionStore {
       const started = this._isAnyAgentMoving(st);
       const atOpening = st.elapsed_steps >= openAt;
       if ((started && atOpening) || st.episode_done || stepped >= maxSteps) {
-        this._fixedActorOpening = false;
+        this._specialistOpening = false;
         this.loading.set(false);
         this.refreshForecasts();
         return;
@@ -1879,7 +1908,7 @@ export class SessionStore {
             },
             error: (e) => {
               if (this.session()?.id !== s.id) return;
-              this._fixedActorOpening = false;
+              this._specialistOpening = false;
               this.error.set(`State failed: ${e.message}`);
               this.loading.set(false);
             },
@@ -1887,7 +1916,7 @@ export class SessionStore {
         },
         error: (e) => {
           if (this.session()?.id !== s.id) return;
-          this._fixedActorOpening = false;
+          this._specialistOpening = false;
           this.error.set(`Auto-step failed: ${e.message}`);
           this.loading.set(false);
         },
@@ -1897,11 +1926,23 @@ export class SessionStore {
     run();
   }
 
+  /** The policy this session was opened with pinned, if any. */
+  private _pinnedPolicy: PolicyName | null = null;
+
+  private _pinsActivePolicy(): boolean {
+    return this._pinnedPolicy !== null && this.activePolicy() === this._pinnedPolicy;
+  }
+
   newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; secondsPerStep?: number | null; pinnedPolicy?: PolicyName; proposalAgent?: string; run?: SessionRunRef } = {}) {
-    const pinnedActor = isFixedActorPolicy(opts.pinnedPolicy) ? opts.pinnedPolicy : null;
-    if (this._fixedActorDemoSessionId || pinnedActor) this.ws.disconnect();
-    this._releaseFixedActorDemo();
-    this._fixedActorOpening = pinnedActor !== null;
+    if (opts.pinnedPolicy && !this._policiesSettled && this._policies().length === 0) {
+      this._whenPoliciesKnown(() => this.newSession(opts));
+      return;
+    }
+    this._pinnedPolicy = opts.pinnedPolicy ?? null;
+    const pinnedSpecialist = this.isSpecialistPolicy(opts.pinnedPolicy) ? opts.pinnedPolicy! : null;
+    if (this._specialistDemoSessionId || pinnedSpecialist) this.ws.disconnect();
+    this._releaseSpecialistDemo();
+    this._specialistOpening = pinnedSpecialist !== null;
     this.loading.set(true);
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
@@ -1948,8 +1989,8 @@ export class SessionStore {
     if (opts.malfunctionMaxDuration != null) payload.malfunction_max_duration = opts.malfunctionMaxDuration;
     if (opts.scenarioPolicyIds != null) payload.enabled_scenario_policy_ids = opts.scenarioPolicyIds;
     if (opts.policyControlIds != null) payload.enabled_policy_ids = opts.policyControlIds;
-    if (pinnedActor && opts.policyControlIds != null) {
-      payload.enabled_policy_ids = [...new Set([...opts.policyControlIds, pinnedActor])];
+    if (pinnedSpecialist && opts.policyControlIds != null) {
+      payload.enabled_policy_ids = [...new Set([...opts.policyControlIds, pinnedSpecialist])];
     }
     if (opts.infrastructureScene != null) payload.infrastructure_scene = opts.infrastructureScene;
     if (opts.scenarioPresetId != null) payload.scenario_preset_id = opts.scenarioPresetId;
@@ -1972,11 +2013,11 @@ export class SessionStore {
     this.api.createSession(payload).subscribe({
       next: (s) => {
         if (request !== this._createRequest) {
-          if (pinnedActor) this.api.deleteSession(s.id).subscribe({ error: () => undefined });
+          if (pinnedSpecialist) this.api.deleteSession(s.id).subscribe({ error: () => undefined });
           return;
         }
         this.session.set(s);
-        if (pinnedActor) this._fixedActorDemoSessionId = s.id;
+        if (pinnedSpecialist) this._specialistDemoSessionId = s.id;
         const disturbed = s.disturbance_ids?.length
           ? ` · ${s.disturbance_ids.length} disturbance${s.disturbance_ids.length > 1 ? 's' : ''}`
           : '';
@@ -2008,13 +2049,13 @@ export class SessionStore {
         // 'goal_directed' first" for the whole run, so the strategy tiles had
         // nothing to show. The plan policy is registered in the dropdown
         // either way, so handing the trains back to the plan stays one click.
-        if (pinnedActor) {
+        if (pinnedSpecialist) {
           this._policyBeforeDirector = null;
-          if (!this.enabledControlPolicyIds().includes(pinnedActor)) {
-            this.setEnabledControlPolicyIds([...this.enabledControlPolicyIds(), pinnedActor]);
+          if (!this.enabledControlPolicyIds().includes(pinnedSpecialist)) {
+            this.setEnabledControlPolicyIds([...this.enabledControlPolicyIds(), pinnedSpecialist]);
           }
-          this._applySessionPolicy(pinnedActor, () => {
-            if (!this._fixedActorOpening) return;
+          this._applySessionPolicy(pinnedSpecialist, () => {
+            if (!this._specialistOpening) return;
             this.ws.connect(s.id);
             this.refreshState(true);
           });
@@ -2025,7 +2066,7 @@ export class SessionStore {
           if (!this.enabledControlPolicyIds().includes(policy)) {
             this.setEnabledControlPolicyIds([policy, ...this.enabledControlPolicyIds()]);
           }
-          if (this.interactionMode() === 'director') {
+          if (this.interactionMode() === 'director' && !opts.pinnedPolicy) {
             this._policyBeforeDirector = policy;
             this._applySessionPolicy('goal_directed');
           } else if (!opts.pinnedPolicy) {
@@ -2034,7 +2075,7 @@ export class SessionStore {
             this.setActivePolicy(policy);
           }
         } else if (this.interactionMode() === 'director'
-            && this.activePolicy() !== 'goal_directed') {
+            && this.activePolicy() !== 'goal_directed' && !opts.pinnedPolicy) {
           // A session born while Director mode is active runs under the
           // Director's planner from its first step — same coupling as
           // switching into the mode with a session already open.
@@ -2052,16 +2093,16 @@ export class SessionStore {
     });
   }
   private _createRequest = 0;
-  private _fixedActorOpening = false;
-  private _fixedActorDemoSessionId: string | null = null;
+  private _specialistOpening = false;
+  private _specialistDemoSessionId: string | null = null;
 
   /** Demo sessions do not participate in study/sandbox retention. Releasing
    *  them on restart/exit prevents retaining every environment and forecast. */
-  private _releaseFixedActorDemo(): void {
-    const sid = this._fixedActorDemoSessionId;
-    this._fixedActorDemoSessionId = null;
+  private _releaseSpecialistDemo(): void {
+    const sid = this._specialistDemoSessionId;
+    this._specialistDemoSessionId = null;
     if (sid) this.api.deleteSession(sid).subscribe({ error: (e) => {
-      console.warn('Fixed actor session cleanup failed', e);
+      console.warn('Specialist session cleanup failed', e);
     } });
   }
 
@@ -2086,12 +2127,12 @@ export class SessionStore {
         if (autoAdvanceFirstAgent) {
           this._autoAdvanceToOpeningState();
         } else {
-          this.loading.set(this._fixedActorOpening);
+          this.loading.set(this._specialistOpening);
         }
       },
       error: (e) => {
         if (this.session()?.id !== s.id) return;
-        this._fixedActorOpening = false;
+        this._specialistOpening = false;
         this.error.set(`State failed: ${e.message}`);
         this.loading.set(false);
       },
@@ -2110,13 +2151,13 @@ export class SessionStore {
   }
 
   step(policy: PolicyName, n_steps: number = 1) {
-    this._stepWithPolicy(policy, n_steps, !isFixedActorPolicy(policy));
+    this._stepWithPolicy(policy, n_steps, !this.isSpecialistPolicy(policy));
   }
 
   private _stepWithPolicy(policy: PolicyName, n_steps: number, canRecover: boolean) {
     const s = this.session();
     if (!s) return;
-    if (this._fixedActorOpening || (isFixedActorPolicy(policy) && this.loading())) return;
+    if (this._specialistOpening || (this.isSpecialistPolicy(policy) && this.loading())) return;
     if (this.episodeDone()) {
       this.message.set('Episode finished. Use Reset to start again.');
       return;
@@ -2193,9 +2234,9 @@ export class SessionStore {
    *  page reload. Tears down polling + WebSocket and clears session-derived
    *  state so `session()` becomes null (which shows the welcome view). */
   endSession(): void {
-    this._releaseFixedActorDemo();
+    this._releaseSpecialistDemo();
     this._createRequest += 1;
-    this._fixedActorOpening = false;
+    this._specialistOpening = false;
     this._stopPolling();
     this.ws.disconnect();
     this._stopPlayingOnServer();
@@ -2264,7 +2305,7 @@ export class SessionStore {
   }
 
   play(policy: PolicyName, speed: number = this.playSpeed()) {
-    this._playWithPolicy(policy, speed, !isFixedActorPolicy(policy));
+    this._playWithPolicy(policy, speed, !this.isSpecialistPolicy(policy));
   }
 
   /** Set the tempo level; while playing, the running loop picks it up. */
@@ -2276,7 +2317,7 @@ export class SessionStore {
   private _playWithPolicy(policy: PolicyName, speed: number, canRecover: boolean) {
     const s = this.session();
     if (!s) return;
-    if (this._fixedActorOpening || (isFixedActorPolicy(policy) && this.loading())) return;
+    if (this._specialistOpening || (this.isSpecialistPolicy(policy) && this.loading())) return;
     if (this.episodeDone()) {
       this.message.set('Episode finished. Use Reset before Play.');
       return;

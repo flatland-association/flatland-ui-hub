@@ -6,10 +6,21 @@ import { provideTranslocoTesting } from '../testing/transloco-testing';
 import { ApiService } from './api.service';
 import { SessionStore } from './session.store';
 import { WebSocketService } from './websocket.service';
-import { SessionInfo } from './models';
+import { PolicyInfo, SessionInfo } from './models';
 import { restartSessionOpts } from './restart-session-opts';
 import { tourById, TOURS } from './demo/tours';
 import { LAYOUT_PRESETS } from './layout/layout-presets';
+
+/** The catalog as `/policies` serves it: the RL drivers are specialists. */
+const CATALOG = [
+  { id: 'deadlock_avoidance', show_in_ui: true, is_default: true },
+  { id: 'pf_ch_rl', show_in_ui: true, specialist: true },
+  { id: 'uc2_rl', show_in_ui: true, specialist: true },
+] as PolicyInfo[];
+
+function knowCatalog(store: SessionStore, list: PolicyInfo[] = CATALOG): void {
+  (store as unknown as { _policies: { set(v: PolicyInfo[]): void } })._policies.set(list);
+}
 
 describe('PF-CH RL session lifecycle on main', () => {
   let store: SessionStore;
@@ -32,6 +43,7 @@ describe('PF-CH RL session lifecycle on main', () => {
     spyOn(ws, 'connect');
     spyOn(ws, 'disconnect');
     spyOn(store, 'refreshState');
+    knowCatalog(store);
   });
 
   function open() {
@@ -76,7 +88,7 @@ describe('PF-CH RL session lifecycle on main', () => {
   });
 
   it('cancels a pending opening if the catalog no longer offers RL', () => {
-    spyOn(api, 'listPolicies').and.returnValue(of([]));
+    spyOn(api, 'listPolicies').and.returnValue(of([{ id: 'pf_ch_rl', show_in_ui: false, specialist: true } as PolicyInfo]));
     open();
     store.loadPolicies();
     accepted.next({ session_id: 'rl', policy: 'pf_ch_rl' });
@@ -85,12 +97,12 @@ describe('PF-CH RL session lifecycle on main', () => {
     expect(ws.connect).not.toHaveBeenCalled();
   });
 
-  it('preserves the RL driver when entering Director and pauses when leaving', () => {
+  it('preserves the pinned RL driver when entering Director and pauses when leaving', () => {
     spyOn(api, 'pause').and.returnValue(of({ session_id: 'rl', playing: false }));
-    store.session.set(session);
-    store.setActivePolicy('pf_ch_rl');
+    open();
+    accepted.next({ session_id: 'rl', policy: 'pf_ch_rl' });
     store.setInteractionMode('director');
-    expect(api.setPolicy).not.toHaveBeenCalled();
+    expect(api.setPolicy).toHaveBeenCalledOnceWith('rl', 'pf_ch_rl');
     store.playing.set(true);
     store.setInteractionMode('co-learning');
     expect(api.pause).toHaveBeenCalledOnceWith('rl');
@@ -205,5 +217,32 @@ describe('PF-CH RL session lifecycle on main', () => {
     expect(types).toContain('view-tabs');
     expect(types).not.toContain('strategy-options');
     expect(LAYOUT_PRESETS.some(p => p.id === 'preset-plan-b')).toBeTrue();
+  });
+
+  it('lets the RL preset choose its controls: header toolbar, no directive bar', () => {
+    const preset = LAYOUT_PRESETS.find(p => p.id === tourById('pf-ch-rl-corridor')!.layout)!;
+    expect(preset.headerToolbar).toBeTrue();
+    expect(preset.ui?.hidden).toEqual(['widget.director-directive']);
+  });
+
+  it('opens a pinned session only once the catalog is known', () => {
+    knowCatalog(store, []);
+    const catalog = new Subject<PolicyInfo[]>();
+    spyOn(api, 'listPolicies').and.returnValue(catalog);
+    open();
+    expect(api.createSession).not.toHaveBeenCalled();
+    catalog.next(CATALOG);
+    catalog.complete();
+    expect(api.createSession).toHaveBeenCalledTimes(1);
+    expect(ws.disconnect).toHaveBeenCalled();
+    expect(store.isSpecialistPolicy('pf_ch_rl')).toBeTrue();
+  });
+
+  it('runs Director with its planner when the RL driver was picked, not pinned', () => {
+    (api.setPolicy as jasmine.Spy).and.callFake((session_id, policy) => of({ session_id, policy }));
+    store.session.set(session);
+    store.setActivePolicy('pf_ch_rl');
+    store.setInteractionMode('director');
+    expect(api.setPolicy).toHaveBeenCalledWith('rl', 'goal_directed');
   });
 });
