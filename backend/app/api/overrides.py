@@ -549,9 +549,8 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
                 source_step=req.source_step, priority=req.priority)
         else:
             # Existing clients and PP priority orders retain their resolver.
-            extra = {"overrides": kept} if kept else {}
             trainruns = agent.resolve_for(
-                env, req.priority or (), handle, candidate_id=req.candidate_id, **extra)
+                env, req.priority or (), handle, candidate_id=req.candidate_id, overrides=kept)
         if not trainruns:
             raise HTTPException(409, "The planner found no collision-free plan from here")
         accept_trainrun_plan(env, trainruns)
@@ -669,7 +668,7 @@ def _evaluate_proposals_unchecked(captured):
     # the plan, with the other trains' standing overrides on top.
     kept = _kept_overrides(agent, committed, handle)
     ranked = []
-    for proposal in agent.propose_for(env, handle, *([kept] if kept else [])):
+    for proposal in agent.propose_for(env, handle, kept):
         res = _branch_run(env, lambda tr=proposal.trainruns: PlanPolicy(None, tr), kept, horizon)
         ranked.append((proposal_rank(res, planned, elapsed, horizon), proposal, res))
     ranked.sort(key=lambda entry: entry[0])

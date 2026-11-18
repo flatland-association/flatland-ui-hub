@@ -110,14 +110,18 @@ def test_the_courses_keep_another_trains_stop():
 
 @pytest.mark.integration
 def test_asked_about_the_stopped_train_the_ki_suggests_moving_it_again():
-    """The selected train's own stop is the question the courses answer."""
-    env = create_env(scenario_preset_id="tutorial")
-    agent = UC2RLProposalAgent()
+    """The selected train's own stop is the question the courses answer: the API
+    leaves it out of the overrides the courses keep."""
+    session = _uc2_session()
+    try:
+        override_manager.set(session.id, 0, STOP)
 
-    for_train_0 = agent.propose_for(env, 0, {0: STOP})
+        response = get_proposals(session.id, handle=0)
 
-    assert [p.trainruns for p in for_train_0] == [p.trainruns for p in agent.propose_for(env, 0)]
-    assert _reaches(for_train_0[0], 0, TRAIN_0_HOME)
+        assert response["ai_keeps_overrides"] is False, "no other train has a decision"
+        assert any((p.row, p.col) == TRAIN_0_HOME for p in response["variants"][1]["trajectories"]["0"])
+    finally:
+        session_manager.delete(session.id)
 
 
 @pytest.mark.integration

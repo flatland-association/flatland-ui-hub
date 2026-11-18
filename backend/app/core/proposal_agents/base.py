@@ -65,7 +65,8 @@ class ProposalAgent(ABC):
         """Handle-aware seam; existing priority-order agents stay compatible.
 
         ``overrides`` are the standing overrides a course must keep (see
-        `respects_overrides`); agents that don't respect them ignore it.
+        `respects_overrides`): the other trains' only, the selected train's own
+        is dropped by the caller. Agents that don't respect them ignore it.
         """
         return self.propose(env)
 

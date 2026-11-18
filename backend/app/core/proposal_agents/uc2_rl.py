@@ -94,8 +94,9 @@ class UC2RLProposalAgent(ProposalAgent):
         handle = int(handle)
         if handle not in {int(a.handle) for a in env.agents}:
             return []
-        # The selected train's own decision is what the courses answer.
-        kept = {int(h): int(a) for h, a in (overrides or {}).items() if int(h) != handle}
+        # `overrides` are the other trains' (the caller drops the selected
+        # train's own: that is the question the courses answer).
+        kept = {int(h): int(a) for h, a in (overrides or {}).items()}
         greedy, opportunities = _rollout(env, discover_handle=handle, overrides=kept)
         if not greedy:
             return []
