@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "scenario.json of an experiment scenario folder: the intro card's texts and image, the pace, and whether a session may add anything on top of the .pkl (docs/reference/experiment-scenarios.md).",
+  "description": "scenario.json of an experiment scenario folder: the intro card's texts, image and video, the pace, and whether a session may add anything on top of the .pkl (docs/reference/experiment-scenarios.md).",
   "properties": {
     "id": {
       "description": "Equals the folder name, and differs from every built-in preset id.",
@@ -34,6 +34,20 @@
       "default": null,
       "description": "A file name in the same folder: .png, .jpg/.jpeg or .svg.",
       "title": "Image"
+    },
+    "video": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A file name in the same folder: .mp4 (H.264/AAC) or .webm; shown below the text.",
+      "title": "Video"
     },
     "source": {
       "anyOf": [

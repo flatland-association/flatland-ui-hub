@@ -307,6 +307,8 @@ export interface ScenarioPreset {
   title?: string;
   /** Backend path of the card's image (prefix with the API base), if any. */
   image_url?: string | null;
+  /** Backend path of the card's video (prefix with the API base), if any. */
+  video_url?: string | null;
 }
 
 export interface StepResponse {

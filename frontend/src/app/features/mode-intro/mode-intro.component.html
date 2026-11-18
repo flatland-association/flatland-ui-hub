@@ -21,6 +21,11 @@
           <img class="intro-scenario__image" [src]="card.imageUrl" [alt]="card.title" />
         }
       </div>
+      @if (card.videoUrl) {
+        <!-- Below the text, the card's full width. The player's own controls
+             carry play, seek and full screen. -->
+        <video class="intro-scenario__video" [src]="card.videoUrl" controls preload="metadata" playsinline></video>
+      }
     } @else {
       <span class="intro-wp">{{ intro().wp }}</span>
       <sbb-title level="2" visual-level="3" class="intro-title">{{ intro().title }}</sbb-title>

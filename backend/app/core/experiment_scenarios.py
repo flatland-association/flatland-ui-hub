@@ -2,9 +2,9 @@
 
 One folder per scenario (docs/reference/experiment-scenarios.md, data model in
 docs/plans/experiment-scenario-import.md §3.1): ``scenario.pkl``
-(``RailEnvPersister``), ``scenario.json`` (title, description, image, pace),
+(``RailEnvPersister``), ``scenario.json`` (title, description, image, video, pace),
 an optional ``generator.json`` (the scenario generator's output, whose
-``timetables[i].name`` names handle *i*) and an optional image. Station names
+``timetables[i].name`` names handle *i*) and an optional image and video. Station names
 come from the ``.pkl``'s ``stations_links``. ``config.json`` and ``draw.json``
 are the generator's input and not read here.
 
@@ -30,6 +30,7 @@ _log = logging.getLogger(__name__)
 # Not text: real seconds per simulation step at the scenario's default pace.
 _SECONDS_PER_STEP_MIN = 0.1
 IMAGE_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml"}
+VIDEO_TYPES = {".mp4": "video/mp4", ".webm": "video/webm"}
 
 
 class ScenarioFolderError(ValueError):
@@ -55,7 +56,7 @@ class ScenarioMeta(BaseModel):
         extra="forbid",
         title="Flatland Dispatcher experiment scenario",
         json_schema_extra={
-            "description": "scenario.json of an experiment scenario folder: the intro card's texts and image, "
+            "description": "scenario.json of an experiment scenario folder: the intro card's texts, image and video, "
             "the pace, and whether a session may add anything on top of the .pkl "
             "(docs/reference/experiment-scenarios.md).",
         },
@@ -65,6 +66,8 @@ class ScenarioMeta(BaseModel):
     title: _Text = Field(description="Heading of the intro card, and the scenario's name in a leg's label.")
     description: _Text = Field(description="Plain text; blank lines separate paragraphs.")
     image: _Text | None = Field(None, description="A file name in the same folder: .png, .jpg/.jpeg or .svg.")
+    video: _Text | None = Field(
+        None, description="A file name in the same folder: .mp4 (H.264/AAC) or .webm; shown below the text.")
     source: _Text | None = Field(None, description="Where the scenario comes from.")
     seconds_per_step: Annotated[float, Field(strict=True, ge=_SECONDS_PER_STEP_MIN)] | None = Field(
         None, description="Real seconds one step lasts at the speed slider's «Normal»; without it 2 s.")
@@ -201,18 +204,18 @@ def _read_scenario_meta(meta_path: Path) -> dict[str, Any]:
         raise _meta_error(meta_path, e) from e
 
 
-def _scenario_image(meta_path: Path, name: str | None) -> Path | None:
-    """The image ``scenario.json`` names: a bare file name in its folder, of
-    a known type. The image route serves exactly this file."""
+def _scenario_file(meta_path: Path, field: str, name: str | None, types: dict[str, str]) -> Path | None:
+    """The image or video ``scenario.json`` names: a bare file name in its
+    folder, of a known type. Its route serves exactly this file."""
     if not name:
         return None
     folder = meta_path.parent
-    image = folder / name
-    if Path(name).name != name or not image.is_file():
-        raise ScenarioFolderError(f"{meta_path}: image {name!r} is not a file in {folder}")
-    if image.suffix.lower() not in IMAGE_TYPES:
-        raise ScenarioFolderError(f"{meta_path}: image {name!r} must be one of {', '.join(sorted(IMAGE_TYPES))}")
-    return image
+    path = folder / name
+    if Path(name).name != name or not path.is_file():
+        raise ScenarioFolderError(f"{meta_path}: {field} {name!r} is not a file in {folder}")
+    if path.suffix.lower() not in types:
+        raise ScenarioFolderError(f"{meta_path}: {field} {name!r} must be one of {', '.join(sorted(types))}")
+    return path
 
 
 def load_scenario_folder(folder: Path) -> dict[str, Any]:
@@ -230,7 +233,8 @@ def load_scenario_folder(folder: Path) -> dict[str, Any]:
     seconds_per_step = meta["seconds_per_step"]
     if meta["id"] != folder.name:
         raise ScenarioFolderError(f"{meta_path}: id {meta['id']!r} differs from the folder name {folder.name!r}")
-    image = _scenario_image(meta_path, meta.get("image"))
+    image = _scenario_file(meta_path, "image", meta.get("image"), IMAGE_TYPES)
+    video = _scenario_file(meta_path, "video", meta.get("video"), VIDEO_TYPES)
 
     try:
         env, _ = RailEnvPersister.load_new(str(pkl_path))
@@ -253,6 +257,8 @@ def load_scenario_folder(folder: Path) -> dict[str, Any]:
         "path": pkl_path,
         "image": image,
         "image_url": f"/session/scenario-presets/{meta['id']}/image" if image else None,
+        "video": video,
+        "video_url": f"/session/scenario-presets/{meta['id']}/video" if video else None,
         "width": int(env.width),
         "height": int(env.height),
         "agents": len(env.agents),

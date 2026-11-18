@@ -1,7 +1,7 @@
 # Experiment scenarios
 
 A scenario for a study is a `.pkl` that holds the whole simulation, plus a
-title, a description and an optional image. The app runs it exactly as the
+title, a description and an optional image and video. The app runs it exactly as the
 file says: no disturbances, no random breakdowns, no session settings on top.
 Design: [plans/experiment-scenario-import.md](../plans/experiment-scenario-import.md).
 
@@ -41,6 +41,7 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
      "title": "Störung am Einspurabschnitt",
      "description": "First paragraph.\n\nSecond paragraph.",
      "image": "scenario.png",
+     "video": "intro.mp4",
      "source": "flatland-scenarios scenario_generator",
      "seconds_per_step": 3,
      "locked": true
@@ -52,7 +53,8 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
    | `id` | yes | Equals the folder name, and differs from every built-in preset id. |
    | `title` | yes | Heading of the intro card, and the scenario's name in "⟨name⟩ (k/N)". |
    | `description` | yes | Plain text. Blank lines separate paragraphs. |
-   | `image` | no | A file name in the same folder. |
+   | `image` | no | A file name in the same folder: `.png`, `.jpg`/`.jpeg` or `.svg`. Shown beside the text. |
+   | `video` | no | A file name in the same folder: `.mp4` (H.264/AAC, which every browser plays) or `.webm`. Shown below the text, the card's full width, with the player's own controls (play, seek, full screen). Encode it with `-movflags +faststart` so it starts before it has loaded. |
    | `source` | no | Where the scenario comes from. |
    | `seconds_per_step` | no | Real seconds one step lasts at the speed slider's «Normal», a number ≥ 0.1 (e.g. `3`, `1.5`, `60`). The slider's other levels keep their ratio to it (half as fast, 2×, 6×, 20×). Without it: 2 s. It is the pace also when the layout hides the slider. |
    | `locked` | no | `true`: the scenario runs exactly as its `.pkl` says. `POST /session` refuses `disturbance_ids`, a `malfunction_rate` above 0 and `max_episode_steps` for it (400); a live malfunction rate would replace the `.pkl`'s scheduled malfunctions. Without it: `false`, and a session may add them like on any preset. Every Plan B scenario sets it. |
@@ -132,8 +134,8 @@ Name the folder id as a leg's `scenarioId` in a guided condition
 - A condition whose leg names a scenario the backend does not list (a typo,
   or a folder left out) does not start: the start screen names the scenario.
 - Leave out `nameKey`: the leg is named by the scenario's title.
-- Leave out `intro`: the intro card shows the title, the description and the
-  image.
+- Leave out `intro`: the intro card shows the title, the description, the
+  image and the video.
 - `disturbanceIds` stays empty: a scenario ships no disturbances, so the
   backend refuses any id for it. A `locked` scenario also refuses a
   malfunction rate and an episode length (the app sends neither for a leg).

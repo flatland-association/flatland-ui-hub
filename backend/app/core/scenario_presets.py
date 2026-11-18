@@ -51,7 +51,7 @@ from pathlib import Path
 from typing import Any
 
 from app.core.disturbances import list_disturbances
-from app.core.experiment_scenarios import IMAGE_TYPES, ScenarioFolderError, load_scenario_folder
+from app.core.experiment_scenarios import IMAGE_TYPES, VIDEO_TYPES, ScenarioFolderError, load_scenario_folder
 
 _FIXTURES = Path(__file__).resolve().parent.parent / "fixtures"
 
@@ -59,7 +59,7 @@ ENV_PRESET = "env"
 SCENE_PRESET = "scene"
 
 # Keys that are implementation detail, not part of the UI payload.
-_INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_disturbances", "geography", "timetable_compression", "max_episode_steps", "image", "locked"}
+_INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_disturbances", "geography", "timetable_compression", "max_episode_steps", "image", "video", "locked"}
 
 
 # id -> metadata. `path` points at the file; width/height/agents are the loaded
@@ -376,6 +376,14 @@ def preset_image(preset_id: str) -> tuple[Path, str] | None:
     if image is None:
         return None
     return Path(image), IMAGE_TYPES[Path(image).suffix.lower()]
+
+
+def preset_video(preset_id: str) -> tuple[Path, str] | None:
+    """The scenario's video file and media type, if it has one."""
+    video = get_preset(preset_id).get("video")
+    if video is None:
+        return None
+    return Path(video), VIDEO_TYPES[Path(video).suffix.lower()]
 
 
 def preset_session_settings(preset_id: str) -> dict[str, Any]:

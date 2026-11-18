@@ -159,3 +159,13 @@
   border: 1px solid var(--app-border);
   border-radius: 4px;
 }
+
+.intro-scenario__video {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  background: var(--app-border);
+}
