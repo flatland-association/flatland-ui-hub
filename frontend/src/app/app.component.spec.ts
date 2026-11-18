@@ -298,13 +298,13 @@ describe('AppComponent', () => {
 
     // docs/plans/confirm-finish-scenario.md §4.3 (#180).
     describe('the finish dialog', () => {
-      let dialog: { open: jasmine.Spy };
+      let dialog: { open: jasmine.Spy; close: jasmine.Spy };
       let pause: jasmine.Spy;
       let play: jasmine.Spy;
       const close = (result?: string) => app.onFinishConfirmClose(Object.assign(new Event('close'), { result }));
 
       beforeEach(() => {
-        dialog = { open: jasmine.createSpy('open') };
+        dialog = { open: jasmine.createSpy('open'), close: jasmine.createSpy('close') };
         app.finishConfirmDialog = () => ({ nativeElement: dialog });
         store.session.set({ id: 's1', width: 1, height: 1, num_agents: 0 } as any);
         pause = spyOn(store, 'pause').and.callFake(() => store.playing.set(false));
@@ -331,6 +331,29 @@ describe('AppComponent', () => {
         const leg = app.tourContext.shiftHistory()[0];
         expect(leg.finishReason).toBe('clicked');
         expect(leg.finishConfirm).toEqual({ confirmed: true, backs: 1 });
+      });
+
+      it('closes without an answer when the leg ends under it', () => {
+        app.finishDemoMode();
+        // A step under way while the pause is pending ends the episode: the run moves on.
+        app.experimentRun.setPhase('legSurvey');
+        fixture.detectChanges();
+        expect(dialog.close).toHaveBeenCalled();
+        expect(app.finishConfirmOpen()).toBeFalse();
+        // Lyne's close event, or a late "Ja", answers nothing.
+        close('confirm');
+        expect(app.tourContext.shiftHistory().length).toBe(0);
+        expect(play).not.toHaveBeenCalled();
+      });
+
+      it('closes when a new session starts under it', () => {
+        app.finishDemoMode();
+        store.session.set({ id: 's2', width: 1, height: 1, num_agents: 0 } as any);
+        fixture.detectChanges();
+        expect(dialog.close).toHaveBeenCalled();
+        close();
+        app.experimentRun.finishLeg('clicked');
+        expect(app.tourContext.shiftHistory()[0].finishConfirm?.backs).withContext('no back counted').toBe(0);
       });
 
       it('does not resume what was paused before', () => {

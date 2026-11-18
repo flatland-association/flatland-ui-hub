@@ -1439,6 +1439,7 @@ export class AppComponent implements OnInit {
       // Asking costs no simulated time (docs/plans/confirm-finish-scenario.md §4.3).
       this._resumeAfterFinishConfirm = this.store.playing();
       if (this._resumeAfterFinishConfirm) this.store.pause();
+      this._finishConfirmSession = this.store.session()?.id ?? null;
       this.finishConfirmOpen.set(true);
       dialog.open();
       return;
@@ -1447,8 +1448,26 @@ export class AppComponent implements OnInit {
   }
 
   /** The finish dialog (#180): asked before a hand-made finish ends a scenario. */
-  private readonly finishConfirmDialog = viewChild<ElementRef<HTMLElement & { open(): void }>>('finishConfirm');
+  private readonly finishConfirmDialog = viewChild<ElementRef<HTMLElement & { open(): void; close(): void }>>('finishConfirm');
   private _resumeAfterFinishConfirm = false;
+  /** The session the dialog was opened on. */
+  private _finishConfirmSession: string | null = null;
+  /** The dialog never outlives its leg: the pause is a round trip, so a step
+   *  under way can still end the episode and move the run on. It closes then
+   *  without an answer, so a late "Ja" can't finish the next leg (§4.3). */
+  private readonly _finishConfirmFollowsLeg = effect(() => {
+    if (!this.finishConfirmOpen()) return;
+    const run = this.experimentRun;
+    const legOver = (run.active() && run.phase() !== 'running')
+      || this.shiftScreenOpen()
+      || (this.store.session()?.id ?? null) !== this._finishConfirmSession;
+    untracked(() => {
+      if (!legOver) return;
+      this._resumeAfterFinishConfirm = false;
+      this.finishConfirmOpen.set(false);
+      this.finishConfirmDialog()?.nativeElement.close();
+    });
+  });
   /** Logged as the overlay view `finish_confirm`, so the replay can draw it. */
   readonly finishConfirmOpen = signal(false);
   /** A run's leg in phase `running`, or a tour's mode, unless the condition or
@@ -1461,6 +1480,8 @@ export class AppComponent implements OnInit {
 
   /** "Ja" (result `confirm`) finishes; Zurück, Escape and the backdrop close without a result. */
   onFinishConfirmClose(event: Event): void {
+    // Already closed with its leg (`_finishConfirmFollowsLeg`): no answer.
+    if (!this.finishConfirmOpen()) return;
     this.finishConfirmOpen.set(false);
     const confirmed = (event as Event & { result?: unknown }).result === 'confirm';
     const resume = this._resumeAfterFinishConfirm;
