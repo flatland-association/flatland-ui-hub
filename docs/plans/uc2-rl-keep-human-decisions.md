@@ -46,6 +46,21 @@ The last decision wins, **per train**:
 - `pp_replan` is unchanged: its courses answer for every train, and accepting
   one still clears every override.
 
+## Open questions
+
+💡 **(Q-1) After accepting the full course (S-1), do the other trains keep their standing decisions?**
+Who decides: the study lead. Blocks S-1.
+
+- a) **Keep them** (stop, turn, reroute stay next to the plan). The course was simulated with them, so the
+  plan and the overrides run as shown. A train stopped until the course ends stays stopped; without its
+  override, the plan's fallback (Deadlock Avoidance in Plan B) would move it once its part of the plan runs
+  out. The dispatcher clears a decision by hand, as before.
+- b) **Clear them all**: only the accepted plan counts, as with `pp_replan`. Simpler to explain («die Züge
+  fahren nach dem Plan der KI»), but a stopped train may start again when the plan ends, and the course shown
+  was simulated with stops the dispatcher no longer sees.
+
+*Proposal:* a).
+
 ## Found while building: ROAM must see the stops
 
 Applying the stops after the joint ROAM check is not enough. ROAM certifies
@@ -291,4 +306,4 @@ Issue references: the PR body closes no issue; nothing to check.
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
-| 💡 S-1 | F-1 | Accept and scoring take the full course: drop `_plan_without` in `/proposals` scoring and in `/proposals/apply` (`overrides.py:563,673`), keep the other trains' overrides. Tests: after the accept a train with a kept stop or turn runs as the course showed (stop ahead of its switch, turn); a course that runs into a conflict is replaced by accepting another suggestion from the new state, and the second accept replaces the whole plan (the timetable stays the yardstick). | fix | medium | fix(proposals): take uc2_rl's full course as the plan, so a train with a kept decision runs as the course showed. | | - | - |
+| 💡 S-1 | F-1 | Accept and scoring take the full course: drop `_plan_without` in `/proposals` scoring and in `/proposals/apply` (`overrides.py:563,673`), keep the other trains' overrides. Tests: after the accept a train with a kept stop or turn runs as the course showed (stop ahead of its switch, turn); a course that runs into a conflict is replaced by accepting another suggestion from the new state, and the second accept replaces the whole plan (the timetable stays the yardstick). | fix | medium | fix(proposals): take uc2_rl's full course as the plan, so a train with a kept decision runs as the course showed. | | - |Q-1 |
