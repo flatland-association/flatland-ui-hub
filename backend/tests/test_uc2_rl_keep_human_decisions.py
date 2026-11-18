@@ -16,7 +16,7 @@ from app.api.overrides import ProposalApplyRequest, apply_proposal, get_proposal
 from app.core.env_factory import create_env
 from app.core.override_manager import override_manager
 from app.core.proposal_agents import registry as proposal_registry
-from app.core.proposal_agents.uc2_rl import UC2RLProposalAgent
+from app.core.proposal_agents.uc2_rl import UC2RLProposalAgent, _use_up_turns
 from app.core.scenario_runner import TrajectoryBranchRunner
 from app.core.session_manager import session_manager
 from app.policies import registry
@@ -213,6 +213,16 @@ def test_round_a_train_the_dispatcher_stopped():
             assert agent_position(env.agents[0]) == (2, 13)
         finally:
             client.delete(f"/session/{sid}")
+
+
+def test_a_kept_turn_is_used_up_only_when_the_certified_step_takes_it():
+    """Joint ROAM may withdraw a turn (STOP instead): the train is still before
+    its switch and keeps the turn, as live, where the turn waits for the switch."""
+    kept = {0: 1, 1: STOP}
+    _use_up_turns(kept, {0}, {0: STOP, 1: STOP})
+    assert kept == {0: 1, 1: STOP}
+    _use_up_turns(kept, {0}, {0: 1, 1: STOP})
+    assert kept == {1: STOP}
 
 
 @pytest.mark.integration

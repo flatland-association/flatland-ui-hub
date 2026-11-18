@@ -169,11 +169,12 @@ def _opportunities(env, prepared, certified, handle, branch_cells, wait_found):
     return found, wait_found
 
 
-def _apply_kept_overrides(env: RailEnv, proposals: dict, overrides: Dict[int, int]) -> None:
+def _apply_kept_overrides(env: RailEnv, proposals: dict, overrides: Dict[int, int]) -> set[int]:
     """Put the operator's standing overrides into the proposals, by the live
     `OverridePolicy`'s rules: a reroute's move every step; any other action
-    only at the train's decision point (switch or merge), where a stop stays
-    and a turn is used up (removed from `overrides`).
+    only at the train's decision point (switch or merge), where a stop stays.
+    Returns the trains given a turn there: the caller uses the turn up only if
+    the certified step still takes it (`_use_up_turns`).
 
     Called before Joint ROAM certifies the batch. Applied after it, ROAM would
     certify a stopped train's proposed move and withdraw another train's move
@@ -181,6 +182,7 @@ def _apply_kept_overrides(env: RailEnv, proposals: dict, overrides: Dict[int, in
     from app.core.cell_classifier import classify_cell_at
     from app.core.route_overrides import REROUTE_ACTION, route_move
 
+    turned: set[int] = set()
     for handle, action in list(overrides.items()):
         if handle not in proposals:
             continue
@@ -198,7 +200,16 @@ def _apply_kept_overrides(env: RailEnv, proposals: dict, overrides: Dict[int, in
         if classify_cell_at(env, (int(position[0]), int(position[1])), int(direction)) in ("SWITCH", "MERGING"):
             proposals[handle] = int(action)
             if int(action) != STOP:
-                del overrides[handle]
+                turned.add(handle)
+    return turned
+
+
+def _use_up_turns(overrides: Dict[int, int], turned: set[int], actions: dict) -> None:
+    """A turn is one-shot, as live: gone once the certified step takes it. If
+    Joint ROAM withdrew it, the train is still before its switch and keeps it."""
+    for handle in turned:
+        if _action_value(actions[handle]) == overrides.get(handle):
+            del overrides[handle]
 
 
 def _action_value(action) -> int:
@@ -263,8 +274,9 @@ def _rollout(env: RailEnv, horizon: Optional[int] = None,
                 if now == intervention.step and int(raw[intervention.handle]) == intervention.action:
                     return {}, []
                 raw[intervention.handle] = intervention.action
-            _apply_kept_overrides(fork, raw, kept)
+            turned = _apply_kept_overrides(fork, raw, kept)
             actions = policy.finalize_actions(raw)
+            _use_up_turns(kept, turned, actions)
             if forcing:
                 if int(actions[intervention.handle]) != intervention.action:
                     return {}, []  # Joint certificate withdrew this alternative.
