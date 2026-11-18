@@ -3,7 +3,8 @@
 > **Status:** plan of 2026-11-18, draft. Based on `feature/uc2-rl-keep-human-decisions` 04c23d49 (PR
 > [#208](https://github.com/flatland-association/flatland-ui-hub/pull/208)), which builds on PR
 > [#196](https://github.com/flatland-association/flatland-ui-hub/pull/196) (`codex/pf-ch-rl-main` 29b31139), both
-> open, in stack 213. Branch `refactor/196-modularization`, the third PR of the stack (not opened yet). Q-1–Q-4
+> open, in stack 213. Branch `refactor/196-modularization`, PR
+> [#215](https://github.com/flatland-association/flatland-ui-hub/pull/215), the third PR of the stack. Q-1–Q-4
 > decided 2026-11-18 (§9.2); S-0–S-4 done.
 >
 > **Why:** the review of #196 ([its plan](pf-ch-rl-main-integration.md), "Code Review Findings") found that the two
