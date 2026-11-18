@@ -1,8 +1,8 @@
 # RL drivers through the existing seams: the modularization findings of #196
 
-> **Status:** plan of 2026-11-18, draft. Based on `feature/uc2-rl-keep-human-decisions` 04c23d49 (PR
+> **Status:** plan of 2026-11-18, draft. Based on `feature/uc2-rl-keep-human-decisions` 83880783 (PR
 > [#208](https://github.com/flatland-association/flatland-ui-hub/pull/208)), which builds on PR
-> [#196](https://github.com/flatland-association/flatland-ui-hub/pull/196) (`codex/pf-ch-rl-main` 29b31139), both
+> [#196](https://github.com/flatland-association/flatland-ui-hub/pull/196) (`codex/pf-ch-rl-main` eb047b67), both
 > open, in stack 213. Branch `refactor/196-modularization`, PR
 > [#215](https://github.com/flatland-association/flatland-ui-hub/pull/215), the third PR of the stack. Q-1–Q-4
 > decided 2026-11-18 (§9.2); S-0–S-4 done.
@@ -91,7 +91,7 @@ Not checked in code; they hold by construction of the deployment and the registr
 - A learned driver's `PolicySpec` names its bundle; the bundle module keeps `compatibility_error(env)` and
   `verify_bundle()`.
 
-## 3. Context and scope (checked 2026-11-18 on `feature/uc2-rl-keep-human-decisions` 04c23d49)
+## 3. Context and scope (checked 2026-11-18 on `feature/uc2-rl-keep-human-decisions` 83880783)
 
 *The code on the base branch that the change works in, as it is before the change, and where the change stops.*
 
@@ -599,11 +599,11 @@ A planner that does not take the weights would plan, but still ignore the strate
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
-| ✅ S-0 | - | This plan and #196's findings in its plan. | docs | low | docs(plans): record the review of #196 and plan its modularization findings. | 62a2cd79 | - | - |
-| ✅ S-1 | F-2 | `PolicySpec.bundle`; `is_specialist_policy`, `preflight_policy`, `_policy_factory_for` and `driving_policy_id` ask the spec; `/policies` serves `specialist`. Tests: the specs' fields, the catalog field. | refactor | high | refactor(policies): describe learned drivers on their PolicySpec instead of a second registry. | 46a54389 | S-0 | - |
-| ✅ S-2 | F-3 | `ProposalAgent.forecast_horizon`, UC2 overrides it; the arrival reference without UC2 checks, the same for every agent. Tests: defaults, UC2, the yardstick after an accept. | refactor | high | refactor(proposals): let the proposal agent decide its horizon and drop the UC2 checks from the yardstick. | f3ecafd7 | S-0 | - |
-| ✅ S-3 | F-9 | The middleware only locks and stops play for destructive requests; `/play`, `/step`, `/policy` stop the old actor and take the lock themselves. Tests: `test_pf_ch_request_control` adapted, no `app.api` import in core. | refactor | medium | refactor(sessions): decide the actor change in the endpoints and keep the middleware to the lock. | 862bad6b | S-1 | - |
-| ✅ S-4 | F-4 | The frontend reads `specialist` from the catalog; a pinned policy wins in Director; the RL presets choose their controls; plan check and footer survey as on `main`; the panel-mode matrix says Director runs with any driver. Tests: toolbar, app, shift review, session specs. | refactor | high | refactor(rl-tours): ask the policy catalog and the presets instead of hardcoded ids. | 1c2ff0c7 | S-1 | - |
+| ✅ S-0 | - | This plan and #196's findings in its plan. | docs | low | docs(plans): record the review of #196 and plan its modularization findings. | 29a660f1 | - | - |
+| ✅ S-1 | F-2 | `PolicySpec.bundle`; `is_specialist_policy`, `preflight_policy`, `_policy_factory_for` and `driving_policy_id` ask the spec; `/policies` serves `specialist`. Tests: the specs' fields, the catalog field. | refactor | high | refactor(policies): describe learned drivers on their PolicySpec instead of a second registry. | ddea093e | S-0 | - |
+| ✅ S-2 | F-3 | `ProposalAgent.forecast_horizon`, UC2 overrides it; the arrival reference without UC2 checks, the same for every agent. Tests: defaults, UC2, the yardstick after an accept. | refactor | high | refactor(proposals): let the proposal agent decide its horizon and drop the UC2 checks from the yardstick. | ae966be0 | S-0 | - |
+| ✅ S-3 | F-9 | The middleware only locks and stops play for destructive requests; `/play`, `/step`, `/policy` stop the old actor and take the lock themselves. Tests: `test_pf_ch_request_control` adapted, no `app.api` import in core. | refactor | medium | refactor(sessions): decide the actor change in the endpoints and keep the middleware to the lock. | dd8c1950 | S-1 | - |
+| ✅ S-4 | F-4 | The frontend reads `specialist` from the catalog; a pinned policy wins in Director; the RL presets choose their controls; plan check and footer survey as on `main`; the panel-mode matrix says Director runs with any driver. Tests: toolbar, app, shift review, session specs. | refactor | high | refactor(rl-tours): ask the policy catalog and the presets instead of hardcoded ids. | cb91b91f | S-1 | - |
 
 ### 11.2 Rebase and merge
 
