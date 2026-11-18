@@ -4,7 +4,7 @@
 > [#208](https://github.com/flatland-association/flatland-ui-hub/pull/208)), which builds on PR
 > [#196](https://github.com/flatland-association/flatland-ui-hub/pull/196) (`codex/pf-ch-rl-main` 29b31139), both
 > open, in stack 213. Branch `refactor/196-modularization`, the third PR of the stack (not opened yet). Q-1–Q-4
-> decided 2026-11-18 (§9.2).
+> decided 2026-11-18 (§9.2); S-0–S-4 done.
 >
 > **Why:** the review of #196 ([its plan](pf-ch-rl-main-integration.md), "Code Review Findings") found that the two
 > learned drivers (`pf_ch_rl`, `uc2_rl`) bypass concepts the code already has: a second policy registry, UC2 checks by
@@ -134,8 +134,9 @@ is not new on purpose.*
 - **DP-1 The registry describes a policy.** Whether a policy is a learned driver, what it checks before it may drive,
   and whether its inference runs in the worker are fields of its `PolicySpec`; `pf_ch_control` reads them, it keeps no
   list of its own. (REQ-2, Q-3)
-- **DP-2 The proposal agent describes its forecast.** Horizon and arrival reference are methods of `ProposalAgent`
-  with PP's behaviour as default. (REQ-3)
+- **DP-2 The proposal agent describes its forecast, the API keeps the yardstick.** The horizon is a method of
+  `ProposalAgent` with PP's behaviour as default; the arrival reference is the scenario's, the same for every agent.
+  (REQ-3)
 - **DP-3 The browser asks the catalog, the mode keeps its meaning.** "Specialist" comes from the policy catalog; which
   controls a layout shows comes from its preset; Director mode means the same with every driver, and a pinned
   policy wins over its switch to `goal_directed`. (REQ-4, Q-1, Q-3)
@@ -148,9 +149,10 @@ Reused concepts:
 | Need | Reused concept | Instead of |
 |---|---|---|
 | Which policies are learned drivers | `PolicySpec` in `registry.py` | `_SPECIALIST_BUNDLES` in `pf_ch_control.py` |
-| Forecast horizon and yardstick per agent | `ProposalAgent` (`proposal_agents/base.py`) | `agent.id` and grid-size checks in `overrides.py` |
+| Forecast horizon per agent | `ProposalAgent` (`proposal_agents/base.py`) | `agent.id` check in `overrides.py` |
+| Yardstick after an accept | The stashed timetable (`install_trainrun_plan`, `_baseline_trainrun_plan`) | Grid-size and bundle checks in `overrides.py` |
 | Is a policy a learned driver (browser) | Policy catalog `/policies` (`PolicyInfo`) | `isFixedActorPolicy` with hardcoded ids |
-| Which controls an RL tour shows | Preset `ui.hidden: ['widget.director-directive']` and a `toolbar` panel (`widget-catalog.ts:905`) | `directDriverControls` with preset ids in `app.component` |
+| Which controls an RL tour shows | Preset `ui.hidden: ['widget.director-directive']`, plus `headerToolbar` (new field, §4.5) | `directDriverControls` with preset ids in `app.component` |
 | Keep the RL driver in Director | Pinned policy (`pinnedPolicy`, #196), as `main`'s "a picked policy wins" | `isFixedActorPolicy` in `setInteractionMode` |
 | Plan check without a plan | `main`'s 400 path of `/director/verify` | The id check in `shift-review` |
 | Footer survey of a demo | The tour's own `demoSurveyEnabled` | `directDriverControls` in `footerSurveyAllowed` |
@@ -162,17 +164,20 @@ Not new on purpose: no new endpoint, no new mode, no new UI restriction id, no n
 
 *How each requirement and quality goal is shown to work: tests, CI checks, before and after screenshots.*
 
-No visible change, so no screenshots; the RL tours are checked in the running app (production build) for the toolbar,
-the hidden directive bar and the footer survey.
+No visible change in the RL tours, so no before/after screenshots. The RL tours and `corridor-director` were opened
+by deep link in the production build (preview backend on the branch, headless Chromium, 2026-11-18): the catalog's
+`specialist` arrives before the pinned session opens, the RL driver stays selected in Director, the header toolbar
+(Pause, speed, policy, "Finish tour") shows and the directive bar does not; `uc2-rl-1` played to step 15, no page
+errors; `corridor-director` keeps `goal_directed` and its directive bar.
 
 | ID | Requirement | Test or check | Result | Screenshots |
 |---|---|---|---|---|
-| REQ-1 | Findings recorded | #196's plan, "Code Review Findings" | 💡 | - |
-| REQ-2 | One registry | `test_policy_registry*`: the spec fields of `uc2_rl`/`pf_ch_rl`; `grep` finds no `_SPECIALIST_BUNDLES`, no `{"uc2_rl", "pf_ch_rl"}`; existing `test_pf_ch_*`, `test_uc2_*` green | 💡 | - |
-| REQ-3 | Agent decides horizon and yardstick | `test_proposal_agents`: PP's defaults, UC2's overrides; existing proposal tests green | 💡 | - |
-| REQ-4 | Catalog and `ui` block | `toolbar.component.spec`, `app.component.spec`, `pf-ch-session.spec`, `uc2-session.spec` green with the catalog flag; a spec for the presets' `ui.hidden` | 💡 | - |
-| REQ-5 | No body parsing | `test_pf_ch_request_control` green (actor change via `/play`, `/policy`); no `app.api` import in `app/core` | 💡 | - |
-| NFR-1 | Same behaviour | Full backend suite and frontend suite, production build | 💡 | - |
+| REQ-1 | Findings recorded | #196's plan, "Code Review Findings" (F-2, F-3, F-4, F-9 marked fixed) | ✅ | - |
+| REQ-2 | One registry | `test_policy_specialists`: the specs' bundles, the check reads the registry, no `_SPECIALIST_BUNDLES`, the forecast factory, the catalog flag; `test_pf_ch_*`, `test_uc2_*` green | ✅ | - |
+| REQ-3 | Agent decides its horizon, the yardstick is the scenario's | `test_proposal_forecast_seams`: PP's bounded horizon, UC2's full replay, an accepted course is no yardstick; `test_native_deadline_yardstick_survives_accepting_a_trainrun_plan` green | ✅ | - |
+| REQ-4 | Catalog and presets | `pf-ch-session.spec` (catalog wait, pinned driver in Director, picked driver gets the planner, preset controls), `uc2-session.spec`, `pinned-policy.spec` (pin wins in Director), `toolbar.component.spec`, `shift-review.component.spec` (400 path), `app.component.spec` | ✅ | - |
+| REQ-5 | No body parsing | `test_pf_ch_request_control`: the middleware lets `/play`, `/step`, `/policy` through, `actor_transaction` stops before the wait, the control module imports no `app.api` | ✅ | - |
+| NFR-1 | Same behaviour | Backend 1077 passed (`test_smoke::test_root` fails locally only because `backend/static` exists); frontend 860 specs, production build, i18n and style checks green | ✅ | - |
 
 ### 4.3 Learned drivers in the registry (REQ-2; Q-3)
 
@@ -189,10 +194,13 @@ the hidden directive bar and the footer survey.
 
 - `ProposalAgent.forecast_horizon(env)`: PP's bounded horizon (`min(max(50, max_ep - elapsed), 250)`, 200 without a
   limit). `UC2RLProposalAgent` overrides it with the remaining episode.
-- `ProposalAgent.arrival_reference(env)`: deadlines plus planned arrivals (today's non-UC2 branch).
-  `UC2RLProposalAgent` returns the native deadlines when its bundle accepts the env (`compatibility_error(env) is
-  None`), the default otherwise. The grid-size check goes.
-- `overrides.py` calls both on the agent; `proposal_arrival_reference` goes (its one caller).
+- The arrival reference stays in the API, the same for every agent: the seam's rule is that no agent grades its
+  own work (`proposal_agents/base.py`). The UC2 check (grid sizes plus bundle) covered one case: on a scenario that
+  shipped no plan, accepting a course stashes no timetable, so `planned_arrival_steps` would read the accepted course
+  as the plan. `proposal_arrival_reference` now says so for every scenario: after an accept with no stashed
+  timetable, the deadlines are the only reference. Changed on implementation (2026-11-18), instead of an agent
+  method; see §8.2 for the one case that behaves differently.
+- `overrides.py` asks the agent for the horizon.
 
 ### 4.5 The browser asks the catalog, Director mode as on `main` (REQ-4; Q-1, Q-3)
 
@@ -204,8 +212,11 @@ the hidden directive bar and the footer survey.
 - Director mode as on `main` (Q-1 a‴):
   - **A pinned policy wins:** the store remembers the session's pinned policy; entering Director keeps it instead
     of switching to `goal_directed` (`main`'s "a picked policy wins", generalised).
-  - **The RL presets choose their controls:** `ui.hidden: ['widget.director-directive']` and a `toolbar` panel in
-    their layout; `directDriverControls` and its preset ids go, the header toolbar follows `main`'s rule again.
+  - **The RL presets choose their controls:** `ui.hidden: ['widget.director-directive']` and `headerToolbar: true`,
+    a new optional `LayoutPreset` field that keeps the header toolbar in a runtime layout; `directDriverControls`
+    and its preset ids go. Changed on implementation (2026-11-18): the `toolbar` panel of Q-1's table is not
+    wired like the header toolbar (no "Finish tour", no reset or settings), so the RL tours would have lost their
+    demo controls; with the field nothing moves.
   - **The shift review** asks `/director/verify` as on `main`; without a `goal_directed` plan it answers 400 and the
     check is left out.
   - **The footer survey button** shows unless the tour disables its survey (`demoSurveyEnabled`), for every tour.
@@ -258,24 +269,30 @@ Compared with `feature/uc2-rl-keep-human-decisions`. What is reused, and what is
 | ID | New | Defined in |
 |---|---|---|
 | PAT-1 | A policy's capabilities live on its `PolicySpec` (`bundle`), and the catalog serves them (`specialist`). | §4.3, Q-3 |
-| PAT-2 | A proposal agent owns its forecast horizon and arrival reference. | §4.4 |
+| PAT-2 | A proposal agent owns its forecast horizon (`forecast_horizon`). | §4.4 |
 | PAT-3 | A pinned policy wins over Director mode's switch to `goal_directed`. | §4.5, Q-1 |
 | PAT-4 | An endpoint that switches the actor owns the command lock: it stops the old actor, then waits for the lock. | §4.6, Q-2 |
+| PAT-5 | A layout preset may keep the header toolbar in its runtime layout (`LayoutPreset.headerToolbar`). | §4.5 |
+| PAT-6 | A session opened with a pinned policy waits until the policy catalog is known. | §4.5 |
 
 ### 8.2 Breaking changes
 
 *What breaks for whom, and the migration path.*
 
-None for callers: `/policies` gains a field, every endpoint keeps its request and response. `ProposalAgent` gains two
-methods with defaults, so existing agents keep working. Internal only: `pf_ch_control._SPECIALIST_BUNDLES` and
-`overrides.proposal_arrival_reference` go (no importer outside the moved code; tests that patch them are updated in
-their step).
+None for callers: `/policies` gains a field, every endpoint keeps its request and response. `ProposalAgent` gains
+`forecast_horizon` with a default, so existing agents keep working; a test double of an agent needs it (one test
+updated). `LayoutPreset` gains an optional field. Internal only: `pf_ch_control._SPECIALIST_BUNDLES` and
+`_requested_policy` go, `set_session_policy` is `async` (its tests await it), and the frontend's
+`isFixedActorPolicy` is replaced by `SessionStore.isSpecialistPolicy` (specs updated).
 
 Visible, decided with Q-1 (2026-11-18):
 
-- The RL tours show the toolbar as a panel of their layout instead of in the header.
 - `corridor-director` (a Director tour with "No survey") no longer shows the footer survey button in its shift
   review; the RL tours keep theirs hidden.
+- A session where the human picked an RL driver (not pinned by a tour) switches to `goal_directed` on entering
+  Director, as every picked policy does on `main`.
+- Proposal scoring on a scenario that shipped no plan and is not a native UC2 one: after an accept, the yardstick
+  is the deadlines, no longer the accepted course itself (§4.4).
 
 ## 9. Decisions
 
@@ -331,7 +348,8 @@ preset needs code edits.
   files, about 16 specs, a matrix column, the briefings, i18n, and the logged `mode` values.
 - c) **Leave it as on #196:** the hidden mode stays.
 
-*Proposal:* a‴). Decided 2026-11-18: a‴), with both points accepted. Two points to confirm with it: the toolbar moves from the header into the RL presets' layout, and the
+*Proposal:* a‴). Decided 2026-11-18: a‴), with both points accepted. On implementation the toolbar did not move:
+the `toolbar` panel lacks the demo controls, so the presets keep the header toolbar by a field (§4.5). Two points to confirm with it: the toolbar moves from the header into the RL presets' layout, and the
 footer survey button also disappears in `corridor-director`.
 
 ✅ **(Q-2) Where is the session's command lock taken?** Blocks S-3.
@@ -580,11 +598,11 @@ A planner that does not take the weights would plan, but still ignore the strate
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
-| 💡 S-0 | - | This plan and #196's findings in its plan. | docs | low | docs(plans): record the review of #196 and plan its modularization findings. |  | - | - |
-| 💡 S-1 | F-2 | `PolicySpec.bundle`; `is_specialist_policy`, `preflight_policy`, `_policy_factory_for` and `driving_policy_id` ask the spec; `/policies` serves `specialist`. Tests: the specs' fields, the catalog field. | refactor | high | refactor(policies): describe learned drivers on their PolicySpec instead of a second registry. |  | S-0 | - |
-| 💡 S-2 | F-3 | `ProposalAgent.forecast_horizon` and `arrival_reference`; UC2 overrides both (bundle compatibility instead of grid sizes). Tests: defaults and UC2. | refactor | high | refactor(proposals): let the proposal agent decide its horizon and arrival reference. |  | S-0 | - |
-| 💡 S-3 | F-9 | The middleware only locks and stops play for destructive requests; `/play`, `/step`, `/policy` stop the old actor and take the lock themselves. Tests: `test_pf_ch_request_control` adapted, no `app.api` import in core. | refactor | medium | refactor(sessions): decide the actor change in the endpoints and keep the middleware to the lock. |  | S-1 | - |
-| 💡 S-4 | F-4 | The frontend reads `specialist` from the catalog; a pinned policy wins in Director; the RL presets choose their controls; plan check and footer survey as on `main`; the panel-mode matrix says Director runs with any driver. Tests: toolbar, app, shift review, session specs. | refactor | high | refactor(rl-tours): ask the policy catalog and the presets instead of hardcoded ids. |  | S-1 | - |
+| ✅ S-0 | - | This plan and #196's findings in its plan. | docs | low | docs(plans): record the review of #196 and plan its modularization findings. | 62a2cd79 | - | - |
+| ✅ S-1 | F-2 | `PolicySpec.bundle`; `is_specialist_policy`, `preflight_policy`, `_policy_factory_for` and `driving_policy_id` ask the spec; `/policies` serves `specialist`. Tests: the specs' fields, the catalog field. | refactor | high | refactor(policies): describe learned drivers on their PolicySpec instead of a second registry. | 46a54389 | S-0 | - |
+| ✅ S-2 | F-3 | `ProposalAgent.forecast_horizon`, UC2 overrides it; the arrival reference without UC2 checks, the same for every agent. Tests: defaults, UC2, the yardstick after an accept. | refactor | high | refactor(proposals): let the proposal agent decide its horizon and drop the UC2 checks from the yardstick. | f3ecafd7 | S-0 | - |
+| ✅ S-3 | F-9 | The middleware only locks and stops play for destructive requests; `/play`, `/step`, `/policy` stop the old actor and take the lock themselves. Tests: `test_pf_ch_request_control` adapted, no `app.api` import in core. | refactor | medium | refactor(sessions): decide the actor change in the endpoints and keep the middleware to the lock. | 862bad6b | S-1 | - |
+| ✅ S-4 | F-4 | The frontend reads `specialist` from the catalog; a pinned policy wins in Director; the RL presets choose their controls; plan check and footer survey as on `main`; the panel-mode matrix says Director runs with any driver. Tests: toolbar, app, shift review, session specs. | refactor | high | refactor(rl-tours): ask the policy catalog and the presets instead of hardcoded ids. | 1c2ff0c7 | S-1 | - |
 
 ### 11.2 Rebase and merge
 
@@ -605,6 +623,8 @@ conflicts: `overrides.py` (#208's accept and scoring code sits next to the horiz
 | File | Adds |
 |---|---|
 | `docs/plans/rl-modularization.md` | This plan. |
+| `backend/tests/test_policy_specialists.py` | The specs' bundles, the registry check, the catalog flag (S-1). |
+| `backend/tests/test_proposal_forecast_seams.py` | The agents' horizons, the yardstick after an accept (S-2). |
 
 ### 12.2 Modified files
 
@@ -617,9 +637,9 @@ conflicts: `overrides.py` (#208's accept and scoring code sits next to the horiz
 | `backend/app/core/pf_ch_control.py` | No `_SPECIALIST_BUNDLES` (S-1); middleware without body parsing (S-3). |
 | `backend/app/api/policies.py`, `backend/app/models/*` (catalog model) | `specialist` (S-1). |
 | `backend/app/api/overrides.py` | `_policy_factory_for` asks the spec (S-1); horizon and yardstick from the agent (S-2). |
-| `backend/app/core/proposal_agents/base.py`, `uc2_rl.py` | `forecast_horizon`, `arrival_reference` (S-2). |
+| `backend/app/core/proposal_agents/base.py`, `uc2_rl.py` | `forecast_horizon` (S-2). |
 | `backend/app/api/sessions.py`, `backend/app/api/websockets.py` | `/step`, `/policy` (now `async`) and `/play` stop the old actor and take the lock themselves (S-3). |
-| `frontend/src/app/core/models.ts`, `session.store.ts`, `app.component.{ts,html}`, `features/toolbar/*`, `features/shift-review/shift-review.component.ts`, `core/layout/layout-presets.ts` | Catalog flag instead of ids, the pinned policy wins, the RL presets' `ui.hidden` and `toolbar` panel (S-4). |
+| `frontend/src/app/core/models.ts`, `session.store.ts`, `app.component.{ts,html}`, `features/toolbar/*`, `features/shift-review/shift-review.component.ts`, `core/layout/layout-presets.ts` | Catalog flag instead of ids, the pinned policy wins, the catalog wait, `LayoutPreset.headerToolbar` and the RL presets' `ui.hidden` (S-4). |
 | `docs/reference/panel-mode-matrix.md` | Director mode runs with any driver; the objective-level widgets need one that accepts directives (S-4, Q-1 a‴). |
 | Tests of the touched files | As in §4.2. |
 
