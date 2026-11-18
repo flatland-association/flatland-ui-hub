@@ -571,6 +571,82 @@ and the RL driver gets the overrides only after `finalize_actions`. The trains f
 targets, not only to the next switch; a train that leaves it (a turn or reroute) is off plan for the rest of the
 episode.
 
+### 6.5 How Joint ROAM decides whether a kept override's move happens (context for Q-11, Q-13)
+
+One step of #208's `uc2_rl` rollout (`uc2_rl._rollout`, `uc2_roam_policy.py`, `roam_check.py`,
+`roam_joint_check.py`; vendored from `ecml2026-starterkit`). ROAM is "Reserve Only if All Missions stay achievable":
+
+- **Mission:** a train's open waypoint groups (its remaining stops) and its target, from the UC2 observation
+  builder.
+- **Stuck trains** (`stuck_trains`): trains are removed one by one when one can reach its target through its
+  remaining stops (`can_complete`, a search over the rail graph with the cells of the trains still waiting blocked);
+  a removed train frees its cell; whoever is left when no train can be removed is stuck. Bounded partial moves are
+  tried before giving up.
+- **Certificate:** a step is safe if, after it, no train is stuck that was not stuck before (baseline). This is a
+  sufficient test, not a proof of a physical deadlock.
+- **Before inference** (`action_mask`): per train, actions whose move alone would add a stuck train are masked; a
+  move into a cell whose holder can leave in the same step is allowed conditionally. The model picks within the mask.
+- **Kept overrides** are written into the raw proposals after inference (`_apply_kept_overrides`), so they bypass
+  the mask; only `withdraw` checks them.
+- **Withdraw** (`JointRoamCheck.withdraw`): resolve the joint move as Flatland would (`MotionCheck`: a train whose
+  next cell stays taken does not move), apply all moves (`joint_after`, at most one train per resource), compute the
+  stuck trains; if new ones appear, the highest-handle mover involved falls back (stop, or wait off the map), and the
+  loop repeats (at most trains + 1 rounds). The victim may be the overridden train or another one.
+
+```mermaid
+sequenceDiagram
+    participant RO as uc2_rl rollout (_rollout, on a fork)
+    participant P as UC2RoamPolicy
+    participant J as JointRoamCheck (Joint ROAM)
+    participant MC as MotionCheck (Flatland)
+    participant ST as stuck_trains (completion order)
+    participant ENV as RailEnv (fork)
+    RO->>P: start_step, prepare_inference
+    P->>J: action_mask with the open waypoint groups
+    J->>ST: per train and action, are all missions still achievable after it
+    ST-->>J: stuck trains before (baseline) and after
+    J-->>P: masks, unsafe actions masked, moves into a cell whose holder can leave allowed conditionally
+    P-->>RO: observations with the masks
+    RO->>P: infer_prepared
+    P-->>RO: raw proposals, one action per train within its mask
+    RO->>RO: _apply_kept_overrides, reroute move every step, stop or turn at a decision point
+    Note over RO: injected actions bypass the mask, only withdraw checks them
+    RO->>P: finalize_actions with the proposals
+    P->>J: withdraw
+    loop at most trains plus one rounds
+        J->>MC: where does each train end up with these actions
+        MC-->>J: actual cells, a train whose cell is taken stays
+        J->>J: joint_after, apply all moves, at most one train per resource
+        J->>ST: which trains can no longer finish their missions
+        ST-->>J: stuck trains after the step
+        alt no new stuck train
+            J->>J: certified, stop
+        else a new stuck train or a shared resource
+            J->>J: victim, highest handle among the movers involved
+            J->>J: victim's action becomes its fallback, stop (or wait off the map)
+        end
+    end
+    J-->>P: certified actions, withdrawn handles
+    P-->>RO: actions
+    RO->>RO: _use_up_turns, a turn that went through is used up, a withdrawn one stays
+    RO->>ENV: step
+```
+
+Notation: [UML sequence diagram in Mermaid](https://mermaid.js.org/syntax/sequenceDiagram.html).
+
+So a kept reroute's move goes ahead only if the joint step keeps every mission achievable, not merely if the next
+cell is free; a withdrawn route move keeps the override and is tried again next step. **Gap:** `can_complete` lets
+every train take any path through its stops; it does not know that a rerouted train is bound to its route. ROAM can
+certify a step after which the only completion needs the rerouted train off its route; from then on its route move
+would be withdrawn every step, and the train would stand while ROAM still counts its mission achievable (read in
+the code, not tested).
+
+| Where | Does a route move go ahead when the next cell is free? | What decides |
+|---|---|---|
+| #208 KI rollout | not necessarily | Joint ROAM after injection: every mission stays achievable, with free paths, not the route |
+| UC2 driver live (#196, RL tours) | yes | only Flatland's motion check: `apply_overrides` comes after `finalize_actions` |
+| DLA on this branch (Plan B) | not necessarily | DLA along the route: no oncoming train on the stretch ahead; DLA's stop wins |
+
 ## 8. Crosscutting concepts
 
 ### 8.1 New patterns
@@ -689,9 +765,16 @@ its seam goes. `respects_overrides` stays as it is: it is about an adviser's cou
   turns become knowledge although for ROAM they are actions.
 - d) b or c in this PR: changes `uc2_rl.py`, `uc2_roam_policy.py`, `websockets.py` and `override_policy.py` of #196
   and #208 while both are open.
+- e) As b, plus the route as the mission: for a rerouted train, ROAM gets single-cell waypoint groups at the route's
+  via cells (with their heading), then its target, instead of its open stops (§6.5, `open_waypoint_groups`). Then
+  `can_complete` only finds paths along the drawn route, so ROAM no longer certifies a step after which the train
+  could finish only off its route (the stall of §6.5). A few lines where the groups are built (the `uc2_rl` rollout,
+  the RL driver), ROAM itself unchanged. A held train would need its own treatment (it does not move until released).
 
 *Proposed:* b, as a follow-up. Knowledge (routes) needs a call on the planner (Q-4 b); actions only need the
-wrapper, at the point where the driver's own phases already separate proposing from certifying.
+wrapper, at the point where the driver's own phases already separate proposing from certifying. With b, ROAM checks
+each step but not the route ahead: a rerouted train can stall (§6.5); a test with a drawn route under the UC2 driver
+belongs to the follow-up. e closes that gap at the mission level; whether it is needed depends on that test.
 
 💡 **(Q-12) Does `PlanPolicy` pass the Q-4 b call on to its fallback?** Raised 2026-11-18 (§6.4). After a KI course is
 accepted, `PlanPolicy` drives with DLA as fallback, but answers the call with the `Policy` default (False), so DLA
@@ -714,7 +797,8 @@ unaware of the route: it sees the effect in the env afterwards.
   a kept override, #208): the other trains wait for it through plan order. Needs a taken KI course; covers only a
   train the KI is not asked about; the rerouted train still leaves its run; a different interaction.
 - d) Make UC2 the Plan B driver and use Q-11 b only: ROAM certifies the step with the route's move in it, but not the
-  route further ahead; needs a test first, and changes the study condition (study leads decide).
+  route further ahead, so the rerouted train can stall (§6.5); needs a test first, and changes the study condition
+  (study leads decide).
 
 *Proposed:* a. chenkins decides.
 
@@ -736,25 +820,33 @@ No review yet.
 
 ## 10. Glossary
 
-- **Fahrweg einstellen, set a route**: the operator decides a train's route over the switches ahead. Here: drawing it
-  on the Streckenspiegel. Not a timetable change.
-- **Reroute** ("Umleiten", override action 5, `REROUTE_ACTION`): a whole route for one train, kept on the env
-  (`env._route_overrides`) and driven by `OverridePolicy` until the train arrives. Today always computed; with this
-  plan also drawn.
-- **Override-aware policy** (`Policy.set_committed_overrides`, PAT-4): a driving policy that is told the committed
-  holds and routes before each step and plans around them (DLA). Not an adviser that keeps decisions.
-- **Keeps the decisions** (`ProposalAgent.respects_overrides`, #208): an adviser whose courses keep the other trains'
-  standing overrides, and whose accepted course clears only the selected train's (`uc2_rl`). Not a driving policy.
-- **Driver** (driving policy): the policy `OverridePolicy` wraps for live steps and forks. Plan B: DLA, after a taken
-  KI course `PlanPolicy` with DLA as fallback. Not the proposal agent.
-- **Taken (accepted) course**: a KI course installed as the plan (`accept_trainrun_plan`); `PlanPolicy` follows it to
-  the targets. Not an override.
-- **Off plan**: a train that has left its run of the taken course (a turn or reroute); the fallback drives it for the
-  rest of the episode (`_plan_off_plan`).
-- **Via cells**: the switches the drawn route passes, in order; the backend builds the route through them.
-- **Route mode**: the map state after "Umleiten" in which a drag from the train draws instead of panning.
-- **Passing loop** (tutorial): the second track on row 1 between the switches at (2,10) and (2,14), where two trains
-  can cross.
+*The domain words the plan relies on, with their code symbols, synonyms and what they are not.*
+
+| Term (synonyms) | Code | Meaning | Not |
+|---|---|---|---|
+| Fahrweg einstellen, set a route | - | The operator decides a train's route over the switches ahead. Here: drawing it on the Streckenspiegel. | A timetable change. |
+| Reroute ("Umleiten") | override action 5, `REROUTE_ACTION`, `env._route_overrides` | A whole route for one train, kept on the env and driven by `OverridePolicy` until the train arrives. Before this plan always computed; now also drawn. | A one-step turn. |
+| Via cells | `via`, `route_through` | The switches the drawn route passes, in order; the backend builds the route through them to the target. | The full cell list. |
+| Route mode | `SessionStore.routeDrawing` | The map state after "Umleiten" in which a drag from the train draws instead of panning. | A mode of the `InteractionMode` union. |
+| Passing loop (tutorial) | - | The second track on row 1 between the switches at (2,10) and (2,14), where two trains can cross. | - |
+| Decision point | `classify_cell_at` (SWITCH, MERGING) | A switch or merge cell, where a stop or turn override takes effect. A reroute acts every step. | Any cell. |
+| Driver (driving policy) | the policy `OverridePolicy` wraps | What moves the trains in live steps and forks. Plan B: DLA; after a taken KI course `PlanPolicy` with DLA as fallback. | The proposal agent. |
+| RL driver (specialist policy) | `is_specialist_policy`, `UC2RoamPolicy` | The UC2 model driving the trains itself, with Joint ROAM; only in the RL tours. | A plan follower: it never follows a taken course. |
+| Proposal agent (KI adviser) | `ProposalAgent`; Plan B `uc2_rl`, else PP | Proposes the KI courses in Plan / KI / Mensch. | The driver: in Plan B the UC2 model only advises. |
+| Taken (accepted) course | `accept_trainrun_plan`, `env._trainrun_plan` | A KI course installed as the plan; `PlanPolicy` follows it to the targets, cell by cell, keeping the plan's order at each cell. | An override, or only the next switch. |
+| Off plan | `env._plan_off_plan` | A train that has left its run of the taken course (a turn or reroute); the fallback drives it for the rest of the episode. | A held train: that one stays on plan. |
+| Override-aware policy | `Policy.set_committed_overrides` (PAT-4) | A driver that is told the committed holds and routes before each step and plans around them (DLA). | An adviser that keeps decisions. |
+| Keeps the decisions | `ProposalAgent.respects_overrides` (#208) | An adviser whose courses keep the other trains' standing overrides, and whose taken course clears only the selected train's (`uc2_rl`). | A driver. |
+| Kept overrides | `kept`, `_kept_overrides` | Every standing override but the selected train's, handed to an adviser that keeps the decisions. | The selected train's own override. |
+| Preview token | `proposal_preview` | Names one shown KI course, bound to the state and the standing overrides, so that taking it takes exactly that course (409 when they changed). | A session id. |
+| Knowledge hook | `set_committed_overrides` (this plan) | `OverridePolicy` tells a planning driver the routes before it acts. | `apply_overrides`, which replaces actions afterwards. |
+| Action hook | proposed (Q-11 b) | `OverridePolicy` writes the overrides into a certifying driver's proposals before its certificate. | `apply_overrides`. |
+| ROAM ("Reserve Only if All Missions stay achievable") | `roam_check.py`, vendored from `ecml2026-starterkit` | A safety check: a move may happen only if, afterwards, every train can still finish its mission. Works on the rail graph of `(cell, heading)` configurations and Flatland's resources (§6.5). | A planner, or exact: a refused move is no proof of a deadlock. |
+| Mission | `open_waypoint_groups`, `TrainFacts` | A train's remaining stops (ordered waypoint groups, any one cell per group) and its target. Any path through them counts. | A route: a drawn route is unknown to it. |
+| Stuck trains (completion order) | `stuck_trains`, `can_complete` | Trains are finished one by one, each by a path through its mission with the waiting trains' cells blocked, freeing its own cell; bounded partial moves are tried before giving up. Whoever is left is stuck. | A physical deadlock. |
+| Certificate (baseline) | `withdraw`, `stuck <= baseline` | A step is certified when it adds no stuck train to those stuck before it (the baseline). | Absolute safety: already stuck trains stay allowed. |
+| Joint ROAM | `JointRoamCheck` | ROAM for all trains' moves of a step together: masks unsafe actions before inference, allows a move into a cell whose holder leaves in the same step (conditional proposal), withdraws after inference. | Single-train ROAM. |
+| Withdraw (victim) | `JointRoamCheck.withdraw` | In a step that fails the certificate, the mover with the highest handle among those involved falls back to waiting, until the step is certified. | A rule that spares the overridden train: it may be the victim. |
 
 ## 11. Execution plan and status
 
