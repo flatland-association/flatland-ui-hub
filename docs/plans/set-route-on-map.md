@@ -765,11 +765,23 @@ its seam goes. `respects_overrides` stays as it is: it is about an adviser's cou
   turns become knowledge although for ROAM they are actions.
 - d) b or c in this PR: changes `uc2_rl.py`, `uc2_roam_policy.py`, `websockets.py` and `override_policy.py` of #196
   and #208 while both are open.
-- e) As b, plus the route as the mission: for a rerouted train, ROAM gets single-cell waypoint groups at the route's
-  via cells (with their heading), then its target, instead of its open stops (§6.5, `open_waypoint_groups`). Then
-  `can_complete` only finds paths along the drawn route, so ROAM no longer certifies a step after which the train
-  could finish only off its route (the stall of §6.5). A few lines where the groups are built (the `uc2_rl` rollout,
-  the RL driver), ROAM itself unchanged. A held train would need its own treatment (it does not move until released).
+- e) As b, plus the route as the mission: for a rerouted train, ROAM's waypoint groups (the `groups` given to
+  `action_mask` and `withdraw`, built by `open_waypoint_groups`) become one single-configuration group per route
+  choice ahead of the train, then its target. A route choice is the configuration right after a point where the rail
+  graph offers more than one successor: the first cell of the chosen branch, not the switch cell itself, which
+  allows every branch. Between two choices there is only one path, so `can_complete` then only finds paths along the
+  route, and ROAM no longer certifies a step after which the train could finish only off its route (the stall of
+  §6.5).
+  - Taken from the stored route (`env._route_overrides`, on forks through `carry_to_fork`) from the train's
+    position on, not from the via cells: after the last via cell `route_through` continues by the shortest path,
+    over switches the operator did not draw. So it covers computed reroutes too.
+  - ROAM's view only: the env's `agent.waypoints`, the timetable and the model's observation stay as they are. A
+    group is passed, not stopped at (`_advance` ticks it off when the train stands on it while moving through), so
+    no train stops at these cells.
+  - The timetable stops drop out of ROAM's mission for that train: harmless, because a route that skips a stop
+    already skips it in the env.
+  - A few lines where the groups are built (the `uc2_rl` rollout, the RL driver); ROAM itself unchanged. A held train
+    would need its own treatment (it does not move until released).
 
 *Proposed:* b, as a follow-up. Knowledge (routes) needs a call on the planner (Q-4 b); actions only need the
 wrapper, at the point where the driver's own phases already separate proposing from certifying. With b, ROAM checks
@@ -798,7 +810,10 @@ unaware of the route: it sees the effect in the env afterwards.
   train the KI is not asked about; the rerouted train still leaves its run; a different interaction.
 - d) Make UC2 the Plan B driver and use Q-11 b only: ROAM certifies the step with the route's move in it, but not the
   route further ahead, so the rerouted train can stall (§6.5); needs a test first, and changes the study condition
-  (study leads decide).
+  (study leads decide). With Q-11 e the stall is closed, but `set_committed_overrides` can be dropped only if every
+  policy that drives a rerouted train is ROAM-based: today also the forecasts (`/proposals` plan and Mensch,
+  contentions: the session's policy, DLA in Plan B) and the KI courses' scoring and taken courses (`PlanPolicy`,
+  DLA as fallback).
 
 *Proposed:* a. chenkins decides.
 
