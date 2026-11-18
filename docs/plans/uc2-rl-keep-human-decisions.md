@@ -1,6 +1,7 @@
 # UC2 RL adviser: the operator's decisions count per train
 
-Status: implemented, 16 November 2026. Builds on
+Status: implemented 16 November 2026; review findings fixed 18 November 2026 (S-1–S-6, the whole course
+becomes the plan). PR [#208](https://github.com/flatland-association/flatland-ui-hub/pull/208). Builds on
 [uc2-rl-proposal-agent.md](uc2-rl-proposal-agent.md) and
 [uc2-rl-adviser-lookahead.md](uc2-rl-adviser-lookahead.md).
 
@@ -42,14 +43,13 @@ The last decision wins, **per train**:
   with them; only the selected train's override is cleared.
 - **A conflicting course can be replaced:** when the accepted course runs into
   a conflict, the dispatcher asks for suggestions again and accepting another
-  one replaces the whole plan (decided 2026-11-18, F-1). Planned in S-1.
+  one replaces the whole plan (decided 2026-11-18, F-1). Built in S-1.
 - `pp_replan` is unchanged: its courses answer for every train, and accepting
   one still clears every override.
 
 ## Open questions
 
 ✅ ~~**(Q-1) After accepting the full course (S-1), do the other trains keep their standing decisions?**~~ **Decided 2026-11-18: a), keep them.**
-Who decides: the study lead. Blocks S-1.
 
 - a) **Keep them** (stop, turn, reroute stay next to the plan). The course was simulated with them, so the
   plan and the overrides run as shown. A train stopped until the course ends stays stopped; without its
@@ -79,20 +79,23 @@ is left for a separate change.
 - `ProposalAgent.respects_overrides` (default False). `propose_for` and
   `resolve_for` take an optional `overrides`; agents that don't respect them
   ignore it.
-- `UC2RLProposalAgent` (`respects_overrides = True`): `propose_for` drops the
-  selected train's own override and passes the rest to `_rollout`, which
-  applies them each step with `_apply_kept_overrides` before ROAM: a reroute's
-  move every step; any other action only at a switch or merge, where a stop
-  stays and a turn is used up.
+- `UC2RLProposalAgent` (`respects_overrides = True`): `propose_for` passes the
+  other trains' overrides (the API drops the selected train's own in
+  `_kept_overrides`) to `_rollout`, which applies them each step with
+  `_apply_kept_overrides` before ROAM: a reroute's move every step; any other
+  action only at a switch or merge, where a stop stays and a turn is used up
+  once the certified step takes it (`_use_up_turns`).
 - `/proposals`: each KI course is scored as it runs once accepted:
-  `PlanPolicy` over the course without the kept trains, plus the kept
-  overrides (S-1: over the full course). The response says `ai_keeps_overrides`.
-- `/proposals/apply` (`ai`): the course, preview token or re-derived, minus the
-  kept trains becomes the plan (S-1: the full course); only the selected train's override and route
-  are cleared. The preview token already binds the standing overrides, so a
-  change in between gives 409.
-- Frontend: after taking the KI course, the note says that stopped or
-  rerouted trains keep the dispatcher's decision (`proposals.aiTakenCaveatKept`).
+  `PlanPolicy` over the whole course, plus the kept overrides. The response
+  says `ai_keeps_overrides` when other trains have decisions to keep.
+- `/proposals/apply` (`ai`): the whole course, by preview token or re-derived
+  from its `candidate_id`, becomes the plan; only the selected train's override
+  and route are cleared. With kept decisions, an accept that names neither gets
+  400. The preview token already binds the standing overrides, so a change in
+  between gives 409. A later accept replaces the whole plan.
+- Frontend: after taking the KI course, the note says that trains with the
+  dispatcher's decision (stop, turn, reroute) keep it, when there are any
+  (`proposals.aiTakenCaveatKept`).
 - Also carried: what-if forks rebuild `agent_positions`, which Flatland's
   persister empties (flatland-rl #576), so a driver reading it doesn't miss
   standing trains.
@@ -100,7 +103,8 @@ is left for a separate change.
 ## Scope of the sections below
 
 They cover the whole diff to `main` (fd0c70cb), not only this PR: this PR
-([#208](https://github.com/flatland-association/flatland-ui-hub/pull/208), 2 commits) builds on
+([#208](https://github.com/flatland-association/flatland-ui-hub/pull/208): 2 feature commits, the review fixes and
+the plan) builds on
 [#196](https://github.com/flatland-association/flatland-ui-hub/pull/196) (`codex/pf-ch-rl-main`, 32 commits), which
 is not merged yet. The features, with the PR that brings them (files per feature: "Change inventory of #196 and
 #208, by feature"):
@@ -125,6 +129,11 @@ named below. No `TODO` in the diff tracks any of them.
 - **E. Overrides after ROAM when `uc2_rl` drives** (RL tours): `websockets.py:154-155` applies the overrides after
   `finalize_actions`, so ROAM certifies a batch that does not run (see "Found while building"). Plan B is not
   affected (DLA drives). Left for a separate change.
+- **E. A replacement can come too late.** A taken course that leads two trains into a deadlock can be replaced
+  (S-1), but from the deadlocked state every new course may fail too (measured on the tutorial with a kept turn and
+  the worst course taken first).
+- **E. Kept reroutes and turns are untested;** only kept stops are (follow-up, F-6). The rollout copies the live
+  override rules by hand (follow-up, F-3).
 - **E. Only `uc2_rl` keeps overrides.** `pp_replan` courses still answer for every train, and accepting one clears
   every override (`overrides.py:570`).
 - **A. Models only for their fixtures.** UC2 runs only on the five native Plan B fixtures (6×25, 8×78 grids;
@@ -171,7 +180,8 @@ additive, new policies and presets only appear. What changes behaviour or data:
 |---|---|---|---|
 | **Fix: an accepted AI course is no longer dropped** when the next Step/Play names the condition's pinned policy (Plan B: Deadlock Avoidance, set by the study condition, no dropdown shown). After an accept, `/step` and `/play` with an ordinary policy follow the course (`driving_policy_id`, `registry.py:381`); that policy only drives the trains off the course. `session.policy` reads `"plan"`, the play log `"deadlock_avoidance->plan"`. Example below. | #196 | Every client and study condition that pins its policy per request; server logs. Nothing new on screen. | A reset, or choosing a policy in the toolbar dropdown (`POST /policy`, only outside Plan B), drops the course. RL drivers are left alone. Not kept on purpose: on `main` the panel said the trains follow the AI's plan while they did not. |
 | **Proposal ranking and score.** Courses rank by (not arrived, lateness, time in network) (`overrides.py:448`); `score` no longer credits early arrival (`:389`); the arrival reference includes the native deadlines (`:397`). | #196 | `pp_replan` results too: the order and the scores of the variants differ from `main`. | Not kept: the old score let early trains cancel another train's lateness. |
-| **Accepting a `uc2_rl` course** clears only the selected train's override and route; the others keep theirs, and (after S-1) the whole course becomes the plan. | #208 | Plan B sessions. | `pp_replan` keeps clearing every override. |
+| **Accepting a `uc2_rl` course** makes the whole course the plan and clears only the selected train's override and route; the others keep theirs. | #208 | Plan B sessions. | `pp_replan` keeps clearing every override. |
+| **400 for an unnamed accept:** `POST /proposals/apply` with `variant: ai` and neither `candidate_id` nor `preview_token` gets 400 while other trains keep decisions (`uc2_rl`). | #208 | API clients that accept without naming the course. | The app always names it; without kept decisions the old accept stays. |
 | **New status codes:** `GET /proposals` 503 when the preview pool is busy and 409 when the session goes away; `POST /proposals/apply` 409 for a stale or misused `preview_token`. | #196 | API clients. | Clients that send no token keep the old accept. |
 | **Stop-aware PP by default.** `replan_from_state`/`replan_orders` route through the remaining intermediate stops (new keyword-only `strict_stops`, `wait_cells`, `wait_states`). | #196 | PP results on scenarios with stops (PF-CH corridor stops). | Signatures compatible; results differ. |
 | **Plan B's KI suggestions.** Plan B conditions send `proposal_agent: 'uc2_rl'` (`study-conditions.ts:197,240`): RL courses with an intervention ("wait", "branch at step N") instead of PP priority orders. | #196 | Study data: earlier and later Plan B runs share condition ids but not the stimulus. | Condition ids kept on purpose (stored ids); the record's trajectory metadata names `proposal_agent`. |
@@ -214,8 +224,8 @@ added, none removed), the record format, the study condition ids.
 
 | ID | New | PR | Defined in |
 |---|---|---|---|
-| PAT-1 | **Override-aware proposal agents:** `ProposalAgent.respects_overrides`; the kept overrides go into the rollout before ROAM, the selected train's own override is what the courses answer. | #208 | "Decision", "Design"; `base.py`, `uc2_rl.py:172-202` |
-| PAT-2 | **Per-train accept:** only the selected train's override is cleared; the others stay. The plan covers the trains without a decision, after S-1 the full course. A later accept replaces the whole plan. | #208 | "Decision"; `overrides.py:478-490,563-567` |
+| PAT-1 | **Override-aware proposal agents:** `ProposalAgent.respects_overrides`; the kept overrides go into the rollout before ROAM, a kept turn is used up only once ROAM lets it through; the selected train's own override is what the courses answer (dropped by the API). | #208 | "Decision", "Design"; `base.py`, `uc2_rl.py:172-202` |
+| PAT-2 | **Per-train accept:** the whole course becomes the plan; only the selected train's override is cleared, the others stay on top of it. A later accept replaces the whole plan. | #208 | "Decision"; `overrides.py:478-490,563-567` |
 | PAT-3 | **Preview tokens:** a course is bound to a digest of its source state (env, step, overrides, policy) and accepted exactly, or refused with 409. | #196 | [uc2-rl-adviser-lookahead.md](uc2-rl-adviser-lookahead.md); `proposal_preview.py:199-241` |
 | PAT-4 | **Bounded N-step futures:** courses forecast on deep copies in a bounded pool, ranked completion-first. | #196 | [uc2-rl-adviser-lookahead.md](uc2-rl-adviser-lookahead.md); `overrides.py:448,599-631` |
 | PAT-5 | **Accepted plan as driving state:** an accepted course drives whatever policy the requests name; `driving_policy_id` / `create_driving_policy` wrap the pinned policy as the plan's fallback (the fix in "Breaking changes"). | #196 | [uc2-rl-proposal-agent.md](uc2-rl-proposal-agent.md); `registry.py:381-415` |
@@ -234,19 +244,19 @@ added, none removed), the record format, the study condition ids.
 
 | File | Purpose |
 |---|---|
-| `backend/tests/test_uc2_rl_keep_human_decisions.py` | Kept stop in courses and scoring, accept per train, PP unchanged, fork positions, and the tutorial situation through the API to the arrival |
+| `backend/tests/test_uc2_rl_keep_human_decisions.py` | Kept stop in courses and scoring, accept per train (whole course, 400 when unnamed), PP unchanged, fork positions, a withdrawn turn kept, the tutorial situation through the API to the arrival, the live run equal to the course shown, and a taken course replaced by another |
 
 ## Modified files
 
 | File | Change |
 |---|---|
-| `backend/app/core/proposal_agents/base.py` | `respects_overrides`; optional `overrides` on `propose_for`/`resolve_for` |
-| `backend/app/core/proposal_agents/uc2_rl.py` | `respects_overrides = True`; `_apply_kept_overrides` before ROAM in `_rollout`; `overrides` through `propose_for`/`resolve_for` |
+| `backend/app/core/proposal_agents/base.py` | `respects_overrides`; optional `overrides` (the other trains') on `propose_for`/`resolve_for` |
+| `backend/app/core/proposal_agents/uc2_rl.py` | `respects_overrides = True`; `_apply_kept_overrides` before ROAM and `_use_up_turns` after it in `_rollout`; `overrides` through `propose_for`/`resolve_for`; no course guessed without a `candidate_id` |
 | `backend/app/api/overrides.py` | `_kept_overrides`; scoring of the full course with kept overrides (S-1); a named course when decisions are kept (S-5); accept clears per train for such agents; `ai_keeps_overrides` |
 | `backend/app/core/scenario_runner.py` | `_fork_env` rebuilds `agent_positions` |
 | `frontend/src/app/core/events/event-types.ts` | `ai_keeps_overrides` |
 | `frontend/src/app/features/proposal-compare/proposal-compare.component.html` (+ spec) | Note after taking the KI course |
-| `frontend/public/i18n/{en,de,fr}.json` | `proposals.aiTakenCaveatKept` |
+| `frontend/public/i18n/{en,de,fr}.json` | `proposals.aiTakenCaveatKept` (names stop, turn and reroute) |
 
 ## Change inventory of #196 and #208, by feature
 
@@ -306,7 +316,7 @@ Issue references: the PR body closes no issue; nothing to check.
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
-| ✅ S-1 | F-1 | Accept and scoring take the full course: drop `_plan_without` in `/proposals` scoring and in `/proposals/apply` keep the other trains' overrides (Q-1 a). Tests: with a stop still ahead of its switch, the taken course is the plan for both trains and the live run is the course shown, step by step; a taken course is replaced by taking another later, and the second replaces the whole plan. Turns: F-6. | fix | medium | fix(proposals): take uc2_rl's full course as the plan, so a train with a kept decision runs as the course showed. | da637caa | - | - |
+| ✅ S-1 | F-1 | Accept and scoring take the full course: drop `_plan_without` in `/proposals` scoring and in `/proposals/apply`; keep the other trains' overrides (Q-1 a). Tests: with a stop still ahead of its switch, the taken course is the plan for both trains and the live run is the course shown, step by step; a taken course is replaced by taking another later, and the second replaces the whole plan. Turns: F-6. | fix | medium | fix(proposals): take uc2_rl's full course as the plan, so a train with a kept decision runs as the course showed. | da637caa | - | - |
 | ✅ S-2 | F-2 | `_apply_kept_overrides` returns the trains given a turn; `_use_up_turns` removes a turn only when the certified step takes it. Test: `_use_up_turns` keeps a withdrawn turn. | bug | medium | fix(proposals): use up a kept turn in uc2_rl's rollout only when ROAM lets it through. | bc6d4e22 | - | - |
 | ✅ S-3 | F-4 | `ai_keeps_overrides` only when other trains have decisions; the note names stop, turn and reroute (`proposals.aiTakenCaveatKept`, en/de/fr, key kept). Tests: the spec's texts; asked about the stopped train itself, `ai_keeps_overrides` is false. | fix | medium | fix(proposals): say that other trains keep their decisions only when they have one. | 001d377e | S-1 | - |
 | ✅ S-4 | F-5 | The tutorial walks are bounded by the episode length and fail with the cell they missed (`_walk_train_0_to`, `_run_out`). | test | low | test(proposals): bound the tutorial walk to the stopping cell. | 4bea4899 | - | - |
