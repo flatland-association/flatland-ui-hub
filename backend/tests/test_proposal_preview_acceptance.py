@@ -14,7 +14,7 @@ from app.api import overrides, websockets
 from app.core import pf_ch_control, proposal_preview
 from app.core.override_manager import override_manager
 from app.core.play_manager import play_manager
-from app.core.proposal_agents.uc2_rl import rollout_trainruns
+from app.core.proposal_agents.uc2_rl import UC2RLProposalAgent, rollout_trainruns
 from app.core.session_manager import session_manager
 from app.policies.plan_policy import accept_trainrun_plan, planned_arrival_steps, trainruns_from_env
 
@@ -157,7 +157,8 @@ def test_api_accepts_the_exact_selected_alternative_without_calling_resolver(ses
             raise AssertionError("Exact preview acceptance must not regenerate a proposal")
 
         agent = SimpleNamespace(id="uc2_rl", label="UC2 RL", propose_for=lambda *_: choices,
-                                resolve_for=forbidden)
+                                resolve_for=forbidden,
+                                forecast_horizon=UC2RLProposalAgent().forecast_horizon)
         monkeypatch.setattr(overrides, "proposal_agent_for", lambda _: agent)
         session.env._plan_off_plan = {0}  # a previous course must not poison the replacement
         before = proposal_preview.source_state(session)

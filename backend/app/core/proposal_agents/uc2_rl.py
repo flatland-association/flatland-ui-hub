@@ -81,6 +81,12 @@ class UC2RLProposalAgent(ProposalAgent):
             return False
         return uc2_roam_bundle.compatibility_error(env) is None
 
+    def forecast_horizon(self, env: RailEnv) -> int:
+        """The rest of the episode: a full native replay is this adviser's contract."""
+        elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
+        max_ep = int(getattr(env, "_max_episode_steps", 0) or 0)
+        return max(0, max_ep - elapsed) if max_ep else 200
+
     def propose(self, env: RailEnv) -> List[Proposal]:
         trainruns = rollout_trainruns(env)
         return [Proposal(priority=(), trainruns=trainruns)] if trainruns else []

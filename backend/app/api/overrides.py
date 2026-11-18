@@ -19,6 +19,7 @@ from app.core.route_overrides import REROUTE_ACTION, commit_route, drop_route, r
 from app.policies.plan_policy import (
     PlanPolicy,
     accept_trainrun_plan,
+    plan_accepted,
     plan_branch_factory,
     planned_arrival_steps,
 )
@@ -396,18 +397,20 @@ def _arrivals(res) -> dict:
 
 
 def proposal_arrival_reference(env) -> dict[int, int]:
-    """Keep native UC2 deadlines as yardstick even after accepting an AI plan."""
-    from app.policies.learned import uc2_roam_bundle
+    """The yardstick of every course: the trains' deadlines, and the arrivals of
+    the plan the scenario shipped.
 
+    An accepted AI course is never the yardstick, or it would grade itself. On a
+    scenario that shipped no plan (the native UC2 ones), accepting one stashes no
+    timetable (`install_trainrun_plan`), so the deadlines stay the only reference.
+    """
     deadlines = {}
     for agent in env.agents:
         latest = getattr(agent, "latest_arrival", None)
         if latest is not None and math.isfinite(float(latest)):
             deadlines[int(agent.handle)] = int(latest)
-    if ((env.height, env.width) in {(6, 25), (8, 78)}
-            and uc2_roam_bundle.compatibility_error(env) is None):
+    if plan_accepted(env) and getattr(env, "_baseline_trainrun_plan", None) is None:
         return deadlines
-    # Explicit scenario trainruns retain their original timetable reference.
     planned = dict(planned_arrival_steps(env))
     return {**deadlines, **planned}
 
@@ -651,13 +654,7 @@ def _evaluate_proposals_unchecked(captured):
 
     agent = proposal_agent_for(snapshot)
     elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
-    max_ep = int(getattr(env, "_max_episode_steps", 0) or 0)
-    if agent.id == "uc2_rl":
-        horizon = max(0, max_ep - elapsed) if max_ep else 200
-    else:
-        # Keep ordinary PP forecasts bounded as before; full native replay is
-        # the specialised UC2 adviser's contract, not a global cost increase.
-        horizon = min(max(50, max_ep - elapsed) if max_ep else 200, 250)
+    horizon = agent.forecast_horizon(env)
     planned = proposal_arrival_reference(env)
 
     plan_res = _branch_run(env, plan_factory, committed, horizon)
