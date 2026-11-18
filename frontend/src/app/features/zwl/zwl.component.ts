@@ -734,7 +734,9 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
     const tv = this.timeVertical();
     return {
       x: this.plotX0() - (tv ? 6 : 18),
-      y: tv ? HEADER_H - 8 : this.plotY0() + this.plotH() + 16,
+      // Time down: higher than the first station name's foot, which rises
+      // to the right from the same corner.
+      y: tv ? HEADER_H - 28 : this.plotY0() + this.plotH() + 16,
       text: this.i18n.t('zwd.timeUnit'),
     };
   });
