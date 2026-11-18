@@ -378,6 +378,17 @@ describe('AppComponent', () => {
         expect(dialog.open).not.toHaveBeenCalled();
       });
 
+      it('does not ask on the Schichtabschluss screen: the debrief\'s shift is over', () => {
+        app.experimentRun.clearPersisted();
+        app.experimentRun.condition.set(null);
+        app.shiftScreenOpen = () => true;
+        store.demoSurveyEnabled.set(true);
+        const survey = spyOn(app, 'openSurvey');
+        app.finishDemoMode();
+        expect(dialog.open).not.toHaveBeenCalled();
+        expect(survey).toHaveBeenCalled();
+      });
+
       it('asks in a tour too, and "Ja" goes on as before', () => {
         app.experimentRun.clearPersisted();
         app.experimentRun.condition.set(null);

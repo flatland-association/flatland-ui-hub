@@ -1471,8 +1471,10 @@ export class AppComponent implements OnInit {
   /** Logged as the overlay view `finish_confirm`, so the replay can draw it. */
   readonly finishConfirmOpen = signal(false);
   /** A run's leg in phase `running`, or a tour's mode, unless the condition or
-   *  tour turns the dialog off. "Weiter zum Fragebogen" ends nothing and doesn't ask. */
+   *  tour turns the dialog off. "Weiter zum Fragebogen" ends nothing and doesn't ask,
+   *  nor does the Schichtabschluss screen (a tour's debrief): its shift is over. */
   private finishConfirmAsked(): boolean {
+    if (this.shiftScreenOpen()) return false;
     const run = this.experimentRun;
     if (run.active()) return run.phase() === 'running' && run.hasFinishConfirm();
     return hasFinishConfirm(this.selectedTour());
