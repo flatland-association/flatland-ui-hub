@@ -1,7 +1,7 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, Input, OnDestroy, AfterViewInit,
-  computed, effect, inject, input, signal, untracked, viewChild,
+  afterRenderEffect, computed, effect, inject, input, signal, untracked, viewChild,
 } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { ApiService } from '../../core/api.service';
@@ -24,8 +24,7 @@ const MIN_FUTURE_STEPS = 20;
 interface Gutters { left: number; right: number; top: number; bottom: number }
 /** Time down, places across (SBB): minutes on the left; the slanted place
  *  names sit in a separate sticky header (`HEADER_H`) above the scrolling plot. */
-// top: room for the time unit above the axis (docs/plans/plan-b-small-changes.md, item 8).
-const GUTTERS_TIME_VERTICAL: Gutters = { left: 44, right: 24, top: 22, bottom: 10 };
+const GUTTERS_TIME_VERTICAL: Gutters = { left: 44, right: 24, top: 10, bottom: 10 };
 const HEADER_H = 84;
 /** With time vertical the time axis has a fixed scale: the visible part of the
  *  plot shows this many steps, whatever the forecast's length, and the rest
@@ -203,27 +202,64 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
    *  view stays where they put it; it follows again when they scroll the
    *  now-line back near its place or press "Zu jetzt" (`detached`). Before,
    *  the ZWL pulled the view back on each step, which read as a jump
-   *  (docs/plans/plan-b-small-changes.md, item 1). */
-  private readonly followNow = effect(() => {
-    const y = this.nowLine().y1;
-    this.svgH(); // the content's height changes where scrolling can reach
-    const el = this.scroller()?.nativeElement;
-    if (!el || !this.timeVertical() || this.detached()) return;
-    // After rendering: before it, a taller diagram isn't laid out yet and the
-    // browser clips the scroll position to the old height.
-    untracked(() => requestAnimationFrame(() => {
-      if (this.detached()) return;
-      const target = this.nowScrollTop(y);
-      if (Math.abs(el.scrollTop - target) < 1) return;
-      el.scrollTop = target;
-      this.ownScrollTop = el.scrollTop;
-    }));
+   *  (docs/plans/plan-b-small-changes.md, item 1). Only a scroll by hand
+   *  (wheel, touch, keys, the scroll bar) detaches: one the browser makes on
+   *  its own, when the diagram gets shorter or the panel is resized, doesn't
+   *  (F-5). */
+  // After rendering, in the same frame: before it, a taller diagram isn't laid
+  // out yet and the browser clips the scroll position to the old height; a
+  // frame later, the diagram shows one frame at the old position (F-8).
+  private readonly followNow = afterRenderEffect({
+    write: () => {
+      const y = this.nowLine().y1;
+      this.svgH(); // the content's height changes where scrolling can reach
+      const el = this.scroller()?.nativeElement;
+      if (!el || !this.timeVertical() || this.detached()) return;
+      untracked(() => {
+        const target = this.nowScrollTop(y);
+        if (Math.abs(el.scrollTop - target) < 1) return;
+        el.scrollTop = target;
+        this.ownScrollTop = el.scrollTop;
+        this.handScroll = false;
+      });
+    },
   });
   /** Where this component last scrolled to, to tell its own scroll events
    *  from the reader's. */
   private ownScrollTop: number | null = null;
+  /** The reader touched the scroller (wheel, touch, pointer, keys) since the
+   *  view last followed: the scroll events that follow are theirs. */
+  private handScroll = false;
   /** The reader scrolled away from the now-line; the view no longer follows. */
   readonly detached = signal(false);
+
+  /** A detached view stays on the same steps. From step PAST_WINDOW_STEPS on,
+   *  the time window starts later on every step and redraws the diagram one
+   *  step higher, so the scroll position moves up by as much (F-1). */
+  private lastDomainStart: number | null = null;
+  private readonly keepDetachedView = afterRenderEffect({
+    write: () => {
+      const [start] = this.stepDomain();
+      const prev = this.lastDomainStart;
+      this.lastDomainStart = start;
+      const el = this.scroller()?.nativeElement;
+      if (prev === null || start === prev || !el || !this.timeVertical() || !untracked(this.detached)) return;
+      untracked(() => {
+        el.scrollTop = Math.max(0, el.scrollTop - (start - prev) * this.stepPx());
+        this.ownScrollTop = el.scrollTop;
+      });
+    },
+  });
+
+  /** A new leg, session or orientation follows the now-line again (F-5). */
+  private readonly resetDetached = effect(() => {
+    this.orientation();
+    this.store.session()?.id;
+    untracked(() => {
+      this.detached.set(false);
+      this.handScroll = false;
+    });
+  });
 
   /** One step's height on the time axis (time vertical). */
   private stepPx(): number {
@@ -239,13 +275,21 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
     return Math.max(0, Math.round(y - NOW_PAST_STEPS * this.stepPx()));
   }
 
+  /** Wheel, touch, pointer or key on the scroller: the next scrolls are the reader's. */
+  markHandScroll(): void {
+    this.handScroll = true;
+  }
+
   onScroll(): void {
     const el = this.scroller()?.nativeElement;
-    if (!el || !this.timeVertical()) return;
+    if (!el || !this.timeVertical() || !this.handScroll) return;
     if (this.ownScrollTop !== null && Math.abs(el.scrollTop - this.ownScrollTop) < 1) return;
     this.ownScrollTop = null;
-    // Back within two steps of its place counts as "follow again".
-    const off = Math.abs(el.scrollTop - this.nowScrollTop(this.nowLine().y1));
+    // Back within two steps of its place counts as "follow again". Near the
+    // end of the time axis the place may be out of reach: the furthest the
+    // scroller gets counts as its place then.
+    const reach = Math.max(0, el.scrollHeight - el.clientHeight);
+    const off = Math.abs(el.scrollTop - Math.min(reach, this.nowScrollTop(this.nowLine().y1)));
     this.detached.set(off > 2 * this.stepPx());
   }
 
@@ -681,14 +725,16 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
     return out;
   });
 
-  /** The time axis's unit, written once: above the tick labels when time runs
-   *  down, left of the tick row when it runs across. Times are steps
-   *  (docs/plans/plan-b-small-changes.md, item 8). */
+  /** The time axis's unit, written once (docs/plans/plan-b-small-changes.md,
+   *  item 8). Time running down: in the sticky header, above the tick labels'
+   *  column, so it doesn't scroll away with the plot (F-2). Time running
+   *  across: left of the tick row, clear of the first tick's centred label
+   *  (F-10). */
   readonly timeUnitLabel = computed(() => {
     const tv = this.timeVertical();
     return {
-      x: this.plotX0() - 6,
-      y: tv ? this.plotY0() - 8 : this.plotY0() + this.plotH() + 16,
+      x: this.plotX0() - (tv ? 6 : 18),
+      y: tv ? HEADER_H - 8 : this.plotY0() + this.plotH() + 16,
       text: this.i18n.t('zwd.timeUnit'),
     };
   });

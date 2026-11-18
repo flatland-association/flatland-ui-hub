@@ -76,10 +76,14 @@
         }
       </p>
     } @else {
-      <div class="zwd__scroller" #scroller (scroll)="onScroll()">
+      <div class="zwd__scroller" #scroller (scroll)="onScroll()" (wheel)="markHandScroll()" (touchstart)="markHandScroll()"
+           (pointerdown)="markHandScroll()" (keydown)="markHandScroll()">
       @if (timeVertical()) {
         <!-- place names stay put while time scrolls underneath -->
         <svg class="zwd__header" [attr.width]="width()" [attr.height]="headerH" aria-hidden="true">
+          @if (timeUnitLabel(); as u) {
+            <text class="zwd__time zwd__time-unit" [attr.x]="u.x" [attr.y]="u.y" text-anchor="end">{{ u.text }}</text>
+          }
           @for (t of visibleTicks(); track t.code) {
             @if (t.showLabel) {
               <text class="zwd__station" [class.zwd__station--minor]="!t.major"
@@ -113,8 +117,10 @@
           <line class="zwd__tgrid" [attr.x1]="t.x1" [attr.x2]="t.x2" [attr.y1]="t.y1" [attr.y2]="t.y2"></line>
           <text class="zwd__time" [attr.x]="t.lx" [attr.y]="t.ly" [attr.text-anchor]="t.anchor">{{ t.label }}</text>
         }
-        @if (timeUnitLabel(); as u) {
-          <text class="zwd__time zwd__time-unit" [attr.x]="u.x" [attr.y]="u.y" text-anchor="end">{{ u.text }}</text>
+        @if (!timeVertical()) {
+          @if (timeUnitLabel(); as u) {
+            <text class="zwd__time zwd__time-unit" [attr.x]="u.x" [attr.y]="u.y" text-anchor="end">{{ u.text }}</text>
+          }
         }
 
         <!-- contention ribbons (under the lines, so the trains stay readable) -->
