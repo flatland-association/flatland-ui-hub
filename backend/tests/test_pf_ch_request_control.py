@@ -1,4 +1,9 @@
-"""PF-CH pure inference serializes mutations while forecasts stay responsive."""
+"""PF-CH pure inference serializes mutations while forecasts stay responsive.
+
+The middleware locks the mutations without reading a body; `/play`, `/step`
+and `/policy` own their transaction (`actor_transaction`), which stops a
+changing actor before it waits for the lock.
+"""
 import asyncio
 import json
 from threading import Event
@@ -44,7 +49,7 @@ def _session(monkeypatch, *, policy="pf_ch_rl", play_policy="pf_ch_rl", running=
 
 
 @pytest.mark.parametrize(("path", "method"), [
-    ("/step", "POST"), ("/action", "POST"), ("/policy", "POST"), ("/agent/0/override", "POST"),
+    ("/action", "POST"), ("/agent/0/override", "POST"),
 ])
 @pytest.mark.parametrize("policy_id", ["pf_ch_rl", "uc2_rl"])
 def test_manual_mutations_wait_for_pf_ch_inference(monkeypatch, path, method, policy_id):
@@ -83,6 +88,69 @@ def test_manual_mutations_wait_for_pf_ch_inference(monkeypatch, path, method, po
         finally:
             release.set()
             await asyncio.gather(worker, *([request] if request else []), return_exceptions=True)
+            play_manager._states.pop(session.id, None)
+
+    asyncio.run(exercise())
+
+
+@pytest.mark.parametrize("policy_id", ["pf_ch_rl", "uc2_rl"])
+def test_same_actor_step_waits_for_inference_in_its_transaction(monkeypatch, policy_id):
+    async def exercise():
+        session, state, _ = _session(monkeypatch, policy=policy_id, play_policy=policy_id)
+        entered, release = Event(), Event()
+        order = []
+
+        def infer():
+            entered.set()
+            assert release.wait(3), "test did not release inference"
+            order.append("inference-complete")
+
+        async def transaction():
+            async with driver.command_lock(session):
+                await driver.run_inference(session, infer)
+
+        async def step():
+            async with driver.actor_transaction(session, policy_id) as actor_change:
+                assert not actor_change
+                assert driver.command_lock(session).locked()
+                order.append("step")
+
+        worker = asyncio.create_task(transaction())
+        request = None
+        try:
+            assert await asyncio.to_thread(entered.wait, 3)
+            request = asyncio.create_task(step())
+            await asyncio.sleep(0)
+            assert not request.done()
+            assert state.running, "the same actor keeps playing"
+            release.set()
+            await asyncio.gather(worker, request)
+            assert order == ["inference-complete", "step"]
+        finally:
+            release.set()
+            await asyncio.gather(worker, *([request] if request else []), return_exceptions=True)
+            play_manager._states.pop(session.id, None)
+
+    asyncio.run(exercise())
+
+
+@pytest.mark.parametrize(("path", "method"), [
+    ("/play", "POST"), ("/step", "POST"), ("/policy", "POST"),
+])
+def test_middleware_lets_the_actor_requests_through_without_reading_them(monkeypatch, path, method):
+    async def exercise():
+        session, state, middleware = _session(monkeypatch)
+
+        async def endpoint(_):
+            return JSONResponse({"ok": True})
+
+        try:
+            async with driver.command_lock(session):
+                response = await asyncio.wait_for(middleware.dispatch(
+                    _request(session, path, method, {"policy": "deadlock_avoidance"}), endpoint), 1)
+                assert response.status_code == 200
+                assert state.running, "only the endpoint decides an actor change"
+        finally:
             play_manager._states.pop(session.id, None)
 
     asyncio.run(exercise())
@@ -220,7 +288,7 @@ def test_legacy_and_inactive_former_pf_ch_sessions_keep_their_existing_path(monk
 ])
 def test_pf_ch_policy_switch_pauses_actual_actor_before_ack(monkeypatch, actor, session_policy, requested):
     async def exercise():
-        session, state, middleware = _session(monkeypatch, policy=session_policy, play_policy=actor)
+        session, state, _ = _session(monkeypatch, policy=session_policy, play_policy=actor)
         entered, release = Event(), Event()
         order = []
 
@@ -233,27 +301,25 @@ def test_pf_ch_policy_switch_pauses_actual_actor_before_ack(monkeypatch, actor, 
             async with driver.command_lock(session):
                 await driver.run_inference(session, infer)
 
-        async def apply_policy(_):
-            assert not state.running
+        async def apply_policy():
+            result = await set_session_policy(session.id, PolicyChangeRequest(policy=requested))
             assert play_manager.get(session.id) is None
-            result = set_session_policy(session.id, PolicyChangeRequest(policy=requested))
             order.append("policy-ack")
-            return JSONResponse(result)
+            return result
 
         worker = asyncio.create_task(transaction())
         state.task = worker
         change = None
         try:
             assert await asyncio.to_thread(entered.wait, 3)
-            change = asyncio.create_task(middleware.dispatch(
-                _request(session, "/policy", "POST", {"policy": requested}), apply_policy))
+            change = asyncio.create_task(apply_policy())
             await asyncio.sleep(0)
             assert not state.running, "Stop must address the actual PlayState, before its lock drains"
             assert not change.done()
             assert session.policy == session_policy
             release.set()
-            _, response = await asyncio.gather(worker, change)
-            assert response.status_code == 200
+            _, result = await asyncio.gather(worker, change)
+            assert result["policy"] == requested
             assert session.policy == requested
             assert order == ["inference-drained", "policy-ack"]
         finally:
@@ -269,14 +335,10 @@ def test_pf_ch_policy_switch_pauses_actual_actor_before_ack(monkeypatch, actor, 
 ])
 def test_same_actor_and_legacy_only_policy_switch_do_not_pause(monkeypatch, actor, requested):
     async def exercise():
-        session, state, middleware = _session(monkeypatch, policy=actor, play_policy=actor)
-
-        async def apply_policy(_):
-            return JSONResponse(set_session_policy(session.id, PolicyChangeRequest(policy=requested)))
+        session, state, _ = _session(monkeypatch, policy=actor, play_policy=actor)
 
         try:
-            response = await middleware.dispatch(_request(session, "/policy", "POST", {"policy": requested}), apply_policy)
-            assert response.status_code == 200
+            await set_session_policy(session.id, PolicyChangeRequest(policy=requested))
             assert session.policy == requested
             assert state.running
             assert play_manager.get(session.id) is state
@@ -291,18 +353,15 @@ def test_rejected_pf_ch_policy_request_preserves_running_pp(monkeypatch, rejecti
     from fastapi import HTTPException
 
     async def exercise():
-        session, state, middleware = _session(monkeypatch, policy="plan", play_policy="plan")
+        session, state, _ = _session(monkeypatch, policy="plan", play_policy="plan")
         if rejection == "incompatible":
             session.env.width = 100
         else:
             session.enabled_policy_ids.remove("pf_ch_rl")
 
-        async def apply_policy(_):
-            return JSONResponse(set_session_policy(session.id, PolicyChangeRequest(policy="pf_ch_rl")))
-
         try:
             with pytest.raises(HTTPException) as caught:
-                await middleware.dispatch(_request(session, "/policy", "POST", {"policy": "pf_ch_rl"}), apply_policy)
+                await set_session_policy(session.id, PolicyChangeRequest(policy="pf_ch_rl"))
             assert caught.value.status_code == 400
             assert session.policy == "plan"
             assert state.running
@@ -315,19 +374,19 @@ def test_rejected_pf_ch_policy_request_preserves_running_pp(monkeypatch, rejecti
 
 def test_incoming_pf_ch_play_waits_for_transaction_without_hiding_previous_actor(monkeypatch):
     async def exercise():
-        session, state, middleware = _session(monkeypatch, policy="plan", play_policy="plan")
+        session, state, _ = _session(monkeypatch, policy="plan", play_policy="plan")
         seen = []
 
-        async def play(_):
-            seen.append(state.policy)
-            assert not state.running, "The old actor must be signalled before the transaction drains"
-            return JSONResponse({"ok": True})
+        async def play():
+            async with driver.actor_transaction(session, "pf_ch_rl") as actor_change:
+                assert actor_change
+                seen.append(state.policy)
+                assert not state.running, "The old actor must be signalled before the transaction drains"
 
         request = None
         try:
             async with driver.command_lock(session):
-                request = asyncio.create_task(middleware.dispatch(
-                    _request(session, "/play", "POST", {"policy": "pf_ch_rl", "speed": 4}), play))
+                request = asyncio.create_task(play())
                 await asyncio.sleep(0)
                 assert not request.done()
                 assert not seen
@@ -341,3 +400,10 @@ def test_incoming_pf_ch_play_waits_for_transaction_without_hiding_previous_actor
             play_manager._states.pop(session.id, None)
 
     asyncio.run(exercise())
+
+
+def test_the_control_module_does_not_import_the_api():
+    """`core` reads no request models: the endpoints validate their requests."""
+    import inspect
+
+    assert "app.api" not in inspect.getsource(driver)

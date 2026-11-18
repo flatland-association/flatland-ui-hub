@@ -15,7 +15,7 @@ from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
 from app.core.env_step import step_env
-from app.core.pf_ch_control import preflight_policy, is_specialist_policy
+from app.core.pf_ch_control import actor_transaction, preflight_policy, is_specialist_policy
 from app.core.scenario_presets import check_session_request, list_presets, preset_image, preset_video, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
@@ -429,6 +429,13 @@ async def step(session_id: str, req: StepRequest):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
     preflight_policy(env, req.policy)
+    async with actor_transaction(session, req.policy):
+        return await _step_session(session_id, session, req)
+
+
+async def _step_session(session_id: str, session, req: StepRequest):
+    """`step` once validated, inside its actor transaction."""
+    env = session.env
     # An accepted AI plan keeps driving while the client pins its policy
     # (registry.driving_policy_id); the pinned policy then drives off-plan trains.
     effective, driver = create_driving_policy(req.policy, env)
@@ -598,7 +605,7 @@ class ScenarioPoliciesUpdateRequest(BaseModel):
 
 
 @router.post("/{session_id}/policy")
-def set_session_policy(session_id: str, req: PolicyChangeRequest):
+async def set_session_policy(session_id: str, req: PolicyChangeRequest):
     """Switch the active policy for a session without stepping.
     Subsequent steps and /hmi/scenarios use this as baseline."""
     session = session_manager.get(session_id)
@@ -608,12 +615,17 @@ def set_session_policy(session_id: str, req: PolicyChangeRequest):
     if req.policy not in enabled:
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
     preflight_policy(session.env, req.policy)
-    # A deliberate switch ends an accepted AI plan (plan_policy.accept_trainrun_plan).
-    if req.policy != PLAN_POLICY_ID:
-        revert_accepted_plan(session.env)
-    session.policy = req.policy
-    _invalidate_scenario_forecasts(session_id)
-    return {"session_id": session_id, "policy": session.policy}
+    async with actor_transaction(session, req.policy) as actor_change:
+        if actor_change:
+            from app.core.play_manager import play_manager
+
+            await play_manager.stop(session_id)
+        # A deliberate switch ends an accepted AI plan (plan_policy.accept_trainrun_plan).
+        if req.policy != PLAN_POLICY_ID:
+            revert_accepted_plan(session.env)
+        session.policy = req.policy
+        _invalidate_scenario_forecasts(session_id)
+        return {"session_id": session_id, "policy": session.policy}
 
 
 def _invalidate_scenario_forecasts(session_id: str) -> None:

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 import re
 
 from fastapi import HTTPException
@@ -88,33 +89,44 @@ async def run_inference(session, work):
         await broadcast_playback(session)
 
 
-async def _requested_policy(request, path: str, session) -> str | None:
-    if request.method != "POST" or path not in {"/policy", "/play", "/step"}:
-        return None
-    media = request.headers.get("content-type", "application/json").split(";")[0].strip().lower()
-    if media != "application/json" and not (media.startswith("application/") and media.endswith("+json")):
-        return None
-    try:
-        if path == "/policy":
-            from app.api.sessions import PolicyChangeRequest
-            requested = PolicyChangeRequest.model_validate_json(await request.body()).policy
-        elif path == "/play":
-            from app.api.websockets import PlayRequest
-            requested = PlayRequest.model_validate_json(await request.body()).policy
-        else:
-            from app.models.session import StepRequest
-            requested = StepRequest.model_validate_json(await request.body()).policy
-        if requested not in session.enabled_policy_ids:
-            return None
-        preflight_policy(session.env, requested)
-        return requested
-    except (ValueError, TypeError, HTTPException):
-        # Invalid/disabled/incompatible requests must not stop the running actor.
-        return None
+def _involves_specialist(session, requested: str | None = None) -> bool:
+    previous = play_manager.get(session.id)
+    return requires_command_lock(session) or any(is_specialist_policy(policy) for policy in (
+        session.policy, getattr(previous, "policy", None), requested))
+
+
+@asynccontextmanager
+async def actor_transaction(session, requested: str):
+    """The transaction of a request that may switch the actor (`/play`, `/step`,
+    `/policy`), entered once the request is validated.
+
+    When the requested policy changes a running specialist actor (to or from
+    one), the old actor is signalled to stop *before* the wait for the command
+    lock, so the inference in flight drops its actions instead of applying them
+    after the switch. Yields whether the actor changes; the endpoint stops the
+    old play loop under the lock if it has to. Sessions without a specialist
+    pass without a lock, as before.
+    """
+    if not _involves_specialist(session, requested):
+        yield False
+        return
+    previous = play_manager.get(session.id)
+    actor_change = (previous is not None and requested != previous.policy
+                    and any(is_specialist_policy(policy) for policy in (requested, previous.policy)))
+    if actor_change:
+        request_stop(session)
+        await broadcast_playback(session)
+    async with command_lock(session):
+        yield actor_change
 
 
 class PFChControlMiddleware(BaseHTTPMiddleware):
-    """Serialise only mutations involving a bounded specialist actor."""
+    """Serialise only mutations involving a bounded specialist actor.
+
+    It never reads a request body: the requests that may switch the actor
+    (`/play`, `/step`, `/policy`) own their transaction (`actor_transaction`),
+    with the policy FastAPI validated for them.
+    """
 
     async def dispatch(self, request, call_next):
         match = re.match(r"^/session/([^/]+)(/.*)?$", request.url.path)
@@ -128,23 +140,19 @@ class PFChControlMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
         if request.method == "POST" and path in {"/what-if-override", "/director/whatif", "/director/verify"}:
             return await call_next(request)
-        previous = play_manager.get(session.id)
-        requested = await _requested_policy(request, path, session)
-        if not requires_command_lock(session) and not any(is_specialist_policy(policy) for policy in
-                   (session.policy, getattr(previous, "policy", None), requested)):
+        if request.method == "POST" and path in {"/play", "/step", "/policy"}:
+            # Their endpoints own the transaction (`actor_transaction`).
             return await call_next(request)
-        actor_change = (requested is not None and previous is not None
-                        and requested != previous.policy
-                        and any(is_specialist_policy(policy) for policy in (requested, previous.policy)))
+        if not _involves_specialist(session):
+            return await call_next(request)
         destructive = ((request.method == "DELETE" and path == "")
                        or (request.method == "POST" and path == "/reset"))
-        should_stop = destructive or actor_change or (request.method == "POST" and path == "/pause")
-        if should_stop:
+        if destructive or (request.method == "POST" and path == "/pause"):
             # Signal before waiting for inference; its proposal must be discarded.
             request_stop(session)
             await broadcast_playback(session)
         async with command_lock(session):
-            if destructive or (actor_change and path == "/policy"):
+            if destructive:
                 await play_manager.stop(session.id)
             if destructive:
                 from app.core.proposal_preview import clear_previews

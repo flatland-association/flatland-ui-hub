@@ -23,7 +23,7 @@ from app.core.marey_history import capture_marey_history_snapshot
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
 from app.core.play_manager import play_manager, PlayState
-from app.core.pf_ch_control import command_lock, preflight_policy, run_inference, broadcast_playback, is_specialist_policy, requires_command_lock
+from app.core.pf_ch_control import actor_transaction, command_lock, preflight_policy, run_inference, broadcast_playback, is_specialist_policy, requires_command_lock
 from app.policies.learned import pf_ch_bundle, uc2_bundle
 from app.policies.override_policy import OverridePolicy
 from app.policies.registry import create_driving_policy, create_runtime_policy, driving_policy_id
@@ -255,6 +255,12 @@ async def play(session_id: str, req: PlayRequest):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
     preflight_policy(session.env, req.policy)
+    async with actor_transaction(session, req.policy):
+        return await _play_session(session_id, session, req)
+
+
+async def _play_session(session_id: str, session, req: PlayRequest):
+    """`play` once validated, inside its actor transaction."""
     previous = play_manager.get(session_id)
     pf_ch_switch = (previous is not None and previous.policy != req.policy
                     and any(is_specialist_policy(policy) for policy in (previous.policy, req.policy)))
