@@ -159,6 +159,57 @@ marked **(decided)**; defaults this plan chose on its own are marked
   every scenario `.pkl` (`uc2_bundle.py`). When `main` and #196 meet, the
   tutorial's hash must be re-pinned there, or the KI breaks in the tutorial.
 
+## Limitations
+
+*What the built code does not handle. The code keeps no list of its own; there are no `TODO`s for these.*
+
+- No scores for Plan B's questionnaire: none are defined (item 9). Untracked.
+- Whether `pb_23`–`pb_27` are reverse-keyed is not known: the codebook says `reverse` false. The study team decides
+  (item 9).
+- Trains whose line doesn't cross the now-line (not departed, arrived) have no name in the ZWL (item 5).
+- Without a canvas, the ZWL's right gutter is estimated from the length of the last station name, not measured
+  (item 10).
+- French wordings ("Changer d'itinéraire", the step units) need a native check (items 4 and 8).
+- The tutorial's new `.pkl` hash isn't pinned in #196's UC2 model; that must be re-pinned when #196 meets `main`
+  (tutorial station names).
+- `feature/183-time-in-steps` (not pushed) will conflict in the i18n files, the ZWL and the map (item 8).
+
+## New patterns
+
+*Compared with `main`.*
+
+| ID | New | Defined in |
+|---|---|---|
+| PAT-1 | The time-vertical ZWL has a fixed scale (60 steps visible, `STEPS_IN_VIEW`) and scrolls, instead of fitting the time range into the panel. | Item 1 |
+| PAT-2 | The ZWL follows the now-line (20 steps below the top, `NOW_PAST_STEPS`) until the reader scrolls by hand; "Zu jetzt" (`zwd.toNow`) or scrolling back resumes it. | Item 1 |
+| PAT-3 | One UI-config id per map overlay control: `control.mapZoom` and `control.mapOpacity` split off from `control.mapNavigation`. | Item 2 |
+| PAT-4 | Train names at the now-line instead of at the end of the line. | Item 5 |
+| PAT-5 | Buttons of the reflection prompt get fixed `data-log` ids (`rationale.yes`, `rationale.no`) instead of positional ones. | Item 7 |
+| PAT-6 | The export's questionnaire list holds study questionnaires (`plan-b-final`) besides the post-session ones; the codebook gains `survey_id`, `page`, `step`, `unit`, `options`. | Item 9 |
+
+## Breaking changes
+
+*None for the stored data: ids, translation keys and the session record format stay. What changes is visible
+behaviour outside Plan B and the export's columns.*
+
+- **ZWL scale and scroll, in every mode (item 1).** Every time-vertical ZWL now shows 60 steps and scrolls, and
+  keeps the now-line 20 steps below the top. Affects every preset and tour with a ZWL. No switch keeps the old
+  fit-to-panel scale: deliberately, since it squashed and stretched as the forecast changed.
+- **`control.mapNavigation` no longer hides the zoom buttons (item 2).** A `ui-config.json` or saved design that
+  hides `control.mapNavigation` shows the zoom +/−/% again. In the repo only `preset-plan-b` hides it, and that
+  wants zoom back. Migration: add `control.mapZoom` (and `control.mapOpacity`) to such a config's hidden list.
+- **Conflicts red on the map in every mode (item 3).** `--layer-color-contentions` is a shared token. Screenshots
+  of other modes show red instead of orange.
+- **Reflection prompt click ids (item 7).** Clicks on "Ja, als Regel" and "Nein" log as `rationale.yes`/`rationale.no`
+  instead of `button[0]`/`button[2]`. Analyses that read the old positional ids must map both forms; records
+  before this PR keep the positional ones. "Nur diesmal" (`'once'`) is no longer logged from the reflection prompt.
+- **Codebook columns (item 9).** The codebook sheet gains `survey_id`, `page`, `step`, `unit` and `options`, and the
+  column order changes. Scripts that read the codebook by position break; by column name they keep working. The
+  long and wide sheets keep their columns and gain Plan B's items.
+- **Wording (items 4, 8).** "Umleiten" → "Fahrweg ändern" and minutes → steps change only the text; keys and
+  `data-log` ids stay.
+- **Tutorial `.pkl` (tutorial station names).** New file hash; see Limitations for #196.
+
 ## New files
 
 | File | Purpose |
