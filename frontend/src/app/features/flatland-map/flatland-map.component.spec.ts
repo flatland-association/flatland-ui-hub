@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { SessionStore } from '../../core/session.store';
+import { CurrentDelayService } from '../../core/timetable/current-delay.service';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { FlatlandMapComponent } from './flatland-map.component';
 
@@ -55,3 +56,27 @@ describe('FlatlandMapComponent — closing a train\'s option strip', () => {
     expect(store.selectedHandle()).toBe(5);
   });
 });
+
+/** A late train's plate on the map: "+5" on the plate, the unit in its
+ *  tooltip and screen-reader name, as the map has no time axis (F-6). */
+describe('FlatlandMapComponent — delay on a train plate', () => {
+  it('says the unit where the plate itself is too small for it', () => {
+    TestBed.configureTestingModule({
+      imports: [FlatlandMapComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    spyOn(TestBed.inject(CurrentDelayService), 'label').and.callFake((h: number) => (h === 3 ? '+5' : ''));
+    const c = TestBed.createComponent(FlatlandMapComponent).componentInstance;
+    const stub = c as unknown as Record<string, unknown>;
+    stub['trainLabelsOn'] = () => true;
+    stub['viewBox'] = () => '0 0 100 100';
+    stub['agents'] = () => [{ handle: 3, position: [1, 1] }, { handle: 4, position: [2, 2] }];
+    stub['agentX'] = () => 50;
+    stub['agentY'] = () => 50;
+    const [late, onTime] = c.trainLabels();
+    expect(late.delay).toBe('+5');
+    expect(late.delayText).toBe('+5 steps');
+    expect(onTime.delayText).toBe('');
+  });
+});
+

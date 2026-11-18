@@ -754,9 +754,9 @@
       [style.top.%]="l.top"
       [style.--lane]="l.lane"
       [style.border-color]="l.color"
-      [attr.aria-label]="'map.selectTrain' | transloco: { name: l.name + (l.delay ? ' ' + l.delay : '') }"
+      [attr.aria-label]="'map.selectTrain' | transloco: { name: l.name + (l.delayText ? ' ' + l.delayText : '') }"
       (click)="toggleSelect(l.handle)">
-      {{ l.name }}@if (l.delay) {<span class="map-train-label__delay">{{ l.delay }}</span>}
+      {{ l.name }}@if (l.delay) {<span class="map-train-label__delay" [title]="l.delayText">{{ l.delay }}</span>}
     </button>
   }
 
