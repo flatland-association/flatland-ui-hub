@@ -12,7 +12,7 @@ from app.api import overrides
 from app.core.proposal_agents.pp_replan import PPReplanAgent
 from app.core.proposal_agents.uc2_rl import UC2RLProposalAgent
 from app.core.session_manager import session_manager
-from app.policies.plan_policy import accept_trainrun_plan, planned_arrival_steps
+from app.policies.plan_policy import accept_trainrun_plan, planned_arrival_steps, revert_accepted_plan
 
 
 def _env(elapsed, max_ep):
@@ -44,5 +44,24 @@ def test_an_accepted_course_is_no_yardstick_where_the_scenario_shipped_no_plan()
         accept_trainrun_plan(s.env, {0: [TrainrunWaypoint(9999, Waypoint(*start))]})
         assert planned_arrival_steps(s.env) == {0: 10000}, "the accepted course looks like a plan"
         assert overrides.proposal_arrival_reference(s.env) == before
+        # A second course accepted on top: the first one must not become the yardstick.
+        accept_trainrun_plan(s.env, {0: [TrainrunWaypoint(8888, Waypoint(*start))]})
+        assert overrides.proposal_arrival_reference(s.env) == before
+    finally:
+        session_manager.delete(s.id)
+
+
+def test_repeated_acceptances_keep_the_shipped_plan_as_yardstick():
+    s = session_manager.create(width=30, height=30, number_of_agents=2, seed=7)
+    try:
+        start = s.env.agents[0].initial_configuration
+        s.env._trainrun_plan = {0: [TrainrunWaypoint(40, Waypoint(*start))]}  # the scenario's own plan
+        before = overrides.proposal_arrival_reference(s.env)
+        assert before[0] == 41
+        accept_trainrun_plan(s.env, {0: [TrainrunWaypoint(9999, Waypoint(*start))]})
+        accept_trainrun_plan(s.env, {0: [TrainrunWaypoint(8888, Waypoint(*start))]})
+        assert overrides.proposal_arrival_reference(s.env) == before
+        revert_accepted_plan(s.env)
+        assert planned_arrival_steps(s.env) == {0: 41}, "a revert restores the shipped plan"
     finally:
         session_manager.delete(s.id)
