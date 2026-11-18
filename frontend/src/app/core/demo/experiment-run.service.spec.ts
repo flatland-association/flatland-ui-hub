@@ -200,15 +200,17 @@ describe('ExperimentRunService', () => {
     store.session.set({ id: 's1' } as SessionInfo);
     run.finishConfirmBack();
     run.finishConfirmBack();
+    run.finishConfirmYes();
     run.finishLeg('clicked');
     expect(tour.shiftHistory()[0].finishConfirm).toEqual({ confirmed: true, backs: 2 });
     expect(noteLeg.calls.mostRecent().args[0]['finishConfirm']).toEqual({ confirmed: true, backs: 2 });
 
-    // The next leg counts from 0; an end without "Ja" is not confirmed.
+    // The next leg starts from scratch; an end without "Ja" is not confirmed,
+    // also when it counts as a click (a resume into a questionnaire).
     store.advanceDemo();
     store.session.set({ id: 's2' } as SessionInfo);
     run.legStarted();
-    run.finishLeg('episodeEnd');
+    run.finishLeg('clicked');
     expect(tour.shiftHistory()[1].finishConfirm).toEqual({ confirmed: false, backs: 0 });
 
     begin(run, store, { ...ONE_LEG, finishConfirm: false });

@@ -97,6 +97,8 @@ export class ExperimentRunService {
   /** How often the finish dialog was closed without "Ja" in the current leg.
    *  Not persisted: a resumed leg restarts on a fresh session. */
   private finishConfirmBacks = 0;
+  /** The current leg's finish dialog was answered with "Ja". */
+  private finishConfirmYesGiven = false;
   /** The stepper and the guide's outer level show from two legs on. */
   readonly multiLeg = computed(() => this.legCount() > 1);
   /** With several legs the guide strip is a leg's subtree, so it shows only
@@ -161,6 +163,7 @@ export class ExperimentRunService {
     this.startedAt = Date.now();
     this.legStartedAt = this.startedAt;
     this.finishConfirmBacks = 0;
+    this.finishConfirmYesGiven = false;
     this.questionnaires = [];
     this.resumedAt = [];
     this.questionnaireOpen.set(false);
@@ -211,6 +214,7 @@ export class ExperimentRunService {
   legStarted(): void {
     this.legStartedAt = Date.now();
     this.finishConfirmBacks = 0;
+    this.finishConfirmYesGiven = false;
     this.persist();
   }
 
@@ -222,6 +226,11 @@ export class ExperimentRunService {
   /** The finish dialog was closed without "Ja" (Zurück, Escape, backdrop). */
   finishConfirmBack(): void {
     this.finishConfirmBacks++;
+  }
+
+  /** The finish dialog was answered with "Ja"; the leg finishes next. */
+  finishConfirmYes(): void {
+    this.finishConfirmYesGiven = true;
   }
 
   /** Record the current leg as finished and log it. Safe to call twice. */
@@ -242,8 +251,9 @@ export class ExperimentRunService {
     }));
     const finishedAt = Date.now();
     const runError = this.store.runError();
-    // In phase `running` only the finish dialog's "Ja" finishes with `clicked`.
-    const finishConfirm = this.hasFinishConfirm() ? { confirmed: reason === 'clicked', backs: this.finishConfirmBacks } : null;
+    // From the dialog itself, not from the reason: a `clicked` finish can also
+    // come without it (a resume into a questionnaire).
+    const finishConfirm = this.hasFinishConfirm() ? { confirmed: this.finishConfirmYesGiven, backs: this.finishConfirmBacks } : null;
     this.tourContext.recordShift({
       leg: this.legIndex(),
       sessionId,

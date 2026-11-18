@@ -1492,7 +1492,10 @@ export class AppComponent implements OnInit {
     const confirmed = (event as Event & { result?: unknown }).result === 'confirm';
     const resume = this._resumeAfterFinishConfirm;
     this._resumeAfterFinishConfirm = false;
-    if (!confirmed && this.experimentRun.active()) this.experimentRun.finishConfirmBack();
+    if (this.experimentRun.active()) {
+      if (confirmed) this.experimentRun.finishConfirmYes();
+      else this.experimentRun.finishConfirmBack();
+    }
     // A run's leg stops anyway; a tour goes on as it did before the dialog.
     if (resume && !(confirmed && this.experimentRun.active())) {
       this.store.play(this.store.activePolicy() || this.store.defaultPolicy(), this.store.playSpeed());
