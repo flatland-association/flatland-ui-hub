@@ -204,15 +204,6 @@ export class ReplayService {
     const all = this._surveys();
     return all.find((s) => s.submittedAt! >= this.time()) ?? all.at(-1) ?? null;
   });
-  /** The questionnaire parts the shown one had, from its condition (after a leg, or the final one);
-   *  null for a condition that no longer exists, and the survey then shows the answered sections. */
-  readonly surveyParts = computed<readonly string[] | null>(() => {
-    const shown = this.survey();
-    const id = this.leg()?.header.conditionId;
-    const condition = shown && id ? STUDY_CONDITIONS.find((c) => conditionId(c) === id) : undefined;
-    if (!condition) return null;
-    return (shown!.afterLegId ? condition.legSurveyParts : condition.surveyParts) ?? null;
-  });
   /** The Schichtbilanz rows: each leg's trains at its end, and its interventions. */
   readonly legSummaries = computed<{ kpis: ShiftKpis | null; interventions: number }[]>(() =>
     this.legs().map((leg) => {

@@ -1,7 +1,6 @@
-import type { InteractionMode } from '../events/event-types';
 import type { ExperimentRunRecord } from '../interaction-log/experiment-run-record';
 import type { SessionRecord, SurveySubmission } from '../interaction-log/session-record';
-import { DEFAULT_SURVEY_PARTS, PLAN_B_FINAL_SURVEY, postSessionSurvey } from './survey-configs';
+import { allSurveys } from './survey-configs';
 import { scoreSurvey } from './survey-scoring';
 import type { SurveyAnswers, SurveyConfig, SurveyQuestion } from './survey.types';
 
@@ -33,8 +32,6 @@ export type CodebookRow = Record<(typeof CODEBOOK_COLUMNS)[number], string | num
 
 export type TableRow = Record<string, string | number | boolean | null>;
 
-const MODES: InteractionMode[] = ['recommendation', 'co-learning', 'director'];
-
 /** The `hmisurveys` file each re-authored part comes from (Q19); items are in its order. */
 const HMIS_FILES: Record<string, string> = {
   'nasa-tlx': 'workload/tlx_simple.html',
@@ -43,14 +40,12 @@ const HMIS_FILES: Record<string, string> = {
   'ueq-s': 'experience/ueq_short.html',
 };
 
-/** Every questionnaire the app can show, by id: the post-session ones
- *  (`post-session-<mode>`, with all parts) and the studies' own (Plan B's
- *  `plan-b-final`). A submission whose id is missing here gets no question
- *  text, item columns or codebook entry (docs/plans/plan-b-small-changes.md,
- *  item 9). */
+/** Every questionnaire the app can show, by the id a record stores
+ *  (`allSurveys`: the building-block ones and the fixed ones). A submission
+ *  whose id is missing here gets no question text, item columns or codebook
+ *  entry (docs/plans/plan-b-small-changes.md, item 9). */
 function configs(): Map<string, SurveyConfig> {
-  const all = [...MODES.map((mode) => postSessionSurvey(mode, DEFAULT_SURVEY_PARTS)), PLAN_B_FINAL_SURVEY];
-  return new Map(all.map((config) => [config.id, config] as const));
+  return new Map(allSurveys().map((config) => [config.id, config] as const));
 }
 
 /** The answers an item offers, as one cell: a radio's options, or a matrix's
