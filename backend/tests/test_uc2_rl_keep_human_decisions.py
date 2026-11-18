@@ -190,8 +190,7 @@ def test_round_a_train_the_dispatcher_stopped():
         try:
             env = session_manager.get(sid).env
             step = {"policy": "deadlock_avoidance", "n_steps": 1}
-            while agent_position(env.agents[0]) != (2, 11):
-                client.post(f"/session/{sid}/step", json=step)
+            _walk_train_0_to(client, sid, env, (2, 11), step)
             client.post(f"/session/{sid}/agent/0/override", json={"action": STOP})
             client.post(f"/session/{sid}/step", json={**step, "n_steps": 4})
             assert agent_position(env.agents[0]) == (2, 13) and agent_position(env.agents[1]) is None
