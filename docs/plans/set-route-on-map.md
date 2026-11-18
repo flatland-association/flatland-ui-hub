@@ -1,13 +1,14 @@
 # Fahrweg einstellen: draw a train's route on the Streckenspiegel (#199, last bullet)
 
-> **Status:** plan of 2026-11-16, draft. Based on `main` fd0c70cb, on branch `feature/199-flash-ahead-set-path` after
+> **Status:** plan of 2026-11-16, draft. Now on [#215](https://github.com/flatland-association/flatland-ui-hub/pull/215)
+> (`refactor/196-modularization` 792f6850, on #208 83880783), see §11.2. Originally based on `main` fd0c70cb, on branch `feature/199-flash-ahead-set-path` after
 > the flash-ahead plan (00fad43d; kept on the same branch on request, may move to its own branch later). Rebased
 > 2026-11-18 onto [#208](https://github.com/flatland-association/flatland-ui-hub/pull/208) (head 17707737, on #196's
 > `codex/pf-ch-rl-main` 29b31139), whose overrides concept for the KI adviser meets this plan's (§3.4, Q-11). Issue
 > [#199](https://github.com/flatland-association/flatland-ui-hub/issues/199), last bullet ("possible extension:
-> Fahrweg einstellen Knoten-Knoten-Knoten"), label "plan b". No PR yet. Open questions: none (§9.1; Q-11 to Q-13 decided 2026-11-18).
-> Implemented 2026-11-16 (S-2 to S-4), verified in the Plan B tutorial (§4.2); user doc in `docs/reference/mode-guide.md` (S-5). Open: S-6
-> (`PlanPolicy` passes the call on, Q-12 a).
+> Fahrweg einstellen Knoten-Knoten-Knoten"), label "plan b". PR [#207](https://github.com/flatland-association/flatland-ui-hub/pull/207). Open questions: none (§9.1; Q-11 to Q-13 and (Q-12) revisited decided 2026-11-18).
+> Implemented 2026-11-16 (S-2 to S-4), verified in the Plan B tutorial (§4.2); user doc in `docs/reference/mode-guide.md` (S-5). S-6
+> (`PlanPolicy` passes the call on and takes rerouted trains off plan, Q-12 a, revisited) implemented, not committed yet.
 >
 > **Why:** today "Umleiten" computes a route for the operator, only around a broken-down train. A dispatcher sets a
 > route ("stellt einen Fahrweg ein") themselves, e.g. sends a train through the second track of a station so that
@@ -29,12 +30,12 @@ route is set as the train's override.
 
 Requirements:
 
-- **REQ-1** With the train selected and "Umleiten" chosen in the action options (Q-9), the operator presses on the train on the Streckenspiegel and drags
+- **REQ-1** With the train selected and «Fahrweg ändern» chosen in the action options (Q-9), the operator presses on the train on the Streckenspiegel and drags
   along the tracks; the route follows the pointer over the switches (Q-1, Q-2).
 - **REQ-2** On mouse up the drawn route becomes the train's reroute override; the train drives it (Q-3, Q-6).
 - **REQ-3** The other trains take the drawn route into account, so that two trains can cross in a station (Q-4).
 - **REQ-4** Validation in the Plan B tutorial: the train from the right (BA) is routed through the second track of
-  the passing loop in the middle (not straight, deviating); the train from the left (AB) waits in the loop and lets
+  the side track of the passing place in the middle (not straight, deviating); the train from the left (AB) waits on the side track and lets
   BA pass; both arrive, better than without the route (§4.2).
 
 ### 1.2 Quality goals (non-functional requirements)
@@ -67,7 +68,7 @@ Requirements:
 | A route that ends before the target and hands back to the policy. | Needs a rule for where the policy takes over (Q-3 b). | Q-3 | - | untracked |
 | Reroute for trains under `PlanPolicy` that rejoins their plan. | Today a rerouted train is off plan for the rest of the episode (§3.2). | Q-8 | - | untracked |
 | Override awareness for the Director and PP re-plan, and for `PlanPolicy` beyond passing the call on (S-6) (implement the Q-4 b interface). | Plan B runs DLA; each needs its own design (re-plan with constraints, plan order with off-plan trains). | §3.4, Q-4 | - | untracked |
-| The action hook in `OverridePolicy`: the overrides go into a certifying driver's proposals before `finalize_actions` (Joint ROAM), live and in the `uc2_rl` rollout, with one set of override rules instead of #208's copy in `_apply_kept_overrides` (§5.9, §6.10). With a test of a drawn route under the UC2 driver; if it stalls (§6.5), also the route as ROAM's mission (Q-11 e). | Decided as a follow-up after #208 is merged (Q-11 b): it touches #208's and #196's code; Plan B is driven by DLA. | §3.4, Q-11 | - | - |
+| The action hook in `OverridePolicy`: the overrides go into a certifying driver's proposals before `finalize_actions` (Joint ROAM), live and in the `uc2_rl` rollout, with one set of override rules instead of #208's copy in `_apply_kept_overrides` (§5.9, §6.10). With a test of a drawn route under the UC2 driver; if it stalls (§6.5), also the route as ROAM's mission (Q-11 e). Takes over #208's follow-ups F-3 (one override rule), F-6 (tests of kept reroutes and turns) and F-10 (the stop action and the DONE check in `uc2_rl.py`), and its limitation "overrides after ROAM when `uc2_rl` drives" ([uc2-rl-keep-human-decisions.md](uc2-rl-keep-human-decisions.md) §Follow-ups). Shape: §8.3.1; plan: `docs/plans/shared-override-rules.md` on branch `refactor/shared-override-rules`. | Decided as a follow-up after #208 is merged (Q-11 b): it touches #208's and #196's code; Plan B is driven by DLA. | §3.4, Q-11 | #208's F-3, F-6, F-10 | branch `refactor/shared-override-rules` |
 | The fallback DLA walks the planned trains along their runs (`PlanPolicy` passes them as routes), so an off-plan train waits for a planned one coming along its run. | Planned trains still would not wait for off-plan ones; needs its own design and tests. | §2.1, §5.6, Q-12 | - | - |
 | Port upstream DLA with set paths (`SetPathPolicy`), so routes are the policy's own set paths. | A larger change to the default policy; this plan only lets DLA read committed routes through the optional override-aware `Policy` method (Q-4 b). | flash-ahead plan §1.4 | - | untracked |
 
@@ -94,7 +95,9 @@ Requirements:
 - After a KI course is accepted, `PlanPolicy` drives, and it does not implement the Q-4 b method: the call does not
   reach its fallback DLA, so a rerouted train (on plan or off it) drives its route unchecked, live and in the KI courses'
   scoring (`/proposals`, #208). S-6 fixes it (Q-12 a). Afterwards DLA still walks shortest paths for the trains on
-  the plan, not their runs (follow-up in §1.4).
+  the plan, not their runs (follow-up in §1.4): a route into a planned train's course can end head-on, e.g. BA
+  using the side track after the course `ai-2` sent AB there ([walk-through §4](set-route-on-map/walkthrough.md)). The
+  «Mensch» course shows it before the route is taken.
 - Taking a PP course clears `env._route_overrides` but not the drawn-route marker (`env._route_drawn`); harmless,
   because the next `commit_route` or `drop_route` for that train resets it, but untidy.
 - #208's preview token binds the standing overrides and `_route_overrides`, not `_route_drawn`; the marker only
@@ -152,9 +155,9 @@ Yes, for reroutes:
 - A train under `PlanPolicy` that leaves its planned cells is "off plan" and drives with DLA for the rest of the
   episode.
 
-### 3.3 The Plan B tutorial today, and with a route through the loop
+### 3.3 The Plan B tutorial today, and with a route using the side track
 
-`backend/app/fixtures/plan-b/tutorial`: a 6 × 25 grid, station A at column 3, station B at column 21, a passing loop
+`backend/app/fixtures/plan-b/tutorial`: a 6 × 25 grid, station A at column 3, station B at column 21, a passing place with a side track
 in the middle (second track on row 1, columns 10-14, switches at (2,10) and (2,14)). AB starts in A, BA in B;
 AB breaks down at step 8 for 4 steps. The episode ends at step 40. DLA drives (no plan).
 
@@ -164,9 +167,9 @@ workspace, not committed):
 | Run | AB | BA | Outcome |
 |---|---|---|---|
 | DLA, no intervention | arrives at step 24 (latest arrival 18) | waits at B until AB is through, enters at step 25, not arrived by step 40 | one arrival, BA misses |
-| BA rerouted through row 1 (cells (2,14) → (1,14) … (1,10) → (2,10)), set when BA enters at step 3 | stops at (2,4) until BA nears the loop, then drives to (2,9) | drives the loop, leaves it at (2,10) at step 16 | head-on at (2,9)/(2,10) from step 17, both stuck to step 40 |
+| BA rerouted through row 1 (cells (2,14) → (1,14) … (1,10) → (2,10)), set when BA enters at step 3 | stops at (2,4) until BA nears the passing place, then drives to (2,9) | drives the side track, leaves it at (2,10) at step 16 | head-on at (2,9)/(2,10) from step 17, both stuck to step 40 |
 
-So the route itself works, but AB does not wait in the loop: its DLA does not know BA's route, and BA's route move is
+So the route itself works, but AB does not wait on the side track: its DLA does not know BA's route, and BA's route move is
 not checked for deadlock. REQ-4 needs Q-4.
 
 ### 3.4 Are overrides communicated to the policies?
@@ -253,7 +256,7 @@ only passes the call on (S-6); the Director is unchanged.
 | Quality goal | Scenario | Solution approach | Details |
 |---|---|---|---|
 | NFR-1 Safe | No head-on standstill | DLA keeps deciding go/stop for a rerouted train, along its route, and the other trains see the route. | Q-4, §4.5 |
-| NFR-2 Direct | Press, drag, release | Drawing mode entered by "Umleiten"; press on the train starts it. | Q-1, §4.3 |
+| NFR-2 Direct | Press, drag, release | Drawing mode entered by «Fahrweg ändern»; press on the train starts it. | Q-1, §4.3 |
 | NFR-3 Honest | Forecast before taking it | The drawn route becomes the "Mensch" course in Plan / KI / Mensch. | Q-6, §4.4 |
 
 ### 4.1 Design principles
@@ -265,7 +268,7 @@ only passes the call on (S-6); the Director is unchanged.
 - **DP-3 Safety stays with the policy.** A route says where a train goes, not when; the policy still says whether it
   may move now. Policies opt in to knowing committed overrides (today none does, §3.4); DLA is the first. The
   check sees the overrides before it decides, as #208 does for ROAM in the `uc2_rl` adviser. (Q-4, Q-11)
-- **DP-4 Compare before commit.** The drawn route is a "Mensch" option like Halten or Umleiten. (Q-6)
+- **DP-4 Compare before commit.** The drawn route is a "Mensch" option like Halten or Fahrweg ändern. (Q-6)
 
 Reused concepts:
 
@@ -289,29 +292,33 @@ loop's second track (step 3), release, the "Mensch" course, "Take" (step 4); the
 The run comes from a sandbox prototype of S-2: DLA's walker follows BA's committed route instead of the shortest path.
 Result: AB arrives at step 24 (+6) and BA at step 25 (+5); without the reroute BA has not arrived by step 40
 (committed at step 1 BA would arrive at step 23, at step 5 at step 26). AB does not stop on purpose in this run: it
-stands with its malfunction (steps 8–11), then passes straight on while BA is in the loop.
+stands with its malfunction (steps 8–11), then passes straight on while BA is on the side track.
 
 | ID | Requirement | Test or check | Result | Screenshots |
 |---|---|---|---|---|
-| REQ-1 | Draw by dragging | `route-drawing.spec.ts` (track following, filling skipped cells, via cells); in the app: BA selected, «Umleiten», drag through row 1 | ✅ The line follows the track through the loop; via cells `1,14;2,8` | [drag.png](set-route-on-map/drag.png) |
+| REQ-1 | Draw by dragging | `route-drawing.spec.ts` (track following, filling skipped cells, via cells); in the app: BA selected, «Umleiten», drag through row 1 | ✅ The line follows the track using the side track; via cells `1,14;2,8` | [drag.png](set-route-on-map/drag.png) |
 | REQ-2 | Mouse up sets the reroute | `test_route_drawn.py`: `/proposals` and `/proposals/apply` with `via`, the override endpoint with `via`; in the app: release, «Mensch» course, «Umleiten übernehmen» | ✅ Mensch: step 26, 2/2 at the target (Plan: BA does not arrive) | [course.png](set-route-on-map/course.png) |
-| REQ-3 | Others respect the route | `test_route_drawn.py::test_tutorial_drawn_route_lets_both_trains_arrive` | ✅ BA takes the loop, no head-on standstill | - |
+| REQ-3 | Others respect the route | `test_route_drawn.py::test_tutorial_drawn_route_lets_both_trains_arrive` | ✅ BA takes the side track, no head-on standstill | - |
 | REQ-4 | Tutorial better | The same test; in the app (route taken at step 6) | ✅ AB step 24, BA step 27; without the route BA does not arrive by step 40 | [tutorial-after.png](set-route-on-map/tutorial-after.png) |
 | NFR-1 | No head-on standstill | The §3.3 rerouted run, repeated with S-2 | ✅ Both arrive | - |
-| REQ-3, NFR-1 under a taken KI course | Others respect the route after a KI course was taken | S-6: `test_route_drawn.py`, a rerouted train under a taken course waits for an oncoming train | 💡 open (S-6) | - |
+| REQ-3, NFR-1 under a taken KI course | Others respect the route after a KI course was taken | S-6: `test_route_drawn.py`, a train rerouted using the side track under a taken course (the tutorial's DLA run as plan) | ✅ BA goes off plan, takes the side track, both arrive at step 24 (with pass-on only: BA held for the plan's departure, does not arrive) | - |
 
 Recording in the app (production build, German, Plan B tutorial, 2026-11-16):
 [tutorial-in-app.mp4](set-route-on-map/tutorial-in-app.mp4) ([GIF](set-route-on-map/tutorial-in-app.gif)): click on BA,
-«Umleiten», drag through the loop, release, «Umleiten übernehmen» (at step 7, the clock running), then the run at 4×.
+«Umleiten», drag using the side track, release, «Umleiten übernehmen» (at step 7, the clock running), then the run at 4×.
 The «Mensch» course says BA arrives at step 28; in the run AB arrives at step 25 and BA at step 28. The cursor and the
 captions are added for the recording.
 
 In the app, DLA keeps BA at B until step 9 (AB comes towards it and breaks down at step 8), so BA arrives at step 27,
 not 25 as in the preview.
 
+Technical walk-through: [walkthrough.md](set-route-on-map/walkthrough.md), per step and train who decides on what
+(driver, wrapper, DLA's free cells), with the payloads, pictures and movies of the cases without a route, with DLA
+driving, after a taken KI course (`ai-2`, `ai`) and the S-6 refinement.
+
 ### 4.3 Drawing on the map (REQ-1; Q-1, Q-2, Q-5, Q-7)
 
-- "Umleiten" in the action options (or the map popover) puts the map into route mode for that train: a hint
+- «Fahrweg ändern» in the action options (or the map popover) puts the map into route mode for that train: a hint
   ("Zug drücken und den Fahrweg entlang ziehen"), Esc cancels.
 - In route mode, mouse down on the train starts the drawing instead of panning. While the button is down, each cell
   under the pointer that is reachable from the last route cell is added; the route is drawn as a line in the
@@ -345,7 +352,7 @@ not 25 as in the preview.
 
 ```mermaid
 flowchart LR
-    PC["🟨 ProposalCompareComponent<br/>Umleiten starts route mode"] --> ST["🟨 SessionStore<br/>routeDrawing"]
+    PC["🟨 ProposalCompareComponent<br/>«Fahrweg ändern» starts route mode"] --> ST["🟨 SessionStore<br/>routeDrawing"]
     MAP["🟨 FlatlandMapComponent<br/>draw on drag"] --> ST
     ST -- "proposals, option reroute, via cells" --> API["🟨 overrides API<br/>via on proposals, apply, override"]
     API --> RO["🟨 route_overrides<br/>route_through, drawn routes kept"]
@@ -374,7 +381,7 @@ stays with DLA (DP-3); the commit goes through Plan / KI / Mensch (DP-4).
 
 | Component | Responsibility | Change |
 |---|---|---|
-| `ProposalCompareComponent` (action options) | Compares Plan, KI and the operator's option for one train, and commits one. Not for drawing. | 🟨 modified: "Umleiten" lets the operator draw the route on the map, then shows its course. |
+| `ProposalCompareComponent` (action options) | Compares Plan, KI and the operator's option for one train, and commits one. Not for drawing. | 🟨 modified: «Fahrweg ändern» lets the operator draw the route on the map, then shows its course. |
 | `FlatlandMapComponent` (Streckenspiegel) | Draws the network, trains and overlays; takes clicks and drags. | 🟨 modified: in route mode a drag from the train draws its route. |
 | `SessionStore` | Holds the session state the views share. | 🟨 modified: knows the train being routed and the drawn via cells. |
 | overrides API (`/proposals`, `/proposals/apply`) | Simulates and commits the operator's option. | 🟨 modified: a reroute can carry via cells. |
@@ -684,7 +691,7 @@ Plan (`env._trainrun_plan`, a `TrainrunDict`: per train the waypoints it enters,
 }
 ```
 
-Shortened to a few waypoints per train; a real run lists every cell. Train 1's run through (1,14) is the loop's
+Shortened to a few waypoints per train; a real run lists every cell. Train 1's run through (1,14) is the side track's
 second track: the course was simulated with its kept reroute, so the plan carries the route too.
 
 Overrides (in memory, shown as JSON; `override_manager` per session, the route on the env):
@@ -780,8 +787,8 @@ forks (routes through `carry_to_fork`, an uncommitted drawn route through `run_b
   train occupies its cell anyway). For every train walked, itself and when the others look for oncoming trains, the
   walker takes the route's next node while the train is on its route, otherwise the shortest path.
 - **A, DLA drives:** DLA answers True, so `apply_overrides` keeps DLA's stop for a rerouted train.
-- **B, a KI course was taken:** the call reaches `PlanPolicy`, which with S-6 (Q-12 a) passes it on to DLA, its
-  fallback, and answers True; so DLA walks the committed routes, and `apply_overrides` keeps the driver's stop for a
+- **B, a KI course was taken:** the call reaches `PlanPolicy`, which with S-6 (Q-12 a) first takes every train with a
+  committed route the course was not simulated with off plan, then passes the call on to DLA, its fallback, and answers True; so DLA walks the committed routes, and `apply_overrides` keeps the driver's stop for a
   rerouted train (on plan: the plan's wait; off plan: DLA's). Before S-6 it inherited the `Policy` default (False):
   DLA got nothing and the route's move was forced. DLA still does not know the planned trains' runs (follow-up).
 
@@ -1109,7 +1116,7 @@ sequenceDiagram
     box rgb(255,243,191) 🟨 modified
         participant RO as route_overrides
     end
-    U->>PC: Umleiten for train BA
+    U->>PC: Fahrweg ändern for train BA
     PC->>ST: 🟩 route mode for BA
     U->>MAP: 🟩 mouse down on BA
     loop while the button is down
@@ -1637,22 +1644,91 @@ Compared with `main`. What is reused, and what is not new on purpose, is in §4.
 | PAT-2 | Via cells on the override channel (reroute with a given route). | §4.4, Q-2 |
 | PAT-3 | An override that gives the direction while the policy keeps go/stop. | §4.5, Q-4 |
 | PAT-4 | Override-aware policies: an optional `Policy` method through which `OverridePolicy` passes the committed holds and routes. Not #208's `respects_overrides`, which is about an adviser's courses (§3.4). | Q-4 b, Q-11 |
+| PAT-5 | A taken course records the routes it was simulated with (`env._plan_course_routes`, next to `env._plan_off_plan`); `PlanPolicy` takes a train with any other committed route off plan. | §9.1 (Q-12) revisited, S-6 |
 
 ### 8.2 Breaking changes
 
-- **Reroutes become safer and possibly slower:** with Q-4 b (DLA override-aware), a computed reroute (today's "Umleiten" around a block)
+- **Reroutes become safer and possibly slower:** with Q-4 b (DLA override-aware), a computed reroute (before this plan «Umleiten» around a block)
   also waits when DLA says stop, where today it drives on. Forecasts of existing tours with reroutes may change.
   No API or stored format changes; existing calls without `via` behave as today apart from this.
-- **After a taken KI course, rerouted trains wait** (S-6, Q-12 a): `PlanPolicy` passes the committed routes on to
-  DLA and answers True, so `apply_overrides` keeps the driver's stop for a rerouted train. A kept reroute that stays
-  on plan then waits for the plan's entry steps and order, an off-plan one for DLA, where before the route's move was
-  forced. Forecasts and the KI courses' scores (which run `PlanPolicy`) may change. No API or format change.
+- **After a taken KI course, rerouted trains wait** (S-6, Q-12 a): `PlanPolicy` takes a train rerouted after the course
+  was taken off plan, passes the committed routes on to DLA and answers True, so `apply_overrides` keeps the
+  driver's stop for a rerouted train. A kept reroute the course was simulated with stays on plan and waits for the
+  plan's entry steps and order, any other rerouted train for DLA, where before the route's move was forced. Forecasts and the KI courses' scores (which run `PlanPolicy`) may change. No API or format change.
 - **`_branch_run` and `TrajectoryBranchRunner.run_branch` take `routes`:** callers keep the default; a stub that
   replaces `_branch_run` must accept `routes=None` (adjusted in #208's `test_proposal_horizon_scope.py`).
-- **«Umleiten» in the action options and the map popover always draws** (Q-5 a): it is offered for every train that
+- **«Fahrweg ändern» in the action options and the map popover always draws** (Q-5 a): it is offered for every train that
   has not arrived (`rerouteAvailable` no longer asks the impact analysis), and the «Mensch» course waits for the
   drawn route. The computed reroute around a block stays on the impact panel and on the override endpoint without
   `via`.
+
+
+### 8.3 Policy independence of the override extensions (#196, #208, this PR)
+
+*Whether the three PRs' override extensions depend on a particular driver, and where they are generic.*
+
+The mechanism is generic in two places: the **wrapper `OverridePolicy`**, an adapter around whatever driver a step
+or fork builds (it needs only `act_many` or `act`, and asks for `set_committed_overrides` with `getattr`), and the
+**`Policy` base class**, which declares `set_committed_overrides` as a no-op answering False. The route store
+(`app.core.route_overrides`: `commit_route`, `route_move`, `env._route_overrides`) knows no policy at all. Neither the
+wrapper nor the route store names DLA, UC2 or any other policy. What a driver adds is only its own answer to the hook.
+
+| Extension | From | Declared in | Called by | Implemented in | Policy-independent? |
+|---|---|---|---|---|---|
+| `apply_overrides`: overrides replace the driver's actions afterwards | #196 | `OverridePolicy` (the wrapper) | the wrapper, in every `/step`, `/play` and fork | the wrapper itself | Yes: it works on any driver's actions. For the UC2 driver `/play` calls it after `finalize_actions` (Joint ROAM), after the certificate: the action hook (Q-11 b). |
+| `respects_overrides`, kept overrides: an adviser's course keeps the other trains' overrides | #208 | `ProposalAgent.respects_overrides` (base, default False) | `api/overrides.py`: `_kept_overrides`, `apply_proposal` | only `uc2_rl`: `_apply_kept_overrides` in its rollout | Only the flag: any adviser can opt in, but the mechanism is UC2's, inside the agent, a copy of the wrapper's rules rather than a delegation. It has drifted already (no driver STOP wins over the route; an ended route is not cleared). One set of rules: Q-11 b. |
+| `set_committed_overrides`: the driver learns the holds and routes before it acts | this PR | `Policy` base (no-op, False) | the wrapper, `_pass_committed_overrides` (`getattr`; an object without it counts as False) | DLA (walks the routes, True); `PlanPolicy` (S-6, then delegates to its fallback and answers for it) | Yes: the wrapper adapts to the answer (True: the driver's STOP for a rerouted train wins; False: the route's move is forced, as before). Every driver without it behaves as before: UC2, PF-CH, Director, `shortest_path`, the simple policies. |
+
+Delegation: `PlanPolicy` is the only `Policy` that holds another policy (`fallback`); it forwards the hook as it
+forwards `reset`, `start_step`, `end_step` and the observation builder. S-6's off-plan rule is in `PlanPolicy`, so it
+works with any fallback.
+
+Where DLA is still named, outside the mechanism: defaults for when no driver is given. `PlanPolicy`'s fallback is DLA
+when none is passed (`PlanPolicy(env, trainruns, fallback=None)`, as `plan_branch_factory` does for forecasts after a
+taken course; live, `create_driving_policy` passes the pinned policy); the forecasts' factory falls back to
+`deadlock_avoidance` for an unknown policy id (`api/overrides.py` `_policy_factory_for`), with the Director replay
+special-cased. And the `/play` loop has a branch for the specialist drivers' interface (`prepare_inference`,
+`infer_prepared`, `finalize_actions`), keyed on `is_specialist_policy`, around the same wrapper.
+
+
+#### 8.3.1 Moving `_apply_kept_overrides` up (Q-11 b, follow-up)
+
+*The shape of the follow-up that puts #208's copy of the override rules into the wrapper; not built in this PR.*
+
+The two places that apply overrides differ today:
+
+| | `OverridePolicy.apply_overrides` (#196) | `uc2_rl._apply_kept_overrides` (#208) |
+|---|---|---|
+| Overrides from | `override_manager` (the session's) | an explicit dict: the kept overrides, in a rollout on a fork |
+| When | on the driver's actions, after a certificate | on the raw proposals, before `finalize_actions` (Joint ROAM) |
+| Turns used up | at once, in `override_manager` | only if the certified step still takes them (`_use_up_turns`) |
+| Route ended (`route_move` None) | clears the override, drops the route | leaves both |
+| Train done | clears its override | keeps it |
+| Driver knows the routes (S-2) | its STOP wins | not considered |
+| Records `last_proposed` / `last_sources` | yes, for the trajectory | no |
+
+The shape:
+
+1. **One rule function** next to the wrapper, independent of any policy and without side effects:
+   `override_moves(env, overrides, proposals, driver_knows) -> (actions, sources, turned, ended)`, the overrides
+   given as a dict.
+2. **Two phases in `OverridePolicy`:** `inject_overrides(handles, proposals)` before a certifying check (the action
+   hook: the rule function with the session's overrides), and `commit_overrides(certified)` after it (use up the
+   turns the certified step took, clear the ended routes, record the sources). `apply_overrides` stays as both in one
+   go, for drivers without a certificate, unchanged.
+3. **The callers:** the `/play` path of the specialist drivers calls `inject_overrides` before `finalize_actions`
+   and `commit_overrides` after it, so the overrides no longer arrive after the certificate; the `uc2_rl` rollout
+   calls the rule function with its `kept` dict instead of its own copy, and `_apply_kept_overrides` and
+   `_use_up_turns` go away.
+
+Live driving and the KI rollout then follow one set of rules, and the drifted differences (the driver's STOP,
+the ended route, the finished train) are gone. Live driving then uses a turn up only once the certified step takes
+it, as the rollout does today. Tests: a drawn route under the UC2 driver; the rollout's courses unchanged for overrides
+it handled the same way. Not in this PR (Q-11 b): it changes #196's wrapper, #208's rollout and the `/play` loop, and
+Plan B is driven by DLA, which needs no action hook. The follow-up's plan
+(`docs/plans/shared-override-rules.md`, branch `refactor/shared-override-rules`) adds two clean-ups at the same time: one helper for an action's
+number (three copies today, and the literal stop in `uc2_rl.py`), and one certified step shared by `/play` and the
+rollout.
 
 ## 9. Decisions
 
@@ -1686,7 +1762,7 @@ overrides today (§3.4).
   (follow-ups). Same work as a for DLA, plus a small seam that names the contract.
 - c) Policy-independent: `OverridePolicy` checks a rerouted train's next move itself (a reservation check against the
   other trains' current positions and committed routes) and holds it when it would meet one head-on. Works under
-  every policy, but duplicates part of DLA and does not make the others wait in the loop.
+  every policy, but duplicates part of DLA and does not make the others wait on the side track.
 - d) As today: the route's move wins, nobody else knows the route; the operator adds holds by hand.
 
 *Proposed:* b. It solves REQ-4 with DLA (Plan B's policy) and makes "override-aware policy" an explicit, opt-in
@@ -1776,7 +1852,7 @@ accepted, `PlanPolicy` drives with DLA as fallback, but answers the call with th
 does not learn the routes and a rerouted, off-plan train drives its route unchecked (§2.1).
 - a) Yes: `PlanPolicy.set_committed_overrides` calls `self.fallback`'s and returns its answer. Sound, because a train
   rerouted after the course was taken is off plan and so the fallback's, and a kept reroute that stays on plan then
-  keeps `PlanPolicy`'s waits (below). A few lines and a test, in this PR.
+  keeps `PlanPolicy`'s waits (below). A few lines and a test, in this PR. Revisited below.
 - b) Leave it as a follow-up with the other policies.
 
 When `PlanPolicy` falls back (`_plan_action` returns None, the train goes to `self.fallback.act_many`):
@@ -1786,7 +1862,8 @@ When `PlanPolicy` falls back (`_plan_action` returns None, the train goes to `se
 - **off plan:** the train is on the map but its `(cell, heading)` is not in its run; it goes into
   `env._plan_off_plan` for the rest of the episode (until another course is taken or the session is reset). In
   practice a turn, or a reroute committed after the course was taken; a kept reroute simulated in the course stays
-  on plan.
+  on plan. With S-6 also a train rerouted after the course was taken, as soon as the route is committed
+  (revisited below).
 - **not a fallback:** waiting off the map (the plan holds it until its first entry step), on its last cell or done
   (`DO_NOTHING`), held or late (still found in its run, it only waits).
 
@@ -1796,6 +1873,21 @@ plan: it then waits for the plan's entry steps and order instead of being forced
 fallback gets `reset`, `start_step` and `end_step` every step either way.
 
 *Proposed:* a. Plan B accepts KI courses, so a drawn route after one is the case this plan is for.
+
+✅ **(Q-12) revisited 2026-11-18, at implementing S-6.** "A train rerouted after the course was taken is off plan"
+holds only once the train leaves its run. Until then it is still on plan, and with the pass-on `apply_overrides`
+keeps `PlanPolicy`'s stop: the train waits for the old plan's departure and order, although its new route no longer
+fits them. In the tutorial with the DLA run as plan and BA's route using the side track drawn at step 3, BA then waited until step
+24 and did not arrive; without the pass-on both arrived at step 24. *Built:* `PlanPolicy.set_committed_overrides`
+first takes a train off plan (`env._plan_off_plan`, Q-8 a) when its committed route is not one the course was
+simulated with, then passes the call on. Taking a course records its routes (`note_course_routes`: the reroutes
+still committed then, #208's kept ones; none after a PP course); forks carry them. Both arrive at step 24, BA through
+the side track. A first version compared the route with the run's cells instead: the advanced tour's computed reroutes use
+only cells of their run, so they stayed on plan, and the plan's order held them where the reroute meant to let them
+go (`test_sandbox.py`, second shift: delay 50 instead of 34). Walk-through of all cases:
+[walkthrough.md](set-route-on-map/walkthrough.md). **Confirmed 2026-11-18 (chenkins): a, keep S-6.** Without
+S-6 the tutorial ends the same (both at step 24), but the wrapper forces the route's moves unchecked; with S-6 DLA
+checks them against oncoming trains, as Q-4 b intended for routes without a course.
 
 ✅ ~~**(Q-13) Drop `set_committed_overrides` and inject the drawn route only through `OverridePolicy`?**~~ **Decided
 2026-11-18:** a, keep it; Q-4 b stands. Raised
@@ -1830,6 +1922,7 @@ unaware of the route: it sees the effect in the env afterwards.
 | 2026-11-16 | ✅ Train first, then "Umleiten", then drag; the clock keeps running (Q-9 a, Q-10 a). | The action options already follow the selected train; Co-Learning has no global pause and the tutorial has no decision moment. "Umleiten" first and a pause while drawing were not taken. | §4.3; the route is committed a few steps later than at once (tutorial: step 4, BA +5 instead of +3). |
 | 2026-11-18 | ✅ Rebased onto #208 (§11.2); how its `respects_overrides` relates to this plan's method written down, not decided (§3.4, §3.5, §5.3). | #208 adds an overrides concept for the KI adviser; the two meet in `OverridePolicy` and the driver. | Q-11, Q-12, Q-13 raised; limitations for the ROAM driver and for taken KI courses. |
 | 2026-11-18 | ✅ Keep `set_committed_overrides` (Q-13 a). | Plan B is driven by DLA (after a taken course by `PlanPolicy` with DLA as fallback), whose check is inside `act_many`: the call is the only way in (§3.5, §5.7). Wrapper only (the §3.3 standstill), the route in the taken course and UC2 as Plan B driver were not taken. | Q-4 b stands; PAT-4. |
+| 2026-11-18 | ✅ (Q-12) revisited, confirmed (a, keep S-6): `PlanPolicy` takes a train off plan when its committed route is not one the course was simulated with, before passing the call on. | Found at implementing S-6: with the pass-on alone, a train rerouted before it left its run kept the old plan's departure and order and, in the tutorial, did not arrive (§9.1). Consistent with Q-8 a (a rerouted train is off plan). Comparing with the run's cells instead kept the advanced tour's computed reroutes on plan, held by the plan's order. Dropping S-6 (b) ends the tutorial the same, but with the route's moves forced unchecked. | S-6 as built, with `env._plan_course_routes` recorded when a course is taken; a kept reroute stays on plan. |
 | 2026-11-18 | ✅ `PlanPolicy` passes the call on to its fallback, in this PR (Q-12 a). | After a taken KI course the call stopped at `PlanPolicy`, so DLA did not know drawn routes (§5.6); the fallback drives exactly the rerouted and turned trains (§9.1). A follow-up was not taken. | S-6; a breaking change for rerouted trains under a taken course (§8.2); DLA walking the planned runs stays a follow-up. |
 | 2026-11-18 | ✅ The action hook for certifying drivers, as a follow-up (Q-11 b; e if needed). | Overrides as actions before ROAM's certificate, by one set of rules; it touches #196's and #208's open code, and Plan B is driven by DLA. Leaving it, widening `set_committed_overrides` and doing it in this PR were not taken. | §1.4 follow-up with a stall test; §5.9, §6.10 show it as 💡. |
 
@@ -1841,64 +1934,66 @@ No review yet.
 
 *The domain words the plan relies on, with their code symbols, synonyms and what they are not.*
 
-| Term (synonyms) | Code | Meaning | Not |
-|---|---|---|---|
-| Fahrweg einstellen, set a route | - | The operator decides a train's route over the switches ahead. Here: drawing it on the Streckenspiegel. | A timetable change. |
-| Reroute ("Umleiten") | override action 5, `REROUTE_ACTION`, `env._route_overrides` | A whole route for one train, kept on the env and driven by `OverridePolicy` until the train arrives. Before this plan always computed; now also drawn. | A one-step turn. |
-| Via cells | `via`, `route_through` | The switches the drawn route passes, in order; the backend builds the route through them to the target. | The full cell list. |
-| Route mode | `SessionStore.routeDrawing` | The map state after "Umleiten" in which a drag from the train draws instead of panning. | A mode of the `InteractionMode` union. |
-| Streckenspiegel (map) | `FlatlandMapComponent` | The track diagram the trains run on, where a route is drawn. | The ZWL (time-distance diagram). |
-| DLA (deadlock avoidance) | `DeadLockAvoidancePolicy`, `deadlock_avoidance` | The default driver, Plan B's pinned policy: a train moves only if no oncoming train claims the single-track stretch ahead. | A planner. |
-| Walker | `DeadlockAvoidanceShortestDistanceWalker`, `walker.routes`, `_walk` | DLA's path follower: walks each train's path cell by cell (its committed route on this branch, else the shortest path) to find oncoming trains. | A route planner. |
-| PP (Prioritized Planning) | `PPReplanAgent` (`pp_replan`), `replan_from_state`, flatland-blackbox | The default proposal agent's planner: plans the trains one after another in a priority order. | The UC2 model. |
-| Director | `GoalDirectedPolicy` (`goal_directed`) | The Director mode's driver: plans schedules and replays them, re-planning on malfunctions and weight changes. | DLA; a proposal agent. |
-| Route choice | (Q-11 e) | The configuration right after a point with more than one successor: the first cell of the chosen branch. | A switch cell, which allows every branch. |
-| Stall | (§6.5) | A train that stands every step because its route move is withdrawn, while ROAM still counts its mission achievable. | A deadlock ROAM detects. |
-| Passing loop (tutorial) | - | The second track on row 1 between the switches at (2,10) and (2,14), where two trains can cross. | - |
-| Decision point | `classify_cell_at` (SWITCH, MERGING) | A switch or merge cell, where a stop or turn override takes effect. A reroute acts every step. | Any cell. |
-| Driver (driving policy) | the policy `OverridePolicy` wraps | What moves the trains in live steps and forks. Plan B: DLA; after a taken KI course `PlanPolicy` with DLA as fallback. | The proposal agent. |
-| Certifying driver (driver with a certificate) | `UC2RoamPolicy` (`uc2_rl`): `prepare_inference`, `infer_prepared` (propose), `finalize_actions` (certify, Joint ROAM `withdraw`) | A driver whose safety check is separate: it proposes an action for every train first, then the check certifies the batch and withdraws unsafe moves before anything runs. The caller can step in between: the action hook (Q-11 b). In the app only the UC2 driver. | A driver with a built-in check, or without one. |
-| Driver with a built-in check (planning driver) | DLA (`act_many` with its walker), `PlanPolicy` (plan order), Director (`goal_directed`, its schedules) | A driver whose safety logic is inside `act_many`, along the paths or schedule it assumes for the trains; nothing can be put between proposing and checking. Overrides reach it as knowledge before it acts, if it implements the knowledge hook (`set_committed_overrides`: DLA; `PlanPolicy` passes it on, S-6). | A certifying driver. "Planning" fits `PlanPolicy` and the Director, not DLA, which walks assumed paths. |
-| Driver without a check | `pf_ch_rl` (`LearnedPpoPolicy`: phases like UC2, no `finalize_actions`), `shortest_path`, `forward_only`, `random`, `do_nothing` | A driver with no conflict logic: neither hook helps it; overrides reach it only through `apply_overrides`, afterwards. | Either of the two above. The three classes describe the current code (by where the safety check sits), not a rule: they are disjoint today, and a driver could in principle have both a built-in check and a certificate. |
-| RL driver (specialist policy) | `is_specialist_policy`, `UC2RoamPolicy` | The UC2 model driving the trains itself, with Joint ROAM; only in the RL tours. | A plan follower: it never follows a taken course. |
-| Course (KI course, Verlauf, proposal) | `Proposal.trainruns` (`TrainrunDict`), variants `ai`, `ai-2`…, `candidate_id`, `priority` | The proposal agent's output: every running train's cells with entry steps to its target, a forecast. Made as a rollout trajectory (`uc2_rl`) or a planner result (PP). Taken, it becomes the plan the driver follows. | An intention or the yardstick; an override; the "Plan" variant of Plan / KI / Mensch. |
-| Rollout trajectory | `uc2_rl._rollout`, `rollout_trainruns`, `note()` | A course recorded from simulating the UC2 driver with Joint ROAM on a fork: what the trains did, written as cell entries with steps. | A planner result: nothing is optimised, it is what the policy did. |
-| Planner result (replan) | `PPReplanAgent` (`pp_replan`), `replan_from_state`, `priority` | A course computed by Prioritized Planning (flatland-blackbox) from the current state for one priority order; collision-free in the planner's model. | A rollout trajectory; it ignores the operator's overrides. |
-| Plan / KI / Mensch (action options, Handlungsoptionen) | `ProposalCompareComponent`, `GET /proposals` variants `plan`, `ai`, `human`; `POST /proposals/apply` | The three courses for one train, each simulated to the same horizon: "Plan" = what drives now with the committed overrides, if nobody steps in; "KI" = the proposal agent's best course; "Mensch" = the operator's option. | "Plan" here is not the scenario plan or the taken course. |
-| Mensch course (operator's option) | `_human_course`, options `hold`, `hold_until_clear`, `proceed`, `reroute` (+ `via`) | The current course with one option of the operator for the selected train; taking it sets an override (`_commit_override`). | A KI course. |
-| Selected train | `handle`, `selectedHandle`, `targetHandle` | The train the action options are about; its own override is the question a KI course answers. | The other trains, whose overrides are kept. |
-| Proposal agent (KI adviser) | `ProposalAgent`; Plan B `uc2_rl`, else PP | Proposes the KI courses in Plan / KI / Mensch. | The driver: in Plan B the UC2 model only advises. |
-| Scenario plan (premade plan, baseline plan) | `env._trainrun_plan` at session start (`preset_plan_path`, `load_plan`, `*.plan.json`), then `_baseline_trainrun_plan` | The course the scenario intends, cell by cell, if it ships one: only two PF-CH presets do (recorded runs); none in Plan B. Validated for time, contiguity and one train per cell and step, not for deadlocks. Part of the yardstick where it exists. | The timetable; a taken course. |
-| Taken (accepted) course (the plan, after taking) | `accept_trainrun_plan`, `install_trainrun_plan`, `env._trainrun_plan`, `_accepted_trainrun_plan`, `plan_accepted` | A course installed as the plan; `PlanPolicy` follows it to the targets, cell by cell, keeping the plan's order at each cell. A rollout trajectory (`uc2_rl`) or a planner result (PP), conflict-free only in its own model (§5.5). | An override, only the next switch, the scenario plan or the yardstick. |
-| Off plan | `env._plan_off_plan` | A train that has left its run of the taken course (a turn or reroute); the fallback drives it for the rest of the episode. | A held train: that one stays on plan. |
-| Override (standing, committed override; decision) | `override_manager` (handle → action), `OverrideRequest.action`, actions 1–5 | The operator's decision for one train: stop, turn or reroute; stands until cleared, used up or the train arrives. No times. | The plan; a one-off action of the driver. |
-| Hold ("Halten", stop) | action 4, `STOP_MOVING`; option `hold`, `hold_until_clear` (`release_at`, in forecasts only) | Stops the train at its next decision point and keeps it there until released. | Proceed ("Weiterfahren", option `proceed`), which clears the override. |
-| Turn | actions 1–3 (`MOVE_LEFT`, `MOVE_FORWARD`, `MOVE_RIGHT`) | The direction at the next decision point, once; then the override is cleared. Not passed to override-aware policies. | A reroute. |
-| Computed route | `route_around_blocks`, `commit_route` without `via` | A reroute the backend computes: shortest to the target around broken-down trains, preferring the planned cells; recomputed when the train is off it. | A drawn route. |
-| Drawn route | `route_through`, `commit_route(via=…)`, `env._route_drawn` | A reroute through the via cells the operator drew, then the shortest way to the target; kept as drawn: a train that leaves it ends the override. | A computed route. |
-| Committed route | `env._route_overrides` (handle → list of `(row, col, heading)`), `carry_to_fork` | The route a reroute override drives, computed or drawn, stored on the env and copied to forks. | An uncommitted drawn route, passed to a fork only (`run_branch(routes=…)`). |
-| Wrapper (driver's wrapper) | `OverridePolicy` | Wraps the driver; reads the overrides; replaces the driver's actions afterwards (`apply_overrides`) and, on this branch, tells the driver before (`set_committed_overrides`). | The driver; part of the proposal agent. |
-| Pinned policy | study condition `policy`, `state.policy`, `session.policy` | The driving policy the client sends with every step and play (Plan B: `deadlock_avoidance`). After a taken course it becomes `PlanPolicy`'s fallback. | The driver after a taken course (`PlanPolicy`). |
-| Fallback | `PlanPolicy.fallback` | The policy that drives the trains not on the plan (off plan, or not in it); the pinned policy, by default DLA. | The plan follower. |
-| Plan order | `PlanPolicy._order`, `_blocked_by_plan_order` | The order in which the plan sends trains through each cell; a train waits until the trains before it have passed. Off-plan trains are skipped. | The plan's times, which slip with delays. |
-| Fork (branch, what-if, forecast) | `TrajectoryBranchRunner`, `run_branch`, `_branch_run`, `_fork_env` | A copy of the env run forward for a forecast, with `OverridePolicy` and the overrides at fork time. | The live env. |
-| Horizon | `horizon`, `_max_episode_steps` | How many steps a forecast runs: for `uc2_rl` to the episode's end, otherwise at most 250. | - |
-| Yardstick (delay reference) | `proposal_arrival_reference`, `latest_arrival`, `planned_arrival_steps`, `_baseline_trainrun_plan` | What lateness is measured against: Flatland's timetable deadlines, overlaid with the scenario plan's arrivals where one exists. | A taken course. |
-| Timetable | `waypoints_earliest_departure`, `waypoints_latest_arrival`, `latest_arrival` | Flatland's "leave no earlier than, arrive no later than" per stop. | A plan: it does not say which cell at which step. |
-| Override-aware policy | `Policy.set_committed_overrides` (PAT-4) | A driver that is told the committed holds and routes before each step and plans around them (DLA; `PlanPolicy` through its fallback, S-6). | An adviser that keeps decisions. |
-| Keeps the decisions | `ProposalAgent.respects_overrides` (#208) | An adviser whose courses keep the other trains' standing overrides, and whose taken course clears only the selected train's (`uc2_rl`). | A driver. |
-| Kept overrides | `kept`, `_kept_overrides` | Every standing override but the selected train's, handed to an adviser that keeps the decisions. | The selected train's own override. |
-| Preview token | `proposal_preview` | Names one shown KI course, bound to the state and the standing overrides, so that taking it takes exactly that course (409 when they changed). | A session id. |
-| Knowledge hook | `set_committed_overrides` (this plan) | `OverridePolicy` tells a driver with a built-in check the routes before it acts. | `apply_overrides`, which replaces actions afterwards. |
-| Action hook | follow-up (Q-11 b), e.g. `inject_overrides` | `OverridePolicy` writes the overrides into a certifying driver's proposals before its certificate. | `apply_overrides`. |
-| ROAM ("Reserve Only if All Missions stay achievable") | `roam_check.py`, vendored from `ecml2026-starterkit` | A safety check: a move may happen only if, afterwards, every train can still finish its mission. Works on the rail graph of `(cell, heading)` configurations and Flatland's resources (§5.4, §6.5). Two variants: single-train ROAM and Joint ROAM. | A planner, or exact: a refused move is no proof of a deadlock. |
-| Single-train ROAM | `RoamCheck` (`action_mask`, `withdraw`) | Checks moves one train at a time: a move is allowed only into a cell that is free now; `withdraw` certifies the trains in handle order, each against the state with the earlier trains' moves applied (§6.7). A train cannot follow another out of a cell in the same step. In the app only the base of Joint ROAM and the lab's reference guard (`lab/marl/evaluate_uc2_roam.py`). | Joint ROAM. |
-| Mission | `open_waypoint_groups`, `TrainFacts` | A train's remaining stops (ordered waypoint groups, any one cell per group) and its target. Any path through them counts. | A route: a drawn route is unknown to it. |
-| Stuck trains (completion order) | `stuck_trains`, `can_complete` | Trains are finished one by one, each by a path through its mission with the waiting trains' cells blocked, freeing its own cell; bounded partial moves are tried before giving up. Whoever is left is stuck. | A physical deadlock. |
-| Certificate (baseline) | `withdraw`, `stuck <= baseline` | A step is certified when it adds no stuck train to those stuck before it (the baseline). | Absolute safety: already stuck trains stay allowed. |
-| Joint ROAM | `JointRoamCheck` (on `RoamCheck`) | ROAM for all trains' moves of a step together: also allows a move into a cell whose holder can leave in the same step (conditional proposal), and `withdraw` applies all moves at once and checks the joint result, withdrawing the highest-handle mover involved until it holds (§6.5). Trains in a chain can move together. Used by `UC2RoamPolicy`. | Single-train ROAM, which certifies serially. |
-| ROAM-capable policy | `UC2RoamPolicy` (`uc2_rl`) | A driver whose proposals a ROAM check certifies before they run. In the app only the UC2 driver (RL tours), which the `uc2_rl` KI adviser also runs on forks. Needs immediate STOP braking, trains removed at their target, missions from the UC2 observation builder and all trains in one batch. | DLA, `PlanPolicy`, PF-CH's `LearnedPpoPolicy`, the simple policies: none of them uses ROAM. |
-| Withdraw (victim) | `JointRoamCheck.withdraw` | In a step that fails the certificate, the mover with the highest handle among those involved falls back to waiting, until the step is certified. | A rule that spares the overridden train: it may be the victim. |
+| Term (synonyms) | Code | Meaning | Context (where and when used) | Not |
+|---|---|---|---|---|
+| Fahrweg einstellen, set a route | - | The operator decides a train's route over the switches ahead. Here: drawing it on the Streckenspiegel. | The operator's side (#199, the mode guide, «Fahrweg ändern» in the action options). When: at any step for a train that has not arrived, also while it waits at its origin. | A timetable change. |
+| Reroute («Fahrweg ändern», formerly «Umleiten») | override action 5, `REROUTE_ACTION`, `env._route_overrides` | A whole route for one train, kept on the env and driven by `OverridePolicy` until the train arrives. Before this plan always computed; now also drawn. | Override channel (`POST /agent/{h}/override`, `POST /proposals/apply` human), `OverridePolicy`, forks; in the UI «Fahrweg ändern» and the impact panel. When: from its commit until the train arrives, a drawn train leaves it, another override or «Plan behalten» replaces it, or a KI course that keeps no overrides is taken. | A one-step turn. |
+| Via cells | `via`, `route_through` | The switches the drawn route passes, in order; the backend builds the route through them to the target. | Frontend (`viaCells`) → `GET /proposals?via=`, `POST /proposals/apply`, `POST /agent/{h}/override`. When: from mouse up after the drag until the route is taken or dropped; afterwards only the route built from them is kept. | The full cell list. |
+| Route mode | `SessionStore.routeDrawing` | The map state after «Fahrweg ändern» in which a drag from the train draws instead of panning. | Frontend only. When: from «Fahrweg ändern» until mouse up or Escape. | A mode of the `InteractionMode` union. |
+| Streckenspiegel (map) | `FlatlandMapComponent` | The track diagram the trains run on, where a route is drawn. | The working screen's map view, in every mode; Plan B's main view. When: always. | The ZWL (time-distance diagram). |
+| DLA (deadlock avoidance) | `DeadLockAvoidancePolicy`, `deadlock_avoidance` | The default driver, Plan B's pinned policy: a train moves only if no oncoming train claims the single-track stretch ahead. | Live steps and forks of a session that pins it (Plan B); the Plan / KI / Mensch forecasts. When: every step as the driver until a course is taken; afterwards every step as `PlanPolicy`'s fallback, for the trains off plan or without a run, until reset or a policy switch. | A planner. |
+| Walker | `DeadlockAvoidanceShortestDistanceWalker`, `walker.routes`, `_walk` | DLA's path follower: walks each train's path cell by cell (its committed route on this branch, else the shortest path) to find oncoming trains. | Inside DLA. When: every step DLA runs (`start_step`), live and in forks; rebuilt each step. | A route planner. |
+| PP (Prioritized Planning) | `PPReplanAgent` (`pp_replan`), `replan_from_state`, flatland-blackbox | The default proposal agent's planner: plans the trains one after another in a priority order. | The KI column outside Plan B; contention strategies `pp`/`pp-human`; replans. When: per request, when a train is selected or a strategy is applied. | The UC2 model. |
+| Director | `GoalDirectedPolicy` (`goal_directed`) | The Director mode's driver: plans schedules and replays them, re-planning on malfunctions and weight changes. | Director mode (WP 3.4), not Plan B. When: while the session is in Director mode. | DLA; a proposal agent. |
+| Route choice | (Q-11 e) | The configuration right after a point with more than one successor: the first cell of the chosen branch. | Design only: ROAM's mission from a route (Q-11 e, follow-up). When: not built. | A switch cell, which allows every branch. |
+| Stall | (§6.5) | A train that stands every step because its route move is withdrawn, while ROAM still counts its mission achievable. | The UC2 driver with a route (§6.5). When: would occur while UC2 drives a rerouted train; follow-up Q-11 b, not in Plan B. | A deadlock ROAM detects. |
+| Passing place, side track (tutorial; passing loop) | - | The second track on row 1 between the switches at (2,10) and (2,14), where two trains can cross. | The Plan B tutorial; the walk-through calls it the side track in the passing place between the stations. When: always (infrastructure). | - |
+| Decision point | `classify_cell_at` (SWITCH, MERGING) | A switch or merge cell, where a stop or turn override takes effect. A reroute acts every step. | `OverridePolicy.apply_overrides` for holds and turns; the map's action pills. When: the step a train stands on a switch or merge; a hold or turn waits until then. | Any cell. |
+| Driver (driving policy) | the policy `OverridePolicy` wraps | What moves the trains in live steps and forks. Plan B: DLA; after a taken KI course `PlanPolicy` with DLA as fallback. | Every `/step`, `/play` and fork (`_step_session`, `create_driving_policy`). When: built per step (per play loop); the pinned policy until a course is taken, `PlanPolicy` from then until reset or a deliberate policy switch. | The proposal agent. |
+| Certifying driver (driver with a certificate) | `UC2RoamPolicy` (`uc2_rl`): `prepare_inference`, `infer_prepared` (propose), `finalize_actions` (certify, Joint ROAM `withdraw`) | A driver whose safety check is separate: it proposes an action for every train first, then the check certifies the batch and withdraws unsafe moves before anything runs. The caller can step in between: the action hook (Q-11 b). In the app only the UC2 driver. | RL tours (UC2 driver) and the `uc2_rl` rollouts on forks; not Plan B's live driver. When: every step of an RL tour; every step of a rollout when KI courses are computed. | A driver with a built-in check, or without one. |
+| Driver with a built-in check (planning driver) | DLA (`act_many` with its walker), `PlanPolicy` (plan order), Director (`goal_directed`, its schedules) | A driver whose safety logic is inside `act_many`, along the paths or schedule it assumes for the trains; nothing can be put between proposing and checking. Overrides reach it as knowledge before it acts, if it implements the knowledge hook (`set_committed_overrides`: DLA; `PlanPolicy` passes it on, S-6). | Plan B live driving (DLA, `PlanPolicy`), Director mode. When: every step it drives. | A certifying driver. "Planning" fits `PlanPolicy` and the Director, not DLA, which walks assumed paths. |
+| Driver without a check | `pf_ch_rl` (`LearnedPpoPolicy`: phases like UC2, no `finalize_actions`), `shortest_path`, `forward_only`, `random`, `do_nothing` | A driver with no conflict logic: neither hook helps it; overrides reach it only through `apply_overrides`, afterwards. | PF-CH tours and the simple policies. When: every step it drives. | Either of the two above. The three classes describe the current code (by where the safety check sits), not a rule: they are disjoint today, and a driver could in principle have both a built-in check and a certificate. |
+| RL driver (specialist policy) | `is_specialist_policy`, `UC2RoamPolicy` | The UC2 model driving the trains itself, with Joint ROAM; only in the RL tours. | RL tours. When: for the whole tour. | A plan follower: it never follows a taken course. |
+| Course (KI course, Verlauf, proposal) | `Proposal.trainruns` (`TrainrunDict`), variants `ai`, `ai-2`…, `candidate_id`, `priority` | The proposal agent's output: one run per running train, a forecast. Made as a rollout trajectory (`uc2_rl`) or a planner result (PP). Used in two contexts: *shown* in Plan / KI / Mensch (a proposal, not yet driving anything); *taken*, it becomes the plan `PlanPolicy` follows (taken course). The walk-through also calls case 0's recorded DLA run, installed as taken, a course (case D). | Plan / KI / Mensch; walk-through cases B–D. When: *shown* from selecting a train until the state or the overrides change (its preview token then expires); *taken* from «KI-Plan übernehmen» or a PP contention strategy until reset, a policy switch or the next taken course. | An intention or the yardstick; an override; the "Plan" variant of Plan / KI / Mensch; a route. |
+| Run (trainrun) | `Trainrun`, a list of `TrainrunWaypoint(scheduled_at, waypoint=(position, direction))`; `PlanPolicy.trainruns[h]`, `_at`, `_cell_at` | One train's part of a course: the cells it enters, with heading and entry step, in order; from a rollout it stops one cell before the target (the train is done on entering it). Used by `PlanPolicy` to drive the train (the next waypoint, not before its entry step, and only after the trains the course puts on that cell first: the order) and to tell on plan from off plan (`_locate`: the train's cell and heading in its run). | `PlanPolicy`; S-6's off-plan check; the yardstick's arrivals (baseline runs). When: while its course is taken; the baseline runs for the whole episode. | A route: a run has entry steps and belongs to a course; a route has none and belongs to an override. |
+| Rollout trajectory | `uc2_rl._rollout`, `rollout_trainruns`, `note()` | A course recorded from simulating the UC2 driver with Joint ROAM on a fork: what the trains did, written as cell entries with steps. | `uc2_rl` KI courses (Plan B). When: computed per `/proposals` request, on a fork from that step. | A planner result: nothing is optimised, it is what the policy did. |
+| Planner result (replan) | `PPReplanAgent` (`pp_replan`), `replan_from_state`, `priority` | A course computed by Prioritized Planning (flatland-blackbox) from the current state for one priority order; collision-free in the planner's model. | PP KI courses (outside Plan B), contention strategies, replans. When: computed per request, from that step's state. | A rollout trajectory; it ignores the operator's overrides. |
+| Plan / KI / Mensch (action options, Handlungsoptionen) | `ProposalCompareComponent`, `GET /proposals` variants `plan`, `ai`, `human`; `POST /proposals/apply` | The three courses for one train, each simulated to the same horizon: "Plan" = what drives now with the committed overrides, if nobody steps in; "KI" = the proposal agent's best course; "Mensch" = the operator's option. | The «Handlungsoptionen» panel (co-learning, Plan B), `GET /proposals`, `POST /proposals/apply`. When: from selecting a train; recomputed when an option is chosen or a route drawn; for one source step, until something is taken or the state changes. | "Plan" here is not the scenario plan or the taken course. |
+| Mensch course (operator's option) | `_human_course`, options `hold`, `hold_until_clear`, `proceed`, `reroute` (+ `via`) | The current course with one option of the operator for the selected train; taking it sets an override (`_commit_override`). | The «Mensch» column. When: after an option is chosen (for «Fahrweg ändern»: after the drag); taking it commits an override from that step. | A KI course. |
+| Selected train | `handle`, `selectedHandle`, `targetHandle` | The train the action options are about; its own override is the question a KI course answers. | Action options, map and timetable selection; the `handle` of `/proposals`. When: from the click until deselected. | The other trains, whose overrides are kept. |
+| Proposal agent (KI adviser) | `ProposalAgent`; Plan B `uc2_rl`, else PP | Proposes the KI courses in Plan / KI / Mensch. | The KI column; the session's `proposal_agent` (study condition). When: the whole session; asked per `/proposals` request. | The driver: in Plan B the UC2 model only advises. |
+| Scenario plan (premade plan, baseline plan) | `env._trainrun_plan` at session start (`preset_plan_path`, `load_plan`, `*.plan.json`), then `_baseline_trainrun_plan` | The course the scenario intends, cell by cell, if it ships one: only two PF-CH presets do (recorded runs); none in Plan B. Validated for time, contiguity and one train per cell and step, not for deadlocks. Part of the yardstick where it exists. | PF-CH presets that ship one; the yardstick; not in Plan B. When: `env._trainrun_plan` from session start until a course is taken; kept as `_baseline_trainrun_plan` for the whole episode. | The timetable; a taken course. |
+| Taken (accepted) course (the plan, after taking) | `accept_trainrun_plan`, `install_trainrun_plan`, `env._trainrun_plan`, `_accepted_trainrun_plan`, `plan_accepted` | A course installed as the plan; `PlanPolicy` follows it to the targets, cell by cell, keeping the plan's order at each cell. A rollout trajectory (`uc2_rl`) or a planner result (PP), conflict-free only in its own model (§5.5). | `PlanPolicy` drives it. When: from «KI-Plan übernehmen» (or a PP contention strategy) until reset, a deliberate policy switch, or the next taken course. | An override, only the next switch, the scenario plan or the yardstick. |
+| On plan | `PlanPolicy.is_planned`, `_plan_action` returns an action | A train of the taken course that `PlanPolicy` drives by its run: off the map until its first entry step, then cell by cell, held at a cell until its entry step and the course's order. Also a held or late train (it waits on its run) and one with a route the course was simulated with (#208's kept reroute, `env._plan_course_routes`, S-6). Context: only after a taken course (`PlanPolicy` drives); the wrapper keeps its STOP for a rerouted train on plan when `PlanPolicy` answers True. | `PlanPolicy`. When: only while a course is taken; from taking it until the train leaves its run, or (S-6) a route the course was not simulated with is committed for it, or it is done. | A train DLA drives; "on time": a train on plan may be late. |
+| Off plan | `env._plan_off_plan`, `PlanPolicy.off_plan_handles` | A train of the taken course that `PlanPolicy` hands to its fallback (DLA) for the rest of the episode, until another course is taken or the session is reset. Becomes off plan when it is on the map in a cell and heading its run does not have (`_locate`: a turn, or a reroute that left the run), or, with S-6, as soon as a route the course was not simulated with is committed for it (`set_committed_overrides`). Context: only after a taken course; in the walk-through, BA in cases B and D (S-6). | `PlanPolicy`; `_blocked_by_plan_order` skips these trains. When: only while a course is taken; from leaving its run (or, S-6, the commit of a route) until another course is taken or the session is reset. | A held train: that one stays on plan; a train the course has no run for, which the fallback drives too but is not in `env._plan_off_plan`. |
+| Override (standing, committed override; decision) | `override_manager` (handle → action), `OverrideRequest.action`, actions 1–5 | The operator's decision for one train: stop, turn or reroute; stands until cleared, used up or the train arrives. No times. | `OverridePolicy` in every live step and fork; `GET /overrides`; the decision log. When: from its commit until cleared, used up (a turn) or the train arrives. | The plan; a one-off action of the driver. |
+| Hold ("Halten", stop) | action 4, `STOP_MOVING`; option `hold`, `hold_until_clear` (`release_at`, in forecasts only) | Stops the train at its next decision point and keeps it there until released. | Action options «Halten», «Halten bis frei»; map pills. When: from its commit; acts from the train's next decision point until released (`release_at` in forecasts). | Proceed ("Weiterfahren", option `proceed`), which clears the override. |
+| Turn | actions 1–3 (`MOVE_LEFT`, `MOVE_FORWARD`, `MOVE_RIGHT`) | The direction at the next decision point, once; then the override is cleared. Not passed to override-aware policies. | Map pills (Left / Forward / Right). When: from its commit until applied once, at the train's next decision point. | A reroute. |
+| Computed route | `route_around_blocks`, `commit_route` without `via` | A reroute the backend computes: shortest to the target around broken-down trains, preferring the planned cells; recomputed when the train is off it. | The impact panel's reroute around a breakdown; the advanced tour's sandbox cases. When: from its commit until the train arrives; recomputed when the train is off it. | A drawn route. |
+| Drawn route | `route_through`, `commit_route(via=…)`, `env._route_drawn` | A reroute through the via cells the operator drew, then the shortest way to the target; kept as drawn: a train that leaves it ends the override. | «Fahrweg ändern» and the drag on the map (this plan). When: from its commit until the train arrives or leaves it. | A computed route. |
+| Committed route | `env._route_overrides` (handle → list of `(row, col, heading)`), `carry_to_fork` | The route a reroute override drives, computed or drawn, stored on the env and copied to forks. | `OverridePolicy`, DLA through `set_committed_overrides`, forks, S-6's off-plan check. When: stored from its commit until the reroute ends; passed to the driver every step. | An uncommitted drawn route, passed to a fork only (`run_branch(routes=…)`). |
+| Wrapper (driver's wrapper) | `OverridePolicy` | Wraps the driver; reads the overrides; replaces the driver's actions afterwards (`apply_overrides`) and, on this branch, tells the driver before (`set_committed_overrides`). | Live steps (`/step`, `/play`, also the UC2 driver's path) and forks (`scenario_runner`): the «Plan» and «Mensch» courses of `/proposals`, the ZWL forecast, what-ifs, the sandbox. When: built per `/step` request, per play loop and per fork; it reads the overrides every step. | The driver. Not used by the proposal agents: the KI course of `uc2_rl` comes from its own rollout, which applies a copy of the wrapper's rules (`_apply_kept_overrides`, #208); PP ignores overrides. |
+| Pinned policy | study condition `policy`, `state.policy`, `session.policy` | The driving policy the client sends with every step and play (Plan B: `deadlock_avoidance`). After a taken course it becomes `PlanPolicy`'s fallback. | Study conditions (Plan B); the client's `/step` and `/play` requests. When: the whole session; the driver until a course is taken, its fallback afterwards. | The driver after a taken course (`PlanPolicy`). |
+| Fallback | `PlanPolicy.fallback` | The policy that drives the trains not on the plan (off plan, or not in it); the pinned policy, by default DLA. | `PlanPolicy`. When: only while a course is taken, every step, for the trains off plan or without a run. | The plan follower. |
+| Plan order | `PlanPolicy._order`, `_blocked_by_plan_order` | The order in which the plan sends trains through each cell; a train waits until the trains before it have passed. Off-plan trains are skipped. | `PlanPolicy`. When: while a course is taken (or a scenario plan drives), every step. | The plan's times, which slip with delays. |
+| Fork (branch, what-if, forecast) | `TrajectoryBranchRunner`, `run_branch`, `_branch_run`, `_fork_env` | A copy of the env run forward for a forecast, with `OverridePolicy` and the overrides at fork time. | Forecasts: Plan / KI / Mensch courses, the ZWL forecast, what-ifs, the sandbox. When: per request, from the current step; it lives for that forecast. | The live env. |
+| Horizon | `horizon`, `_max_episode_steps` | How many steps a forecast runs: for `uc2_rl` to the episode's end, otherwise at most 250. | Forecasts of `/proposals`. When: per forecast. | - |
+| Yardstick (delay reference) | `proposal_arrival_reference`, `latest_arrival`, `planned_arrival_steps`, `_baseline_trainrun_plan` | What lateness is measured against: Flatland's timetable deadlines, overlaid with the scenario plan's arrivals where one exists. | Delays in the Lagebild, the decision log and the courses' «+n gegenüber Plan». When: the whole episode; it stays the scenario's, also after a taken course. | A taken course. |
+| Timetable | `waypoints_earliest_departure`, `waypoints_latest_arrival`, `latest_arrival` | Flatland's "leave no earlier than, arrive no later than" per stop. | Every Flatland env; the yardstick. When: the whole episode. | A plan: it does not say which cell at which step. |
+| Override-aware policy | `Policy.set_committed_overrides` (PAT-4) | A driver that is told the committed holds and routes before each step and plans around them (DLA; `PlanPolicy` through its fallback, S-6). | This plan (S-2, S-6): DLA, and `PlanPolicy` through its fallback. When: every step it drives, before it acts. | An adviser that keeps decisions. |
+| Keeps the decisions | `ProposalAgent.respects_overrides` (#208) | An adviser whose courses keep the other trains' standing overrides, and whose taken course clears only the selected train's (`uc2_rl`). | `uc2_rl` KI courses (#208). When: when its courses are computed (`/proposals`) and when one is taken. | A driver. |
+| Kept overrides | `kept`, `_kept_overrides` | Every standing override but the selected train's, handed to an adviser that keeps the decisions. | `/proposals` and `POST /proposals/apply` for `uc2_rl`. When: read at the request; after taking, they stay committed. | The selected train's own override. |
+| Preview token | `proposal_preview` | Names one shown KI course, bound to the state and the standing overrides, so that taking it takes exactly that course (409 when they changed). | Plan / KI / Mensch → «KI-Plan übernehmen». When: from showing a KI course until the state or the standing overrides change (then 409). | A session id. |
+| Knowledge hook | `set_committed_overrides` (this plan) | `OverridePolicy` tells a driver with a built-in check the routes before it acts. | This plan (S-2, S-6). When: every step, before the driver acts. | `apply_overrides`, which replaces actions afterwards. |
+| Action hook | follow-up (Q-11 b), e.g. `inject_overrides` | `OverridePolicy` writes the overrides into a certifying driver's proposals before its certificate. | Follow-up (Q-11 b). When: not built. | `apply_overrides`. |
+| ROAM ("Reserve Only if All Missions stay achievable") | `roam_check.py`, vendored from `ecml2026-starterkit` | A safety check: a move may happen only if, afterwards, every train can still finish its mission. Works on the rail graph of `(cell, heading)` configurations and Flatland's resources (§5.4, §6.5). Two variants: single-train ROAM and Joint ROAM. | The UC2 driver (RL tours, `uc2_rl` rollouts). When: every step of that driver. | A planner, or exact: a refused move is no proof of a deadlock. |
+| Single-train ROAM | `RoamCheck` (`action_mask`, `withdraw`) | Checks moves one train at a time: a move is allowed only into a cell that is free now; `withdraw` certifies the trains in handle order, each against the state with the earlier trains' moves applied (§6.7). A train cannot follow another out of a cell in the same step. In the app only the base of Joint ROAM and the lab's reference guard (`lab/marl/evaluate_uc2_roam.py`). | The UC2 driver's ROAM, one train at a time. When: every step of that driver. | Joint ROAM. |
+| Mission | `open_waypoint_groups`, `TrainFacts` | A train's remaining stops (ordered waypoint groups, any one cell per group) and its target. Any path through them counts. | ROAM's checks. When: every check, from the train's current progress. | A route: a drawn route is unknown to it. |
+| Stuck trains (completion order) | `stuck_trains`, `can_complete` | Trains are finished one by one, each by a path through its mission with the waiting trains' cells blocked, freeing its own cell; bounded partial moves are tried before giving up. Whoever is left is stuck. | ROAM's certificate. When: every check. | A physical deadlock. |
+| Certificate (baseline) | `withdraw`, `stuck <= baseline` | A step is certified when it adds no stuck train to those stuck before it (the baseline). | ROAM and Joint ROAM. When: every step of the UC2 driver. | Absolute safety: already stuck trains stay allowed. |
+| Joint ROAM | `JointRoamCheck` (on `RoamCheck`) | ROAM for all trains' moves of a step together: also allows a move into a cell whose holder can leave in the same step (conditional proposal), and `withdraw` applies all moves at once and checks the joint result, withdrawing the highest-handle mover involved until it holds (§6.5). Trains in a chain can move together. Used by `UC2RoamPolicy`. | The UC2 driver's ROAM for a whole step. When: every step of that driver. | Single-train ROAM, which certifies serially. |
+| ROAM-capable policy | `UC2RoamPolicy` (`uc2_rl`) | A driver whose proposals a ROAM check certifies before they run. In the app only the UC2 driver (RL tours), which the `uc2_rl` KI adviser also runs on forks. Needs immediate STOP braking, trains removed at their target, missions from the UC2 observation builder and all trains in one batch. | RL tours and `uc2_rl` rollouts. When: while that driver runs. | DLA, `PlanPolicy`, PF-CH's `LearnedPpoPolicy`, the simple policies: none of them uses ROAM. |
+| Withdraw (victim) | `JointRoamCheck.withdraw` | In a step that fails the certificate, the mover with the highest handle among those involved falls back to waiting, until the step is certified. | Joint ROAM. When: in a step that fails the certificate. | A rule that spares the overridden train: it may be the victim. |
 
 ## 11. Execution plan and status
 
@@ -1906,20 +2001,24 @@ No review yet.
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
-| 💡 S-1 | - | The plan | docs | low | docs(plans): plan for setting a train's route on the Streckenspiegel (#199). |  | - | - |
-| ✅ S-2 | - | The optional override-aware method on `Policy` (Q-4 b), called by `OverridePolicy`; DLA implements it and walks committed routes; `OverridePolicy` keeps DLA's stop for rerouted trains; tutorial test with a fixed route | feat | high | feat(policies): deadlock avoidance respects committed reroutes. | 09e636a9 | S-1 | Q-4 |
-| ✅ S-3 | - | Route through via cells to the target, `via` on `/proposals` and `/proposals/apply`, off-map trains, backend tests | feat | medium | feat(overrides): reroute along via cells chosen by the operator. | 29bf9bfe | S-2 | Q-2, Q-3, Q-5, Q-7 |
-| ✅ S-4 | - | Route mode and drag drawing on the map, from "Umleiten" in the action options and the popover, i18n, specs | feat | medium | feat(map): draw a train's route on the Streckenspiegel. | 3dad642e | S-3 | Q-1, Q-6 |
-| 💡 S-5 | - | Screenshots and recording (§4.2, in 3dad642e and 39a335a5); user doc: "Setting a route" in the mode guide, with the tutorial example; the plans in the docs index | docs | low | docs(map): setting a route by drawing it, with the tutorial example. |  | S-4 | - |
-| 💡 S-6 | - | Q-12 a: `PlanPolicy.set_committed_overrides` passes the call on to its fallback; test: a rerouted train under an accepted course waits for an oncoming train | feat | medium | feat(policies): an accepted plan passes committed reroutes on to its fallback. |  | S-2 | - |
+| ✅ S-1 | - | The plan | docs | low | docs(plans): plan for setting a train's route on the Streckenspiegel (#199). | 2631a368 | - | - |
+| ✅ S-2 | - | The optional override-aware method on `Policy` (Q-4 b), called by `OverridePolicy`; DLA implements it and walks committed routes; `OverridePolicy` keeps DLA's stop for rerouted trains; tutorial test with a fixed route | feat | high | feat(policies): deadlock avoidance respects committed reroutes. | 07978344 | S-1 | Q-4 |
+| ✅ S-3 | - | Route through via cells to the target, `via` on `/proposals` and `/proposals/apply`, off-map trains, backend tests | feat | medium | feat(overrides): reroute along via cells chosen by the operator. | 1e8abcfe | S-2 | Q-2, Q-3, Q-5, Q-7 |
+| ✅ S-4 | - | Route mode and drag drawing on the map, from «Fahrweg ändern» in the action options and the popover, i18n, specs | feat | medium | feat(map): draw a train's route on the Streckenspiegel. | a696227c | S-3 | Q-1, Q-6 |
+| ✅ S-5 | - | Screenshots and recording (§4.2, in a696227c and 7fdd183a); user doc: "Setting a route" in the mode guide, with the tutorial example; the plans in the docs index | docs | low | docs(map): setting a route by drawing it, with the tutorial example. | 969e21cc | S-4 | - |
+| 💡 S-6 | - | Q-12 a, revisited: `PlanPolicy.set_committed_overrides` takes a train rerouted after the course was taken off plan and passes the call on to its fallback; tests: only the routes the course was simulated with stay on plan, a train rerouted using the side track under a taken course arrives | feat | medium | feat(policies): an accepted plan passes committed reroutes on to its fallback. |  | S-2 | - |
 
 ### 11.2 Rebase and merge
 
 *How this branch sits on the open PRs below it.*
 
-- Chain: `main` fd0c70cb ← #196 `codex/pf-ch-rl-main` 29b31139 ← #208 `feature/uc2-rl-keep-human-decisions`
-  17707737 ← this branch. Rebased 2026-11-18 with `git rebase --onto 17707737 fd0c70cb`; the pre-rebase head is
-  kept as `backup/199-flash-ahead-set-path-pre-208`. PR #207 still targets `main`.
+- Chain (2026-11-18): `main` ← #196 `codex/pf-ch-rl-main` ← #208 `feature/uc2-rl-keep-human-decisions` 83880783 ←
+  #215 `refactor/196-modularization` 792f6850 ← this branch.
+  - First rebase 2026-11-18 onto #208's then head 17707737 (`git rebase --onto 17707737 fd0c70cb`); backup
+    `backup/199-flash-ahead-set-path-pre-208`.
+  - Second rebase 2026-11-18 onto #215 (`git rebase --onto origin/refactor/196-modularization 17707737`; #208 had been
+    rewritten, so 17707737 is no longer in its history); backup `backup/199-flash-ahead-set-path-pre-215`.
+  - PR #207 still targets `main`; it should target `refactor/196-modularization`.
 - Conflicts and how they were resolved:
   - `backend/app/api/overrides.py`: #208 splits `/proposals` into `_capture_proposal_source` (under the command lock)
     and `_evaluate_proposals` (worker); `via` is parsed in the capture, so a malformed `via` is a 400 before the
@@ -1929,7 +2028,11 @@ No review yet.
     the instance (`_policy_knows_overrides`), not a local of `act_many`.
   - `proposal-compare.component.ts`, `api.service.ts`, i18n: both sides kept (#208's load generation and
     `alternatives=8`, this branch's `via`).
-- Next rebase: onto `main` once #196 and #208 are merged (`git rebase --onto main 17707737`).
+  - Second rebase, i18n `proposals.option.reroute` / `rerouteHint`: the base relabelled the option ("Change route",
+    "Fahrweg ändern", "Changer d’itinéraire") and kept the old hint ("the other branch at the next switch"); the
+    resolution takes the base's label and this branch's hint (drawing the route). The plan's text still says
+    «Umleiten» for that option. The other files merged without conflicts.
+- Next rebase: onto `main` once #196, #208 and #215 are merged (`git rebase --onto main 792f6850`).
 
 ## 12. Change inventory
 
@@ -1938,8 +2041,10 @@ No review yet.
 | File | Adds |
 |---|---|
 | `docs/plans/set-route-on-map.md` | This plan. |
-| `backend/tests/test_route_drawn.py` | Via-cell routes, off-map trains, the tutorial crossing, the endpoints with `via`; S-6: a rerouted train under a taken KI course waits for an oncoming train. |
+| `backend/tests/test_route_drawn.py` | Via-cell routes, off-map trains, the tutorial crossing, the endpoints with `via`; S-6: only the routes a course was simulated with stay on plan; a train rerouted using the side track under a taken KI course arrives. |
 | `frontend/src/app/core/routing/route-drawing.ts` (+ spec) | Following the track from the rail grid, filling skipped cells, via cells. |
+| `docs/plans/set-route-on-map/walkthrough.md` (+ `walkthrough.py`, `walkthrough/`) | The technical walk-through (§4.2): per step and train, who decides on what, with payloads, pictures and movies; the script that records it. |
+| `scripts/docshots-set-route-walkthrough.mjs` | The walk-through's pictures and movie frames in the app, with the clock held. |
 
 ### 12.2 Modified files
 
@@ -1949,11 +2054,13 @@ No review yet.
 | `backend/app/policies/base.py` | The optional override-aware method (default: no-op). |
 | `backend/app/policies/override_policy.py` | Passes the committed holds and routes to the policy; rerouted trains: route direction, the policy's stop kept. |
 | `backend/app/policies/deadlock_avoidance_policy.py`, `backend/app/utils/deadlock_avoidance_walker.py` | Walk committed routes. |
-| `backend/app/policies/plan_policy.py` | Q-12 a: passes `set_committed_overrides` on to its fallback. |
+| `backend/app/policies/plan_policy.py` | Q-12 a, revisited: `set_committed_overrides` takes a train with a committed route the course was not simulated with off plan, then passes the call on to its fallback; `note_course_routes` records the course's routes (`env._plan_course_routes`), `revert_accepted_plan` clears them. |
+| `backend/app/api/overrides.py` (accept), `backend/app/core/contention_strategies.py` | Taking a course records its routes (`note_course_routes`): the reroutes still committed after it; none after a PP course. |
+| `backend/app/core/route_overrides.py` (`carry_to_fork`), `backend/app/core/proposal_preview.py` | Forks carry `env._plan_course_routes`; the preview fingerprint includes it. |
 | `backend/app/api/overrides.py` | `via` on `/proposals`, `/proposals/apply` and `POST /agent/{h}/override`; 400 when no route passes the cells. |
 | `backend/app/core/scenario_runner.py` | `run_branch(routes=…)`: a fork keeps a drawn route the operator has not committed yet. |
 | `frontend/src/app/features/flatland-map/flatland-map.component.{ts,html,scss}` | Route mode, drag drawing, the drawn line. |
-| `frontend/src/app/features/proposal-compare/proposal-compare.component.{ts,html}` | "Umleiten" starts route mode; the course of the drawn route. |
+| `frontend/src/app/features/proposal-compare/proposal-compare.component.{ts,html}` | «Fahrweg ändern» starts route mode; the course of the drawn route. |
 | `frontend/src/app/core/session.store.ts`, `core/proposals/proposal-choice.service.ts` (+ spec), `core/api.service.ts`, `core/dispatch/train-action.service.ts` | Route mode state (`routeDrawing`), via cells, the API parameter; reroute always offered. |
 | `frontend/public/i18n/{en,de,fr}.json` | Hint and error texts. |
 | `docs/reference/mode-guide.md`, `docs/README.md` | "Setting a route (Fahrweg einstellen)" in the Co-Learning section, with the tutorial; both #199 plans in the index. |
