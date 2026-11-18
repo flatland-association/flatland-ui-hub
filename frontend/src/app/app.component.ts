@@ -1450,6 +1450,7 @@ export class AppComponent implements OnInit {
   /** The finish dialog (#180): asked before a hand-made finish ends a scenario. */
   private readonly finishConfirmDialog = viewChild<ElementRef<HTMLElement & { open(): void; close(): void }>>('finishConfirm');
   private _resumeAfterFinishConfirm = false;
+  private _finishConfirmJustClosed = false;
   /** The session the dialog was opened on. */
   private _finishConfirmSession: string | null = null;
   /** The dialog never outlives its leg: the pause is a round trip, so a step
@@ -1485,6 +1486,9 @@ export class AppComponent implements OnInit {
     // Already closed with its leg (`_finishConfirmFollowsLeg`): no answer.
     if (!this.finishConfirmOpen()) return;
     this.finishConfirmOpen.set(false);
+    // Until the keydown that closed it has reached every listener (`onEscapeDeselectAgent`).
+    this._finishConfirmJustClosed = true;
+    setTimeout(() => (this._finishConfirmJustClosed = false));
     const confirmed = (event as Event & { result?: unknown }).result === 'confirm';
     const resume = this._resumeAfterFinishConfirm;
     this._resumeAfterFinishConfirm = false;
@@ -2158,6 +2162,11 @@ export class AppComponent implements OnInit {
     // ESC priority:
     // 1) close open settings dialogs/panels
     // 2) only if no dialog/panel was open, deselect selected agent
+
+    // The finish dialog closes itself on Escape, as "Zurück" (Lyne's own
+    // window listener, which prevents the default of every Escape, so that
+    // can't tell). Without an animation it may have closed already.
+    if (this.finishConfirmOpen() || this._finishConfirmJustClosed) return;
 
     if (this.helpActive()) {
       this.closeHelp();

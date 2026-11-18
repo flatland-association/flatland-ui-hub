@@ -356,6 +356,21 @@ describe('AppComponent', () => {
         expect(app.tourContext.shiftHistory()[0].finishConfirm?.backs).withContext('no back counted').toBe(0);
       });
 
+      it('keeps the selected train when Escape closes it', async () => {
+        store.selectedHandle.set(3);
+        app.finishDemoMode();
+        const esc = new KeyboardEvent('keydown', { key: 'Escape' });
+        app.onEscapeDeselectAgent(esc);
+        expect(store.selectedHandle()).toBe(3);
+        // Without an animation Lyne's close comes first: the same keydown keeps it too.
+        close();
+        app.onEscapeDeselectAgent(esc);
+        expect(store.selectedHandle()).toBe(3);
+        await new Promise((r) => setTimeout(r));
+        app.onEscapeDeselectAgent(esc);
+        expect(store.selectedHandle()).withContext('a later Escape deselects as before').toBeNull();
+      });
+
       it('does not resume what was paused before', () => {
         store.playing.set(false);
         app.finishDemoMode();
