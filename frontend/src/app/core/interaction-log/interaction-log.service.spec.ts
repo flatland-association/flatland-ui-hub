@@ -67,7 +67,7 @@ describe('InteractionLogService', () => {
         { provide: LearningStore, useValue: { records: signal([]) } },
         { provide: BuildInfoService, useValue: { info: signal({ commit: 'test' }) } },
         { provide: OperatorModelService, useValue: { operatorId: signal('operator1') } },
-        { provide: UiConfigService, useValue: { studyLogging: deployment, snapshot: () => restrictions(), reflectionQuestionOrder: questionOrder } },
+        { provide: UiConfigService, useValue: { studyLogging: deployment, snapshot: () => restrictions(), reflectionPromptQuestionOrder: questionOrder } },
       ],
     });
   });
@@ -353,6 +353,6 @@ describe('InteractionLogService', () => {
     questionOrder.set(['tradeoff', 'gut', 'missing']);
     await create();
     start('s1');
-    expect(log.header()!.reflectionQuestionOrder).toEqual(['tradeoff', 'gut', 'missing']);
+    expect(log.header()!.reflectionPromptQuestionOrder).toEqual(['tradeoff', 'gut', 'missing']);
   });
 });

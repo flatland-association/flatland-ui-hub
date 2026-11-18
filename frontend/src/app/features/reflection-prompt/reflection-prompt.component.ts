@@ -82,7 +82,7 @@ export class ReflectionPromptComponent {
 
   /** Every question, in the deployment's order, the same for every decision. */
   readonly shown = computed<ReflectionQuestionId[]>(() =>
-    this.pending() ? [...this.uiConfig.reflectionQuestionOrder()] : [],
+    this.pending() ? [...this.uiConfig.reflectionPromptQuestionOrder()] : [],
   );
 
   readonly selectedFactors = signal<Set<string>>(new Set());

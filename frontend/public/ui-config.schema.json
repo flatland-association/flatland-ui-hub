@@ -86,9 +86,9 @@
       "type": "boolean",
       "description": "Deployment file only. Fixes the \"Study logging\" switch (clicks, calls and train movements recorded in the browser) for every run: false for a public installation, true for a lab machine. The switch then shows the value, disabled; list control.studyLogging under hidden to remove it. A tour or condition that sets its own value still wins. Absent: each browser's own setting decides (default off). Ignored in a preset's ui block."
     },
-    "reflectionQuestionOrder": {
+    "reflectionPromptQuestionOrder": {
       "type": "array",
-      "description": "Deployment file only. The order in which the reflection after a decision asks its guided questions: gut (gut feeling), missing (missing information), tradeoff (the drawback accepted on purpose). \"Welche Faktoren waren wichtig?\" always comes first; questions not listed follow in the default order gut, missing, tradeoff, so every question is still asked. Absent: the default order. The session record names the order in effect. Ignored in a preset's ui block.",
+      "description": "Deployment file only. The order in which the reflection prompt after a decision (not the Co-Learning reflection) asks its guided questions: gut (gut feeling), missing (missing information), tradeoff (the drawback accepted on purpose). \"Welche Faktoren waren wichtig?\" always comes first; questions not listed follow in the default order gut, missing, tradeoff, so every question is still asked. Absent: the default order. The session record names the order in effect. Ignored in a preset's ui block.",
       "items": {
         "enum": ["gut", "missing", "tradeoff"]
       },

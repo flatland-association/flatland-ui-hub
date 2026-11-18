@@ -7,7 +7,7 @@
 // Prints the question labels of each, and whether the orders are the same.
 // Run on `main` with prefix `before` (an order drawn per decision), on the
 // branch with `after` (the default order), and on the branch with a
-// `reflectionQuestionOrder` in the served ui-config.json and prefix
+// `reflectionPromptQuestionOrder` in the served ui-config.json and prefix
 // `after-config`.
 //
 // Run:

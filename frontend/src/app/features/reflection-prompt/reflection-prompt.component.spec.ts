@@ -64,7 +64,7 @@ describe('reflection-prompt: question order', () => {
     expect(fixture.componentInstance.shown()).toEqual([...REFLECTION_QUESTION_POOL]);
 
     const loaded = config.load('ui-config.json');
-    http.expectOne('ui-config.json').flush({ reflectionQuestionOrder: ['tradeoff'] });
+    http.expectOne('ui-config.json').flush({ reflectionPromptQuestionOrder: ['tradeoff'] });
     await loaded;
     fixture.detectChanges();
     expect(fixture.componentInstance.shown()).toEqual(['tradeoff', 'gut', 'missing']);
