@@ -42,9 +42,13 @@ marked **(decided)**; defaults this plan chose on its own are marked
   pan still work. The vertical slider ("25%") is the rail-tile **opacity**
   (`railOpacity`), not a contrast setting.
 - **Change:**
-  - A new UI-config id `control.mapZoom` guards the zoom +/−/% overlay;
-    `control.mapNavigation` keeps guarding only the pan arrows. Plan B
-    hides pan arrows, shows zoom **(default)**. Existing ids aren't renamed.
+  - One UI-config id per overlay control **(decided)**: `control.mapPan`
+    (pan arrows), `control.mapZoom` (zoom +/−/%), `control.mapOpacity`
+    (below). Plan B hides pan arrows, shows zoom.
+  - `control.mapNavigation` is no longer offered, but it still works as a
+    legacy alias for `control.mapPan` + `control.mapZoom` (`UI_CONFIG_ALIASES`),
+    its old meaning: a `ui-config.json` or saved design that hides it behaves
+    as before. The schema still accepts it.
   - A new UI-config id `control.mapOpacity` guards the slider; Plan B hides
     it **(default: Plan B only, the other tours keep it)**.
 
@@ -134,6 +138,18 @@ marked **(decided)**; defaults this plan chose on its own are marked
   - Codebook: a `survey_id` column; scale labels and answer options for
     agreement scales, radios and numbers (`options`, `unit`, `step`).
   - Long and wide sheets find the Plan B items too.
+  - One list for the export and the replay (`survey-configs.ts`). There are two kinds of questionnaire, both chosen
+    by survey parts (a tour's or an experiment's `surveyParts`, or Settings):
+    - **built from building blocks** (`mode`, `nasa-tlx`, `trust`, `understanding`, `ueq-s`, `open`), combined
+      freely: the id is `post-session-<mode>`, and the content depends on the mode, the enabled parts and
+      `afterLeg`;
+    - **fixed questionnaires** (`FIXED_QUESTIONNAIRES`): one part stands for the whole questionnaire and replaces
+      the building blocks; its id is its own (`plan-b-final`). Any tour, experiment or setting naming the part gets
+      it. Only Plan B has one so far.
+
+    `allSurveys()` lists both (the export), `surveyById()` finds one by a record's `surveyId` (the replay). The
+    replay shows the recorded questionnaire by its `surveyId`, so it no longer needs the condition: before, a
+    record whose condition no longer exists showed an empty Plan B questionnaire.
   - Old items stay in the codebook, because other conditions still ask
     them.
   - Not included: scores for the Plan B subscales (none are defined), and
@@ -166,12 +182,12 @@ marked **(decided)**; defaults this plan chose on its own are marked
 - No scores for Plan B's questionnaire: none are defined (item 9). Untracked.
 - Whether `pb_23`–`pb_27` are reverse-keyed is not known: the codebook says `reverse` false. The study team decides
   (item 9).
-- Trains whose line doesn't cross the now-line (not departed, arrived) have no name in the ZWL (item 5).
 - Without a canvas, the ZWL's right gutter is estimated from the length of the last station name, not measured
   (item 10).
 - French wordings ("Changer d'itinéraire", the step units) need a native check (items 4 and 8).
 - The tutorial's new `.pkl` hash isn't pinned in #196's UC2 model; that must be re-pinned when #196 meets `main`
-  (tutorial station names).
+  (tutorial station names). Raised on #196:
+  [comment](https://github.com/flatland-association/flatland-ui-hub/pull/196#discussion_r4611702299).
 - `feature/183-time-in-steps` (not pushed) will conflict in the i18n files, the ZWL and the map (item 8).
 
 ## New patterns
@@ -182,10 +198,11 @@ marked **(decided)**; defaults this plan chose on its own are marked
 |---|---|---|
 | PAT-1 | The time-vertical ZWL has a fixed scale (60 steps visible, `STEPS_IN_VIEW`) and scrolls, instead of fitting the time range into the panel. | Item 1 |
 | PAT-2 | The ZWL follows the now-line (20 steps below the top, `NOW_PAST_STEPS`) until the reader scrolls by hand; "Zu jetzt" (`zwd.toNow`) or scrolling back resumes it. | Item 1 |
-| PAT-3 | One UI-config id per map overlay control: `control.mapZoom` and `control.mapOpacity` split off from `control.mapNavigation`. | Item 2 |
+| PAT-3 | One UI-config id per map overlay control (`control.mapPan`, `control.mapZoom`, `control.mapOpacity`); a retired id lives on as a legacy alias (`UI_CONFIG_ALIASES`) that the config service expands. | Item 2 |
 | PAT-4 | Train names at the now-line instead of at the end of the line. | Item 5 |
 | PAT-5 | Buttons of the reflection prompt get fixed `data-log` ids (`rationale.yes`, `rationale.no`) instead of positional ones. | Item 7 |
-| PAT-6 | The export's questionnaire list holds study questionnaires (`plan-b-final`) besides the post-session ones; the codebook gains `survey_id`, `page`, `step`, `unit`, `options`. | Item 9 |
+| PAT-6 | Fixed questionnaires (`FIXED_QUESTIONNAIRES`, by survey part) beside the building-block ones; one list (`allSurveys`, `surveyById`) for the export and the replay; the codebook gains `survey_id`, `page`, `step`, `unit`, `options`. | Item 9 |
+| PAT-7 | The replay finds a questionnaire by the record's `surveyId`, not by the condition's survey parts. | Item 9 |
 
 ## Breaking changes
 
@@ -195,9 +212,9 @@ behaviour outside Plan B and the export's columns.*
 - **ZWL scale and scroll, in every mode (item 1).** Every time-vertical ZWL now shows 60 steps and scrolls, and
   keeps the now-line 20 steps below the top. Affects every preset and tour with a ZWL. No switch keeps the old
   fit-to-panel scale: deliberately, since it squashed and stretched as the forecast changed.
-- **`control.mapNavigation` no longer hides the zoom buttons (item 2).** A `ui-config.json` or saved design that
-  hides `control.mapNavigation` shows the zoom +/−/% again. In the repo only `preset-plan-b` hides it, and that
-  wants zoom back. Migration: add `control.mapZoom` (and `control.mapOpacity`) to such a config's hidden list.
+- **Map control ids (item 2).** None for configs: `control.mapNavigation` still hides pan arrows and zoom. New
+  session records list `control.mapPan` and `control.mapZoom` in their recorded restrictions where older ones
+  list `control.mapNavigation`; an analysis of both reads the old id as the two new ones.
 - **Conflicts red on the map in every mode (item 3).** `--layer-color-contentions` is a shared token. Screenshots
   of other modes show red instead of orange.
 - **Reflection prompt click ids (item 7).** Clicks on "Ja, als Regel" and "Nein" log as `rationale.yes`/`rationale.no`
@@ -206,6 +223,10 @@ behaviour outside Plan B and the export's columns.*
 - **Codebook columns (item 9).** The codebook sheet gains `survey_id`, `page`, `step`, `unit` and `options`, and the
   column order changes. Scripts that read the codebook by position break; by column name they keep working. The
   long and wide sheets keep their columns and gain Plan B's items.
+- **Replayed questionnaires (item 9).** The replay shows only the sections that were answered, also when the
+  condition is known; before, it showed every section the condition asked. A section asked but left completely
+  empty no longer shows (not possible in Plan B: `requireAll`). `ReplayService.surveyParts` is removed; it had no
+  other user.
 - **Wording (items 4, 8).** "Umleiten" → "Fahrweg ändern" and minutes → steps change only the text; keys and
   `data-log` ids stay.
 - **Tutorial `.pkl` (tutorial station names).** New file hash; see Limitations for #196.
@@ -220,16 +241,17 @@ behaviour outside Plan B and the export's columns.*
 
 | File | Change (item) |
 |---|---|
-| `frontend/src/app/core/layout/layout-presets.ts` | Plan B tab-area height (1); hide `control.mapOpacity`, show `control.mapZoom` (2) |
+| `frontend/src/app/core/layout/layout-presets.ts` | Plan B tab-area height (1); hide `control.mapPan` and `control.mapOpacity`, show `control.mapZoom` (2) |
 | `frontend/src/app/features/view-tabs/*`, `features/layout/components/panel-shell/*` | Height of the tab area (1), if the preset settings don't suffice |
 | `frontend/src/app/features/zwl/zwl.component.{ts,html,scss}` | `followNow` (1); names at the now-line (5); right gutter (10); step wording (8) |
 | `frontend/src/app/features/flatland-map/flatland-map.component.{ts,html,scss}` | Zoom/opacity guards (2); close button (6); step wording (8) |
-| `frontend/src/app/core/config/ui-config-items.ts` | `control.mapZoom`, `control.mapOpacity` (2) |
+| `frontend/src/app/core/config/ui-config-items.ts`, `.spec.ts`, `ui-config.service.ts`, `.spec.ts`, `public/ui-config.schema.json`, `README.md` | `control.mapPan`, `control.mapZoom`, `control.mapOpacity`; `control.mapNavigation` as a legacy alias (2) |
 | `frontend/src/styles.scss` | `--layer-color-contentions` red (3) |
 | `frontend/public/i18n/{en,de,fr}.json` | Wording (4, 7, 8); `map.trainOptions.close` (6) |
 | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.{html,ts,spec.ts}` | Without "Nur diesmal", `data-log` ids (7) |
 | `frontend/src/app/core/timetable/current-delay.service.ts` | Delay suffix in steps (8) |
-| `frontend/src/app/core/survey/survey-export.{ts,spec.ts}`, `survey-configs.ts` | All questionnaires, new columns (9) |
+| `frontend/src/app/core/survey/survey-export.{ts,spec.ts}`, `survey-configs.ts`, `plan-b-final-survey.spec.ts` | All questionnaires, new columns, `FIXED_QUESTIONNAIRES`, `allSurveys`, `surveyById` (9) |
+| `frontend/src/app/features/survey/survey.component.{ts,spec.ts}`, `app.component.html`, `core/replay/replay.service.ts` | Replay by `surveyId`; `ReplayService.surveyParts` removed (9) |
 | `docs/experiment-logging.md` | Codebook columns, click-id table (6, 7, 9) |
 | `backend/app/fixtures/plan-b/tutorial/*` | Station names |
 
