@@ -80,10 +80,12 @@ in older records is an accepted limitation (§2.1).
 
 *What the built code gets wrong or ignores, each with the TODO or issue that tracks it.*
 
-- Records made before the change have no `reflectionQuestionOrder`: their
+- Records made before the change have no `reflectionPromptQuestionOrder`: their
   order followed from the decision's timestamp. Accepted (decided
   2026-11-16, §9.2): it can be re-derived from the timestamp if an analysis
-  needs it, which is analysis work, not app code.
+  needs it, which is analysis work, not app code. The function that drew it,
+  `pickQuestions(t, 3)` in `reflection-prompt.component.ts` at fd0c70c, is
+  named in `docs/experiment-logging.md` (F-1).
 
 ### 2.2 Assumptions
 
@@ -96,7 +98,7 @@ Not checked in code; they hold by construction of the study setup.
   lead, 2026-11-11), and no order per condition (decided 2026-11-16, §9.2).
 - Every lab machine runs the same build of this branch or later, started
   from the Plan B config in git (`UI_CONFIG=frontend/public/ui-configs/plan-b.json
-  ./start-demo.sh`). That file sets no `reflectionQuestionOrder`, so every
+  ./start-demo.sh`). That file sets no `reflectionPromptQuestionOrder`, so every
   machine asks in the default order from the code; so does a machine started
   without `UI_CONFIG` (the shipped `ui-config.json` sets none either). A
   different order on all machines goes into `plan-b.json` in git, not into a
@@ -104,7 +106,7 @@ Not checked in code; they hold by construction of the study setup.
 - No machine's served `ui-config.json` is changed by hand (an edited copy in
   `backend/static`, or a file mounted into the Docker image). If one is, the
   sessions on that machine use its order; the header's
-  `reflectionQuestionOrder` records it, so the analysis can see it, and an
+  `reflectionPromptQuestionOrder` records it, so the analysis can see it, and an
   older build shows in `appVersion` and in a header without the field. A
   replay does not draw this reflection at all, so it shows neither order.
 
@@ -187,7 +189,7 @@ Layout Designer export, no change to the recorded answers, no new i18n key.
 Screenshots: Plan B condition `plan-b-p01`, Plan B deployment config,
 German, two decisions in leg 1 (trains AB and BA), the reflection's
 questions after each. Before on `main` fd0c70c, after on this branch
-(a71ff8f) without and with `"reflectionQuestionOrder": ["missing", "gut",
+(a71ff8f) without and with `"reflectionPromptQuestionOrder": ["missing", "gut",
 "tradeoff"]` in the served `ui-config.json`, production builds in the
 running app, by `scripts/docshots-reflection-question-order.mjs`. Before,
 the order is drawn per decision, so a run can draw the same order twice;
@@ -197,7 +199,7 @@ the pictures are from a run that drew two.
 |---|---|---|---|---|
 | REQ-1 | Same order after every decision | Spec: `shown()` is the same for decisions with different timestamps; the `.rp-q` labels in the DOM follow it | ✅ specs pass (S-2) | before: <img src="reflection-question-order/before-1-first-decision.png" width="300"> <img src="reflection-question-order/before-2-second-decision.png" width="300"><br>after: <img src="reflection-question-order/after-1-first-decision.png" width="300"> <img src="reflection-question-order/after-2-second-decision.png" width="300"> |
 | REQ-2 | The deployment sets the order | Specs: `resolveReflectionQuestionOrder()` (null, full list, partial list, unknown and repeated ids); `UiConfigService` after `load()`; the prompt follows the service | ✅ specs pass (S-3) | after, with `missing` first: <img src="reflection-question-order/after-config-1-first-decision.png" width="300"> <img src="reflection-question-order/after-config-2-second-decision.png" width="300"> |
-| REQ-3 | The record names the order | Spec: the header's `reflectionQuestionOrder` equals the order in effect | ✅ specs pass (S-4) | - |
+| REQ-3 | The record names the order | Spec: the header's `reflectionPromptQuestionOrder` equals the order in effect | ✅ specs pass (S-4) | - |
 | NFR-1 | Comparable study data | REQ-1 and REQ-3's specs | ✅ specs pass (S-2, S-4) | - |
 | NFR-2 | Fail-safe config | REQ-2's specs for unknown and repeated ids; the schema spec | ✅ specs pass (S-3) | - |
 
@@ -224,15 +226,15 @@ wichtig?»):
   - then the pool's ids not listed, in pool order;
   - an unknown or repeated id warns (`[uiConfig] …`, as `resolveIds`) and is
     skipped.
-- `UiConfig` gets `reflectionQuestionOrder?: string[]`, documented as
+- `UiConfig` gets `reflectionPromptQuestionOrder?: string[]`, documented as
   "deployment file only", as `studyLogging`.
 - `UiConfigService` resolves it in `load()` and exposes
-  `reflectionQuestionOrder` (a readonly signal, the pool's order before
+  `reflectionPromptQuestionOrder` (a readonly signal, the pool's order before
   `load()` or without the key). `apply()` ignores the key.
 - `ui-config.schema.json` gets the property: an array of unique items from
   `gut`, `missing`, `tradeoff`, with a description saying the factors question
   stays first and unlisted questions follow.
-- `ReflectionPromptComponent.shown` returns `uiConfig.reflectionQuestionOrder()`
+- `ReflectionPromptComponent.shown` returns `uiConfig.reflectionPromptQuestionOrder()`
   while a decision waits, `[]` otherwise. `pickQuestions()` goes: nothing else
   calls it. The docstring says "in the order the deployment sets".
 
@@ -243,7 +245,7 @@ choose another order than the default, Q-2):
  {
    "$schema": "/ui-config.schema.json",
    "studyLogging": true,
-+  "reflectionQuestionOrder": ["missing", "gut", "tradeoff"],   // added, illustrative
++  "reflectionPromptQuestionOrder": ["missing", "gut", "tradeoff"],   // added, illustrative
    "hidden": [
 ```
 
@@ -251,7 +253,7 @@ choose another order than the default, Q-2):
 
 *One part of the change: what changes and why, with the requirements and decisions it implements.*
 
-- `SessionHeader` gets `reflectionQuestionOrder?: string[]`: the order in
+- `SessionHeader` gets `reflectionPromptQuestionOrder?: string[]`: the order in
   effect at session start, from `UiConfigService`. Absent in records made
   before it existed, whose order was drawn per decision.
 - It is written for every session, not only reason tours: the value is
@@ -263,7 +265,7 @@ choose another order than the default, Q-2):
  "header": {
    "conditionId": "plan-b-p01",
    "appVersion": "fd0c70c",
-+  "reflectionQuestionOrder": ["gut", "missing", "tradeoff"],   // added
++  "reflectionPromptQuestionOrder": ["gut", "missing", "tradeoff"],   // added
    "uiRestrictions": { "hidden": ["control.contrast"], … }
  }
 ```
@@ -313,7 +315,7 @@ The prompt and the record read one resolved value (DP-1).
 | `UiConfigService` | Holds what the deployment file and a condition declare. Not where the values are used. | 🟨 modified: a deployment can set the reflection's question order. |
 | `ReflectionPromptComponent` | Asks the reflection after a decision of a reason tour and hands the answers to the record. Not for the Co-Learning reflection panel, nor for the strategy reflection. | 🟨 modified: the guided questions come in the same order after every decision, the deployment's. |
 | `InteractionLogService` | Writes the session record. Not what the UI shows. | 🟨 modified: the record says in which order the reflection asked. |
-| `ui-config.json` (schema) | The deployment file's format. | 🟨 modified: an optional `reflectionQuestionOrder`. |
+| `ui-config.json` (schema) | The deployment file's format. | 🟨 modified: an optional `reflectionPromptQuestionOrder`. |
 
 ## 8. Crosscutting concepts
 
@@ -369,15 +371,21 @@ comes last. The study leads can set another order for their lab machines in
 | 2026-11-16 | ✅ The order is set per deployment, in `ui-config.json` (Q-1). | The order is a study choice, not a code choice; the deployment file is where a lab machine's other study settings live. Not taken: fixed in code. | REQ-2, REQ-3; the ids move to `core` (C-3); the record names the order (§4.4). |
 | 2026-11-16 | ✅ The default order is today's pool: Bauchgefühl → Informationen gefehlt → Nachteil (Q-2). | From a quick choice to the one free-text question; proposed in the issue. Not taken: another order, which the study can still set in `ui-config.json`. | `REFLECTION_QUESTION_POOL` keeps its order; `plan-b.json` needs no entry. |
 | 2026-11-16 | ✅ One order serves both groups of the study: no order per study condition (a `LayoutPreset`'s `ui` block). | Per deployment is what was asked (Q-1); both groups run on the same lab machines and should answer in the same order. | The setting stays deployment-only (DP-3); no follow-up. |
-| 2026-11-16 | ✅ Records made before this change, without `reflectionQuestionOrder`, are an accepted limitation (§2.1). | The order can be re-derived from the decision's timestamp if an analysis needs it; that is analysis work, not app code. | No follow-up. |
+| 2026-11-16 | ✅ Records made before this change, without `reflectionPromptQuestionOrder`, are an accepted limitation (§2.1). | The order can be re-derived from the decision's timestamp if an analysis needs it; that is analysis work, not app code. | No follow-up. |
+| 2026-11-18 | ✅ The setting and the header field are called `reflectionPromptQuestionOrder` (F-9, PR comment). | A record also holds the Co-Learning reflection with its own questions; the name says which reflection it is. Both names were still free: no record and no deployment file carries them yet. Not taken: renaming only the header field, which would give one setting two names. | S-11. |
 
 ### 9.3 Code Review Findings
 
 *Findings from code reviews, PR comments and TODOs, with their status and the commits that fix them.*
 
 PR [#203](https://github.com/flatland-association/flatland-ui-hub/pull/203);
-branch based on `main` fd0c70c, checked at 46796a3. No code review yet, no
-PR comments, no TODOs added. In Fixed, ✅ marks a fixed finding, ⏭️ one taken
+branch based on `main` fd0c70c. Code review findings (F-1–F-8) were added on
+2026-11-16, at 46f413f; their line numbers refer to it. PR review comments
+(F-9) were added on 2026-11-18, at 46f413f (the pushed head). F-1–F-5 fixed
+in S-6–S-10, F-9 in S-11; F-6, F-7 and F-8 dropped. Since
+S-11 the setting and the header field are called
+`reflectionPromptQuestionOrder`; F-1–F-9 name them as they were. No TODOs
+added. In Fixed, ✅ marks a fixed finding, ⏭️ one taken
 over by a follow-up, — a dropped one, ⚠️ a comment resolved on GitHub without
 a code change and without a reason; ❌ next to ✅ marks a finding fixed in the
 code whose PR comment is not resolved yet. "resolved" in Source marks threads
@@ -385,6 +393,15 @@ resolved and checkboxes ticked on GitHub.
 
 | Fixed | ID | Source | Category | Severity | Finding | Commit message |
 |---|---|---|---|---|---|---|
+| ✅ | F-1 | code review | docs | medium | `docs/plans/reflection-question-order.md:84`, `docs/experiment-logging.md:208`: both say the order of older records "followed from" or "was drawn per" decision, and the plan says it "can be re-derived from the timestamp". But this PR removes `pickQuestions()`, the seeded shuffle that did it, so the order can only be re-derived with the function from git history, and neither doc says where it is. An analysis of position effects in the existing data has no pointer to it. Suggested fix: name it in both places: `pickQuestions(t, 3)` in `frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts` at fd0c70c, seeded by the decision's `t` in the record. Fixed in 42f8351 (S-6). | docs(experiment-logging): say where the shuffle of older records' reflection order is kept. |
+| ✅ | F-2 | code review | docs | low | `frontend/src/app/core/interaction-log/session-record.ts:99`, `frontend/src/app/core/interaction-log/interaction-log.service.ts:545`: the header names the order in every session, as decided (§4.4), but the field's doc says "the order the reflection asked its guided questions in". A Director session without a reflection carries the field too, so an analysis could read it as "a reflection ran". Suggested fix: say "the order a reflection asks in, if the session has one". Fixed in 3c85c1b (S-7). | docs(session-record): say that the header's reflection order is written for every session. |
+| ✅ | F-3 | code review | design | low | `frontend/src/app/core/config/ui-config.service.ts:90`: `apply()` ignores `reflectionQuestionOrder` in a condition's `ui` block without a warning. A study lead who puts it into one group's layout gets the deployment's order with no sign of it; only the schema description says "Ignored in a preset's ui block". `studyLogging` behaves the same today. Suggested fix: warn in `apply()` for both deployment-only keys. Fixed in 9e6dd5d (S-8). | fix(ui-config): warn when a condition sets a deployment-only value. |
+| ✅ | F-4 | code review | test-coverage | low | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.spec.ts:56`: the spec replaces the `reflectionQuestionOrder` signal with a plain spy, so it doesn't test that the prompt follows the service's signal, nor the path from `load()` to the prompt. A change that reads it outside the reactive context would still pass. Suggested fix: load the order through `HttpTestingController` and the real `UiConfigService`. Fixed in a50cfcb (S-9). | test(reflection): load the configured order through the real UI config service. |
+| ✅ | F-5 | code review | robustness | low | `scripts/docshots-reflection-question-order.mjs:53`: when `box.x - pad` is clamped to 0, the clip's width isn't reduced; and the height uses the hard-coded viewport height 1000 instead of the configured one, so a changed viewport clips wrongly or throws on a negative height. Suggested fix: compute both from `page.viewport()`. Fixed in 156dd8a (S-10). | fix(docshots): clip the reflection's questions within the viewport. |
+| ✅ ❌ | F-9 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/203#discussion_r4611511481) | docs | low | `frontend/src/app/core/interaction-log/session-record.ts:103`, `docs/experiment-logging.md:203`: a record also holds the Co-Learning reflection with questions of its own, and the header field is written also when the reflection prompt never shows. The doc comment and the logging doc should say that it is the order of the reflection prompt after a decision (`reflectionPrompt.q.*`), recorded whether or not the prompt appears, and unrelated to the Co-Learning reflection. The comment also proposes renaming the field to `reflectionPromptQuestionOrder` while no records carry it yet. Fixed in d433429 (S-11), with the rename of both the header field and the `ui-config.json` setting (the user, 2026-11-18). | refactor(reflection): name the question order after the reflection prompt, not the Co-Learning reflection. |
+| — | F-6 | code review | design | low | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts:84`: `shown` reads the replaying machine's order, not the record's. Checked: a replay doesn't draw this reflection at all (it never fills the open reflections, `session.store.ts:1535`), so no replay shows a wrong order today; this is the assumption in §2.2, and the user decided on 2026-11-16 not to plan a follow-up. Dropped: a replay shows no decisions of Plan B at all, not only no reflection, so showing the recorded order is part of a replay feature, not of this PR (the user, 2026-11-18). | - |
+| — | F-7 | code review | test-coverage | low | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.spec.ts:36`: the spec takes two decisions at different times although `shown` no longer reads the timestamp. Assessed: the setup is what makes it a regression test for REQ-1, as the old shuffle was seeded by exactly that timestamp. Dropped: kept as is, the spec guards REQ-1 against an order seeded by the timestamp (the user, 2026-11-16). | - |
+| — | F-8 | code review | design | low | `frontend/src/app/core/reflection-questions.ts:21`, `frontend/src/app/core/config/ui-config.service.ts:104`: `resolveReflectionQuestionOrder` repeats the warn-and-skip loop of `resolveIds`, with other wording. Assessed: `resolveIds` checks registry ids against verbs and doesn't keep an order, so the two share only the warning; a shared helper would be one `console.warn` line. Dropped: the two loops share only the warning; a shared helper would save no code (the user, 2026-11-16). | - |
 
 **Issue references:** the PR is to close #182. No TODO or comment in the code
 references it.
@@ -418,9 +435,15 @@ references it.
 |---|---|---|---|---|---|---|---|---|
 | ✅ S-1 | - | This plan | docs | low | docs(plans): plan for #182, the reflection's questions in an order set per deployment. | fdc11c9 | - | - |
 | ✅ S-2 | - | Fixed order: `shown` reads the pool, `pickQuestions()` and its specs go, an order spec, the docstring | bug | medium | fix(reflection): ask the reflection's questions in a fixed order. | ee65b8d | S-1 | Q-2 |
-| ✅ S-3 | - | `core/reflection-questions.ts` with the resolver; `UiConfig.reflectionQuestionOrder`, the service signal, the schema; the prompt reads the service; specs | feature | medium | feat(ui-config): let the deployment set the order of the reflection's questions. | b5b2479 | S-2 | - |
-| ✅ S-4 | - | `SessionHeader.reflectionQuestionOrder`, written at session start; spec; `docs/experiment-logging.md` | feature | medium | feat(experiment-logging): record the order of the reflection's questions in the session header. | a71ff8f | S-3 | - |
+| ✅ S-3 | - | `core/reflection-questions.ts` with the resolver; `UiConfig.reflectionPromptQuestionOrder`, the service signal, the schema; the prompt reads the service; specs | feature | medium | feat(ui-config): let the deployment set the order of the reflection's questions. | b5b2479 | S-2 | - |
+| ✅ S-4 | - | `SessionHeader.reflectionPromptQuestionOrder`, written at session start; spec; `docs/experiment-logging.md` | feature | medium | feat(experiment-logging): record the order of the reflection's questions in the session header. | a71ff8f | S-3 | - |
 | ✅ S-5 | - | Before and after screenshots of two decisions, with and without a configured order | docs | low | docs(plans): screenshots of the reflection's question order for #182. | 4b9009e | S-4 | - |
+| ✅ S-6 | F-1 | Name the removed shuffle of older records in the logging doc | docs | medium | docs(experiment-logging): say where the shuffle of older records' reflection order is kept. | 42f8351 | S-4 | - |
+| ✅ S-7 | F-2 | Say in the header field's doc that it is written for every session | docs | low | docs(session-record): say that the header's reflection order is written for every session. | 3c85c1b | S-4 | - |
+| ✅ S-8 | F-3 | Warn when a condition's `ui` block sets a deployment-only value; specs | design | low | fix(ui-config): warn when a condition sets a deployment-only value. | 9e6dd5d | S-3 | - |
+| ✅ S-9 | F-4 | Spec: the configured order through the real `UiConfigService` | test-coverage | low | test(reflection): load the configured order through the real UI config service. | a50cfcb | S-3 | - |
+| ✅ S-10 | F-5 | Screenshot script: clip within the viewport | robustness | low | fix(docshots): clip the reflection's questions within the viewport. | 156dd8a | S-5 | - |
+| ✅ S-11 | F-9 | Rename the `ui-config.json` setting, the service signal and the header field to `reflectionPromptQuestionOrder`; say in their docs and the logging doc that the order is the reflection prompt's after a decision, recorded whether or not it shows, and unrelated to the Co-Learning reflection | refactor | low | refactor(reflection): name the question order after the reflection prompt, not the Co-Learning reflection. | d433429 | S-7 | - |
 
 ## 12. Change inventory
 
@@ -446,10 +469,10 @@ references it.
 |---|---|
 | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts` | S-2: `shown` returns the pool in order, `pickQuestions()` removed, docstring. S-3: the type and pool imported from core, `shown` reads `UiConfigService` |
 | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.spec.ts` | S-2: the `pickQuestions` specs give way to an order spec (same order for different decisions, in the DOM too). S-3: the prompt follows a configured order |
-| `frontend/src/app/core/config/ui-config.service.ts` | S-3: `UiConfig.reflectionQuestionOrder`; resolved in `load()`; readonly signal `reflectionQuestionOrder` |
+| `frontend/src/app/core/config/ui-config.service.ts` | S-3: `UiConfig.reflectionPromptQuestionOrder`; resolved in `load()`; readonly signal `reflectionPromptQuestionOrder` |
 | `frontend/src/app/core/config/ui-config.service.spec.ts` | S-3: default, configured and invalid orders; `apply()` leaves the order alone |
-| `frontend/public/ui-config.schema.json` | S-3: property `reflectionQuestionOrder` |
-| `frontend/src/app/core/interaction-log/session-record.ts` | S-4: `SessionHeader.reflectionQuestionOrder?` |
+| `frontend/public/ui-config.schema.json` | S-3: property `reflectionPromptQuestionOrder` |
+| `frontend/src/app/core/interaction-log/session-record.ts` | S-4: `SessionHeader.reflectionPromptQuestionOrder?` |
 | `frontend/src/app/core/interaction-log/interaction-log.service.ts` | S-4: writes it when the header is built |
 | `frontend/src/app/core/interaction-log/interaction-log.service.spec.ts` | S-4: the header names the order in effect |
 | `docs/experiment-logging.md` | S-4: the header field, and the `ui-config.json` key beside `studyLogging` |
