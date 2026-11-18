@@ -538,6 +538,11 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
     elif req.variant == "ai":
         agent = proposal_agent_for(session)
         kept = _kept_overrides(agent, override_manager.get_all(session_id), handle)
+        if kept and req.preview_token is None and req.candidate_id is None:
+            # The courses with kept decisions are ranked by `/proposals`; which
+            # one the operator took can't be re-derived without its id.
+            raise HTTPException(400, "Name the AI course (candidate_id or preview_token): "
+                                     "other trains keep standing decisions")
         if req.preview_token is not None:
             trainruns = proposal_preview.exact_course(
                 session, req.preview_token, handle=handle, candidate_id=req.candidate_id,

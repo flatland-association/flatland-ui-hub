@@ -22,6 +22,7 @@ from app.core.session_manager import session_manager
 from app.policies import registry
 from app.policies.plan_policy import trainruns_from_env
 from app.utils.agent_compat import agent_position
+from fastapi import HTTPException
 
 STOP = 4
 TRAIN_0_HOME = (2, 20)  # last cell recorded before train 0 leaves the map at its target
@@ -126,7 +127,12 @@ def test_accepting_for_one_train_keeps_the_other_trains_stop():
         override_manager.set(session.id, 0, STOP)
         override_manager.set(session.id, 1, STOP)
 
-        apply_proposal(session.id, ProposalApplyRequest(variant="ai", handle=1))
+        with pytest.raises(HTTPException) as unnamed:
+            apply_proposal(session.id, ProposalApplyRequest(variant="ai", handle=1))
+        assert unnamed.value.status_code == 400, "with kept decisions the course must be named"
+
+        best = get_proposals(session.id, handle=1)["variants"][1]
+        apply_proposal(session.id, ProposalApplyRequest(variant="ai", handle=1, candidate_id=best["candidate_id"]))
 
         assert override_manager.get_all(session.id) == {0: STOP}, "only train 1's own stop gives way"
         assert set(trainruns_from_env(session.env)) == {0, 1}, "the whole course is the plan"

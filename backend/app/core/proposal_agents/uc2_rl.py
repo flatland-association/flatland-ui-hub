@@ -121,12 +121,12 @@ class UC2RLProposalAgent(ProposalAgent):
     def resolve_for(self, env: RailEnv, priority: Sequence[int], handle: int,
                     candidate_id: str | None = None,
                     overrides: Optional[Dict[int, int]] = None) -> Optional[TrainrunDict]:
-        if candidate_id is None and not overrides:
-            return self.resolve(env, priority)
-        proposals = self.propose_for(env, handle, overrides)
         if candidate_id is None:
-            return proposals[0].trainruns if proposals else None
-        return next((p.trainruns for p in proposals if p.candidate_id == candidate_id), None)
+            # With kept overrides the shown courses are ranked by the API, not
+            # here; the caller has to name one (`apply_proposal` asks for it).
+            return None if overrides else self.resolve(env, priority)
+        return next((p.trainruns for p in self.propose_for(env, handle, overrides)
+                     if p.candidate_id == candidate_id), None)
 
 
 def rollout_trainruns(env: RailEnv, horizon: Optional[int] = None) -> TrainrunDict:
