@@ -1652,7 +1652,7 @@
     "showAlternatives": "Autres déroulements de l’IA ({{n}})",
     "holdCaveat": "Dans le prototype, le train s’arrête ainsi ; vous le libérez vous-même dès que l’endroit est dégagé.",
     "aiTakenCaveat": "Les trains suivent désormais le plan de l’IA. « Par rapport au plan » se mesure toujours à l’horaire d’origine.",
-    "aiTakenCaveatKept": "Les autres trains suivent maintenant le plan de l’IA ; les trains que vous avez arrêtés ou déviés gardent votre décision. « Par rapport au plan » se mesure toujours à l’horaire d’origine.",
+    "aiTakenCaveatKept": "Les trains suivent maintenant le plan de l’IA ; les trains avec votre décision (arrêter, bifurquer, détourner) la gardent. « Par rapport au plan » se mesure toujours à l’horaire d’origine.",
     "option": {
       "hold": "Maintenir",
       "holdHint": "Le train reste à l’arrêt jusqu’à ce que vous le libériez.",

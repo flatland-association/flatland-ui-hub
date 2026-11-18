@@ -1652,7 +1652,7 @@
     "showAlternatives": "Weitere KI-Verläufe ({{n}})",
     "holdCaveat": "Im Prototyp hält der Zug damit an; die Freigabe gibst du selbst, sobald die Stelle frei ist.",
     "aiTakenCaveat": "Die Züge fahren ab jetzt nach dem Plan der KI. «Gegenüber Plan» misst weiterhin am ursprünglichen Fahrplan.",
-    "aiTakenCaveatKept": "Die übrigen Züge fahren jetzt nach dem Plan der KI; Züge, die du gestoppt oder umgeleitet hast, behalten deinen Entscheid. «Gegenüber Plan» misst weiterhin am ursprünglichen Fahrplan.",
+    "aiTakenCaveatKept": "Die Züge fahren jetzt nach dem Plan der KI; Züge mit deinem Entscheid (anhalten, abbiegen, umleiten) behalten ihn. «Gegenüber Plan» misst weiterhin am ursprünglichen Fahrplan.",
     "option": {
       "hold": "Halten",
       "holdHint": "Der Zug bleibt stehen, bis du ihn wieder freigibst.",

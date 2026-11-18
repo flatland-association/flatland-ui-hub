@@ -700,8 +700,9 @@ def _evaluate_proposals_unchecked(captured):
         "source_step": source.step,
         "horizon": horizon,
         "ai_agent": {"id": agent.id, "label": agent.label},
-        # Accepting keeps the other trains' standing overrides (else: clears them all).
-        "ai_keeps_overrides": bool(getattr(agent, "respects_overrides", False)),
+        # Accepting keeps standing overrides of other trains: only when there are
+        # some (an agent that doesn't respect them leaves `kept` empty).
+        "ai_keeps_overrides": bool(kept),
         "ai_available": bool(ranked),
         # The best replan keeps every arrival of the plan: the AI would not change course.
         "ai_matches_plan": bool(ranked) and _arrivals(ranked[0][2]) == _arrivals(plan_res),

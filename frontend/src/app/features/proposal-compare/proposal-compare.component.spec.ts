@@ -186,8 +186,8 @@ describe('ProposalCompareComponent — future AI courses', () => {
 
   /** docs/plans/uc2-rl-keep-human-decisions.md: uc2_rl keeps the other trains' stops. */
   for (const [keeps, text] of [
-    [true, 'trains you stopped or rerouted keep your decision'],
-    [false, 'The trains now run by the AI’s plan'],
+    [true, 'trains with your decision (stop, turn, reroute) keep it'],
+    [false, 'The trains now run by the AI’s plan. “vs. plan”'],
   ] as const) {
     it(`says after taking the AI course whether the other trains keep their decisions (${keeps})`, () => {
       const { fixture, component, http } = create();
