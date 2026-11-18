@@ -676,9 +676,12 @@ export class AppComponent implements OnInit {
   readonly tourContext = inject(TourContextService);
   readonly tourGuide = inject(TourGuideService);
   /** The guide strip is on the working screen; the toolbar then sits under it
-   *  (#167, docs/plans/toolbar-under-guide.md §4.1). */
+   *  (#167, docs/plans/toolbar-under-guide.md §4.1). A condition can hide the
+   *  strip; the guide still ticks and logs, and the toolbar stays at the top
+   *  (docs/plans/hide-scenario-bar.md §4.4). */
   readonly guideShown = computed(() =>
-    this.tourGuide.active() && (this.replay.active() ? this.replay.guideVisible() : this.experimentRun.guideVisible()),
+    this.tourGuide.stripShown() &&
+    (this.replay.active() ? this.replay.guideVisible() : this.experimentRun.guideVisible()),
   );
   /** The toolbar's slot under the guide only exists with a session; until then
    *  (e.g. between legs) it stays at the top with its loading indicator. */
@@ -1667,15 +1670,25 @@ export class AppComponent implements OnInit {
     inject(UiStateRegistry).register('selection', this.store.selectedHandle);
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).
     effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()?.closing));
-    // A replay shows the recorded layout; leaving it restores the one chosen before.
+    // A replay shows the recorded layout with the UI restrictions it was recorded
+    // with, not the layout's block of today (docs/plans/hide-scenario-bar.md §4.5);
+    // leaving it restores the layout chosen before, and that layout's restrictions.
     let layoutBeforeReplay: string | null = null;
     effect(() => {
       const layoutId = this.replay.layoutId();
       const active = this.replay.active();
+      const recorded = this.replay.uiRestrictions();
       untracked(() => {
         if (active) {
           layoutBeforeReplay ??= this.selectedRuntimeLayoutId();
           this.setRuntimeLayout(layoutId ?? this.systemRuntimeLayoutId);
+          if (recorded) {
+            this.uiConfig.apply({
+              hidden: recorded.hidden,
+              collapsedByDefault: recorded.collapsedByDefault,
+              policyAllowlist: recorded.policyAllowlist ?? undefined,
+            });
+          }
         } else if (!active && layoutBeforeReplay !== null) {
           this.setRuntimeLayout(layoutBeforeReplay);
           layoutBeforeReplay = null;

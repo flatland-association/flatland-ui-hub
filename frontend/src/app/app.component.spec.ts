@@ -8,6 +8,9 @@ import { SessionInfo, SessionState } from './core/models';
 import { TourContextService } from './core/demo/tour-context.service';
 import { briefingById, TourBriefing } from './core/demo/tour-briefings';
 import { StudyCondition } from './core/demo/study-conditions';
+import { ReplayService } from './core/replay/replay.service';
+import type { SessionRecord } from './core/interaction-log/session-record';
+import { UiConfigService } from './core/config/ui-config.service';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -53,6 +56,53 @@ describe('AppComponent', () => {
 
     store.session.set({ id: 'sess-1' } as SessionInfo);
     expect(cmp.toolbarUnderGuide()).toBeTrue();
+  });
+
+  // docs/plans/hide-scenario-bar.md §4.4: Plan B hides the strip, the toolbar stays at the top.
+  it('leaves the guide strip out where the condition hides it, and keeps the toolbar at the top', () => {
+    const cmp = TestBed.createComponent(AppComponent).componentInstance;
+    const store = TestBed.inject(SessionStore);
+    store.startDemo(['co-learning'], false);
+    TestBed.inject(TourContextService).set(briefingById('colearning-experiment'));
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    expect(cmp.guideShown()).toBeTrue();
+
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.guide'] });
+    expect(cmp.tourGuide.active()).withContext('the guide still ticks').toBeTrue();
+    expect(cmp.guideShown()).toBeFalse();
+    expect(cmp.toolbarUnderGuide()).toBeFalse();
+  });
+
+  // docs/plans/hide-scenario-bar.md §4.5 (F-2, PAT-2): an older Plan B record replays with
+  // the guide strip and the names, as the participant saw them.
+  it('replays a run with the UI restrictions it was recorded with', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const replay = TestBed.inject(ReplayService);
+    const uiConfig = TestBed.inject(UiConfigService);
+    const record = (uiRestrictions?: object) =>
+      ({
+        schema: 'flatland-session-record',
+        version: 3,
+        header: {
+          sessionId: 's1', startedAt: 1000, endedAt: 1500, mode: 'co-learning', layoutId: 'preset-plan-b', scenarioId: 'wal',
+          disturbanceIds: [], grid: { width: 3, height: 2, numAgents: 1 }, conditionId: 'plan-b-p01', legId: 'tutorial',
+          ...(uiRestrictions ? { uiRestrictions } : {}),
+        },
+        decisions: [], context: [], surveys: [], learning: [],
+        states: [{ seq: 1, t: 1100, simStep: 0, maxSteps: 10, episodeDone: false, agents: [], map: { width: 3, height: 2, rail_grid: [[0]], rail_tiles: [], decision_cells: [] } }],
+      }) as unknown as SessionRecord;
+
+    // Recorded before Plan B hid the guide and the names.
+    expect(replay.load([record({ hidden: ['control.mapNavigation'], collapsedByDefault: [], policyAllowlist: ['deadlock_avoidance'], values: {} })])).toBeTrue();
+    fixture.detectChanges();
+    expect(uiConfig.isHidden('control.mapNavigation')).toBeTrue();
+    expect(uiConfig.isHidden('control.guide')).toBeFalse();
+    expect(uiConfig.isHidden('control.legNames')).toBeFalse();
+
+    // A record without them gets the layout's block of today, as before.
+    replay.load([record()]);
+    fixture.detectChanges();
+    expect(uiConfig.isHidden('control.guide')).toBeTrue();
   });
 
   // docs/plans/reflection-inline.md §4.4 (D6, D13): the toolbar's finish waits for every reflection.

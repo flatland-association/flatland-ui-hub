@@ -4,6 +4,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { ModeIntroComponent } from './mode-intro.component';
 import { ScenarioCard } from '../../core/demo/tour-context.service';
+import { UiConfigService } from '../../core/config/ui-config.service';
 
 describe('ModeIntroComponent', () => {
   beforeEach(async () => {
@@ -13,9 +14,10 @@ describe('ModeIntroComponent', () => {
     }).compileComponents();
   });
 
-  function render(card: ScenarioCard | null): HTMLElement {
+  function render(card: ScenarioCard | null, step: string | null = null): HTMLElement {
     const fixture = TestBed.createComponent(ModeIntroComponent);
     fixture.componentRef.setInput('replayScenarioCard', card);
+    fixture.componentRef.setInput('replayStep', step);
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
   }
@@ -35,6 +37,17 @@ describe('ModeIntroComponent', () => {
     expect(el.querySelector('.intro-wp')).toBeNull();
     // The start button stays.
     expect(el.querySelector('.intro-actions sbb-button')).not.toBeNull();
+  });
+
+  // docs/plans/hide-scenario-bar.md §4.3: the scenario's title is its name.
+  it('leaves the title out where the condition hides the scenarios\' names', () => {
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.legNames'] });
+    const el = render({ title: 'Türstörung', paragraphs: ['P'], imageUrl: '/img.png' }, 'Szenario 4/5');
+    expect(el.querySelector('.intro-title')).toBeNull();
+    expect(el.textContent).not.toContain('Türstörung');
+    // The image keeps a text for screen readers: the step, not the name.
+    expect(el.querySelector('.intro-scenario__image')?.getAttribute('alt')).toBe('Szenario 4/5');
+    expect(el.querySelector('.intro-scenario__text p')?.textContent).toBe('P');
   });
 
   it('leaves the image out when the scenario has none', () => {

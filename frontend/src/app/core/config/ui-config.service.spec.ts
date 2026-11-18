@@ -82,6 +82,16 @@ describe('UiConfigService — the Plan B preset block', () => {
     }));
   });
 
+  // docs/plans/hide-scenario-bar.md §4.3: only Plan B numbers its scenarios.
+  it('numbers the scenarios without their names and hides the guide strip, and no other layout does', () => {
+    service.apply(planB());
+    for (const id of ['control.legNames', 'control.guide']) {
+      expect(service.isHidden(id)).withContext(id).toBeTrue();
+      const others = LAYOUT_PRESETS.filter((p) => p.id !== 'preset-plan-b' && p.ui?.hidden?.includes(id));
+      expect(others.map((p) => p.id)).withContext(id).toEqual([]);
+    }
+  });
+
   it('leaves the sibling comparison axis visible', () => {
     service.apply(planB());
     expect(service.isHidden('widget.proposal-compare.axis.lateness')).toBeFalse();

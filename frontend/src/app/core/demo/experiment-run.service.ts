@@ -105,15 +105,12 @@ export class ExperimentRunService {
     return this.phase() === 'legSurvey' ? c.legSurveyParts ?? null : c.surveyParts;
   });
 
-  legName(leg: ExperimentLeg): string {
-    return this.tourContext.legName(leg);
-  }
-
-  /** "⟨name⟩ (k/N)" for the leg at `index`. */
+  /** "⟨name⟩ (k/N)" for the leg at `index`, or "Szenario k/N" where names are hidden
+   *  (docs/plans/hide-scenario-bar.md §4.3). */
   legLabel(index: number): string {
     const leg = this.legs()[index];
     if (!leg) return '';
-    return this.i18n.t('experimentRun.legLabel', { name: this.legName(leg), k: index + 1, n: this.legCount() });
+    return this.tourContext.legLabel(leg, index, this.legCount());
   }
 
   readonly currentLegLabel = computed(() => {

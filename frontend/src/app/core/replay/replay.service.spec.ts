@@ -7,6 +7,7 @@ import { UiStateRegistry } from '../interaction-log/ui-state-registry.service';
 import type { SessionRecord } from '../interaction-log/session-record';
 import type { StateFrame } from '../interaction-log/state-log.service';
 import { LanguageService } from '../i18n/language.service';
+import { UiConfigService } from '../config/ui-config.service';
 import { REPLAY_TICK_MS, ReplayService } from './replay.service';
 
 const map = { width: 3, height: 2, rail_grid: [[0]], rail_tiles: [], decision_cells: [] };
@@ -118,6 +119,18 @@ describe('ReplayService', () => {
     expect(replay.time()).toBe(1400);
     replay.pause();
   }));
+
+  // docs/plans/hide-scenario-bar.md §4.5 (PAT-2): what the participant had, per leg.
+  it('hands over the UI restrictions of the leg on screen, none for a record without them', () => {
+    const recorded = { hidden: ['control.contrast'], collapsedByDefault: [], policyAllowlist: null, values: {} };
+    const first = leg('s1', 1000);
+    first.header = { ...first.header, uiRestrictions: recorded };
+    replay.load([first, leg('s2', 2000)]);
+    replay.seek(1100);
+    expect(replay.uiRestrictions()).toEqual(recorded);
+    replay.seek(2100);
+    expect(replay.uiRestrictions()).toBeNull();
+  });
 
   it('refuses sessions without train movements and leaves cleanly', () => {
     expect(replay.load([leg('s0', 1000, { states: [] })])).toBeFalse();
@@ -286,6 +299,10 @@ describe('ReplayService', () => {
     // The follower leg brings its own German card; the step names it as live.
     expect(replay.intro()).toBeTruthy();
     expect(replay.introStep()).toBe('experimentRun.legLabel');
+    // A Plan B replay applies the recorded layout, which hides the names (docs/plans/hide-scenario-bar.md §4.3).
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.legNames'] });
+    expect(replay.introStep()).toBe('experimentRun.legUnnamed');
+    expect(replay.legLabel(0)).toBe('experimentRun.legUnnamed');
   });
   it('follows the run for the stepper and the guide, and runs on to the final questionnaire\'s submit', () => {
     const ev = (t: number, view: string, detail?: Record<string, unknown>) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type: 'view_enter', payload: { view, ...(detail ? { detail } : {}) } });
