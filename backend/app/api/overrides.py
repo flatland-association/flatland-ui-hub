@@ -484,12 +484,6 @@ def _kept_overrides(agent, overrides: dict, handle: int) -> dict:
     return {int(h): int(a) for h, a in overrides.items() if int(h) != int(handle)}
 
 
-def _plan_without(trainruns: dict, kept: dict) -> dict:
-    """The course as a plan for the trains the operator hasn't decided for: a
-    train with a standing override stays under it, outside the plan."""
-    return {h: run for h, run in trainruns.items() if int(h) not in kept}
-
-
 class ProposalApplyRequest(BaseModel):
     """Which of the three courses the operator takes for real."""
     variant: str            # 'plan' | 'ai' | 'human'
@@ -509,8 +503,10 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
       runs on (`install_trainrun_plan`), with the standing overrides cleared,
       because they were answers to the course the replan just replaced. An
       agent that `respects_overrides` (uc2_rl) clears only the selected train's
-      own: the other trains keep the operator's decision and stay outside the
-      plan. The timetable stays the yardstick for "delay vs plan".
+      own: its whole course becomes the plan, the trains with a decision
+      included, and their overrides stay, because the course was simulated with
+      them. Accepting another course later replaces the whole plan. The
+      timetable stays the yardstick for "delay vs plan".
     - ``human``: the operator's option as an override, exactly what the what-if
       simulated.
 
@@ -551,8 +547,6 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
             extra = {"overrides": kept} if kept else {}
             trainruns = agent.resolve_for(
                 env, req.priority or (), handle, candidate_id=req.candidate_id, **extra)
-        if trainruns:
-            trainruns = _plan_without(trainruns, kept)
         if not trainruns:
             raise HTTPException(409, "The planner found no collision-free plan from here")
         accept_trainrun_plan(env, trainruns)
@@ -561,7 +555,8 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
         session.policy = PLAN_POLICY_ID
         if getattr(agent, "respects_overrides", False):
             # The last decision wins per train: the course answers the selected
-            # train's question; the other trains keep the operator's decision.
+            # train's question; the other trains keep the operator's decision,
+            # on top of the course that was simulated with it.
             override_manager.clear(session_id, handle)
             drop_route(env, handle)
         else:
@@ -665,13 +660,12 @@ def _evaluate_proposals_unchecked(captured):
     variants[0]["score"] = _course_score(plan_res, planned)
     variants[0]["metrics"] = _variant_metrics(plan_res, planned, elapsed, horizon)
 
-    # Each course is scored the way it runs once accepted: the plan for the
-    # trains without a decision, the kept overrides for the others.
+    # Each course is scored the way it runs once accepted: the whole course as
+    # the plan, with the other trains' standing overrides on top.
     kept = _kept_overrides(agent, committed, handle)
     ranked = []
     for proposal in agent.propose_for(env, handle, *([kept] if kept else [])):
-        plan = _plan_without(proposal.trainruns, kept)
-        res = _branch_run(env, lambda tr=plan: PlanPolicy(None, tr), kept, horizon)
+        res = _branch_run(env, lambda tr=proposal.trainruns: PlanPolicy(None, tr), kept, horizon)
         ranked.append((proposal_rank(res, planned, elapsed, horizon), proposal, res))
     ranked.sort(key=lambda entry: entry[0])
 

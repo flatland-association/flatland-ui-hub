@@ -2,7 +2,8 @@
 
 Plan: docs/plans/uc2-rl-keep-human-decisions.md. A KI course for the selected
 train keeps every other train's standing override (and ROAM certifies the step
-with it); accepting clears only the selected train's own. PP is unchanged.
+with it); accepting makes the whole course the plan and clears only the selected
+train's own override. A later accept replaces the whole plan. PP is unchanged.
 """
 import warnings
 
@@ -40,6 +41,37 @@ def _drive_dla(env, steps, per_step_hooks=True):
 
 def _reaches(proposal, handle, cell):
     return any(w.waypoint.position == cell for w in proposal.trainruns.get(handle, []))
+
+
+def _walk_train_0_to(client, sid, env, cell, step):
+    """Step the live session (DLA, as the Plan B client pins it) until train 0 stands on `cell`."""
+    for _ in range(env._max_episode_steps):
+        if agent_position(env.agents[0]) == cell:
+            return
+        client.post(f"/session/{sid}/step", json=step)
+    pytest.fail(f"train 0 never stood on {cell}")
+
+
+def _run_out(client, sid, env, step, shown=None):
+    """Step to the end; with `shown` (a course's trajectories), the steps where
+    a train is somewhere else than the course showed."""
+    cells = {int(h): {p["step"]: (p["row"], p["col"]) for p in pts} for h, pts in (shown or {}).items()}
+    differ = []
+    while env._elapsed_steps < env._max_episode_steps and not all(a.state == TrainState.DONE for a in env.agents):
+        client.post(f"/session/{sid}/step", json=step)
+        for a in env.agents:
+            live = agent_position(a)
+            live = (int(live[0]), int(live[1])) if live is not None else None
+            expected = cells.get(int(a.handle), {}).get(env._elapsed_steps)
+            if expected is not None and live != expected:
+                differ.append((env._elapsed_steps, int(a.handle), expected, live))
+    return differ
+
+
+def _take(client, sid, response, course):
+    return client.post(f"/session/{sid}/proposals/apply", json={
+        "variant": "ai", "handle": response["handle"], "candidate_id": course["candidate_id"],
+        "preview_token": course["preview_token"], "source_step": response["source_step"]})
 
 
 def _uc2_session():
@@ -97,8 +129,7 @@ def test_accepting_for_one_train_keeps_the_other_trains_stop():
         apply_proposal(session.id, ProposalApplyRequest(variant="ai", handle=1))
 
         assert override_manager.get_all(session.id) == {0: STOP}, "only train 1's own stop gives way"
-        plan = trainruns_from_env(session.env)
-        assert 1 in plan and 0 not in plan, "the stopped train stays under its stop, outside the plan"
+        assert set(trainruns_from_env(session.env)) == {0, 1}, "the whole course is the plan"
 
         apply_proposal(session.id, ProposalApplyRequest(variant="ai", handle=0))
 
@@ -172,9 +203,7 @@ def test_round_a_train_the_dispatcher_stopped():
             assert any(p["row"] == 1 and p["col"] == 14 for p in best["trajectories"]["1"]), "through the loop"
             assert max(p["col"] for p in best["trajectories"]["0"]) == 13, "train 0 stays stopped"
 
-            taken = client.post(f"/session/{sid}/proposals/apply", json={
-                "variant": "ai", "handle": 1, "candidate_id": best["candidate_id"],
-                "preview_token": best["preview_token"], "source_step": response["source_step"]})
+            taken = _take(client, sid, response, best)
             assert taken.status_code == 200
             assert override_manager.get_all(sid) == {0: STOP}
 
@@ -182,5 +211,73 @@ def test_round_a_train_the_dispatcher_stopped():
                 client.post(f"/session/{sid}/step", json=step)
             assert env.agents[1].state == TrainState.DONE
             assert agent_position(env.agents[0]) == (2, 13)
+        finally:
+            client.delete(f"/session/{sid}")
+
+
+@pytest.mark.integration
+def test_the_taken_course_drives_the_train_with_a_kept_stop_too():
+    """Train 0 gets its stop two cells before its switch, and the KI is asked for
+    train 1 at once: the course moves train 0 there with the model and stops it.
+    Taken, the course is the plan for both trains and the stop stays, so the
+    live run is the course that was shown, step by step."""
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    with TestClient(app) as client:
+        sid = client.post("/session", json={"scenario_preset_id": "tutorial", "proposal_agent": "uc2_rl",
+                                             "enabled_policy_ids": ["deadlock_avoidance"]}).json()["id"]
+        try:
+            env = session_manager.get(sid).env
+            step = {"policy": "deadlock_avoidance", "n_steps": 1}
+            _walk_train_0_to(client, sid, env, (2, 11), step)
+            client.post(f"/session/{sid}/agent/0/override", json={"action": STOP})
+
+            response = client.get(f"/session/{sid}/proposals", params={"handle": 1}).json()
+            best = response["variants"][1]
+            assert response["ai_keeps_overrides"] is True
+            assert _take(client, sid, response, best).status_code == 200
+            assert set(trainruns_from_env(env)) == {0, 1}
+            assert override_manager.get_all(sid) == {0: STOP}
+
+            assert _run_out(client, sid, env, step, best["trajectories"]) == []
+            assert env.agents[1].state == TrainState.DONE
+            assert agent_position(env.agents[0]) == (2, 13)
+        finally:
+            client.delete(f"/session/{sid}")
+
+
+@pytest.mark.integration
+def test_a_taken_course_is_replaced_by_taking_another():
+    """A course that turns out badly is not final: asked again later, the
+    dispatcher takes another course, and it replaces the whole plan. Here the
+    worst course is taken first (train 1 waits 3 steps), the best one later."""
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    with TestClient(app) as client:
+        sid = client.post("/session", json={"scenario_preset_id": "tutorial", "proposal_agent": "uc2_rl",
+                                             "enabled_policy_ids": ["deadlock_avoidance"]}).json()["id"]
+        try:
+            env = session_manager.get(sid).env
+            step = {"policy": "deadlock_avoidance", "n_steps": 1}
+            _walk_train_0_to(client, sid, env, (2, 11), step)
+            client.post(f"/session/{sid}/agent/0/override", json={"action": STOP})
+
+            first = client.get(f"/session/{sid}/proposals", params={"handle": 1}).json()
+            worst = [first["variants"][1], *first["ai_alternatives"]][-1]
+            assert _take(client, sid, first, worst).status_code == 200
+            first_plan = trainruns_from_env(env)
+            client.post(f"/session/{sid}/step", json={**step, "n_steps": 3})
+
+            again = client.get(f"/session/{sid}/proposals", params={"handle": 1}).json()
+            best = again["variants"][1]
+            assert _take(client, sid, again, best).status_code == 200
+
+            plan = trainruns_from_env(env)
+            assert set(plan) == {0, 1} and plan != first_plan, "the second course replaces the whole plan"
+            assert override_manager.get_all(sid) == {0: STOP}
+            assert _run_out(client, sid, env, step, best["trajectories"]) == []
+            assert env.agents[1].state == TrainState.DONE
         finally:
             client.delete(f"/session/{sid}")
