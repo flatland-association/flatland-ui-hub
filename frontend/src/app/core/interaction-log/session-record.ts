@@ -38,6 +38,8 @@ export interface RunContext {
   legIndex: number | null;
   /** A guided condition's run ends with the Schichtbilanz (#174); null outside one. */
   shiftSummary: boolean | null;
+  /** A guided condition asks before a hand-made finish (#180); null outside one. */
+  finishConfirm: boolean | null;
   /** The run's definition enforces "Study logging" on or off; null = it doesn't. */
   studyLogging: boolean | null;
 }
@@ -52,6 +54,7 @@ export const EMPTY_RUN_CONTEXT: RunContext = {
   legId: null,
   legIndex: null,
   shiftSummary: null,
+  finishConfirm: null,
   studyLogging: null,
 };
 
@@ -80,6 +83,9 @@ export interface SessionHeader {
   /** A guided condition's sessions: whether its run ends with the Schichtbilanz
    *  (#174). Absent in records made before it existed, which all had it. */
   shiftSummary?: boolean;
+  /** A guided condition's sessions: whether a hand-made finish asks first
+   *  (#180). Absent in records made before it existed, which never asked. */
+  finishConfirm?: boolean;
   disturbanceIds: string[];
   liveSeed: number | null;
   grid: { width: number; height: number; numAgents: number };

@@ -840,6 +840,10 @@ export class SessionStore {
   /** Decision time budget (seconds) before the system applies the recommended
    *  option itself (Recommendation & Co-Learning). Configurable in Settings. */
   readonly decisionCountdownSeconds = signal<number>(10);
+  /** The finish dialog "Aktuelles Szenario abschliessen?" is open (#180): the
+   *  simulation waits behind it, and so does the decision countdown. Set by
+   *  `AppComponent`, which owns the dialog. */
+  readonly finishConfirmOpen = signal(false);
 
   setDecisionCountdownSeconds(n: number): void {
     this.decisionCountdownSeconds.set(Math.max(3, Math.min(60, Math.floor(n || 10))));

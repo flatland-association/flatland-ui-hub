@@ -192,6 +192,35 @@ describe('ExperimentRunService', () => {
     expect(run.finishLabel()).toBeNull();
   });
 
+  // docs/plans/confirm-finish-scenario.md §4.5 (#180).
+  it('records the finish dialog on the leg: confirmed with "Ja", the "Zurück"s, nothing when it is off', () => {
+    const noteLeg = spyOn(log, 'noteLegFinished');
+    begin(run, store, TWO_LEGS);
+    expect(run.hasFinishConfirm()).toBeTrue();
+    store.session.set({ id: 's1' } as SessionInfo);
+    run.finishConfirmBack();
+    run.finishConfirmBack();
+    run.finishConfirmYes();
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory()[0].finishConfirm).toEqual({ confirmed: true, backs: 2 });
+    expect(noteLeg.calls.mostRecent().args[0]['finishConfirm']).toEqual({ confirmed: true, backs: 2 });
+
+    // The next leg starts from scratch; an end without "Ja" is not confirmed,
+    // also when it counts as a click (a resume into a questionnaire).
+    store.advanceDemo();
+    store.session.set({ id: 's2' } as SessionInfo);
+    run.legStarted();
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory()[1].finishConfirm).toEqual({ confirmed: false, backs: 0 });
+
+    begin(run, store, { ...ONE_LEG, finishConfirm: false });
+    expect(run.hasFinishConfirm()).toBeFalse();
+    store.session.set({ id: 's3' } as SessionInfo);
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory().at(-1)!.finishConfirm).toBeUndefined();
+    expect(noteLeg.calls.mostRecent().args[0]['finishConfirm']).toBeUndefined();
+  });
+
   it('records a leg ended by its episode as such', () => {
     begin(run, store, NO_REVIEW);
     run.finishLeg('episodeEnd');
@@ -286,7 +315,7 @@ describe('ExperimentRunService', () => {
   it('hands the record its run fields, the Schichtbilanz flag included', () => {
     begin(run, store, { ...TWO_LEGS, shiftSummary: false });
     store.advanceDemo();
-    expect(run.runContext()).toEqual({ experimentRunId: run.experimentRunId(), legId: 'wal-follower', legIndex: 1, shiftSummary: false });
+    expect(run.runContext()).toEqual({ experimentRunId: run.experimentRunId(), legId: 'wal-follower', legIndex: 1, shiftSummary: false, finishConfirm: true });
     begin(run, store, TWO_LEGS);
     expect(run.runContext().shiftSummary).toBeTrue();
   });

@@ -180,6 +180,7 @@ This is a context event, so it is recorded with "Study logging" off too.
 | `mode_intro` | `{tourId, leg, mode}`, with `legId` in a guided condition |
 | `session` | `{centerTab, layoutId}`, plus `centerView` (the centre tab's view type, e.g. `zug-weg-diagramm` for the ZWL or `flatland-map`; the ZWL's type keeps its old name for the study data, #173) in a layout with view tabs (records made before have only `centerTab`, which says `map` for the ZWL too), plus `guideStep` while the tour guide is open, plus `reflection` (`co-learning`, `rationale` or `strategy`) while a reflection waits |
 | `survey` | `{legId}` in a guided condition |
+| `finish_confirm` | `{legId}` in a guided condition: the dialog "Aktuelles Szenario abschliessen?" over the working screen (#180); the replay draws it from here |
 | `shift_review` | `{debrief}` |
 | `help` | – |
 | `settings` | `{tab}` |
@@ -211,7 +212,10 @@ played (tours have no `legId`). A reset keeps both. `header.shiftSummary`
 is `true` or `false` in every session of a guided condition: whether its run
 ends with the Schichtbilanz. Tours and other sessions have no such field,
 nor do records made before it existed (before #174), which all had the
-Schichtbilanz. Group the legs of a run:
+Schichtbilanz. `header.finishConfirm` is `true` or `false` the same way:
+whether a hand-made finish asks first (#180); absent in tours, other
+sessions and records made before #180, which never asked. Group the legs of
+a run:
 
 ```python
 import gzip, json, pandas as pd
@@ -239,6 +243,18 @@ call stream has the moment itself, as a `WS` entry with
 `body: {event: "error", message}`, and the replay shows the notice from there
 on. `finishReason` stays how the leg was ended (`clicked`, `endShift`,
 `aborted`).
+
+**Finish confirmation.** A hand-made finish (the finish button) first asks
+"Aktuelles Szenario abschliessen?" with "Ja" and "Zurück"; the simulation
+pauses meanwhile (#180, `docs/plans/confirm-finish-scenario.md`). Each leg
+then carries `finishConfirm: {confirmed, backs}` in its `leg_finished` event
+and in its entry of the run record's `legs`: `confirmed` is `true` when the
+leg ended with "Ja" (`finishReason: 'clicked'`), `false` when it ended
+otherwise; `backs` counts how often the dialog was closed without "Ja"
+(Zurück, Escape, the backdrop) in that leg. A condition with
+`finishConfirm: false` finishes at once and its legs have no such field, nor
+have records made before #180; `header.finishConfirm` tells the two apart. The two buttons are also clicks
+(`experimentRun.finishConfirm.yes`, `experimentRun.finishConfirm.back`).
 
 ### UI state: panels and viewports
 
@@ -562,6 +578,10 @@ studies: a control whose meaning changes gets a new one.
 | `<viewedSeq() === e.seq ? 'log.hideDecision' : 'log.viewDecision'>` | `features/decision-log/decision-log-panel.component.html` |
 | `actions.<opt.action>` | `features/agent-inspector/agent-inspector.component.html` |
 | `ca.card.apply` | `features/combined-actions/components/action-card/action-card.component.html` |
+| `experimentRun.finishConfirm.back` | `app.component.html` |
+| `experimentRun.finishConfirm.back` | `app.component.html` |
+| `experimentRun.finishConfirm.yes` | `app.component.html` |
+| `experimentRun.finishConfirm.yes` | `app.component.html` |
 | `log.action.<opt.action>` | `features/impact-panel/impact-panel.component.html` |
 | `log.reflectionOpen` | `features/decision-log/decision-log-panel.component.html` |
 | `log.showOpenReflections` | `features/decision-log/decision-log-panel.component.html` |

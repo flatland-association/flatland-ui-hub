@@ -16,6 +16,7 @@ function source() {
     shiftScreenOpen: signal(false),
     debrief: signal(false),
     surveyActive: signal(false),
+    finishConfirmOpen: signal(false),
     helpActive: signal(false),
     settingsMode: signal(false),
     settingsTab: signal('basic'),
@@ -84,6 +85,17 @@ describe('ViewTracker', () => {
     TestBed.tick();
     expect(views()).toEqual(['start', 'session', 'settings', 'settings', 'session']);
     expect(noteView.calls.argsFor(3)[1]).toEqual({ tab: 'advanced' });
+  });
+
+  // docs/plans/confirm-finish-scenario.md (#180): the finish dialog is an overlay of its own.
+  it('logs the finish dialog as an overlay, and the working screen again after it', () => {
+    app.sessionActive.set(true);
+    TestBed.tick();
+    app.finishConfirmOpen.set(true);
+    TestBed.tick();
+    app.finishConfirmOpen.set(false);
+    TestBed.tick();
+    expect(views()).toEqual(['start', 'session', 'finish_confirm', 'session']);
   });
 
   it('a new record opens with the screen on display', () => {

@@ -51,6 +51,10 @@ export interface StudyCondition {
    *  questionnaire (#174, docs/plans/remove-shift-summary.md). Absent = shown.
    *  Only for a guided condition. */
   shiftSummary?: boolean;
+  /** Ask "Aktuelles Szenario abschliessen?" before a leg is finished by hand;
+   *  `false` = finish at once (#180, docs/plans/confirm-finish-scenario.md).
+   *  Absent = ask. */
+  finishConfirm?: boolean;
 }
 
 /** One leg of a guided condition: one "Szenario" the participant works through.
@@ -90,6 +94,11 @@ export function isGuidedCondition(c: StudyCondition | null | undefined): boolean
 /** The Schichtbilanz follows the last leg, unless the condition leaves it out (#174). */
 export function hasShiftSummary(c: StudyCondition | null | undefined): boolean {
   return c?.shiftSummary !== false;
+}
+
+/** A hand-made finish asks first, unless the condition or tour turns it off (#180). */
+export function hasFinishConfirm(c: { finishConfirm?: boolean } | null | undefined): boolean {
+  return c?.finishConfirm !== false;
 }
 
 /** The preset a condition starts on: its fixed scenario, or its first leg's. */

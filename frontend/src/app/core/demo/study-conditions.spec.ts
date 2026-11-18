@@ -1,5 +1,5 @@
 import en from '../../../../public/i18n/en.json';
-import { PLAN_B_ORDERS, PLAN_B_TUTORIAL, STUDY_CONDITIONS, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './study-conditions';
+import { PLAN_B_ORDERS, PLAN_B_TUTORIAL, STUDY_CONDITIONS, conditionId, conditionScenarioId, hasFinishConfirm, hasShiftSummary, isGuidedCondition } from './study-conditions';
 import { tourBriefingId } from './tours';
 import { briefingById } from './tour-briefings';
 import { LAYOUT_PRESETS } from '../layout/layout-presets';
@@ -61,6 +61,13 @@ describe('study conditions', () => {
     for (const c of guided) {
       expect(c.shiftSummary).withContext(conditionId(c)).toBe(conditionId(c).startsWith('plan-b-') ? false : undefined);
     }
+  });
+
+  it('asks before a hand-made finish unless the condition or tour turns it off (#180)', () => {
+    expect(hasFinishConfirm(null)).toBeTrue();
+    expect(hasFinishConfirm({})).toBeTrue();
+    expect(hasFinishConfirm({ finishConfirm: true })).toBeTrue();
+    expect(hasFinishConfirm({ finishConfirm: false })).toBeFalse();
   });
 
   it('a briefing has no Schichtbilanz step where its condition has no Schichtbilanz (#174)', () => {

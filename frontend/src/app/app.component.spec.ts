@@ -296,6 +296,129 @@ describe('AppComponent', () => {
       expect(app.surveyActive()).toBeTrue();
     });
 
+    // docs/plans/confirm-finish-scenario.md §4.3 (#180).
+    describe('the finish dialog', () => {
+      let dialog: { open: jasmine.Spy; close: jasmine.Spy };
+      let pause: jasmine.Spy;
+      let play: jasmine.Spy;
+      const close = (result?: string) => app.onFinishConfirmClose(Object.assign(new Event('close'), { result }));
+
+      beforeEach(() => {
+        dialog = { open: jasmine.createSpy('open'), close: jasmine.createSpy('close') };
+        app.finishConfirmDialog = () => ({ nativeElement: dialog });
+        store.session.set({ id: 's1', width: 1, height: 1, num_agents: 0 } as any);
+        pause = spyOn(store, 'pause').and.callFake(() => store.playing.set(false));
+        play = spyOn(store, 'play');
+        store.playing.set(true);
+      });
+
+      it('asks instead of finishing, and pauses meanwhile', () => {
+        app.finishDemoMode();
+        expect(dialog.open).toHaveBeenCalled();
+        expect(pause).toHaveBeenCalled();
+        expect(app.tourContext.shiftHistory().length).toBe(0);
+      });
+
+      it('"Zurück" goes on playing, counted; "Ja" finishes the leg as a click', () => {
+        app.finishDemoMode();
+        close();
+        expect(play).toHaveBeenCalledTimes(1);
+        expect(app.tourContext.shiftHistory().length).toBe(0);
+        app.finishDemoMode();
+        close('confirm');
+        expect(play).withContext('a finished leg does not play on').toHaveBeenCalledTimes(1);
+        expect(app.store.demoStepIndex()).toBe(1);
+        const leg = app.tourContext.shiftHistory()[0];
+        expect(leg.finishReason).toBe('clicked');
+        expect(leg.finishConfirm).toEqual({ confirmed: true, backs: 1 });
+      });
+
+      it('closes without an answer when the leg ends under it', () => {
+        app.finishDemoMode();
+        // A step under way while the pause is pending ends the episode: the run moves on.
+        app.experimentRun.setPhase('legSurvey');
+        fixture.detectChanges();
+        expect(dialog.close).toHaveBeenCalled();
+        expect(app.finishConfirmOpen()).toBeFalse();
+        // Lyne's close event, or a late "Ja", answers nothing.
+        close('confirm');
+        expect(app.tourContext.shiftHistory().length).toBe(0);
+        expect(play).not.toHaveBeenCalled();
+      });
+
+      it('closes when a new session starts under it', () => {
+        app.finishDemoMode();
+        store.session.set({ id: 's2', width: 1, height: 1, num_agents: 0 } as any);
+        fixture.detectChanges();
+        expect(dialog.close).toHaveBeenCalled();
+        close();
+        app.experimentRun.finishLeg('clicked');
+        expect(app.tourContext.shiftHistory()[0].finishConfirm?.backs).withContext('no back counted').toBe(0);
+      });
+
+      it('keeps the selected train when Escape closes it', async () => {
+        store.selectedHandle.set(3);
+        app.finishDemoMode();
+        const esc = new KeyboardEvent('keydown', { key: 'Escape' });
+        app.onEscapeDeselectAgent(esc);
+        expect(store.selectedHandle()).toBe(3);
+        // Without an animation Lyne's close comes first: the same keydown keeps it too.
+        close();
+        app.onEscapeDeselectAgent(esc);
+        expect(store.selectedHandle()).toBe(3);
+        await new Promise((r) => setTimeout(r));
+        app.onEscapeDeselectAgent(esc);
+        expect(store.selectedHandle()).withContext('a later Escape deselects as before').toBeNull();
+      });
+
+      it('does not resume what was paused before', () => {
+        store.playing.set(false);
+        app.finishDemoMode();
+        close();
+        expect(play).not.toHaveBeenCalled();
+      });
+
+      it('finishes at once where the condition turns it off', () => {
+        app.experimentRun.start({ ...CONDITION, finishConfirm: false }, false);
+        app.finishDemoMode();
+        expect(dialog.open).not.toHaveBeenCalled();
+        expect(app.store.demoStepIndex()).toBe(1);
+        expect(app.tourContext.shiftHistory()[0].finishConfirm).toBeUndefined();
+      });
+
+      it('does not ask for "Weiter zum Fragebogen", which ends nothing', () => {
+        app.experimentRun.setPhase('legSurvey');
+        spyOn(app, 'openExperimentSurvey');
+        app.finishDemoMode();
+        expect(dialog.open).not.toHaveBeenCalled();
+      });
+
+      it('does not ask on the Schichtabschluss screen: the debrief\'s shift is over', () => {
+        app.experimentRun.clearPersisted();
+        app.experimentRun.condition.set(null);
+        app.shiftScreenOpen = () => true;
+        store.demoSurveyEnabled.set(true);
+        const survey = spyOn(app, 'openSurvey');
+        app.finishDemoMode();
+        expect(dialog.open).not.toHaveBeenCalled();
+        expect(survey).toHaveBeenCalled();
+      });
+
+      it('asks in a tour too, and "Ja" goes on as before', () => {
+        app.experimentRun.clearPersisted();
+        app.experimentRun.condition.set(null);
+        expect(app.experimentRun.active()).toBeFalse();
+        store.demoSurveyEnabled.set(true);
+        const survey = spyOn(app, 'openSurvey');
+        app.finishDemoMode();
+        expect(dialog.open).toHaveBeenCalled();
+        expect(survey).not.toHaveBeenCalled();
+        close('confirm');
+        expect(survey).toHaveBeenCalled();
+        expect(play).withContext('the tour played on before the dialog').toHaveBeenCalled();
+      });
+    });
+
     it('advances a leg when its episode ends, once per session', () => {
       store.session.set({ id: 's1', width: 1, height: 1, num_agents: 0 } as any);
       store.dismissDemoIntro();

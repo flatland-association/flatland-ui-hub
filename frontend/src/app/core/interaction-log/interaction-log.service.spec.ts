@@ -117,6 +117,15 @@ describe('InteractionLogService', () => {
     expect(log.header()!.shiftSummary).toBeFalse();
   });
 
+  it('records whether a guided run asks before a hand-made finish (#180)', async () => {
+    await create();
+    start('s0');
+    expect('finishConfirm' in log.header()!).withContext('outside a guided run').toBeFalse();
+    log.setRunContext({ conditionId: 'plan-b-p01', experimentRunId: 'run-1', legId: 'wal-single-track', legIndex: 0, finishConfirm: false });
+    start('s1');
+    expect(log.header()!.finishConfirm).toBeFalse();
+  });
+
   it('mirrors the record to the server when the sink is enabled', async () => {
     sinkEnabled = true;
     await create();
