@@ -2,7 +2,7 @@
 
 > **Status:** plan of 2026-11-16, built by 2026-11-16. Based on `main` `fd0c70cb`. Issue
 > [#180](https://github.com/flatland-association/flatland-ui-hub/issues/180) ("Dialog einfügen: Szenario abschliessen
-> bestätigen", label "plan b"). Branch `feature/180-confirm-finish-scenario`, PR [#206](https://github.com/flatland-association/flatland-ui-hub/pull/206). Open questions: none (§9.1).
+> bestätigen", label "plan b"). Branch `feature/180-confirm-finish-scenario`, PR [#206](https://github.com/flatland-association/flatland-ui-hub/pull/206). Open questions: none (§9.1). Code review (2026-11-16): F-1–F-4, F-7 open, planned in S-6–S-10; F-5, F-6, F-8 follow-ups (§1.4).
 >
 > **Why:** One click on the finish button ends the scenario for good: the leg is recorded as finished and the run moves
 > to the next scenario or the questionnaire. A participant who clicks it by mistake breaks the experiment; a
@@ -68,6 +68,9 @@ Requirements:
 | Confirm "Schicht beenden" (tour guide, Director panel) too. | It calls `store.endShift()` directly from two other components; Plan B hides it (`control.endShift`, and in the guide also `hasShiftSummary()`). | Q-5 | - | untracked |
 | A `data-log` id on the finish button itself (today logged with the fallback `target`). | Its label is a computed string, not a key; the deciding click is now "Ja", which gets an id. | §4.5 | - | untracked |
 | Replace the other `window.confirm` calls (saved runs, layout designer, infrastructure builder) by `sbb-dialog`. | Internal tools, outside the issue. | §3 | - | untracked |
+| Read the finish dialog's switch from the running tour, not from the start screen's selection. | No tour turns the dialog off yet, so nothing differs today. | code review | F-5 | - |
+| Resume after the finish dialog only once the pause has answered. | The toolbar's play/pause on `main` has the same race; fix both together in the store. | code review | F-6 | - |
+| One template for the finish dialog's content, shared by the live dialog and its replay copy. | A refactoring; the two are in step today. | code review | F-8 | - |
 
 ## 2. Constraints
 
@@ -150,6 +153,7 @@ the event names stay as they are.
 |---|---|---|---|
 | NFR-1 | Same `leg_finished`, stable click ids | The dialog sits in front of the unchanged `advanceExperiment()` and tour branches; "Ja" runs them as today; the answer goes into one additive field. | §4.3, §4.5 |
 | NFR-2 | Translated, keyboard-usable | Lyne `sbb-dialog` (focus trap, Escape, backdrop) with translation keys. | §4.3, §4.4 |
+| NFR-1 | Code review findings (phase 2) | The dialog never outlives its leg, the record takes "Ja" from the dialog itself, the debrief and Escape don't trigger it by accident, and its replay copy follows the theme. | §9.3, §11.1 |
 
 ### 4.1 Design principles
 
@@ -490,7 +494,20 @@ conditions that don't need it yet.
 
 *Findings from code reviews, PR comments and TODOs, with their status and the commits that fix them.*
 
-None yet.
+PR [#206](https://github.com/flatland-association/flatland-ui-hub/pull/206), based on `main` fd0c70cb. Code review findings (F-1–F-8) were added on 2026-11-16, at 5c644b79; their line numbers refer to it. Fixed: ✅ fixed, ⏭️ open and taken over by a follow-up (§1.4), — dropped, ⚠️ resolved on GitHub without a code change and without a reason, empty open. "resolved" in Source marks threads resolved and checkboxes ticked on GitHub; ❌ next to ✅ marks a finding fixed in the code whose PR comment is not resolved yet.
+
+| Fixed | ID | Source | Category | Severity | Finding | Commit message |
+|---|---|---|---|---|---|---|
+|  | F-1 | code review | bug | medium | `frontend/src/app/app.component.ts:1436-1441`: nothing closes the dialog when the leg ends without it. `store.pause()` is an HTTP round trip, so a step already in flight can still end the episode; `_legEndsWithEpisode` then moves the run on (next leg or leg survey) under the open dialog. A later "Ja" finishes the next leg at once as `clicked` with `finishConfirm.confirmed: true`; "Zurück" counts a back for a leg that never asked. Fix: close the dialog (without counting) when the leg finishes or the phase leaves `running`. Open: planned in S-6. | fix(experiment-run): close the finish dialog when the leg ends without it. |
+|  | F-2 | code review | bug | medium | `frontend/src/app/app.component.html:438`, `frontend/src/app/app.component.ts:1453-1457`: the tour debrief's last button ("Zur nächsten Schicht", "Zum Fragebogen", "Zur Übersicht") also calls `finishDemoMode()`, so in a tour with a debrief it asks "Aktuelles Szenario abschliessen?" after the shift has ended, on the Schichtabschluss screen. In a run the phase check keeps it out; in a tour nothing does. The plan's §3 and §4.3 don't name the debrief. Fix: the debrief calls `finishDemoModeConfirmed()`, or `finishConfirmAsked()` returns false while `shiftScreenOpen()`. Open: planned in S-7. | fix(tour): finish from the debrief without asking again. |
+|  | F-3 | code review | bug | medium | `frontend/src/app/app.component.ts:2120-2159`: Escape on the dialog closes it (Lyne's window `keydown` listener only calls `preventDefault()`, `core/controllers/escapable-overlay-controller.js`), then reaches `onEscapeDeselectAgent`, which has no `finishConfirmOpen()` branch: a selected train is deselected, a change the participant didn't ask for. Fix: return early while `finishConfirmOpen()` (or when `event.defaultPrevented`). Open: planned in S-8. | fix(experiment-run): keep the selected train when Escape closes the finish dialog. |
+|  | F-4 | code review | robustness | low | `frontend/src/app/core/demo/experiment-run.service.ts:249`: `confirmed` is derived from `reason === 'clicked'`, not from the dialog's "Ja". Every other `clicked` finish in phase `running` is recorded as confirmed: the stale "Ja" of F-1, the fallback in `finishDemoMode()` when the view child is missing, a resume into a questionnaire (`app.component.ts:1136`, `advanceExperiment()` defaults to `clicked`). Fix: set a flag in `onFinishConfirmClose`, as `finishConfirmBack()` counts the backs, and record it. Open: planned in S-9. | fix(experiment-run-record): record "Ja" from the dialog, not from the finish reason. |
+| ⏭️ | F-5 | code review | bug | low | `frontend/src/app/app.component.ts:1456`: outside a run, the switch is read from `selectedTour()`, the start screen's selection (`TOURS[0]` as fallback), not from the running tour. A plain demo (`startDemoSession()`) uses whatever tour was last selected. No tour sets `finishConfirm: false` yet, so nothing differs today. Fix: read it from the running tour's context. Open: taken over by a follow-up (§1.4). | fix(tour): read the finish dialog's switch from the running tour. |
+| ⏭️ | F-6 | code review | robustness | low | `frontend/src/app/app.component.ts:1438,1466`: "Zurück" calls `store.play()` without waiting for the asynchronous `pause()`. A quick "Zurück" can send `play` before `pause` answers; the late answer then sets `playing` false while the backend plays. A failed `pause()` leaves the simulation running behind the dialog. The toolbar's play/pause has the same race on `main`. Fix: open the dialog once `pause()` has answered, or resume only when `playing()` is false. Open: taken over by a follow-up (§1.4). | fix(experiment-run): resume after the finish dialog only once the pause has answered. |
+|  | F-7 | code review | style | low | `frontend/src/app/app.component.scss:1894,1900`: the replay copy uses `--sbb-color-white` and `--sbb-color-cloud`; `sbb-dialog` uses the theme-aware `--sbb-background-color-1` and `--sbb-background-color-4` (`light-dark(...)`). In dark mode the replay shows a white card where the participant saw a dark dialog. Fix: use the same tokens. Open: planned in S-10. | style(replay): draw the finish dialog's copy in the theme's colours. |
+| ⏭️ | F-8 | code review | design | low | `frontend/src/app/app.component.html:1181-1203,1206-1215`, `frontend/src/app/app.component.scss:1891-1907`: the replay copy repeats the live dialog's title, buttons, keys and `data-log` ids, and copies Lyne's dialog width and paddings (`55.75rem`, `8x`/`6x`). A change to one side drifts silently, and the recorded clicks miss the copy's buttons. Fix: one `ng-template` for title and actions used by both; the sizes from Lyne's dialog variables. Open: taken over by a follow-up (§1.4). | refactor(replay): share the finish dialog's content between the live dialog and its replay copy. |
+
+**Issue references**: the PR closes #180. The code names #180 only as the origin of a change (as `main` does for other issues), with no TODO pointing back to it.
 
 ## 10. Glossary
 
@@ -517,6 +534,8 @@ None yet.
 
 *One row per commit: what it does, the findings it fixes, its message, and its SHAs once committed.*
 
+#### Phase 1: The dialog, its record and its replay ✅
+
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
 | ✅ S-1 | - | Switch `finishConfirm` on `StudyCondition`/`Tour` and `hasFinishConfirm` (§4.4); the dialog with pause in `AppComponent` (§4.3); keys in en/de/fr; `finishConfirm` record field (§4.5); spec cases (§4.2); click-id table and the field in `docs/experiment-logging.md`. | feature | medium | `feat(experiment-run): ask "Aktuelles Szenario abschliessen?" before a scenario is finished by hand.` | a74e605c | - | - |
@@ -524,6 +543,16 @@ None yet.
 | ✅ S-3 | - | Align with #174's plan: §3 and Q-5 name the guide's `hasShiftSummary()` gate of "Schicht beenden"; `docs/README.md` lists this plan; `experiment-workflow.md` §5.4 names the dialog; §3 and Q-2 say the dialog opens in the browser's top layer (`showPopover()`), not `position: fixed`. | docs | low | `docs(plans): confirm finish scenario: align with the plan of #174.` | 59dcf352 | S-2 | - |
 | ✅ S-4 | - | `header.finishConfirm` from `runContext()` (§4.5, REQ-7), with specs; `docs/experiment-logging.md`. | feature | low | `feat(experiment-run-record): record whether the condition asks before a scenario is finished.` | d05dca85 | S-3 | - |
 | ✅ S-5 | - | The overlay view `finish_confirm` and the read-only dialog in the replay (§4.6, REQ-8), with specs; `docs/experiment-logging.md`'s view table; replay screenshots in `docs/plans/confirm-finish-scenario/` (row 8 of §4.2). | feature | low | `feat(replay): show the finish dialog with the participant's clicks on it.` | fd2adeae | S-4 | - |
+
+#### Phase 2: Code review findings 💡
+
+| ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
+|---|---|---|---|---|---|---|---|---|
+| 💡 S-6 | F-1 | Close the dialog when the leg ends without it (phase leaves `running`, or a new session), without counting a back; spec: an episode end under the open dialog. | bug | medium | `fix(experiment-run): close the finish dialog when the leg ends without it.` |  | S-5 | - |
+| 💡 S-7 | F-2 | `finishConfirmAsked()` is false while the Schichtabschluss screen is open, so the tour debrief's last button finishes without asking; spec. | bug | medium | `fix(tour): finish from the debrief without asking again.` |  | S-6 | - |
+| 💡 S-8 | F-3 | `onEscapeDeselectAgent` returns while the dialog is open or the event is handled, so Escape keeps the selected train; spec. | bug | medium | `fix(experiment-run): keep the selected train when Escape closes the finish dialog.` |  | S-7 | - |
+| 💡 S-9 | F-4 | `ExperimentRunService.finishConfirmYes()` sets a per-leg flag from the dialog's "Ja"; `finishLeg` records `confirmed` from it, not from the reason; specs. | robustness | low | `fix(experiment-run-record): record "Ja" from the dialog, not from the finish reason.` |  | S-8 | - |
+| 💡 S-10 | F-7 | The replay copy's card and title border use `--sbb-background-color-1` and `--sbb-background-color-4`, as `sbb-dialog`. | style | low | `style(replay): draw the finish dialog's copy in the theme's colours.` |  | S-9 | - |
 
 ## 12. Change inventory
 
