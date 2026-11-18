@@ -23,13 +23,13 @@ const WIDGET_IDS: UiConfigItem[] = WIDGET_CATALOG.filter((w) => w.type).map((w) 
 
 /** Chrome elements that are not panels, so nothing registers them today.
  *  One id per region, not per element inside it: the same grain applies to
- *  the mode tab strip and the menu's area links. The map's zoom buttons and
- *  its rail-opacity slider got ids of their own, because Plan B shows zoom
- *  without pan arrows and drops the slider (docs/plans/plan-b-small-changes.md,
- *  item 2). */
+ *  the mode tab strip and the menu's area links. The map's overlay controls
+ *  are three regions, pan arrows, zoom buttons and rail-opacity slider, one id
+ *  each, because Plan B shows zoom without pan arrows and drops the slider
+ *  (docs/plans/plan-b-small-changes.md, item 2). */
 const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.contrast', label: 'Colours / high-contrast setting (Session Settings)', supports: ['hidden'] },
-  { id: 'control.mapNavigation', label: 'Map pan control overlay (arrows, reset)', supports: ['hidden'] },
+  { id: 'control.mapPan', label: 'Map pan control overlay (arrows, reset)', supports: ['hidden'] },
   { id: 'control.mapZoom', label: 'Map zoom buttons (+ / − / %)', supports: ['hidden'] },
   { id: 'control.mapOpacity', label: 'Map rail-tile opacity slider', supports: ['hidden'] },
   { id: 'control.endShift', label: 'End shift button', supports: ['hidden'] },
@@ -75,3 +75,17 @@ const DECISION_LOG_IDS: UiConfigItem[] = [
 
 /** Every id a deployment config (§4.2) may target. */
 export const UI_CONFIG_ITEMS: UiConfigItem[] = [...WIDGET_IDS, ...CONTROL_IDS, ...AXIS_IDS, ...TITLE_IDS, ...DECISION_LOG_IDS];
+
+/**
+ * Ids that no longer name one control but still work, so saved designs,
+ * `ui-config.json` files and deep links keep their meaning (stored ids are
+ * never removed, AGENTS.md). Each stands for the ids it lists, with the same
+ * verb. Not offered in the registry; the schema still accepts them.
+ *
+ * - `control.mapNavigation`: the map's pan arrows and zoom buttons together,
+ *   its meaning before they got ids of their own (plan-b-small-changes.md,
+ *   item 2).
+ */
+export const UI_CONFIG_ALIASES: Readonly<Record<string, readonly string[]>> = {
+  'control.mapNavigation': ['control.mapPan', 'control.mapZoom'],
+};

@@ -789,7 +789,7 @@
     </div>
   }
 
-  @if (!uiConfig.isHidden('control.mapNavigation')) {
+  @if (!uiConfig.isHidden('control.mapPan')) {
   <!-- Map Navigation Overlay (unten links) -->
   <div class="map-nav-overlay">
     <button class="nav-btn nav-up" (click)="panStep(0, 1)" [attr.title]="'map.panUp' | transloco">↑</button>

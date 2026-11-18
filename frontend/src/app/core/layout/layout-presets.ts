@@ -695,7 +695,7 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
  */
 const PLAN_B_UI: UiConfig = {
   hidden: [
-    'control.mapNavigation',              // issue item 1b — pan arrows (zoom stays: control.mapZoom)
+    'control.mapPan',                     // issue item 1b — pan arrows (zoom stays: control.mapZoom)
     'control.mapOpacity',                 // rail-opacity slider (docs/plans/plan-b-small-changes.md, item 2)
     'control.endShift',                   // issue item 4  — "Schicht beenden"
     'control.playback',                   // #167 — Play/Pause and speed (docs/plans/toolbar-under-guide.md)

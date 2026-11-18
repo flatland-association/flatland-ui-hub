@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { UI_CONFIG_ITEMS, UiConfigVerb } from './ui-config-items';
+import { UI_CONFIG_ALIASES, UI_CONFIG_ITEMS, UiConfigVerb } from './ui-config-items';
 
 /**
  * What a deployment or a study condition declares as removed
@@ -91,9 +91,11 @@ export class UiConfigService {
     ]);
   }
 
+  /** Validates ids against the registry, expanding a legacy alias
+   *  (`UI_CONFIG_ALIASES`) into the ids it stands for. */
   private resolveIds(ids: string[] | undefined, verb: UiConfigVerb): string[] {
     const resolved: string[] = [];
-    for (const id of ids ?? []) {
+    for (const id of (ids ?? []).flatMap((i) => UI_CONFIG_ALIASES[i] ?? [i])) {
       const item = ITEMS_BY_ID.get(id);
       if (!item) {
         console.warn(`[uiConfig] unknown id "${id}", ignoring.`);

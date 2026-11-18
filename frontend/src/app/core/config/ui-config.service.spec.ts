@@ -62,7 +62,8 @@ describe('UiConfigService — the Plan B preset block', () => {
 
   it('hides every item the condition removes', () => {
     service.apply(planB());
-    expect(service.isHidden('control.mapNavigation')).toBeTrue();
+    expect(service.isHidden('control.mapPan')).toBeTrue();
+    expect(service.isHidden('control.mapOpacity')).toBeTrue();
     expect(service.isHidden('control.endShift')).toBeTrue();
     expect(service.isHidden('control.playback')).toBeTrue();
     expect(service.isHidden('control.modeTabs')).toBeTrue();
@@ -90,6 +91,19 @@ describe('UiConfigService — the Plan B preset block', () => {
       const others = LAYOUT_PRESETS.filter((p) => p.id !== 'preset-plan-b' && p.ui?.hidden?.includes(id));
       expect(others.map((p) => p.id)).withContext(id).toEqual([]);
     }
+  });
+
+  it('keeps the map zoom buttons in Plan B (plan-b-small-changes.md, item 2)', () => {
+    service.apply(planB());
+    expect(service.isHidden('control.mapZoom')).toBeFalse();
+  });
+
+  it('reads the legacy control.mapNavigation as pan arrows and zoom buttons, as before', () => {
+    service.apply({ hidden: ['control.mapNavigation'] });
+    expect(service.isHidden('control.mapPan')).toBeTrue();
+    expect(service.isHidden('control.mapZoom')).toBeTrue();
+    expect(service.isHidden('control.mapOpacity')).toBeFalse();
+    expect(service.snapshot().hidden).toEqual(['control.mapPan', 'control.mapZoom']);
   });
 
   it('leaves the sibling comparison axis visible', () => {
@@ -128,7 +142,7 @@ describe('UiConfigService — the Plan B preset block', () => {
   it('drops the condition again when a layout without a block is selected', () => {
     service.apply(planB());
     service.apply({});
-    expect(service.isHidden('control.mapNavigation')).toBeFalse();
+    expect(service.isHidden('control.mapPan')).toBeFalse();
     expect(service.policyAllowlist()).toBeNull();
   });
 });
