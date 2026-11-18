@@ -47,6 +47,7 @@ describe('InteractionLogService', () => {
   let sinkEnabled: boolean;
   const deployment = signal<boolean | null>(null);
   const restrictions = signal({ hidden: [] as string[], collapsedByDefault: [] as string[], policyAllowlist: null as string[] | null });
+  const questionOrder = signal<readonly string[]>(['gut', 'missing', 'tradeoff']);
 
   beforeEach(async () => {
     localStorage.clear();
@@ -59,13 +60,14 @@ describe('InteractionLogService', () => {
     store = fakeStore();
     deployment.set(null);
     restrictions.set({ hidden: [], collapsedByDefault: [], policyAllowlist: null });
+    questionOrder.set(['gut', 'missing', 'tradeoff']);
     TestBed.configureTestingModule({
       providers: [
         { provide: SessionStore, useValue: store },
         { provide: LearningStore, useValue: { records: signal([]) } },
         { provide: BuildInfoService, useValue: { info: signal({ commit: 'test' }) } },
         { provide: OperatorModelService, useValue: { operatorId: signal('operator1') } },
-        { provide: UiConfigService, useValue: { studyLogging: deployment, snapshot: () => restrictions() } },
+        { provide: UiConfigService, useValue: { studyLogging: deployment, snapshot: () => restrictions(), reflectionPromptQuestionOrder: questionOrder } },
       ],
     });
   });
@@ -346,5 +348,11 @@ describe('InteractionLogService', () => {
     expect(last.type).toBe('ui_state');
     expect(last.payload).toEqual({ key: 'uiRestrictions', value: { hidden: [], collapsedByDefault: [], policyAllowlist: null, values: {} } });
   });
-});
 
+  it('records the order of the reflection\'s questions in the header', async () => {
+    questionOrder.set(['tradeoff', 'gut', 'missing']);
+    await create();
+    start('s1');
+    expect(log.header()!.reflectionPromptQuestionOrder).toEqual(['tradeoff', 'gut', 'missing']);
+  });
+});

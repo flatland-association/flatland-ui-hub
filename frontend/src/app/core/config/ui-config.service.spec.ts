@@ -21,6 +21,50 @@ describe('UiConfigService — the shipped deployment file', () => {
     expect(service.isCollapsedByDefault('widget.decision-log')).toBeFalse();
     expect(service.policyAllowlist()).toBeNull();
     expect(service.studyLogging()).toBeNull();
+    expect(service.reflectionPromptQuestionOrder()).toEqual(['gut', 'missing', 'tradeoff']);
+  });
+});
+
+describe('UiConfigService — the deployment\'s order of the reflection\'s questions', () => {
+  let service: UiConfigService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    service = TestBed.inject(UiConfigService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  it('is the default order before the file is read', () => {
+    expect(service.reflectionPromptQuestionOrder()).toEqual(['gut', 'missing', 'tradeoff']);
+  });
+
+  it('reads it from the deployment file and keeps it when a condition applies', async () => {
+    const loaded = service.load('ui-config.json');
+    http.expectOne('ui-config.json').flush({ reflectionPromptQuestionOrder: ['tradeoff', 'gut'] });
+    await loaded;
+    expect(service.reflectionPromptQuestionOrder()).toEqual(['tradeoff', 'gut', 'missing']);
+    const warn = spyOn(console, 'warn');
+    service.apply({ reflectionPromptQuestionOrder: ['missing'] });
+    expect(service.reflectionPromptQuestionOrder()).toEqual(['tradeoff', 'gut', 'missing']);
+    expect(warn).toHaveBeenCalledOnceWith(jasmine.stringContaining('"reflectionPromptQuestionOrder" is set by the deployment file only'));
+  });
+
+  it('warns about no deployment-only value when a condition sets none', async () => {
+    const loaded = service.load('ui-config.json');
+    http.expectOne('ui-config.json').flush({ reflectionPromptQuestionOrder: ['tradeoff'], studyLogging: true });
+    const warn = spyOn(console, 'warn');
+    await loaded;
+    service.apply({ hidden: ['control.contrast'] });
+    service.apply({});
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it('falls back to the default order when the value is not a list', async () => {
+    const loaded = service.load('ui-config.json');
+    http.expectOne('ui-config.json').flush({ reflectionPromptQuestionOrder: 'tradeoff' });
+    await loaded;
+    expect(service.reflectionPromptQuestionOrder()).toEqual(['gut', 'missing', 'tradeoff']);
   });
 });
 
@@ -40,8 +84,10 @@ describe('UiConfigService — the deployment\'s "Study logging" value', () => {
     await loaded;
     expect(service.studyLogging()).toBeFalse();
     expect(service.isHidden('control.studyLogging')).toBeTrue();
+    const warn = spyOn(console, 'warn');
     service.apply({ studyLogging: true } as UiConfig);
     expect(service.studyLogging()).toBeFalse();
+    expect(warn).toHaveBeenCalledOnceWith(jasmine.stringContaining('"studyLogging" is set by the deployment file only'));
   });
 });
 

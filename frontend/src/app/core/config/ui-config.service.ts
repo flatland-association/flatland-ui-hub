@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { ReflectionQuestionId, resolveReflectionQuestionOrder, REFLECTION_QUESTION_POOL } from '../reflection-questions';
 import { UI_CONFIG_ALIASES, UI_CONFIG_ITEMS, UiConfigVerb } from './ui-config-items';
 
 /**
@@ -18,7 +19,14 @@ export interface UiConfig {
    *  restriction, so it does not merge; `apply()` ignores it, because logging
    *  belongs to the run, not to the layout. */
   studyLogging?: boolean;
+  /** Deployment file only: the order of the reflection prompt's guided questions
+   *  (docs/plans/reflection-question-order.md). Questions not listed follow
+   *  in the default order. A value, like `studyLogging`: `apply()` ignores it. */
+  reflectionPromptQuestionOrder?: string[];
 }
+
+/** The `UiConfig` keys only `ui-config.json` sets; `apply()` ignores them. */
+const DEPLOYMENT_ONLY = ['studyLogging', 'reflectionPromptQuestionOrder'] as const;
 
 const ITEMS_BY_ID = new Map(UI_CONFIG_ITEMS.map((item) => [item.id, item]));
 
@@ -55,6 +63,9 @@ export class UiConfigService {
   private readonly _studyLogging = signal<boolean | null>(null);
   /** The deployment's "Study logging" value, or null if it sets none. */
   readonly studyLogging = this._studyLogging.asReadonly();
+  private readonly _reflectionPromptQuestionOrder = signal<readonly ReflectionQuestionId[]>(REFLECTION_QUESTION_POOL);
+  /** The order the reflection asks its guided questions in: the deployment's, else the default. */
+  readonly reflectionPromptQuestionOrder = this._reflectionPromptQuestionOrder.asReadonly();
 
   /** Fetches the deployment file and applies it as the baseline. Never
    *  rejects: a missing or malformed file warns and leaves nothing hidden
@@ -69,6 +80,8 @@ export class UiConfigService {
     }
     this.baseline = config ?? {};
     this._studyLogging.set(typeof this.baseline.studyLogging === 'boolean' ? this.baseline.studyLogging : null);
+    const order = this.baseline.reflectionPromptQuestionOrder;
+    this._reflectionPromptQuestionOrder.set(resolveReflectionQuestionOrder(Array.isArray(order) ? order : null));
     this.apply({});
   }
 
@@ -78,6 +91,11 @@ export class UiConfigService {
    * what ending a run does, so one condition never leaks into the next.
    */
   apply(config: UiConfig): void {
+    // Values the deployment file alone sets: a condition's block can't change
+    // them, so say so rather than ignore them silently.
+    for (const key of DEPLOYMENT_ONLY) {
+      if (config[key] !== undefined) console.warn(`[uiConfig] "${key}" is set by the deployment file only; a condition's ui block can't change it, ignoring.`);
+    }
     this.hidden.set(this.mergeIds(config, 'hidden'));
     this.collapsedDefaults.set(this.mergeIds(config, 'collapsedByDefault'));
     this.allowlist.set(mergeAllowlists(this.baseline.policyAllowlist, config.policyAllowlist));

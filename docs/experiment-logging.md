@@ -200,6 +200,21 @@ one is a panel, and the participant works on while it waits. It is
 working screen is the last `session` entry before it, and a click's `panel`
 says where it went. See `docs/plans/reflection-inline.md` D17.
 
+**The order of the reflection prompt's questions.** After a decision, the
+reflection prompt (`reflectionPrompt.q.*`; not the Co-Learning reflection,
+which has questions of its own) asks, after «Welche Faktoren waren
+wichtig?», its guided questions in one order for the whole installation:
+`gut`, `missing`, `tradeoff` by default, or the order `ui-config.json` sets,
+e.g. `"reflectionPromptQuestionOrder": ["missing", "gut", "tradeoff"]` (questions not listed follow in the default order). The header's
+`reflectionPromptQuestionOrder` names the order in effect; it is written for
+every session, whether or not the prompt appears. Records made before it
+existed have no such field: there the order was drawn per decision, by
+`pickQuestions(t, 3)` in
+`frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts`
+(last at commit fd0c70c, removed since), seeded by the decision's `t`. To
+re-derive an older record's order, run that function on each decision's
+`t`. See `docs/plans/reflection-question-order.md`.
+
 **Between sessions.** A record keeps receiving these events after its
 session ended, until the next session starts. The questionnaire after
 leg 1 is therefore in leg 1's record, after its `endedAt`. Each new record
