@@ -15,14 +15,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.core.play_manager import play_manager
 from app.core.session_manager import session_manager
 from app.core.ws_manager import ws_manager
-from app.policies.learned import pf_ch_bundle, uc2_bundle, uc2_roam_bundle
+from app.policies.registry import get_policy_spec, is_specialist_policy
 
-_SPECIALIST_BUNDLES = {bundle.POLICY_ID: bundle for bundle in (pf_ch_bundle, uc2_roam_bundle)}
-
-
-def is_specialist_policy(policy_id: str | None) -> bool:
-    """Keep both bounded neural drivers on the existing inference lifecycle."""
-    return policy_id in _SPECIALIST_BUNDLES
+__all__ = ["is_specialist_policy"]
 
 
 def requires_command_lock(session, policy_id: str | None = None) -> bool:
@@ -43,7 +38,8 @@ def command_lock(session) -> asyncio.Lock:
 
 
 def preflight_policy(env, policy_id: str) -> None:
-    bundle = _SPECIALIST_BUNDLES.get(policy_id)
+    spec = get_policy_spec(policy_id)
+    bundle = spec.bundle if spec is not None else None
     if bundle is None:
         return
     error = bundle.compatibility_error(env)

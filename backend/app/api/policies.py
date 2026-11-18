@@ -24,6 +24,9 @@ class PolicyInfo(BaseModel):
     provenance: str = ""
     licence: str = "Flatland (base set)"
     grounding: str = ""
+    #: A trained network bound to its infrastructures (`PolicySpec.bundle`):
+    #: the browser never swaps it for a fallback policy.
+    specialist: bool = False
 
 
 @router.get("/policies", response_model=list[PolicyInfo])
@@ -50,6 +53,7 @@ def list_policies() -> list[PolicyInfo]:
             provenance=spec.provenance,
             licence=spec.licence,
             grounding=spec.grounding,
+            specialist=spec.specialist,
         )
         for spec in specs
     ]

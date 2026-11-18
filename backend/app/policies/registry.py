@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import importlib.util
+from types import ModuleType
 from typing import Callable
 
 from flatland.envs.rail_env import RailEnv
@@ -69,6 +70,18 @@ class PolicySpec:
     licence: str = "Flatland (base set)"
     #: Why this exists — a source, a paper, or control-room practice.
     grounding: str = ""
+
+    # ── runtime needs ───────────────────────────────────────────────────
+    #: A specialist's bundle module (``compatibility_error(env)``,
+    #: ``verify_bundle()``): a trained network bound to the infrastructures it
+    #: learned on. It is checked before it may drive, its inference runs in the
+    #: worker under the session's command lock (``core/pf_ch_control.py``), and
+    #: the browser never swaps it for a fallback. None for every other policy.
+    bundle: ModuleType | None = None
+
+    @property
+    def specialist(self) -> bool:
+        return self.bundle is not None
 
 
 def _mk_deadlock(env: RailEnv) -> Policy:
@@ -156,6 +169,7 @@ _REGISTRY: dict[str, PolicySpec] = {
         runtime_factory=_mk_uc2_rl,
         branch_factory=_branch_uc2_rl,
         family="learned",
+        bundle=uc2_roam_bundle,
         deterministic=True,
         role="operational",
         observation="UC2ObservationBuilder (313 current-state features + 5 action masks)",
@@ -174,6 +188,7 @@ _REGISTRY: dict[str, PolicySpec] = {
         runtime_factory=_mk_pf_ch_rl,
         branch_factory=_branch_pf_ch_rl,
         family="learned",
+        bundle=pf_ch_bundle,
         deterministic=True,
         role="operational",
         observation="PFChObservationBuilder (272 features + 5 action masks)",
@@ -369,6 +384,12 @@ def get_policy_spec(policy_id: str) -> PolicySpec | None:
     return _REGISTRY.get(policy_id)
 
 
+def is_specialist_policy(policy_id: str | None) -> bool:
+    """Whether `policy_id` is a specialist (`PolicySpec.bundle`); unknown ids are not."""
+    spec = _REGISTRY.get(policy_id) if policy_id else None
+    return spec is not None and spec.specialist
+
+
 def create_runtime_policy(policy_id: str, env: RailEnv) -> Policy:
     spec = get_policy_spec(policy_id)
     if spec is None:
@@ -387,7 +408,6 @@ def driving_policy_id(policy_id: str, env: RailEnv) -> str:
     accepted course must not be dropped by the next step. RL drivers are left
     alone; they never follow trainruns.
     """
-    from app.core.pf_ch_control import is_specialist_policy
     from app.policies.plan_policy import plan_accepted
 
     if policy_id != PLAN_POLICY_ID and not is_specialist_policy(policy_id) and plan_accepted(env):

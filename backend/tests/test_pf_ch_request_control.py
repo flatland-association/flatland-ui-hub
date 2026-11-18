@@ -12,6 +12,7 @@ from app.core.pf_ch_control import PFChControlMiddleware as DispatcherControlMid
 from app.api.sessions import PolicyChangeRequest, set_session_policy
 from app.core import pf_ch_control as driver
 from app.core.play_manager import PlayState, play_manager
+from app.policies.learned import uc2_bundle
 
 pytestmark = pytest.mark.integration
 
@@ -32,7 +33,7 @@ def _session(monkeypatch, *, policy="pf_ch_rl", play_policy="pf_ch_rl", running=
     state = PlayState(session.id, 4, play_policy)
     state.running = running
     play_manager.register(state)
-    monkeypatch.setattr(driver.uc2_bundle, "compatibility_error", lambda _: None)
+    monkeypatch.setattr(uc2_bundle, "compatibility_error", lambda _: None)
     monkeypatch.setattr("app.core.pf_ch_control.session_manager.get", lambda _: session)
 
     async def broadcast(*_):

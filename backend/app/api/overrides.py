@@ -32,10 +32,11 @@ class OverrideRequest(BaseModel):
 
 
 def _policy_factory_for(policy_id: str):
-    # Bounded RL actors are deliberately excluded from the general scenario
+    # Specialists are deliberately excluded from the general scenario
     # catalogue, but a forecast must still follow the actual selected Driver.
-    if policy_id in {"uc2_rl", "pf_ch_rl"}:
-        return get_policy_spec(policy_id).branch_factory
+    spec = get_policy_spec(policy_id)
+    if spec is not None and spec.specialist:
+        return spec.branch_factory
     factories = scenario_policy_factories()
     return factories.get(policy_id, factories["deadlock_avoidance"])
 
