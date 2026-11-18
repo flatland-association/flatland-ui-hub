@@ -30,9 +30,19 @@ The last decision wins, **per train**:
   applies it.
 - The selected train's own override is what the courses answer. Asked about
   a stopped train, the KI may suggest moving it again.
-- Accepting installs the course as the plan for the trains without a
+- ~~Accepting installs the course as the plan for the trains without a
   decision, clears only the selected train's override, and leaves the others
-  standing (they stay outside the plan, under their override).
+  standing (they stay outside the plan, under their override).~~ Revised
+  2026-11-18 (F-1): outside the plan, the plan's fallback (Deadlock Avoidance
+  in Plan B) drove those trains, not the model the course was built with, so
+  the accepted course was not the one shown.
+- **Accepting takes the AI's full course as the plan** (decided 2026-11-18,
+  F-1): every train, the kept ones included, runs as the course simulated it.
+  The other trains' standing overrides stay, because the course was simulated
+  with them; only the selected train's override is cleared.
+- **A conflicting course can be replaced:** when the accepted course runs into
+  a conflict, the dispatcher asks for suggestions again and accepting another
+  one replaces the whole plan (decided 2026-11-18, F-1). Planned in S-1.
 - `pp_replan` is unchanged: its courses answer for every train, and accepting
   one still clears every override.
 
@@ -61,9 +71,9 @@ is left for a separate change.
   stays and a turn is used up.
 - `/proposals`: each KI course is scored as it runs once accepted:
   `PlanPolicy` over the course without the kept trains, plus the kept
-  overrides. The response says `ai_keeps_overrides`.
+  overrides (S-1: over the full course). The response says `ai_keeps_overrides`.
 - `/proposals/apply` (`ai`): the course, preview token or re-derived, minus the
-  kept trains becomes the plan; only the selected train's override and route
+  kept trains becomes the plan (S-1: the full course); only the selected train's override and route
   are cleared. The preview token already binds the standing overrides, so a
   change in between gives 409.
 - Frontend: after taking the KI course, the note says that stopped or
@@ -146,7 +156,7 @@ additive, new policies and presets only appear. What changes behaviour or data:
 |---|---|---|---|
 | **Fix: an accepted AI course is no longer dropped** when the next Step/Play names the condition's pinned policy (Plan B: Deadlock Avoidance, set by the study condition, no dropdown shown). After an accept, `/step` and `/play` with an ordinary policy follow the course (`driving_policy_id`, `registry.py:381`); that policy only drives the trains off the course. `session.policy` reads `"plan"`, the play log `"deadlock_avoidance->plan"`. Example below. | #196 | Every client and study condition that pins its policy per request; server logs. Nothing new on screen. | A reset, or choosing a policy in the toolbar dropdown (`POST /policy`, only outside Plan B), drops the course. RL drivers are left alone. Not kept on purpose: on `main` the panel said the trains follow the AI's plan while they did not. |
 | **Proposal ranking and score.** Courses rank by (not arrived, lateness, time in network) (`overrides.py:448`); `score` no longer credits early arrival (`:389`); the arrival reference includes the native deadlines (`:397`). | #196 | `pp_replan` results too: the order and the scores of the variants differ from `main`. | Not kept: the old score let early trains cancel another train's lateness. |
-| **Accepting a `uc2_rl` course** clears only the selected train's override and route; the others keep theirs. | #208 | Plan B sessions. | `pp_replan` keeps clearing every override. |
+| **Accepting a `uc2_rl` course** clears only the selected train's override and route; the others keep theirs, and (after S-1) the whole course becomes the plan. | #208 | Plan B sessions. | `pp_replan` keeps clearing every override. |
 | **New status codes:** `GET /proposals` 503 when the preview pool is busy and 409 when the session goes away; `POST /proposals/apply` 409 for a stale or misused `preview_token`. | #196 | API clients. | Clients that send no token keep the old accept. |
 | **Stop-aware PP by default.** `replan_from_state`/`replan_orders` route through the remaining intermediate stops (new keyword-only `strict_stops`, `wait_cells`, `wait_states`). | #196 | PP results on scenarios with stops (PF-CH corridor stops). | Signatures compatible; results differ. |
 | **Plan B's KI suggestions.** Plan B conditions send `proposal_agent: 'uc2_rl'` (`study-conditions.ts:197,240`): RL courses with an intervention ("wait", "branch at step N") instead of PP priority orders. | #196 | Study data: earlier and later Plan B runs share condition ids but not the stimulus. | Condition ids kept on purpose (stored ids); the record's trajectory metadata names `proposal_agent`. |
@@ -190,7 +200,7 @@ added, none removed), the record format, the study condition ids.
 | ID | New | PR | Defined in |
 |---|---|---|---|
 | PAT-1 | **Override-aware proposal agents:** `ProposalAgent.respects_overrides`; the kept overrides go into the rollout before ROAM, the selected train's own override is what the courses answer. | #208 | "Decision", "Design"; `base.py`, `uc2_rl.py:172-202` |
-| PAT-2 | **Per-train accept:** the plan covers the trains without a decision; only the selected train's override is cleared. | #208 | "Decision"; `overrides.py:478-490,563-567` |
+| PAT-2 | **Per-train accept:** only the selected train's override is cleared; the others stay. The plan covers the trains without a decision, after S-1 the full course. A later accept replaces the whole plan. | #208 | "Decision"; `overrides.py:478-490,563-567` |
 | PAT-3 | **Preview tokens:** a course is bound to a digest of its source state (env, step, overrides, policy) and accepted exactly, or refused with 409. | #196 | [uc2-rl-adviser-lookahead.md](uc2-rl-adviser-lookahead.md); `proposal_preview.py:199-241` |
 | PAT-4 | **Bounded N-step futures:** courses forecast on deep copies in a bounded pool, ranked completion-first. | #196 | [uc2-rl-adviser-lookahead.md](uc2-rl-adviser-lookahead.md); `overrides.py:448,599-631` |
 | PAT-5 | **Accepted plan as driving state:** an accepted course drives whatever policy the requests name; `driving_policy_id` / `create_driving_policy` wrap the pinned policy as the plan's fallback (the fix in "Breaking changes"). | #196 | [uc2-rl-proposal-agent.md](uc2-rl-proposal-agent.md); `registry.py:381-415` |
@@ -250,3 +260,35 @@ Same tutorial situation as above:
 |---|---|---|
 | KI best | Train 0 drives on; train 1 doesn't arrive | Train 0 stays at (2,13); train 1 departs at once, goes round the loop and arrives |
 | Accept | Overrides `{}`; train 0 drives on | Overrides `{0: STOP}`; train 0 stays; train 1 arrives while the client keeps pinning DLA |
+
+## Code Review Findings
+
+*Findings from code reviews, PR comments and TODOs, with their status and the commits that fix them.*
+
+PR [#208](https://github.com/flatland-association/flatland-ui-hub/pull/208), based on `codex/pf-ch-rl-main` 29b31139
+(PR #196, itself based on `main` fd0c70cb). Code review findings (F-1–F-10) were added on 2026-11-18, at eecfda80;
+their line numbers refer to it. They cover this PR's diff (`codex/pf-ch-rl-main..HEAD`); #196's code is not
+reviewed here. No PR review comments, and no TODOs added. Fixed: ✅; open: empty.
+
+| Fixed | ID | Source | Category | Severity | Finding | Commit message |
+|---|---|---|---|---|---|---|
+|  | F-1 | code review | design | medium | `backend/app/core/proposal_agents/uc2_rl.py:266`, `backend/app/api/overrides.py:563,672-674`, `backend/app/policies/registry.py:407-412`: a train that keeps its decision is driven differently in the adviser than once the course is taken. In the rollout the UC2 model drives it, and the kept override only applies at its switch. Live after the accept, and in the scoring, the train is outside the plan (`_plan_without`) and the plan's fallback (Deadlock Avoidance in Plan B) drives it. A stop or turn still ahead of its switch therefore runs differently from the course shown. Decided 2026-11-18 (revises "Decision"): accepting takes the AI's full course as the plan, kept trains included, with their overrides standing; a course that runs into a conflict is replaced by accepting another suggestion. Open: planned in S-1. | fix(proposals): take uc2_rl's full course as the plan, so a train with a kept decision runs as the course showed. |
+|  | F-2 | code review | bug | medium | `backend/app/core/proposal_agents/uc2_rl.py:199-201,266-267`: a kept turn is taken out of `kept` when it is put into the proposals, before Joint ROAM (`finalize_actions`) checks the batch. If ROAM withdraws the turn (replaces it with STOP), the rollout has used up the turn although the train never turned, and on the next step the model picks the direction. Live, `OverridePolicy` sends the turn without ROAM. Fix: remove the turn only once the finalized action equals it. Open. | fix(proposals): use up a kept turn in uc2_rl's rollout only when ROAM lets it through. |
+|  | F-3 | code review | design | medium | `backend/app/core/proposal_agents/uc2_rl.py:172-202` duplicates `backend/app/policies/override_policy.py:77-136` (reroute every step, sticky stop and one-shot turn at a switch or merge, skip DONE, keep while off the map) and already differs: a reroute without a move is not cleared (live: cleared and its route dropped), so `route_move` searches again on every step of every candidate rollout; a DONE train's decision is not cleared. A later change to `OverridePolicy` won't reach the adviser. Fix: one pure rule shared by both (e.g. `OverridePolicy.apply_overrides` over a given override store, as `TrajectoryBranchRunner._make_override_policy` does). Open. | refactor(proposals): share the override rules of the live policy with uc2_rl's rollout. |
+|  | F-4 | code review | ux | medium | `frontend/src/app/features/proposal-compare/proposal-compare.component.html:198`, `backend/app/api/overrides.py:710`: the note after taking the AI course («…Züge, die du gestoppt oder umgeleitet hast, behalten deinen Entscheid», `proposals.aiTakenCaveatKept`) depends only on the agent. In Plan B it shows on every accept, also when no other train has a decision, and it doesn't name turns, which are kept too. Fix: set `ai_keeps_overrides` only when the kept overrides are not empty; word the note for all kept decisions. Open. | fix(proposals): say that other trains keep their decisions only when they have one. |
+|  | F-5 | code review | robustness | low | `backend/tests/test_uc2_rl_keep_human_decisions.py:162`: `while agent_position(env.agents[0]) != (2, 11)` has no step limit; if a change to DLA, the tutorial or Flatland makes train 0 miss (2,11), the test posts `/step` until CI times out. Fix: bound it by the episode length and assert. Open. | test(proposals): bound the tutorial walk to the stopping cell. |
+|  | F-6 | code review | test-coverage | low | `backend/app/core/proposal_agents/uc2_rl.py:190-201`, `backend/tests/test_uc2_rl_keep_human_decisions.py`: the tests keep only a stop. A kept reroute (every step) and a kept turn (used up at its switch) in the rollout, and their accept, are not tested. Open. | test(proposals): cover kept reroutes and turns in uc2_rl's courses. |
+|  | F-7 | code review | bug | low | `backend/app/core/proposal_agents/uc2_rl.py:126-128`: an accept without `preview_token` and `candidate_id` while other trains keep decisions takes `proposals[0]`, the model's own first course, not the course `/proposals` ranked first and showed as «KI». Today's client always sends the candidate; an older client gets a different course. Fix: rank as `/proposals` does, or require `candidate_id` when overrides are kept. Open. | fix(proposals): take the best-ranked uc2_rl course when an accept names no candidate. |
+|  | F-8 | code review | simplification | low | `backend/app/api/overrides.py:551,672`: `extra = {"overrides": kept} if kept else {}` and `*([kept] if kept else [])` are not needed: every agent now takes `overrides`, and `kept` is `{}` for agents that don't respect them. Fix: pass `kept` plainly. Open. | refactor(proposals): pass the kept overrides to every proposal agent plainly. |
+|  | F-9 | code review | simplification | low | `backend/app/core/proposal_agents/uc2_rl.py:98`, `backend/app/api/overrides.py:478-484`: the selected train's own override is dropped in both places, so the per-train rule lives twice. Fix: keep it in `_kept_overrides` only and document that `overrides` excludes the selected train. Open. | refactor(proposals): drop the selected train's override in one place. |
+|  | F-10 | code review | style | low | `backend/app/core/proposal_agents/uc2_rl.py:37,188`: `STOP = 4` repeats `RailEnvActions.STOP_MOVING` as a number (`_action_value(RailEnvActions.STOP_MOVING)` does it without the literal), and `agent.state == TrainState.DONE` at :188 differs from the file's `getattr(a.state, "name", "") == "DONE"` (:145, :234). Open. | style(proposals): name the stop action and the DONE check as the rest of uc2_rl does. |
+
+Issue references: the PR body closes no issue; nothing to check.
+
+## Steps (review findings)
+
+*One commit per step; Commit(s) is filled once it is committed.*
+
+| ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
+|---|---|---|---|---|---|---|---|---|
+| 💡 S-1 | F-1 | Accept and scoring take the full course: drop `_plan_without` in `/proposals` scoring and in `/proposals/apply` (`overrides.py:563,673`), keep the other trains' overrides. Tests: after the accept a train with a kept stop or turn runs as the course showed (stop ahead of its switch, turn); a course that runs into a conflict is replaced by accepting another suggestion from the new state, and the second accept replaces the whole plan (the timetable stays the yardstick). | fix | medium | fix(proposals): take uc2_rl's full course as the plan, so a train with a kept decision runs as the course showed. | | - | - |
