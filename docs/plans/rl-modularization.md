@@ -1,6 +1,6 @@
 # RL drivers through the existing seams: the modularization findings of #196
 
-> **Status:** plan of 2026-11-18, draft. Based on `feature/uc2-rl-keep-human-decisions` 83880783 (PR
+> **Status:** plan of 2026-11-18, draft. Based on `feature/uc2-rl-keep-human-decisions` b9ebf654 (PR
 > [#208](https://github.com/flatland-association/flatland-ui-hub/pull/208)), which builds on PR
 > [#196](https://github.com/flatland-association/flatland-ui-hub/pull/196) (`codex/pf-ch-rl-main` eb047b67), both
 > open, in stack 213. Branch `refactor/196-modularization`, PR
@@ -91,7 +91,7 @@ Not checked in code; they hold by construction of the deployment and the registr
 - A learned driver's `PolicySpec` names its bundle; the bundle module keeps `compatibility_error(env)` and
   `verify_bundle()`.
 
-## 3. Context and scope (checked 2026-11-18 on `feature/uc2-rl-keep-human-decisions` 83880783)
+## 3. Context and scope (checked 2026-11-18 on `feature/uc2-rl-keep-human-decisions` b9ebf654)
 
 *The code on the base branch that the change works in, as it is before the change, and where the change stops.*
 
@@ -599,11 +599,12 @@ A planner that does not take the weights would plan, but still ignore the strate
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
-| ✅ S-0 | - | This plan and #196's findings in its plan. | docs | low | docs(plans): record the review of #196 and plan its modularization findings. | 29a660f1 | - | - |
-| ✅ S-1 | F-2 | `PolicySpec.bundle`; `is_specialist_policy`, `preflight_policy`, `_policy_factory_for` and `driving_policy_id` ask the spec; `/policies` serves `specialist`. Tests: the specs' fields, the catalog field. | refactor | high | refactor(policies): describe learned drivers on their PolicySpec instead of a second registry. | ddea093e | S-0 | - |
-| ✅ S-2 | F-3 | `ProposalAgent.forecast_horizon`, UC2 overrides it; the arrival reference without UC2 checks, the same for every agent. Tests: defaults, UC2, the yardstick after an accept. | refactor | high | refactor(proposals): let the proposal agent decide its horizon and drop the UC2 checks from the yardstick. | ae966be0 | S-0 | - |
-| ✅ S-3 | F-9 | The middleware only locks and stops play for destructive requests; `/play`, `/step`, `/policy` stop the old actor and take the lock themselves. Tests: `test_pf_ch_request_control` adapted, no `app.api` import in core. | refactor | medium | refactor(sessions): decide the actor change in the endpoints and keep the middleware to the lock. | dd8c1950 | S-1 | - |
-| ✅ S-4 | F-4 | The frontend reads `specialist` from the catalog; a pinned policy wins in Director; the RL presets choose their controls; plan check and footer survey as on `main`; the panel-mode matrix says Director runs with any driver. Tests: toolbar, app, shift review, session specs. | refactor | high | refactor(rl-tours): ask the policy catalog and the presets instead of hardcoded ids. | cb91b91f | S-1 | - |
+| ✅ S-0 | - | This plan and #196's findings in its plan. | docs | low | docs(plans): record the review of #196 and plan its modularization findings. | 0a3fecf5 | - | - |
+| ✅ S-1 | F-2 | `PolicySpec.bundle`; `is_specialist_policy`, `preflight_policy`, `_policy_factory_for` and `driving_policy_id` ask the spec; `/policies` serves `specialist`. Tests: the specs' fields, the catalog field. | refactor | high | refactor(policies): describe learned drivers on their PolicySpec instead of a second registry. | 1710eba6 | S-0 | - |
+| ✅ S-2 | F-3 | `ProposalAgent.forecast_horizon`, UC2 overrides it; the arrival reference without UC2 checks, the same for every agent. Tests: defaults, UC2, the yardstick after an accept. | refactor | high | refactor(proposals): let the proposal agent decide its horizon and drop the UC2 checks from the yardstick. | 9e6ba6bf | S-0 | - |
+| ✅ S-3 | F-9 | The middleware only locks and stops play for destructive requests; `/play`, `/step`, `/policy` stop the old actor and take the lock themselves. Tests: `test_pf_ch_request_control` adapted, no `app.api` import in core. | refactor | medium | refactor(sessions): decide the actor change in the endpoints and keep the middleware to the lock. | 516aa8c9 | S-1 | - |
+| ✅ S-4 | F-4 | The frontend reads `specialist` from the catalog; a pinned policy wins in Director; the RL presets choose their controls; plan check and footer survey as on `main`; the panel-mode matrix says Director runs with any driver. Tests: toolbar, app, shift review, session specs. | refactor | high | refactor(rl-tours): ask the policy catalog and the presets instead of hardcoded ids. | 61596edd | S-1 | - |
+| ✅ S-5 | PR review | `install_trainrun_plan` never stashes an accepted course as the baseline, so a second acceptance on a scenario without a shipped plan keeps the deadlines as the yardstick. Tests: two acceptances with and without a shipped plan, the revert. | fix | medium | fix(proposals): an accepted course never becomes the yardstick. | bb247b68 | S-2 | - |
 
 ### 11.2 Rebase and merge
 
@@ -625,7 +626,7 @@ conflicts: `overrides.py` (#208's accept and scoring code sits next to the horiz
 |---|---|
 | `docs/plans/rl-modularization.md` | This plan. |
 | `backend/tests/test_policy_specialists.py` | The specs' bundles, the registry check, the catalog flag (S-1). |
-| `backend/tests/test_proposal_forecast_seams.py` | The agents' horizons, the yardstick after an accept (S-2). |
+| `backend/tests/test_proposal_forecast_seams.py` | The agents' horizons, the yardstick after an accept (S-2) and after repeated accepts (S-5). |
 
 ### 12.2 Modified files
 
@@ -638,6 +639,7 @@ conflicts: `overrides.py` (#208's accept and scoring code sits next to the horiz
 | `backend/app/core/pf_ch_control.py` | No `_SPECIALIST_BUNDLES` (S-1); middleware without body parsing (S-3). |
 | `backend/app/api/policies.py`, `backend/app/models/*` (catalog model) | `specialist` (S-1). |
 | `backend/app/api/overrides.py` | `_policy_factory_for` asks the spec (S-1); horizon and yardstick from the agent (S-2). |
+| `backend/app/policies/plan_policy.py` | `install_trainrun_plan` keeps an accepted course out of the baseline (S-5). |
 | `backend/app/core/proposal_agents/base.py`, `uc2_rl.py` | `forecast_horizon` (S-2). |
 | `backend/app/api/sessions.py`, `backend/app/api/websockets.py` | `/step`, `/policy` (now `async`) and `/play` stop the old actor and take the lock themselves (S-3). |
 | `frontend/src/app/core/models.ts`, `session.store.ts`, `app.component.{ts,html}`, `features/toolbar/*`, `features/shift-review/shift-review.component.ts`, `core/layout/layout-presets.ts` | Catalog flag instead of ids, the pinned policy wins, the catalog wait, `LayoutPreset.headerToolbar` and the RL presets' `ui.hidden` (S-4). |
