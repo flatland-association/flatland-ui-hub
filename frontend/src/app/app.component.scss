@@ -1891,13 +1891,13 @@
 .replay-finish-confirm {
   width: min(55.75rem, 100% - 2rem);
   border-radius: var(--sbb-border-radius-4x);
-  background: var(--sbb-color-white);
+  background: var(--sbb-background-color-1);
 }
 
 .replay-finish-confirm__title {
   margin: 0;
   padding: var(--sbb-spacing-fixed-8x) var(--sbb-spacing-fixed-8x) var(--sbb-spacing-fixed-6x);
-  border-block-end: var(--sbb-border-width-1x) solid var(--sbb-color-cloud);
+  border-block-end: var(--sbb-border-width-1x) solid var(--sbb-background-color-4);
 }
 
 .replay-finish-confirm__actions {
