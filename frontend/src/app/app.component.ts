@@ -1469,8 +1469,9 @@ export class AppComponent implements OnInit {
       this.finishConfirmDialog()?.nativeElement.close();
     });
   });
-  /** Logged as the overlay view `finish_confirm`, so the replay can draw it. */
-  readonly finishConfirmOpen = signal(false);
+  /** Logged as the overlay view `finish_confirm`, so the replay can draw it;
+   *  in the store, so the impact panel's countdown waits behind it. */
+  readonly finishConfirmOpen = this.store.finishConfirmOpen;
   /** A run's leg in phase `running`, or a tour's mode, unless the condition or
    *  tour turns the dialog off. "Weiter zum Fragebogen" ends nothing and doesn't ask,
    *  nor does the Schichtabschluss screen (a tour's debrief): its shift is over. */

@@ -331,6 +331,9 @@ export class ImpactPanelComponent implements OnDestroy {
     this._stopCountdown();
     this.countdownRemaining.set(this.store.decisionCountdownSeconds());
     this._tickHandle = setInterval(() => {
+      // Behind the finish dialog the time stands still: a decision made for the
+      // participant would play the simulation on (docs/plans/confirm-finish-scenario.md §4.3).
+      if (this.store.finishConfirmOpen()) return;
       const rem = (this.countdownRemaining() ?? 0) - 1;
       if (rem <= 0) {
         this._autoDecide();
