@@ -1,4 +1,4 @@
-import { PLAN_B_FINAL_PART, PLAN_B_FINAL_SURVEY, postSessionSurvey } from './survey-configs';
+import { FIXED_QUESTIONNAIRES, PLAN_B_FINAL_PART, PLAN_B_FINAL_SURVEY, allSurveys, postSessionSurvey, surveyById } from './survey-configs';
 
 /** The Plan B final questionnaire as the study document lays it out
  *  (261105_FragebogenFinal.docx; docs/plans/experiment-scenario-import.md §3.10). */
@@ -8,6 +8,19 @@ describe('Plan B final questionnaire', () => {
 
   it('is what the Plan B survey part asks, instead of the building blocks', () => {
     expect(postSessionSurvey('co-learning', [PLAN_B_FINAL_PART])).toBe(s);
+  });
+
+  it('is a fixed questionnaire, found by its recorded id, among all questionnaires', () => {
+    expect(FIXED_QUESTIONNAIRES[PLAN_B_FINAL_PART]).toBe(s);
+    expect(surveyById('plan-b-final')).toBe(s);
+    expect(surveyById('plan-b-final', true)).toBe(s);
+    expect(allSurveys().map((c) => c.id)).toEqual(['post-session-recommendation', 'post-session-co-learning', 'post-session-director', 'plan-b-final']);
+  });
+
+  it('leaves the building-block questionnaires to their id, and knows no other', () => {
+    expect(surveyById('post-session-director')!.sections.length).toBe(postSessionSurvey('director').sections.length);
+    expect(surveyById('post-session-director', true)!.title).toBe(postSessionSurvey('director', undefined, true).title);
+    expect(surveyById('nope')).toBeNull();
   });
 
   it('is paged, fully required and cannot be closed', () => {

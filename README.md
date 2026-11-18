@@ -225,7 +225,7 @@ next to the layout it runs, in `frontend/src/app/core/layout/layout-presets.ts`:
 
 ```ts
 ui: {
-  hidden: ['control.mapNavigation', 'control.endShift', 'control.modeTabs'],
+  hidden: ['control.mapPan', 'control.endShift', 'control.modeTabs'],
   collapsedByDefault: ['widget.decision-log'],
   policyAllowlist: ['deadlock_avoidance', 'plan'],
 }

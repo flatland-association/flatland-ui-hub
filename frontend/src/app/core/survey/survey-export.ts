@@ -1,7 +1,6 @@
-import type { InteractionMode } from '../events/event-types';
 import type { ExperimentRunRecord } from '../interaction-log/experiment-run-record';
 import type { SessionRecord, SurveySubmission } from '../interaction-log/session-record';
-import { DEFAULT_SURVEY_PARTS, postSessionSurvey } from './survey-configs';
+import { allSurveys } from './survey-configs';
 import { scoreSurvey } from './survey-scoring';
 import type { SurveyAnswers, SurveyConfig, SurveyQuestion } from './survey.types';
 
@@ -26,13 +25,12 @@ export const ID_COLUMNS = [
 ] as const;
 
 export const CODEBOOK_COLUMNS = [
-  'survey_part', 'item_id', 'question', 'type', 'min', 'max', 'reverse', 'subscale', 'instrument', 'source',
+  'survey_id', 'survey_part', 'page', 'item_id', 'question', 'type', 'min', 'max', 'step', 'unit', 'options',
+  'reverse', 'subscale', 'instrument', 'source',
 ] as const;
 export type CodebookRow = Record<(typeof CODEBOOK_COLUMNS)[number], string | number | boolean | null>;
 
 export type TableRow = Record<string, string | number | boolean | null>;
-
-const MODES: InteractionMode[] = ['recommendation', 'co-learning', 'director'];
 
 /** The `hmisurveys` file each re-authored part comes from (Q19); items are in its order. */
 const HMIS_FILES: Record<string, string> = {
@@ -42,12 +40,24 @@ const HMIS_FILES: Record<string, string> = {
   'ueq-s': 'experience/ueq_short.html',
 };
 
-/** Every questionnaire the app can show, by id (`post-session-<mode>`), with all parts. */
+/** Every questionnaire the app can show, by the id a record stores
+ *  (`allSurveys`: the building-block ones and the fixed ones). A submission
+ *  whose id is missing here gets no question text, item columns or codebook
+ *  entry (docs/plans/plan-b-small-changes.md, item 9). */
 function configs(): Map<string, SurveyConfig> {
-  return new Map(MODES.map((mode) => {
-    const config = postSessionSurvey(mode, DEFAULT_SURVEY_PARTS);
-    return [config.id, config] as const;
-  }));
+  return new Map(allSurveys().map((config) => [config.id, config] as const));
+}
+
+/** The answers an item offers, as one cell: a radio's options, or a matrix's
+ *  scale labels with the value each is stored as ("1=…; 2=…"). */
+function optionsOf(q: SurveyQuestion, scale: string[] | undefined): string | null {
+  if (q.options?.length) return q.options.join(' | ');
+  if (scale?.length && q.type === 'likert') {
+    const first = q.min ?? 1;
+    return scale.map((label, i) => `${first + i}=${label}`).join('; ');
+  }
+  if (q.minLabel || q.maxLabel) return `${q.min ?? 1}=${q.minLabel ?? ''}; ${q.max ?? 7}=${q.maxLabel ?? ''}`;
+  return null;
 }
 
 function questionsOf(config: SurveyConfig | undefined): SurveyQuestion[] {
@@ -169,22 +179,31 @@ export function toWideRows(records: SessionRecord[]): { columns: string[]; rows:
   return { columns: [...ID_COLUMNS, ...itemColumns, ...scoreColumns], rows };
 }
 
-/** Every item of every questionnaire, once (items shared between modes appear once). */
+/** Every item of every questionnaire, once. An item shared between
+ *  questionnaires (the post-session building blocks of the three modes)
+ *  appears once, with every questionnaire that asks it in `survey_id`. */
 export function codebook(): CodebookRow[] {
-  const seen = new Set<string>();
-  const rows: CodebookRow[] = [];
+  const byItem = new Map<string, CodebookRow>();
   for (const config of configs().values()) {
     for (const section of config.sections) {
       section.questions.forEach((q, i) => {
-        if (seen.has(q.id)) return;
-        seen.add(q.id);
-        rows.push({
+        const seen = byItem.get(q.id);
+        if (seen) {
+          seen.survey_id = `${seen.survey_id}, ${config.id}`;
+          return;
+        }
+        byItem.set(q.id, {
+          survey_id: config.id,
           survey_part: section.id,
+          page: section.page ?? null,
           item_id: q.id,
           question: q.text,
           type: q.type,
           min: q.min ?? (q.type === 'likert' ? 1 : null),
           max: q.max ?? (q.type === 'likert' ? 7 : null),
+          step: q.step ?? null,
+          unit: q.unit ?? null,
+          options: optionsOf(q, section.scale),
           reverse: !!q.reverse,
           subscale: q.subscale ?? null,
           instrument: section.instrument ?? null,
@@ -193,7 +212,7 @@ export function codebook(): CodebookRow[] {
       });
     }
   }
-  return rows;
+  return [...byItem.values()];
 }
 
 /**

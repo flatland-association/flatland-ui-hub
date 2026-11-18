@@ -238,7 +238,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   readonly trainOptions = computed(() => {
     if (!this.tourContext.assessmentOnly()) return null;
     const handle = this.store.selectedHandle();
-    if (handle == null) return null;
+    if (handle == null || handle === this.trainOptionsClosedFor()) return null;
     const agent = this.agents().find((a) => a.handle === handle);
     if (!agent?.position) return null;
     const [x, y, w, h] = this.viewBox().split(' ').map(Number);
@@ -248,6 +248,22 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     if (left < 0 || left > 100 || top < 0 || top > 100) return null;
     return { handle, name: this.identity.nameFor(handle), left, top };
   });
+
+  /** The train whose option strip the operator closed with its "×". The train
+   *  stays selected (the Handlungsoptionen keep showing it); the strip comes
+   *  back on the next click on a train (docs/plans/plan-b-small-changes.md, item 6). */
+  readonly trainOptionsClosedFor = signal<number | null>(null);
+
+  private readonly reopenTrainOptions = effect(() => {
+    const handle = this.store.selectedHandle();
+    untracked(() => {
+      if (handle !== this.trainOptionsClosedFor()) this.trainOptionsClosedFor.set(null);
+    });
+  });
+
+  closeTrainOptions(handle: number): void {
+    this.trainOptionsClosedFor.set(handle);
+  }
 
   /** Tour only (`mapTrainLabels`): named, larger targets for the trains. */
   readonly trainLabelsOn = computed(() => this.tourContext.mapTrainLabels());
@@ -262,16 +278,20 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     const [x, y, w, h] = this.viewBox().split(' ').map(Number);
     if (!(w > 0 && h > 0)) return [];
     const selected = this.store.selectedHandle();
-    const out: { handle: number; name: string; delay: string; left: number; top: number; color: string; selected: boolean; lane: number }[] = [];
+    const out: { handle: number; name: string; delay: string; delayText: string; left: number; top: number; color: string; selected: boolean; lane: number }[] = [];
     for (const a of this.agents()) {
       if (!a.position) continue;
       const left = ((this.agentX(a) - x) / w) * 100;
       const top = ((this.agentY(a) - y) / h) * 100;
       if (left < 0 || left > 100 || top < 0 || top > 100) continue;
+      const delay = this.delaysNow.label(a.handle);
       out.push({
         handle: a.handle,
         name: this.identity.nameFor(a.handle),
-        delay: this.delaysNow.label(a.handle),
+        // The plate shows "+5"; its tooltip and screen-reader name say the
+        // unit, which the map has no axis for (F-6).
+        delay,
+        delayText: delay ? this.i18n.t('zwd.delaySteps', { n: delay }) : '',
         left,
         top,
         color: this.agentColor(a.handle),
@@ -2305,7 +2325,11 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
 
   toggleSelect(handle: number) {
     this.clickLog.object({ kind: 'agent', handle });
-    this.store.toggleAgentSelection(handle);
+    // A click on the train whose strip was closed with "×" brings the strip
+    // back and keeps the train selected, instead of deselecting it (F-7).
+    const reopen = handle === this.trainOptionsClosedFor() && this.store.selectedHandle() === handle;
+    this.trainOptionsClosedFor.set(null);
+    if (!reopen) this.store.toggleAgentSelection(handle);
   }
 
   /** Where on the grid a click landed, also on empty track or background (click log, Q32). */

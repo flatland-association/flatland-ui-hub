@@ -702,6 +702,9 @@
       [style.left.%]="t.left"
       [style.top.%]="t.top">
       <span class="map-train-options__name">{{ 'map.compareInPanel' | transloco: { name: t.name } }}</span>
+      <button type="button" class="map-train-options__close" data-log="map.closeTrainOptions"
+              [attr.aria-label]="'map.closeTrainOptions' | transloco" [title]="'map.closeTrainOptions' | transloco"
+              (click)="closeTrainOptions(t.handle); $event.stopPropagation()">×</button>
       @for (c of trainOptionChoices; track c.option) {
         <button
           type="button"
@@ -751,9 +754,9 @@
       [style.top.%]="l.top"
       [style.--lane]="l.lane"
       [style.border-color]="l.color"
-      [attr.aria-label]="'map.selectTrain' | transloco: { name: l.name + (l.delay ? ' ' + l.delay : '') }"
+      [attr.aria-label]="'map.selectTrain' | transloco: { name: l.name + (l.delayText ? ' ' + l.delayText : '') }"
       (click)="toggleSelect(l.handle)">
-      {{ l.name }}@if (l.delay) {<span class="map-train-label__delay">{{ l.delay }}</span>}
+      {{ l.name }}@if (l.delay) {<span class="map-train-label__delay" [title]="l.delayText">{{ l.delay }}</span>}
     </button>
   }
 
@@ -786,7 +789,7 @@
     </div>
   }
 
-  @if (!uiConfig.isHidden('control.mapNavigation')) {
+  @if (!uiConfig.isHidden('control.mapPan')) {
   <!-- Map Navigation Overlay (unten links) -->
   <div class="map-nav-overlay">
     <button class="nav-btn nav-up" (click)="panStep(0, 1)" [attr.title]="'map.panUp' | transloco">↑</button>
@@ -795,7 +798,9 @@
     <button class="nav-btn nav-right" (click)="panStep(-1, 0)" [attr.title]="'map.panRight' | transloco">→</button>
     <button class="nav-btn nav-down" (click)="panStep(0, -1)" [attr.title]="'map.panDown' | transloco">↓</button>
   </div>
+  }
 
+  @if (!uiConfig.isHidden('control.mapZoom')) {
   <!-- Zoom controls -->
   <div class="map-zoom-overlay">
     <button class="nav-btn" (click)="zoomIn()" [attr.title]="'map.zoomIn' | transloco">+</button>
@@ -804,6 +809,7 @@
   </div>
   }
 
+  @if (!uiConfig.isHidden('control.mapOpacity')) {
   <!-- Rail opacity control -->
   <div class="map-opacity-overlay">
     <label class="opacity-label" [attr.title]="'map.opacity' | transloco">
@@ -817,6 +823,7 @@
       <span class="opacity-value">{{ opacityPercent() }}%</span>
     </label>
   </div>
+  }
 } @else {
   <div class="welcome-card">
     <sbb-title level="2" visual-level="3">{{ 'map.welcomeTitle' | transloco }}</sbb-title>

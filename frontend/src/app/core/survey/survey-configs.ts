@@ -257,6 +257,28 @@ export const PLAN_B_FINAL_SURVEY: SurveyConfig = {
   ],
 };
 
+/**
+ * The app has two kinds of questionnaire, both chosen by survey parts (a
+ * tour's or an experiment's `surveyParts`, or the parts enabled in Settings):
+ *
+ * - **Built from building blocks** (`SURVEY_PARTS`: `mode`, `nasa-tlx`,
+ *   `trust`, `understanding`, `ueq-s`, `open`), combined freely. The id is
+ *   `post-session-<mode>`, and the content depends on the mode, the enabled
+ *   parts and `afterLeg`, so the id alone doesn't say which parts were asked.
+ * - **Fixed questionnaires** (this map): fixed, one part stands for the whole
+ *   questionnaire, and it replaces the building blocks. Its id is its own
+ *   (`plan-b-final`) and names the questionnaire completely. Any tour,
+ *   experiment or setting that names the part gets it. Only Plan B has one so
+ *   far.
+ *
+ * Keyed by the survey part that asks for it.
+ */
+export const FIXED_QUESTIONNAIRES: Readonly<Record<string, SurveyConfig>> = {
+  [PLAN_B_FINAL_PART]: PLAN_B_FINAL_SURVEY,
+};
+
+const MODES: InteractionMode[] = ['recommendation', 'co-learning', 'director'];
+
 const MODE_LABEL: Record<InteractionMode, string> = {
   recommendation: 'Recommendation',
   'co-learning': 'Co-Learning',
@@ -293,8 +315,9 @@ export function postSessionSurvey(
   enabledParts: string[] = DEFAULT_SURVEY_PARTS,
   afterLeg = false,
 ): SurveyConfig {
-  // A study's own questionnaire replaces the building blocks (plan-b-final, §3.10).
-  if (enabledParts.includes(PLAN_B_FINAL_PART)) return PLAN_B_FINAL_SURVEY;
+  // A fixed questionnaire replaces the building blocks (FIXED_QUESTIONNAIRES).
+  const fixed = enabledParts.find((part) => part in FIXED_QUESTIONNAIRES);
+  if (fixed) return FIXED_QUESTIONNAIRES[fixed];
   const byPart: { part: string; section: SurveySection }[] = [
     { part: 'mode', section: modeSection(mode) },
     { part: 'nasa-tlx', section: NASA_TLX },
@@ -309,4 +332,26 @@ export function postSessionSurvey(
     description: `Please answer based on the ${afterLeg ? 'scenario' : 'run'} you just completed.`,
     sections: byPart.filter((x) => enabledParts.includes(x.part)).map((x) => x.section),
   };
+}
+
+/**
+ * Every questionnaire the app can show, whole: the building-block ones
+ * (`post-session-<mode>` with all parts) and the fixed ones. For looking up
+ * recorded answers by their `surveyId` (export, replay); showing one to a
+ * participant goes through `postSessionSurvey`, which picks the parts.
+ */
+export function allSurveys(): SurveyConfig[] {
+  return [...MODES.map((mode) => postSessionSurvey(mode)), ...Object.values(FIXED_QUESTIONNAIRES)];
+}
+
+/**
+ * The whole questionnaire a record's `surveyId` names, or null for an unknown
+ * id. `afterLeg` words a building-block one for a scenario, as when it was
+ * asked; a fixed one has a single wording.
+ */
+export function surveyById(surveyId: string, afterLeg = false): SurveyConfig | null {
+  const fixed = Object.values(FIXED_QUESTIONNAIRES).find((config) => config.id === surveyId);
+  if (fixed) return fixed;
+  const mode = MODES.find((m) => surveyId === `post-session-${m}`);
+  return mode ? postSessionSurvey(mode, DEFAULT_SURVEY_PARTS, afterLeg) : null;
 }

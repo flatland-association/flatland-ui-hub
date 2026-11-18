@@ -1,7 +1,7 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, Input, OnDestroy, AfterViewInit,
-  computed, effect, inject, input, signal, untracked, viewChild,
+  afterRenderEffect, computed, effect, inject, input, signal, untracked, viewChild,
 } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { ApiService } from '../../core/api.service';
@@ -26,13 +26,39 @@ interface Gutters { left: number; right: number; top: number; bottom: number }
  *  names sit in a separate sticky header (`HEADER_H`) above the scrolling plot. */
 const GUTTERS_TIME_VERTICAL: Gutters = { left: 44, right: 24, top: 10, bottom: 10 };
 const HEADER_H = 84;
-/** With time vertical the plot keeps at least this much time axis and scrolls
- *  rather than squeezing 100 steps into a short panel. */
-const MIN_TIME_AXIS_PX = 300;
+/** With time vertical the time axis has a fixed scale: the visible part of the
+ *  plot shows this many steps, whatever the forecast's length, and the rest
+ *  scrolls. Fitting the whole range into the panel instead squashed and
+ *  stretched the diagram whenever the forecast changed
+ *  (docs/plans/plan-b-small-changes.md, item 1). */
+const STEPS_IN_VIEW = 60;
+/** With time vertical the now-line stays this many steps below the top of the
+ *  view, so most of the view shows the future, and the diagram scrolls up
+ *  underneath it (docs/plans/plan-b-small-changes.md, item 1). */
+const NOW_PAST_STEPS = 20;
+/** Below this the panel is too short to show STEPS_IN_VIEW steps legibly. */
+const MIN_TIME_VIEW_PX = 240;
 /** Time across, places down (classic Marey): names on the left, minutes below. */
 const GUTTERS_TIME_HORIZONTAL: Gutters = { left: 150, right: 16, top: 12, bottom: 26 };
 /** Station names above the plot are slanted so neighbours don't collide. */
 const STATION_LABEL_ANGLE = -45;
+/** The station names' font (`.zwd__station`), for measuring how far a slanted
+ *  name reaches to the right of its tick. */
+const STATION_LABEL_FONT = '600 11px';
+
+let measureCtx: CanvasRenderingContext2D | null | undefined;
+/** Width of a station name in px; a rough estimate where no canvas exists. */
+function stationLabelWidth(name: string): number {
+  if (measureCtx === undefined) {
+    try {
+      measureCtx = document.createElement('canvas').getContext('2d');
+      if (measureCtx) measureCtx.font = `${STATION_LABEL_FONT} ${getComputedStyle(document.body).fontFamily || 'sans-serif'}`;
+    } catch {
+      measureCtx = null;
+    }
+  }
+  return measureCtx ? measureCtx.measureText(name).width : name.length * 6.6;
+}
 
 type Orientation = 'time-vertical' | 'time-horizontal';
 const ORIENTATION_KEY = 'zwd.orientation';
@@ -68,11 +94,15 @@ interface TrainLine {
   forecastD: string;
   /** The timetable (Soll), empty without a plan. */
   planD: string;
-  labelX: number;
-  /** Current delay suffix, e.g. "+5′"; '' when on time. */
+  /** Current delay suffix, e.g. "+5" (steps); '' when on time. */
   delay: string;
-  labelY: number;
-  labelAnchor: 'start' | 'end';
+}
+
+/** A train's name where its line crosses the now-line, just above it. */
+interface NowLabel {
+  x: number;
+  y: number;
+  anchor: 'start' | 'end';
 }
 
 interface PlacedDelay extends DelayMark {
@@ -166,24 +196,106 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   private readonly host = viewChild<ElementRef<HTMLElement>>('plot');
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
 
-  /** Keep the now-line on screen while the plot scrolls (time vertical): only
-   *  when it has left the visible part, so a reader scrolling back in time is
-   *  not yanked away on every step. */
-  private readonly followNow = effect(() => {
-    const y = this.nowLine().y1;
-    const el = this.scroller()?.nativeElement;
-    if (!el || !this.timeVertical()) return;
+  /** Time vertical: the now-line stays NOW_PAST_STEPS steps below the top of
+   *  the view and the diagram scrolls up underneath it, every step (and every
+   *  animation frame of the smooth clock). Once the reader scrolls by hand the
+   *  view stays where they put it; it follows again when they scroll the
+   *  now-line back near its place or press "Zu jetzt" (`detached`). Before,
+   *  the ZWL pulled the view back on each step, which read as a jump
+   *  (docs/plans/plan-b-small-changes.md, item 1). Only a scroll by hand
+   *  (wheel, touch, keys, the scroll bar) detaches: one the browser makes on
+   *  its own, when the diagram gets shorter or the panel is resized, doesn't
+   *  (F-5). */
+  // After rendering, in the same frame: before it, a taller diagram isn't laid
+  // out yet and the browser clips the scroll position to the old height; a
+  // frame later, the diagram shows one frame at the old position (F-8).
+  private readonly followNow = afterRenderEffect({
+    write: () => {
+      const y = this.nowLine().y1;
+      this.svgH(); // the content's height changes where scrolling can reach
+      const el = this.scroller()?.nativeElement;
+      if (!el || !this.timeVertical() || this.detached()) return;
+      untracked(() => {
+        const target = this.nowScrollTop(y);
+        if (Math.abs(el.scrollTop - target) < 1) return;
+        el.scrollTop = target;
+        this.ownScrollTop = el.scrollTop;
+        this.handScroll = false;
+      });
+    },
+  });
+  /** Where this component last scrolled to, to tell its own scroll events
+   *  from the reader's. */
+  private ownScrollTop: number | null = null;
+  /** The reader touched the scroller (wheel, touch, pointer, keys) since the
+   *  view last followed: the scroll events that follow are theirs. */
+  private handScroll = false;
+  /** The reader scrolled away from the now-line; the view no longer follows. */
+  readonly detached = signal(false);
+
+  /** A detached view stays on the same steps. From step PAST_WINDOW_STEPS on,
+   *  the time window starts later on every step and redraws the diagram one
+   *  step higher, so the scroll position moves up by as much (F-1). */
+  private lastDomainStart: number | null = null;
+  private readonly keepDetachedView = afterRenderEffect({
+    write: () => {
+      const [start] = this.stepDomain();
+      const prev = this.lastDomainStart;
+      this.lastDomainStart = start;
+      const el = this.scroller()?.nativeElement;
+      if (prev === null || start === prev || !el || !this.timeVertical() || !untracked(this.detached)) return;
+      untracked(() => {
+        el.scrollTop = Math.max(0, el.scrollTop - (start - prev) * this.stepPx());
+        this.ownScrollTop = el.scrollTop;
+      });
+    },
+  });
+
+  /** A new leg, session or orientation follows the now-line again (F-5). */
+  private readonly resetDetached = effect(() => {
+    this.orientation();
+    this.store.session()?.id;
     untracked(() => {
-      // The sticky header sits above the plot in the scroller's content and
-      // covers its top HEADER_H pixels of the viewport.
-      const contentY = HEADER_H + y;
-      const visibleTop = el.scrollTop + HEADER_H;
-      const visibleBottom = el.scrollTop + el.clientHeight - 16;
-      if (contentY < visibleTop || contentY > visibleBottom) {
-        el.scrollTop = Math.max(0, y - (el.clientHeight - HEADER_H) / 3);
-      }
+      this.detached.set(false);
+      this.handScroll = false;
     });
   });
+
+  /** One step's height on the time axis (time vertical). */
+  private stepPx(): number {
+    const [a, b] = this.stepDomain();
+    return this.timeAxisPx() / Math.max(1, b - a);
+  }
+
+  /** The scroll position that puts the now-line (plot y) NOW_PAST_STEPS steps
+   *  below the top of the view. The sticky header covers the scroller's top
+   *  HEADER_H pixels and sits above the plot in its content, so the two
+   *  cancel out. */
+  private nowScrollTop(y: number): number {
+    return Math.max(0, Math.round(y - NOW_PAST_STEPS * this.stepPx()));
+  }
+
+  /** Wheel, touch, pointer or key on the scroller: the next scrolls are the reader's. */
+  markHandScroll(): void {
+    this.handScroll = true;
+  }
+
+  onScroll(): void {
+    const el = this.scroller()?.nativeElement;
+    if (!el || !this.timeVertical() || !this.handScroll) return;
+    if (this.ownScrollTop !== null && Math.abs(el.scrollTop - this.ownScrollTop) < 1) return;
+    this.ownScrollTop = null;
+    // Back within two steps of its place counts as "follow again". Near the
+    // end of the time axis the place may be out of reach: the furthest the
+    // scroller gets counts as its place then.
+    const reach = Math.max(0, el.scrollHeight - el.clientHeight);
+    const off = Math.abs(el.scrollTop - Math.min(reach, this.nowScrollTop(this.nowLine().y1)));
+    this.detached.set(off > 2 * this.stepPx());
+  }
+
+  followNowAgain(): void {
+    this.detached.set(false);
+  }
   private resizeObserver: ResizeObserver | null = null;
   readonly width = signal(800);
   readonly height = signal(360);
@@ -458,19 +570,55 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
     try { localStorage.setItem(ORIENTATION_KEY, next); } catch { /* storage unavailable */ }
   }
 
-  readonly gutter = computed(() => (this.timeVertical() ? GUTTERS_TIME_VERTICAL : GUTTERS_TIME_HORIZONTAL));
+  readonly gutter = computed(() => (this.timeVertical()
+    ? { ...GUTTERS_TIME_VERTICAL, right: this.stationNamesRight() }
+    : GUTTERS_TIME_HORIZONTAL));
+
+  /** Time vertical: the slanted station names run up and to the right of their
+   *  ticks, so the right gutter is as wide as the name nearest the right edge
+   *  needs, or the header would cut it off (docs/plans/plan-b-small-changes.md,
+   *  item 10). Positions map linearly onto the plot, so the gutter follows from
+   *  the panel width without depending on itself. */
+  readonly stationNamesRight = computed(() => {
+    const base = GUTTERS_TIME_VERTICAL.right;
+    const [lo, hi] = this.posDomain();
+    const span = Math.max(1, hi - lo);
+    const width = this.width();
+    const left = GUTTERS_TIME_VERTICAL.left;
+    const reach = Math.cos((STATION_LABEL_ANGLE * Math.PI) / 180);
+    let right = base;
+    for (const t of this.axis()?.ticks ?? []) {
+      if (t.pos < lo || t.pos > hi) continue;
+      const f = (t.pos - lo) / span;
+      if (f <= 0) continue;
+      // left + f * (width - left - right) + reach * w <= width - 2
+      const need = (width - left) - (width - 2 - left - reach * stationLabelWidth(t.name)) / f;
+      right = Math.max(right, Math.ceil(need));
+    }
+    return Math.min(right, Math.max(base, Math.floor(width / 3)));
+  });
   readonly plotX0 = computed(() => this.gutter().left);
   readonly plotY0 = computed(() => this.gutter().top);
   readonly plotW = computed(() => Math.max(10, this.width() - this.gutter().left - this.gutter().right));
-  /** SVG height: the panel's, or taller when time runs vertically and the
-   *  panel is short — the plot area then scrolls. */
+  /** Time vertical: the time axis's length at the fixed scale, STEPS_IN_VIEW
+   *  steps per visible plot height. */
+  readonly timeAxisPx = computed(() => {
+    const g = this.gutter();
+    const view = Math.max(MIN_TIME_VIEW_PX, this.height() - HEADER_H - g.top - g.bottom);
+    const [a, b] = this.stepDomain();
+    return Math.max(10, Math.round((view / STEPS_IN_VIEW) * Math.max(1, b - a)));
+  });
+  /** SVG height: the panel's; with time vertical as long as the time axis
+   *  needs at its fixed scale, so the plot scrolls instead of squashing. */
   readonly svgH = computed(() => {
     const g = this.gutter();
     return this.timeVertical()
-      ? Math.max(this.height() - HEADER_H, g.top + g.bottom + MIN_TIME_AXIS_PX)
+      ? Math.max(this.height() - HEADER_H, g.top + g.bottom + this.timeAxisPx())
       : this.height();
   });
-  readonly plotH = computed(() => Math.max(10, this.svgH() - this.gutter().top - this.gutter().bottom));
+  readonly plotH = computed(() => (this.timeVertical()
+    ? this.timeAxisPx()
+    : Math.max(10, this.svgH() - this.gutter().top - this.gutter().bottom)));
 
   /** Pixel position along the time axis (down, or right). */
   private timePos(step: number): number {
@@ -571,10 +719,24 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
         lx: tv ? this.plotX0() - 6 : pos,
         ly: tv ? pos + 3 : this.plotY0() + this.plotH() + 16,
         anchor: tv ? 'end' : 'middle',
-        label: `${s * MINUTES_PER_STEP}′`,
+        label: String(s * MINUTES_PER_STEP),
       });
     }
     return out;
+  });
+
+  /** The time axis's unit, written once (docs/plans/plan-b-small-changes.md,
+   *  item 8). Time running down: in the sticky header, above the tick labels'
+   *  column, so it doesn't scroll away with the plot (F-2). Time running
+   *  across: left of the tick row, clear of the first tick's centred label
+   *  (F-10). */
+  readonly timeUnitLabel = computed(() => {
+    const tv = this.timeVertical();
+    return {
+      x: this.plotX0() - (tv ? 6 : 18),
+      y: tv ? HEADER_H - 8 : this.plotY0() + this.plotH() + 16,
+      text: this.i18n.t('zwd.timeUnit'),
+    };
   });
 
   readonly nowLine = computed(() => {
@@ -604,8 +766,6 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
 
   readonly lines = computed<TrainLine[]>(() => {
     const out: TrainLine[] = [];
-    const right = this.plotX0() + this.plotW();
-    const bottom = this.plotY0() + this.plotH();
     for (const [handle, { past, forecast }] of this.points()) {
       const lastPast = past[past.length - 1];
       // The forecast continues from the last executed point, so the two read as
@@ -617,10 +777,6 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
       const labelAt = lastOnAxis(fc) ?? lastOnAxis(past);
       if (!labelAt || labelAt.pos == null) continue;
       const planRun = this.planOnAxis().get(handle) ?? [];
-      const [ex, ey] = this.pt(labelAt.step, labelAt.pos);
-      // Near the right/bottom edge the name goes inside the plot, not off it.
-      const nearRight = ex > right - 70;
-      const nearBottom = ey > bottom - 14;
       out.push({
         handle,
         name: this.identity.nameFor(handle),
@@ -629,12 +785,35 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
         pastD: this.pathD(past),
         forecastD: this.pathD(fc),
         planD: planRun.length > 1 ? this.pathD(planRun) : '',
-        labelX: nearRight ? ex - 4 : ex + 4,
-        labelAnchor: nearRight ? 'end' : 'start',
-        labelY: this.timeVertical() && !nearBottom ? ey + 12 : ey - 4,
       });
     }
     return out.sort((a, b) => a.handle - b.handle);
+  });
+
+  /** Each train's name sits where its line crosses the now-line, just above
+   *  it, and moves with it (docs/plans/plan-b-small-changes.md, item 5). A
+   *  train whose line doesn't reach the now-line (not departed yet, already
+   *  arrived, or off this axis now) has no name. Kept apart from `lines`,
+   *  which would otherwise rebuild every path on each animation frame. */
+  readonly nowLabels = computed(() => {
+    const out = new Map<number, NowLabel>();
+    const now = this.now();
+    const tv = this.timeVertical();
+    const line = this.nowLine();
+    const right = this.plotX0() + this.plotW();
+    for (const [handle, { past, forecast }] of this.points()) {
+      const last = past[past.length - 1];
+      if (!last || last.pos == null) continue;
+      if (forecast.length === 0 && last.step < now - 1) continue; // arrived
+      const at = this.placePos(last.pos);
+      if (tv) {
+        const nearRight = at > right - 70;
+        out.set(handle, { x: nearRight ? at - 4 : at + 4, y: line.y1 - 4, anchor: nearRight ? 'end' : 'start' });
+      } else {
+        out.set(handle, { x: line.x1 + 4, y: at - 4, anchor: 'start' });
+      }
+    }
+    return out;
   });
 
   private bandNames(handles: number[]): string {
@@ -700,8 +879,8 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
           x,
           y,
           color: this.colors.getColorSolid(d.handle),
-          label: `${deltaMin > 0 ? '+' : '−'}${Math.abs(deltaMin)}′`,
-          title: `${this.identity.nameFor(d.handle)} · ${place} · ${delayMin > 0 ? '+' : ''}${delayMin}′`,
+          label: `${deltaMin > 0 ? '+' : '−'}${Math.abs(deltaMin)}`,
+          title: `${this.identity.nameFor(d.handle)} · ${place} · ${this.i18n.t('zwd.delaySteps', { n: `${delayMin > 0 ? '+' : ''}${delayMin}` })}`,
         };
       });
   });

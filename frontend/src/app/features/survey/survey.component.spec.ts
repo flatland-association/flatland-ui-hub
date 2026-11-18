@@ -121,3 +121,33 @@ describe('SurveyComponent — paged and required', () => {
     expect(rows[0].querySelectorAll('input[type=radio]').length).toBe(7);
   });
 });
+
+/** A replay finds the questionnaire by the recorded `surveyId`, without the
+ *  condition's survey parts (docs/plans/plan-b-small-changes.md, item 9). */
+describe('SurveyComponent — replay by surveyId', () => {
+  const create = (surveyId: string | null, answers: Record<string, unknown>) => {
+    TestBed.configureTestingModule({
+      imports: [SurveyComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const fixture = TestBed.createComponent(SurveyComponent);
+    fixture.componentRef.setInput('replayAnswers', answers);
+    fixture.componentRef.setInput('surveyId', surveyId);
+    fixture.componentRef.setInput('embedded', true);
+    fixture.detectChanges();
+    return fixture.componentInstance;
+  };
+
+  it('shows the Plan B questionnaire for plan-b-final answers, only the answered sections', () => {
+    const c = create('plan-b-final', { pb_1: 4 });
+    expect(c.config().id).toBe('plan-b-final');
+    expect(c.config().sections.length).toBe(1);
+    expect(c.config().sections[0].questions.some((q) => q.id === 'pb_1')).toBeTrue();
+  });
+
+  it('falls back to the current mode\'s building blocks for an unknown id', () => {
+    const c = create('nope', { pb_1: 4 });
+    expect(c.config().id).toMatch(/^post-session-/);
+    expect(c.config().sections.length).toBe(0);
+  });
+});

@@ -695,7 +695,8 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
  */
 const PLAN_B_UI: UiConfig = {
   hidden: [
-    'control.mapNavigation',              // issue item 1b — pan/zoom overlay
+    'control.mapPan',                     // issue item 1b — pan arrows (zoom stays: control.mapZoom)
+    'control.mapOpacity',                 // rail-opacity slider (docs/plans/plan-b-small-changes.md, item 2)
     'control.endShift',                   // issue item 4  — "Schicht beenden"
     'control.playback',                   // #167 — Play/Pause and speed (docs/plans/toolbar-under-guide.md)
     'widget.proposal-compare.axis.time',  // issue item 3  — "Zeit im Netz"
@@ -762,12 +763,14 @@ const PLAN_B: LayoutPreset = {
             collapsible: false,
             minHeight: 520,
             // #168: the ZWL first and open, the tabs big enough to stand in
-            // for the title that PLAN_B_UI hides.
+            // for the title that PLAN_B_UI hides. The body is taller than
+            // the default, so the ZWL shows more of its fixed-scale time axis
+            // before it scrolls (docs/plans/plan-b-small-changes.md, item 1).
             settings: {
               tabs: ['zug-weg-diagramm', 'flatland-map'],
               defaultTab: 'zug-weg-diagramm',
               tabSize: 'l',
-              minBodyHeight: 340,
+              minBodyHeight: 560,
             },
           },
           { id: 'preset-pb-timetable', type: 'timetable', title: 'Fahrplan', expanded: true, collapsible: true, minHeight: 160 },

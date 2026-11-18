@@ -1617,6 +1617,30 @@
   }
 }
 
+/* The train's option strip closes like the station pop-up, from its top right
+   corner (docs/plans/plan-b-small-changes.md, item 6). */
+.map-train-options {
+  padding-right: 22px;
+}
+
+.map-train-options__close {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  padding: 0 4px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--app-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.map-train-options__close:hover {
+  color: var(--app-text);
+}
+
 .map-route-popover__close {
   padding: 0 4px;
   font: inherit;
