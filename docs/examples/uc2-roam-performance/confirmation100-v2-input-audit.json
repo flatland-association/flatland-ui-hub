@@ -1,0 +1,33 @@
+{
+  "schema": "uc2-confirmation100-v2-input-audit-v1",
+  "audited_at_utc": "2026-11-13T18:40:24.723171+00:00",
+  "manifest_sha256": "ce5c1372d44c4a4220e2e8b72232dab66eca6c69404e1018d23282f0e3a60cc5",
+  "protocol_sha256": "85fb2d86df8505fcf91cf3cf288a50bce034fbdbd10c1b02b23044933878304a",
+  "cases": 100,
+  "trains": 280,
+  "old_union309_overlap": 0,
+  "internal_duplicates": 0,
+  "dense_training": [
+    {
+      "preset": "uc2-1",
+      "cases": 323,
+      "manifest": "inputs/dense-v2-uc2-1-train-cases.json",
+      "sha256": "7a579f502a23ca974bfba607065698e257d318f033ec4ee4a911e533d9d6e5b2",
+      "reserved_twenty_excluded": true,
+      "equals_complete343_minus_reserved20": true
+    },
+    {
+      "preset": "uc2-2",
+      "cases": 323,
+      "manifest": "inputs/dense-v2-uc2-2-train-cases.json",
+      "sha256": "0027e8524111bebe6cac09af9dcdb2a96dfafa93d2efb1b5161cbdb63f389ca4",
+      "reserved_twenty_excluded": true,
+      "equals_complete343_minus_reserved20": true
+    }
+  ],
+  "old84_failed_evidence_preserved": true,
+  "new100_outcome_files_read": false,
+  "generator_never_performed_policy_training_or_evaluation": true,
+  "tutorial_distribution_change_explicit": true,
+  "audit_script_sha256": "7837855b513d0dae9dfd4b49825042a65a0562df9d360387cc981c4f9826650e"
+}

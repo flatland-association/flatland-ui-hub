@@ -245,6 +245,8 @@ export class AppComponent implements OnInit {
   }
 
   store = inject(SessionStore);
+  /** App language is needed while constructing the translated layout options. */
+  readonly i18n = inject(LanguageService);
   readonly uiConfig = inject(UiConfigService);
 
   /** Build stamp for the footer — see BuildInfoService. */
@@ -260,6 +262,12 @@ export class AppComponent implements OnInit {
   readonly systemRuntimeLayoutId = 'system-default-runtime-layout';
 
   readonly selectedRuntimeLayoutId = signal<string>(this.systemRuntimeLayoutId);
+  /** A runtime layout hides the header toolbar unless its preset keeps it
+   *  (`LayoutPreset.headerToolbar`). */
+  readonly presetHeaderToolbar = computed(() =>
+    LAYOUT_PRESETS.find((preset) => preset.id === this.selectedRuntimeLayoutId())?.headerToolbar === true);
+  /** A demo without its survey offers none in the footer either. */
+  readonly footerSurveyAllowed = computed(() => !this.store.demoActive() || this.store.demoSurveyEnabled());
 
   readonly runtimeLayoutOptions = signal<RuntimeLayoutOption[]>(this.loadRuntimeLayoutOptions());
   readonly runtimeInfrastructureScenes = signal<InfrastructureSceneSummary[]>(this.infrastructureStorage.listScenes());
@@ -617,9 +625,6 @@ export class AppComponent implements OnInit {
     return tour ? this.tourLabel(tour) : this.i18n.t('footer.guidedDemo', undefined, 'Guided demo');
   });
 
-  /** App language (docs/plans/i18n-strategy.md). */
-  readonly i18n = inject(LanguageService);
-
   /** A tour's name and description are keyed by tour id; a tour without keys
    *  (e.g. the German interview tour) shows its own text in every language. */
   tourLabel(tour: Tour): string {
@@ -746,6 +751,8 @@ export class AppComponent implements OnInit {
     this.createSession({
       ...opts,
       ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
+      ...(tour.backendPolicy ? { pinnedPolicy: tour.backendPolicy } : {}),
+      ...(tour.maxEpisodeSteps != null ? { maxSteps: tour.maxEpisodeSteps } : {}),
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
     }, true);
     this.tourContext.set(this.activeBriefing());
@@ -1172,6 +1179,8 @@ export class AppComponent implements OnInit {
       ...(policy && controls?.length && !controls.includes(policy) ? { policyControlIds: [policy, ...controls] } : {}),
       // A scenario with a premade plan would switch to it; the pin wins.
       ...(policy ? { pinnedPolicy: policy } : {}),
+      // The condition's AI behind the KI column (docs/plans/uc2-rl-proposal-agent.md).
+      ...(this.activeExperiment()?.proposalAgent ? { proposalAgent: this.activeExperiment()!.proposalAgent } : {}),
       seed: leg.seed,
       ...(leg.openAtStep != null ? { openAtStep: leg.openAtStep } : {}),
       // Every leg starts at a known tempo, not at whatever an earlier session
@@ -2249,9 +2258,9 @@ export class AppComponent implements OnInit {
     for (const preset of LAYOUT_PRESETS) {
       options.push({
         id: preset.id,
-        name: preset.name,
+        name: preset.nameKey ? this.i18n.t(preset.nameKey, undefined, preset.name) : preset.name,
         kind: 'preset',
-        purpose: preset.purpose,
+        purpose: preset.purposeKey ? this.i18n.t(preset.purposeKey, undefined, preset.purpose) : preset.purpose,
         design: { id: preset.id, name: preset.name, layout: preset.layout },
       });
     }

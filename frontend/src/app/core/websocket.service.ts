@@ -4,10 +4,12 @@ import { SessionState } from './models';
 import { backendWsBase } from './backend-origin';
 
 export interface WSMessage {
-  type: 'state' | 'episode_done' | 'error' | 'pong';
+  type: 'state' | 'episode_done' | 'error' | 'pong' | 'play_status';
   session_id?: string;
   state?: SessionState;
   message?: string;
+  playing?: boolean;
+  busy?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })

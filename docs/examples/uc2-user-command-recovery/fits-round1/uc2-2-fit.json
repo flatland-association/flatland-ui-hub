@@ -1,0 +1,111 @@
+{
+ "schema": "uc2-user-command-recovery-fit-v1",
+ "map": "uc2-2",
+ "base": "uc2_roam_uc2_2.pt",
+ "base_sha256": "1ae2464dbdb1dc8a97a6ff01ac61ec45cd2fe92b66ab6a2bfa0dc7b46be10a21",
+ "labels": 28,
+ "labels_dropped_conflicting": 20,
+ "base_label_fit": 0.0,
+ "prior_states": 51093,
+ "data": [
+  "<scratch>/rec/round1/uc2-2.npz"
+ ],
+ "selected": "uc2-2-kl10-s17-step350.pt",
+ "history": [
+  {
+   "step": 50,
+   "ce": 3.3085,
+   "kl": 0.03066,
+   "label_fit": 0.607,
+   "hinge": 0.03617,
+   "prior_flips": 432,
+   "nominal_flips": 241,
+   "prior_states": 51093,
+   "nominal_states": 31110
+  },
+  {
+   "step": 100,
+   "ce": 0.9871,
+   "kl": 0.02147,
+   "label_fit": 0.929,
+   "hinge": 0.02449,
+   "prior_flips": 241,
+   "nominal_flips": 140,
+   "prior_states": 51093,
+   "nominal_states": 31110
+  },
+  {
+   "step": 150,
+   "ce": 0.7665,
+   "kl": 0.00668,
+   "label_fit": 0.929,
+   "hinge": 0.00614,
+   "prior_flips": 124,
+   "nominal_flips": 57,
+   "prior_states": 51093,
+   "nominal_states": 31110
+  },
+  {
+   "step": 200,
+   "ce": 0.5535,
+   "kl": 0.00455,
+   "label_fit": 0.929,
+   "hinge": 0.00362,
+   "prior_flips": 64,
+   "nominal_flips": 14,
+   "prior_states": 51093,
+   "nominal_states": 31110
+  },
+  {
+   "step": 250,
+   "ce": 0.3944,
+   "kl": 0.0043,
+   "label_fit": 0.929,
+   "hinge": 0.00313,
+   "prior_flips": 48,
+   "nominal_flips": 3,
+   "prior_states": 51093,
+   "nominal_states": 31110
+  },
+  {
+   "step": 300,
+   "ce": 0.0838,
+   "kl": 0.00488,
+   "label_fit": 0.964,
+   "hinge": 0.00373,
+   "prior_flips": 62,
+   "nominal_flips": 3,
+   "prior_states": 51093,
+   "nominal_states": 31110
+  },
+  {
+   "step": 350,
+   "ce": 0.0243,
+   "kl": 0.0036,
+   "label_fit": 1.0,
+   "hinge": 0.00248,
+   "prior_flips": 44,
+   "nominal_flips": 0,
+   "prior_states": 51093,
+   "nominal_states": 31110,
+   "checkpoint": "uc2-2-kl10-s17-step350.pt",
+   "gates": {
+    "G2": {
+     "pass": true,
+     "lateness": 24,
+     "base_lateness": 24,
+     "complete": true
+    },
+    "G1": {
+     "pass": true,
+     "cases": 343,
+     "lateness": 8397,
+     "pp_lateness": 8397,
+     "incomplete": [],
+     "lateness_regrets": {}
+    }
+   }
+  }
+ ],
+ "elapsed_seconds": 206
+}

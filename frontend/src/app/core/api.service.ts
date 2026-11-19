@@ -326,6 +326,10 @@ export class ApiService {
     return this.http.post<SessionInfo>(`${API_BASE}/session`, opts);
   }
 
+  deleteSession(id: string): Observable<unknown> {
+    return this.http.delete(`${API_BASE}/session/${id}`);
+  }
+
   listScenarioPresets(): Observable<ScenarioPreset[]> {
     return this.http.get<ScenarioPreset[]>(`${API_BASE}/session/scenario-presets`);
   }
@@ -535,7 +539,10 @@ export class ApiService {
    *  replan, or apply the operator's option. Unlike the what-if, this writes. */
   applyProposal(
     id: string,
-    body: { variant: 'plan' | 'ai' | 'human'; handle: number; option?: ProposalOption; priority?: number[] },
+    body: {
+      variant: 'plan' | 'ai' | 'human'; handle: number; option?: ProposalOption; priority?: number[];
+      candidate_id?: string | null; preview_token?: string; source_step?: number;
+    },
   ) {
     return this.http.post<{ applied: string; label: string; step: number; policy: string }>(
       `${API_BASE}/session/${id}/proposals/apply`,
@@ -544,7 +551,7 @@ export class ApiService {
   }
 
   getProposals(id: string, handle: number, option?: ProposalOption) {
-    let params = new HttpParams().set('handle', handle);
+    let params = new HttpParams().set('handle', handle).set('alternatives', 8);
     if (option) params = params.set('option', option);
     return this.http.get<ProposalsResult>(`${API_BASE}/session/${id}/proposals`, { params });
   }

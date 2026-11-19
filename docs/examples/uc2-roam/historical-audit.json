@@ -1,0 +1,882 @@
+{
+  "schema": "uc2-roam-independent-audit-v1",
+  "cohorts": {
+    "exact5": {
+      "source_file_sha256": "e920626bd2e7d60f5124546d1afbc4b6bff1515aea96dddabc900fb4c1448c88",
+      "manifest_matches": [
+        "docs/examples/uc2-rl/inputs/exact5-cases.json"
+      ],
+      "case_count": 5,
+      "variants": {
+        "v0": {
+          "complete": 5,
+          "arrived": 14,
+          "trains": 14,
+          "lateness": 121,
+          "technical_failures": [],
+          "audits": {
+            "reference_disagreements": 0,
+            "new_stuck_steps": 1,
+            "uncertified_steps": 8,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 0,
+            "resource_conflicts": 0,
+            "withdrawals": 0,
+            "mask_action_changes": 0,
+            "moving_to_stopped": 26
+          },
+          "max_episode_decision_p95_ms": 2.1044707008513766,
+          "mean_of_episode_decision_means_ms": 0.35977565824490354,
+          "planner_interventions": 0
+        },
+        "v1": {
+          "complete": 5,
+          "arrived": 14,
+          "trains": 14,
+          "lateness": 132,
+          "technical_failures": [],
+          "audits": {
+            "reference_disagreements": 0,
+            "new_stuck_steps": 0,
+            "uncertified_steps": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 5,
+            "resource_conflicts": 0,
+            "withdrawals": 1,
+            "mask_action_changes": 29,
+            "moving_to_stopped": 9
+          },
+          "max_episode_decision_p95_ms": 0.8750952039918045,
+          "mean_of_episode_decision_means_ms": 0.5645742295793215,
+          "planner_interventions": 0
+        },
+        "v2": {
+          "complete": 5,
+          "arrived": 14,
+          "trains": 14,
+          "lateness": 117,
+          "technical_failures": [],
+          "audits": {
+            "reference_disagreements": 0,
+            "new_stuck_steps": 0,
+            "uncertified_steps": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 5,
+            "resource_conflicts": 0,
+            "withdrawals": 0,
+            "mask_action_changes": 9,
+            "moving_to_stopped": 9
+          },
+          "max_episode_decision_p95_ms": 1.1561964996872112,
+          "mean_of_episode_decision_means_ms": 0.5962718453069006,
+          "planner_interventions": 0
+        }
+      },
+      "paired": {
+        "v1": {
+          "completion_improvements": [],
+          "completion_regressions": [],
+          "all_case_lateness": {
+            "wins": 1,
+            "ties": 0,
+            "losses": 4
+          },
+          "all_case_lateness_delta": 11,
+          "shared_complete_cases": 5,
+          "shared_complete_baseline_lateness": 121,
+          "shared_complete_variant_lateness": 132,
+          "shared_complete_lateness_delta": 11,
+          "lateness_regressions": [
+            {
+              "case_id": "uc2-exact-tutorial",
+              "baseline": 9,
+              "variant": 28,
+              "delta": 19
+            },
+            {
+              "case_id": "uc2-exact-uc2-1",
+              "baseline": 19,
+              "variant": 20,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-exact-uc2-2",
+              "baseline": 24,
+              "variant": 32,
+              "delta": 8
+            },
+            {
+              "case_id": "uc2-exact-uc2-4",
+              "baseline": 30,
+              "variant": 31,
+              "delta": 1
+            }
+          ]
+        },
+        "v2": {
+          "completion_improvements": [],
+          "completion_regressions": [],
+          "all_case_lateness": {
+            "wins": 1,
+            "ties": 1,
+            "losses": 3
+          },
+          "all_case_lateness_delta": -4,
+          "shared_complete_cases": 5,
+          "shared_complete_baseline_lateness": 121,
+          "shared_complete_variant_lateness": 117,
+          "shared_complete_lateness_delta": -4,
+          "lateness_regressions": [
+            {
+              "case_id": "uc2-exact-uc2-1",
+              "baseline": 19,
+              "variant": 20,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-exact-uc2-2",
+              "baseline": 24,
+              "variant": 36,
+              "delta": 12
+            },
+            {
+              "case_id": "uc2-exact-uc2-4",
+              "baseline": 30,
+              "variant": 31,
+              "delta": 1
+            }
+          ]
+        }
+      }
+    },
+    "dev20": {
+      "source_file_sha256": "8332d8fe042e2e2e2d313852df38b317664aae0c3b223835c8de76b94367211e",
+      "manifest_matches": [
+        "docs/examples/uc2-rl/inputs/dev20-cases.json"
+      ],
+      "case_count": 20,
+      "variants": {
+        "v0": {
+          "complete": 20,
+          "arrived": 56,
+          "trains": 56,
+          "lateness": 459,
+          "technical_failures": [],
+          "audits": {
+            "reference_disagreements": 0,
+            "new_stuck_steps": 4,
+            "uncertified_steps": 28,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 0,
+            "resource_conflicts": 0,
+            "withdrawals": 0,
+            "mask_action_changes": 0,
+            "moving_to_stopped": 90
+          },
+          "max_episode_decision_p95_ms": 0.935758297964638,
+          "mean_of_episode_decision_means_ms": 0.38649496109305137,
+          "planner_interventions": 0
+        },
+        "v1": {
+          "complete": 20,
+          "arrived": 56,
+          "trains": 56,
+          "lateness": 482,
+          "technical_failures": [],
+          "audits": {
+            "reference_disagreements": 0,
+            "new_stuck_steps": 0,
+            "uncertified_steps": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 20,
+            "resource_conflicts": 0,
+            "withdrawals": 0,
+            "mask_action_changes": 93,
+            "moving_to_stopped": 35
+          },
+          "max_episode_decision_p95_ms": 2.980000648585696,
+          "mean_of_episode_decision_means_ms": 0.6813174323822604,
+          "planner_interventions": 0
+        },
+        "v2": {
+          "complete": 20,
+          "arrived": 56,
+          "trains": 56,
+          "lateness": 422,
+          "technical_failures": [],
+          "audits": {
+            "reference_disagreements": 0,
+            "new_stuck_steps": 0,
+            "uncertified_steps": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 20,
+            "resource_conflicts": 0,
+            "withdrawals": 0,
+            "mask_action_changes": 33,
+            "moving_to_stopped": 31
+          },
+          "max_episode_decision_p95_ms": 1.702229449620062,
+          "mean_of_episode_decision_means_ms": 0.6631231123139244,
+          "planner_interventions": 0
+        }
+      },
+      "paired": {
+        "v1": {
+          "completion_improvements": [],
+          "completion_regressions": [],
+          "all_case_lateness": {
+            "wins": 4,
+            "ties": 1,
+            "losses": 15
+          },
+          "all_case_lateness_delta": 23,
+          "shared_complete_cases": 20,
+          "shared_complete_baseline_lateness": 459,
+          "shared_complete_variant_lateness": 482,
+          "shared_complete_lateness_delta": 23,
+          "lateness_regressions": [
+            {
+              "case_id": "uc2-validation-uc2-1-000",
+              "baseline": 16,
+              "variant": 23,
+              "delta": 7
+            },
+            {
+              "case_id": "uc2-validation-uc2-1-001",
+              "baseline": 19,
+              "variant": 20,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-1-002",
+              "baseline": 17,
+              "variant": 18,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-1-003",
+              "baseline": 23,
+              "variant": 24,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-2-000",
+              "baseline": 23,
+              "variant": 24,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-2-001",
+              "baseline": 26,
+              "variant": 27,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-2-002",
+              "baseline": 25,
+              "variant": 26,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-4-000",
+              "baseline": 30,
+              "variant": 31,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-4-001",
+              "baseline": 33,
+              "variant": 34,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-4-002",
+              "baseline": 28,
+              "variant": 29,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-4-003",
+              "baseline": 28,
+              "variant": 29,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-tutorial-000",
+              "baseline": 8,
+              "variant": 24,
+              "delta": 16
+            },
+            {
+              "case_id": "uc2-validation-tutorial-001",
+              "baseline": 8,
+              "variant": 23,
+              "delta": 15
+            },
+            {
+              "case_id": "uc2-validation-tutorial-002",
+              "baseline": 8,
+              "variant": 22,
+              "delta": 14
+            },
+            {
+              "case_id": "uc2-validation-tutorial-003",
+              "baseline": 8,
+              "variant": 23,
+              "delta": 15
+            }
+          ]
+        },
+        "v2": {
+          "completion_improvements": [],
+          "completion_regressions": [],
+          "all_case_lateness": {
+            "wins": 4,
+            "ties": 5,
+            "losses": 11
+          },
+          "all_case_lateness_delta": -37,
+          "shared_complete_cases": 20,
+          "shared_complete_baseline_lateness": 459,
+          "shared_complete_variant_lateness": 422,
+          "shared_complete_lateness_delta": -37,
+          "lateness_regressions": [
+            {
+              "case_id": "uc2-validation-uc2-1-000",
+              "baseline": 16,
+              "variant": 23,
+              "delta": 7
+            },
+            {
+              "case_id": "uc2-validation-uc2-1-001",
+              "baseline": 19,
+              "variant": 20,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-1-002",
+              "baseline": 17,
+              "variant": 18,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-1-003",
+              "baseline": 23,
+              "variant": 24,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-2-000",
+              "baseline": 23,
+              "variant": 24,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-2-001",
+              "baseline": 26,
+              "variant": 27,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-2-002",
+              "baseline": 25,
+              "variant": 26,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-4-000",
+              "baseline": 30,
+              "variant": 31,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-4-001",
+              "baseline": 33,
+              "variant": 34,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-4-002",
+              "baseline": 28,
+              "variant": 29,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-validation-uc2-4-003",
+              "baseline": 28,
+              "variant": 29,
+              "delta": 1
+            }
+          ]
+        }
+      }
+    },
+    "historical50": {
+      "source_file_sha256": "f88414e5496bc0a881f15f2fc238af41ef63b26de706dbd9caa7a4991b5f1810",
+      "manifest_matches": [
+        "docs/examples/uc2-rl/inputs/final50-cases.json"
+      ],
+      "case_count": 50,
+      "variants": {
+        "v0": {
+          "complete": 48,
+          "arrived": 135,
+          "trains": 140,
+          "lateness": 1607,
+          "technical_failures": [],
+          "audits": {
+            "reference_disagreements": 0,
+            "new_stuck_steps": 12,
+            "uncertified_steps": 292,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 0,
+            "resource_conflicts": 0,
+            "withdrawals": 0,
+            "mask_action_changes": 0,
+            "moving_to_stopped": 264
+          },
+          "max_episode_decision_p95_ms": 1.7236817012417305,
+          "mean_of_episode_decision_means_ms": 0.3307586995652626,
+          "planner_interventions": 0
+        },
+        "v1": {
+          "complete": 50,
+          "arrived": 140,
+          "trains": 140,
+          "lateness": 1274,
+          "technical_failures": [],
+          "audits": {
+            "reference_disagreements": 0,
+            "new_stuck_steps": 0,
+            "uncertified_steps": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 47,
+            "resource_conflicts": 0,
+            "withdrawals": 1,
+            "mask_action_changes": 215,
+            "moving_to_stopped": 86
+          },
+          "max_episode_decision_p95_ms": 2.6580010016914457,
+          "mean_of_episode_decision_means_ms": 0.6265006917033155,
+          "planner_interventions": 0
+        },
+        "v2": {
+          "complete": 50,
+          "arrived": 140,
+          "trains": 140,
+          "lateness": 1139,
+          "technical_failures": [],
+          "audits": {
+            "reference_disagreements": 0,
+            "new_stuck_steps": 0,
+            "uncertified_steps": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 50,
+            "resource_conflicts": 0,
+            "withdrawals": 0,
+            "mask_action_changes": 86,
+            "moving_to_stopped": 80
+          },
+          "max_episode_decision_p95_ms": 3.536668000378995,
+          "mean_of_episode_decision_means_ms": 0.6349161735639337,
+          "planner_interventions": 0
+        }
+      },
+      "paired": {
+        "v1": {
+          "completion_improvements": [
+            "uc2-test-uc2-1-004",
+            "uc2-test-uc2-1-006"
+          ],
+          "completion_regressions": [],
+          "all_case_lateness": {
+            "wins": 12,
+            "ties": 8,
+            "losses": 30
+          },
+          "all_case_lateness_delta": -333,
+          "shared_complete_cases": 48,
+          "shared_complete_baseline_lateness": 1173,
+          "shared_complete_variant_lateness": 1203,
+          "shared_complete_lateness_delta": 30,
+          "lateness_regressions": [
+            {
+              "case_id": "uc2-test-uc2-1-000",
+              "baseline": 18,
+              "variant": 19,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-001",
+              "baseline": 22,
+              "variant": 23,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-002",
+              "baseline": 19,
+              "variant": 20,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-003",
+              "baseline": 21,
+              "variant": 22,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-005",
+              "baseline": 19,
+              "variant": 20,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-007",
+              "baseline": 22,
+              "variant": 23,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-008",
+              "baseline": 25,
+              "variant": 26,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-009",
+              "baseline": 21,
+              "variant": 22,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-2-000",
+              "baseline": 25,
+              "variant": 26,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-2-003",
+              "baseline": 28,
+              "variant": 30,
+              "delta": 2
+            },
+            {
+              "case_id": "uc2-test-uc2-2-005",
+              "baseline": 24,
+              "variant": 25,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-001",
+              "baseline": 30,
+              "variant": 31,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-002",
+              "baseline": 28,
+              "variant": 29,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-003",
+              "baseline": 25,
+              "variant": 44,
+              "delta": 19
+            },
+            {
+              "case_id": "uc2-test-uc2-4-004",
+              "baseline": 30,
+              "variant": 31,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-005",
+              "baseline": 27,
+              "variant": 28,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-006",
+              "baseline": 34,
+              "variant": 35,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-007",
+              "baseline": 31,
+              "variant": 32,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-008",
+              "baseline": 26,
+              "variant": 27,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-009",
+              "baseline": 28,
+              "variant": 43,
+              "delta": 15
+            },
+            {
+              "case_id": "uc2-test-tutorial-000",
+              "baseline": 8,
+              "variant": 28,
+              "delta": 20
+            },
+            {
+              "case_id": "uc2-test-tutorial-001",
+              "baseline": 8,
+              "variant": 27,
+              "delta": 19
+            },
+            {
+              "case_id": "uc2-test-tutorial-002",
+              "baseline": 11,
+              "variant": 16,
+              "delta": 5
+            },
+            {
+              "case_id": "uc2-test-tutorial-003",
+              "baseline": 8,
+              "variant": 25,
+              "delta": 17
+            },
+            {
+              "case_id": "uc2-test-tutorial-004",
+              "baseline": 9,
+              "variant": 23,
+              "delta": 14
+            },
+            {
+              "case_id": "uc2-test-tutorial-005",
+              "baseline": 8,
+              "variant": 24,
+              "delta": 16
+            },
+            {
+              "case_id": "uc2-test-tutorial-006",
+              "baseline": 9,
+              "variant": 22,
+              "delta": 13
+            },
+            {
+              "case_id": "uc2-test-tutorial-007",
+              "baseline": 8,
+              "variant": 17,
+              "delta": 9
+            },
+            {
+              "case_id": "uc2-test-tutorial-008",
+              "baseline": 8,
+              "variant": 25,
+              "delta": 17
+            },
+            {
+              "case_id": "uc2-test-tutorial-009",
+              "baseline": 8,
+              "variant": 17,
+              "delta": 9
+            }
+          ]
+        },
+        "v2": {
+          "completion_improvements": [
+            "uc2-test-uc2-1-004",
+            "uc2-test-uc2-1-006"
+          ],
+          "completion_regressions": [],
+          "all_case_lateness": {
+            "wins": 12,
+            "ties": 14,
+            "losses": 24
+          },
+          "all_case_lateness_delta": -468,
+          "shared_complete_cases": 48,
+          "shared_complete_baseline_lateness": 1173,
+          "shared_complete_variant_lateness": 1068,
+          "shared_complete_lateness_delta": -105,
+          "lateness_regressions": [
+            {
+              "case_id": "uc2-test-uc2-1-000",
+              "baseline": 18,
+              "variant": 19,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-001",
+              "baseline": 22,
+              "variant": 23,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-002",
+              "baseline": 19,
+              "variant": 20,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-003",
+              "baseline": 21,
+              "variant": 22,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-005",
+              "baseline": 19,
+              "variant": 20,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-007",
+              "baseline": 22,
+              "variant": 23,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-008",
+              "baseline": 25,
+              "variant": 26,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-1-009",
+              "baseline": 21,
+              "variant": 22,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-2-000",
+              "baseline": 25,
+              "variant": 26,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-2-003",
+              "baseline": 28,
+              "variant": 30,
+              "delta": 2
+            },
+            {
+              "case_id": "uc2-test-uc2-2-005",
+              "baseline": 24,
+              "variant": 25,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-001",
+              "baseline": 30,
+              "variant": 31,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-002",
+              "baseline": 28,
+              "variant": 29,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-003",
+              "baseline": 25,
+              "variant": 44,
+              "delta": 19
+            },
+            {
+              "case_id": "uc2-test-uc2-4-004",
+              "baseline": 30,
+              "variant": 31,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-005",
+              "baseline": 27,
+              "variant": 28,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-006",
+              "baseline": 34,
+              "variant": 35,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-007",
+              "baseline": 31,
+              "variant": 32,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-008",
+              "baseline": 26,
+              "variant": 27,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-uc2-4-009",
+              "baseline": 28,
+              "variant": 43,
+              "delta": 15
+            },
+            {
+              "case_id": "uc2-test-tutorial-002",
+              "baseline": 11,
+              "variant": 12,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-tutorial-006",
+              "baseline": 9,
+              "variant": 10,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-tutorial-007",
+              "baseline": 8,
+              "variant": 9,
+              "delta": 1
+            },
+            {
+              "case_id": "uc2-test-tutorial-009",
+              "baseline": 8,
+              "variant": 9,
+              "delta": 1
+            }
+          ]
+        }
+      },
+      "baseline_old_artifact_casewise_metric_mismatches": []
+    }
+  },
+  "historical_is_known_regression_set": true,
+  "no_new_rollouts_executed": true,
+  "provenance_verification": {
+    "frozen_evaluation_commit": "dd2724d2ee64d361117fca187c01c31d30307618",
+    "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+    "all_recorded_checkpoint_native_fixture_manifest_and_source_hashes_verified": true,
+    "vendored_roam_full_file_sha256": "2610087571c55d0ba217b8eb51394ffcd6322de9bd6fe13d14359f0e731b25b3",
+    "roam_body_without_provenance_header_sha256": "f352b730b3cb1ab7998c8ac60a557a097959cc5239007b0230e8cbffd20dff70",
+    "original_roam_body_sha256_matches": true,
+    "published_historical_baseline_artifact_sha256": "0486a553acd601501a4678607738aede3ed6510c380fa55467d6d4b2f9105d10",
+    "historical_baseline_cases_compared": 50,
+    "historical_baseline_fields_compared": [
+      "complete_mission",
+      "arrived",
+      "total",
+      "lateness",
+      "steps",
+      "horizon"
+    ],
+    "historical_baseline_field_comparisons": 300,
+    "historical_baseline_field_mismatches": 0
+  },
+  "interpretation_limits": [
+    "Historical50 is a known inspected regression set, not a second blind generalization test.",
+    "Aggregate all-case lateness includes the benefit of avoiding incomplete missions; shared-complete-case deltas and casewise regressions are reported separately.",
+    "Timing statistics are episode summaries; mean-of-means and maximum episode p95 are not a global p95.",
+    "Diagnostics warm the same ROAM caches. All variants create RoamCheck and V0 first warms shared topology tables, so preparation_seconds is not a fair production-startup comparison.",
+    "Surprise-fault labeling is per step, not per affected-agent causal proof; both mismatch counters must remain visible.",
+    "policy_wait_with_allowed_motion counts action4 plus a movement-mask entry, not all possible physical waiting or DO_NOTHING waits."
+  ]
+}

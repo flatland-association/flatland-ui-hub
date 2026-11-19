@@ -1,0 +1,45 @@
+{
+  "schema": "uc2-rl-adviser-final-verification-v1",
+  "backend_source_commit": "9a0af324c1bea5933507b0edc68f4540fd803249",
+  "runtime_model_and_fixture_hashes_verified": true,
+  "model_assets_unchanged_from_manuel_a1b9c7b0": true,
+  "final_paired_cases": 46,
+  "improved": 8,
+  "unchanged": 38,
+  "regressed": 0,
+  "fully_completed_cases": 44,
+  "train_arrivals": 126,
+  "train_missions": 128,
+  "native_lateness_on_both_solved_cases": {
+    "before": 1954,
+    "after": 1652
+  },
+  "local_full_backend": {
+    "passed": 1057,
+    "skipped": 22,
+    "director_parallel_override": 0
+  },
+  "additional_native_horizon_scope_tests_passed": 3,
+  "final_focused_component_tests_passed": 10,
+  "frontend_style_gate": "passed",
+  "frontend_i18n_gate": "passed;49loggedIDs",
+  "final_frontend_production_build": "passed;existingbudget/surveywarnings",
+  "linux_final_ci": "https://github.com/flatland-association/flatland-ui-hub/actions/runs/43908914662",
+  "browser_source_commit": "2c22f037a1243aa93f9234378145b4d2e8616992",
+  "browser_scope": "ActualPlanBUIinspection/stalerefresh/acceptance; explicitAPIcontrolsforclock+acceleratedPlay. Twoownedsessionscleaned. LaterPP-onlyhorizonfixpreservesUC2behavior; finalwaitsingularcopychangeonly.",
+  "files": {
+    "README.md": "ca10bffc8da73e49d3eaef6ffcc325582a8541c573c8fb542f93b95395da77c9",
+    "after-lookahead.json": "449f48ca19f6fdf2b73b2dc6a6c2411882c4cbe23e46fdf49d84986326dd5f27",
+    "before-greedy.json": "20ce9c22527b5b4d4cc21fdd6794c42733af8f5b8885e6123806d26bad59f160",
+    "browser/1-uc2-future-course-picker.png": "f17ef1cdac90357dd4f44b877cd411fc31549512872803f4368e3be67932a6ac",
+    "browser/2-tutorial-selected-course-complete.png": "1bc57c415bf650ba295ac8bcddd3edd4a230dea086cc3928f5eadcce2c6b551f",
+    "browser/README.md": "e632c8930f56e2f090c3a125dc35527285e3507bb248f455965b1b51a490a4c7",
+    "browser/proof.json": "87543affe34af587b535003bc62ef62bfd610fbc00425d65d1d5ef7af87f79ed",
+    "browser-proof.cjs": "116df278265882d14ca2fdf4541f85dcebecfa3e65dc2369ac81bb0f3f2c5bed",
+    "ci-final.json": "56b6d59f443ac86c068c8bd8e41623ad4dc0b1b50e378a9adce0ab79d8af37f4",
+    "ci-initial.json": "c08bc4fb6a62869bc9cac1bc8d70f6491f2de4f29738fb7306b1f9cf7ddfca1e",
+    "paired-summary.json": "d7ceba47a67b5521d780ff8875d2fa8f8b3d5d2f05b77e720ccccc2bd1f5449d",
+    "takeover-cases.json": "7646f339cbb35e07ed01381cf832b29e7774f193580e1badd63d9d1202d16028"
+  },
+  "final_component_sha256": "daa35160f95074158928cf4dd3c2196579e452235807f3217fd4efbe732c8da5"
+}

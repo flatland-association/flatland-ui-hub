@@ -11,6 +11,7 @@ Play / Pause:
 import asyncio
 import logging
 import time
+from contextlib import nullcontext
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 from typing import Optional, Any
@@ -22,8 +23,10 @@ from app.core.marey_history import capture_marey_history_snapshot
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
 from app.core.play_manager import play_manager, PlayState
+from app.core.pf_ch_control import actor_transaction, command_lock, preflight_policy, run_inference, broadcast_playback, is_specialist_policy, requires_command_lock
+from app.policies.learned import pf_ch_bundle, uc2_bundle
 from app.policies.override_policy import OverridePolicy
-from app.policies.registry import create_runtime_policy
+from app.policies.registry import create_driving_policy, create_runtime_policy, driving_policy_id
 from app.core.override_manager import override_manager
 
 router = APIRouter()
@@ -92,13 +95,22 @@ async def _play_loop(session_id: str):
 
     env = session.env
 
-    try:
-        default_policy = create_runtime_policy(state.policy, env)
-    except KeyError:
-        default_policy = create_runtime_policy("deadlock_avoidance", env)
+    async with (command_lock(session) if requires_command_lock(session, state.policy) else nullcontext()):
+        try:
+            driving_id, default_policy = create_driving_policy(state.policy, env, factory=lambda pid, e: create_runtime_policy(pid, e))
+        except KeyError:
+            if is_specialist_policy(state.policy):
+                state.running = False
+                await ws_manager.broadcast(session_id, {"type": "error", "session_id": session_id,
+                                                        "message": "The selected RL policy is unavailable"})
+                return
+            driving_id, default_policy = "deadlock_avoidance", create_runtime_policy("deadlock_avoidance", env)
 
-    policy = OverridePolicy(default_policy, session_id)
-    policy.reset(env)
+        policy = OverridePolicy(default_policy, session_id)
+        policy.reset(env)
+        driving_plan = getattr(env, "_trainrun_plan", None)
+        if driving_id != state.policy:
+            session.policy = driving_id
 
     while state.running:
         if _is_done(env):
@@ -110,40 +122,68 @@ async def _play_loop(session_id: str):
             log_ws(session_id, "episode_done", step=int(env._elapsed_steps))
             break
 
-        try:
-            handles = env.get_agent_handles()
-            observations: dict[int, Any] = session.last_observations or {}
-            # Split timing: policy.act_many vs env.step. With heavy policies
-            # (DeadLockAvoidance walker) act_many is the dominant cost.
-            t_pol0 = time.perf_counter()
-            policy.start_step()
-            actions = policy.act_many(handles, observations)
-            t_pol_ms = (time.perf_counter() - t_pol0) * 1000
-
-            # Pause-responsiveness: re-check state.running between heavy
-            # policy compute and env.step. If user pressed Pause while
-            # act_many was running, abort BEFORE we apply actions.
+        async with (command_lock(session) if requires_command_lock(session, state.policy) else nullcontext()):
             if not state.running:
-                policy.end_step()
                 break
+            try:
+                # Accepting a proposal is serialized with this lookup and the
+                # physical step, including when the pinned Driver is DLA.
+                effective_id = driving_policy_id(state.policy, env)
+                replacement_plan = (effective_id == "plan"
+                                    and getattr(env, "_trainrun_plan", None) is not driving_plan)
+                if not is_specialist_policy(state.policy) and (effective_id != driving_id or replacement_plan):
+                    driving_id, default_policy = create_driving_policy(state.policy, env, factory=lambda pid, e: create_runtime_policy(pid, e))
+                    policy = OverridePolicy(default_policy, session_id)
+                    policy.reset(env)
+                    driving_plan = getattr(env, "_trainrun_plan", None)
+                    session.policy = driving_id
+                handles = env.get_agent_handles()
+                observations: dict[int, Any] = session.last_observations or {}
+                # Split timing: policy.act_many vs env.step. With heavy policies
+                # (DeadLockAvoidance walker) act_many is the dominant cost.
+                t_pol0 = time.perf_counter()
+                policy.start_step()
+                if is_specialist_policy(state.policy):
+                    try:
+                        prepared = policy.default_policy.prepare_inference(handles)
+                        proposals = await run_inference(
+                            session, lambda: policy.default_policy.infer_prepared(prepared))
+                        if state.running:
+                            finalize = getattr(policy.default_policy, "finalize_actions", None)
+                            if finalize is not None:
+                                proposals = finalize(proposals)
+                            actions = policy.apply_overrides(handles, proposals)
+                    except asyncio.CancelledError:
+                        policy.end_step()
+                        raise
+                else:
+                    actions = policy.act_many(handles, observations)
+                t_pol_ms = (time.perf_counter() - t_pol0) * 1000
 
-            t_env0 = time.perf_counter()
-            # Same helper as the /step endpoint (scripted disturbances
-            # included), so Play and single-stepping produce the same episode.
-            next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy, policy_id=state.policy)
-            t_env_ms = (time.perf_counter() - t_env0) * 1000
-            policy.end_step()
-            # Marey real-history snapshot after websocket/play step.
-            capture_marey_history_snapshot(session)
-        except Exception as e:
-            state.running = False
-            await ws_manager.broadcast(session_id, {
-                "type": "error",
-                "session_id": session_id,
-                "message": str(e),
-            })
-            log_ws(session_id, "error", message=str(e))
-            break
+                # Pause-responsiveness: re-check state.running between heavy
+                # policy compute and env.step. If user pressed Pause while
+                # act_many was running, abort BEFORE we apply actions.
+                if not state.running:
+                    policy.end_step()
+                    break
+
+                t_env0 = time.perf_counter()
+                # Same helper as the /step endpoint (scripted disturbances
+                # included), so Play and single-stepping produce the same episode.
+                next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy, policy_id=state.policy)
+                t_env_ms = (time.perf_counter() - t_env0) * 1000
+                policy.end_step()
+                # Marey real-history snapshot after websocket/play step.
+                capture_marey_history_snapshot(session)
+            except Exception as e:
+                state.running = False
+                await ws_manager.broadcast(session_id, {
+                    "type": "error",
+                    "session_id": session_id,
+                    "message": str(e),
+                })
+                log_ws(session_id, "error", message=str(e))
+                break
 
         # Skip serialize+broadcast if pause came in during env.step.
         if not state.running:
@@ -159,7 +199,7 @@ async def _play_loop(session_id: str):
 
         n_agents = len(handles)
         elapsed = int(env._elapsed_steps)
-        policy_id = state.policy
+        policy_id = state.policy if driving_id == state.policy else f"{state.policy}->{driving_id}"
         _perf_log.info(
             f"[PLAY] elapsed={elapsed} agents={n_agents} policy={policy_id} "
             f"act_many={t_pol_ms:.1f}ms env_step={t_env_ms:.1f}ms "
@@ -214,6 +254,25 @@ async def play(session_id: str, req: PlayRequest):
     if req.policy not in enabled:
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
+    preflight_policy(session.env, req.policy)
+    async with actor_transaction(session, req.policy):
+        return await _play_session(session_id, session, req)
+
+
+async def _play_session(session_id: str, session, req: PlayRequest):
+    """`play` once validated, inside its actor transaction."""
+    previous = play_manager.get(session_id)
+    pf_ch_switch = (previous is not None and previous.policy != req.policy
+                    and any(is_specialist_policy(policy) for policy in (previous.policy, req.policy)))
+    if pf_ch_switch:
+        await play_manager.stop(session_id)
+    if any(is_specialist_policy(policy) for policy in (req.policy, session.policy, getattr(previous, "policy", None))):
+        effective = previous.policy if previous and play_manager.is_playing(session_id) else req.policy
+        if session.policy != effective or pf_ch_switch:
+            from app.api.sessions import _invalidate_scenario_forecasts
+            session.policy = effective
+            _invalidate_scenario_forecasts(session_id)
+
     if play_manager.is_playing(session_id):
         # Play while playing retunes the running loop (the tempo slider), it
         # does not start a second one.
@@ -226,6 +285,8 @@ async def play(session_id: str, req: PlayRequest):
     state.running = True
     play_manager.register(state)
     state.task = asyncio.create_task(_play_loop(session_id))
+    if is_specialist_policy(req.policy):
+        await broadcast_playback(session)
 
     return {
         "session_id": session_id,
@@ -246,6 +307,8 @@ async def pause(session_id: str):
     from app.core.trajectory_recorder import persist_trajectory
 
     persist_trajectory(session)
+    if is_specialist_policy(session.policy):
+        await broadcast_playback(session)
     return {"session_id": session_id, "playing": False}
 
 

@@ -260,6 +260,36 @@
     "plan-b-uc2": {
       "name": "Plan B · UC2-01",
       "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
+    },
+    "pf-ch-rl-corridor": {
+      "name": "PF-CH · trainierter RL-Dispatcher",
+      "short": "PF-CH RL · 16 Züge",
+      "description": "16 Züge, 48 Pflichtaufenthalte und vier vorgegebene Störungen. Die trainierte RL-Policy fährt diese bekannte Demo. Andere Fahrpläne sind vom bisherigen Nachweis nicht abgedeckt. Etwa 3 Minuten, ohne Fragebogen."
+    },
+    "uc2-rl-tutorial": {
+      "name": "Tutorial · trainierte RL-Disposition",
+      "short": "Tutorial RL",
+      "description": "Die trainierte RL-Policy fährt das originale Tutorial-Szenario mit den ursprünglichen Störungen, Geschwindigkeiten und Fahrplanzeiten. Kein Fragebogen."
+    },
+    "uc2-rl-1": {
+      "name": "UC2-1 · trainierte RL-Disposition",
+      "short": "UC2-1 RL",
+      "description": "Die trainierte RL-Policy fährt das originale UC2-1-Szenario mit den ursprünglichen Störungen, Geschwindigkeiten und Fahrplanzeiten. Kein Fragebogen."
+    },
+    "uc2-rl-2": {
+      "name": "UC2-2 · trainierte RL-Disposition",
+      "short": "UC2-2 RL",
+      "description": "Die trainierte RL-Policy fährt das originale UC2-2-Szenario mit den ursprünglichen Störungen, Geschwindigkeiten und Fahrplanzeiten. Kein Fragebogen."
+    },
+    "uc2-rl-3": {
+      "name": "UC2-3 · trainierte RL-Disposition",
+      "short": "UC2-3 RL",
+      "description": "Die trainierte RL-Policy fährt das originale UC2-3-Szenario mit den ursprünglichen Störungen, Geschwindigkeiten und Fahrplanzeiten. Kein Fragebogen."
+    },
+    "uc2-rl-4": {
+      "name": "UC2-4 · trainierte RL-Disposition",
+      "short": "UC2-4 RL",
+      "description": "Die trainierte RL-Policy fährt das originale UC2-4-Szenario mit den ursprünglichen Störungen, Geschwindigkeiten und Fahrplanzeiten. Kein Fragebogen."
     }
   },
   "intro": {
@@ -545,6 +575,16 @@
     "plan": {
       "label": "Vorgegebener Plan",
       "description": "Fährt jeden Zug entlang des vorgegebenen Plans des Szenarios; Züge, die der Plan nicht abdeckt oder die übersteuert wurden, fallen auf Blockadenvermeidung zurück."
+    },
+    "pf_ch_rl": {
+      "label": "PF-CH RL · trainierte Demos",
+      "description": "Gelernte Policy für die veröffentlichten PF-CH-Demos. Sie steuert die Züge direkt; geänderte Fahrpläne und andere Karten sind vom Nachweis nicht abgedeckt.",
+      "unavailable": "Die PF-CH-RL-Policy ist auf diesem Server nicht verfügbar. Diese Sitzung bleibt angehalten."
+    },
+    "uc2_rl": {
+      "label": "UC2 RL · trainierte Demos",
+      "description": "Gelernte Policy für die originalen Szenarien UC2-1 bis UC2-4 und das Tutorial. Sie steuert die Züge direkt.",
+      "unavailable": "Die UC2-RL-Policy ist auf diesem Server nicht verfügbar. Diese Sitzung bleibt angehalten."
     }
   },
   "panels": {
@@ -1607,11 +1647,12 @@
     "compare": "Vergleich",
     "lessIsBetter": "weniger ist besser",
     "notAvailable": "n. v.",
-    "aiMatchesPlan": "Die KI würde hier beim Plan bleiben: ihre beste Reihenfolge ändert keine Ankunft.",
-    "hideAlternatives": "Weitere KI-Reihenfolgen ausblenden",
-    "showAlternatives": "Weitere KI-Reihenfolgen ({{n}})",
+    "aiMatchesPlan": "Dieser KI-Verlauf ändert gegenüber dem Plan keine Ankunft.",
+    "hideAlternatives": "Weitere KI-Verläufe ausblenden",
+    "showAlternatives": "Weitere KI-Verläufe ({{n}})",
     "holdCaveat": "Im Prototyp hält der Zug damit an; die Freigabe gibst du selbst, sobald die Stelle frei ist.",
     "aiTakenCaveat": "Die Züge fahren ab jetzt nach dem Plan der KI. «Gegenüber Plan» misst weiterhin am ursprünglichen Fahrplan.",
+    "aiTakenCaveatKept": "Die Züge fahren jetzt nach dem Plan der KI; Züge mit deinem Entscheid (anhalten, abbiegen, umleiten) behalten ihn. «Gegenüber Plan» misst weiterhin am ursprünglichen Fahrplan.",
     "option": {
       "hold": "Halten",
       "holdHint": "Der Zug bleibt stehen, bis du ihn wieder freigibst.",
@@ -1638,7 +1679,19 @@
     "and": "und",
     "quoted": "«{{name}}»",
     "computing": "«{{option}}» wird gerechnet …",
-    "compareNote": "Summen über alle Züge, in Schritten der Simulation."
+    "compareNote": "Summen über alle Züge, in Schritten der Simulation.",
+    "previewExpired": "Die Simulation oder der Plan hat sich geändert. Berechne die Verläufe vor der Übernahme erneut.",
+    "refreshCourses": "Verläufe erneut berechnen",
+    "inspectCourse": "Diesen Verlauf anzeigen",
+    "course": {
+      "rl": "Eigener Verlauf des Modells",
+      "branch": "Ab Schritt {{step}} den Ast {{direction}} nehmen",
+      "wait": "Ab Schritt {{step}} für {{n}} Schritte warten",
+      "left": "links",
+      "forward": "geradeaus",
+      "right": "rechts",
+      "waitOne": "Ab Schritt {{step}} für einen Schritt warten"
+    }
   },
   "zwl": {
     "empty": "Wähle einen Zug, um seinen Zeit-Weg-Verlauf zu sehen.",
@@ -2510,5 +2563,11 @@
     "submit": "Absenden",
     "missing": "Bitte beantworte alle Fragen auf dieser Seite.",
     "statement": "Aussage"
+  },
+  "layouts": {
+    "uc2Rl": {
+      "name": "UC2 RL",
+      "purpose": "Beobachte die trainierte UC2-/Tutorial-Policy auf den originalen Szenarien."
+    }
   }
 }

@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_trainrun_data_structures import TrainrunDict
@@ -38,6 +38,8 @@ class Proposal:
 
     priority: Tuple[int, ...]
     trainruns: TrainrunDict
+    candidate_id: str | None = None
+    intervention: dict | None = None
 
 
 class ProposalAgent(ABC):
@@ -49,6 +51,41 @@ class ProposalAgent(ABC):
     label: str = "Base"
     #: one-line description
     description: str = ""
+    #: whether the agent's courses keep the operator's standing overrides on the
+    #: other trains (only the selected train's own decision is up for change).
+    #: False: a course answers for every train, and accepting it clears them all.
+    respects_overrides: bool = False
+
+    def forecast_horizon(self, env: RailEnv) -> int:
+        """How many steps every course is simulated, the plan's and the operator's included.
+
+        Bounded by default, so an ordinary forecast stays cheap: the rest of the
+        episode, at least 50 and at most 250 steps (200 without a limit).
+        """
+        elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
+        max_ep = int(getattr(env, "_max_episode_steps", 0) or 0)
+        return min(max(50, max_ep - elapsed) if max_ep else 200, 250)
+
+    def available(self, env: RailEnv) -> bool:
+        """Whether this agent can propose for `env` (e.g. a model bound to its fixtures)."""
+        return True
+
+    def propose_for(self, env: RailEnv, handle: int,
+                    overrides: Optional[Dict[int, int]] = None) -> List[Proposal]:
+        """Handle-aware seam; existing priority-order agents stay compatible.
+
+        ``overrides`` are the standing overrides a course must keep (see
+        `respects_overrides`): the other trains' only, the selected train's own
+        is dropped by the caller. Agents that don't respect them ignore it.
+        """
+        return self.propose(env)
+
+    def resolve_for(
+        self, env: RailEnv, priority: Sequence[int], handle: int,
+        candidate_id: str | None = None, overrides: Optional[Dict[int, int]] = None,
+    ) -> Optional[TrainrunDict]:
+        """Legacy resolution; exact preview acceptance can cache the course."""
+        return self.resolve(env, priority)
 
     @abstractmethod
     def propose(self, env: RailEnv) -> List[Proposal]:

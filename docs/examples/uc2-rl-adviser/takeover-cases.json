@@ -1,0 +1,2403 @@
+{
+  "schema": "uc2-rl-adviser-takeover-cases-v1",
+  "created_utc": "2026-11-16T16:21:02.691905+00:00",
+  "evaluation_role": "reused_development_diagnostics_not_holdout",
+  "base_commit": "a1b9c7b01d20064be9e6e37790717ecaeda82f8f",
+  "selection": "Predeclared map-specific takeover clocks; handle cycles over non-DONE trains at that DLA state; terminal-unreachable clocks skipped. No adviser outcomes consulted.",
+  "cases": [
+    {
+      "id": "tutorial-dla-000-h0",
+      "preset": "tutorial",
+      "takeover_step": 0,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 40,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1
+      ],
+      "source_state": {
+        "step": 0,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "483b23b8cf6fb1baf68285e50d5c52037a51f9f80bee06d619bd419db6446fa2"
+    },
+    {
+      "id": "tutorial-dla-002-h1",
+      "preset": "tutorial",
+      "takeover_step": 2,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 40,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1
+      ],
+      "source_state": {
+        "step": 2,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              2,
+              3
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "READY_TO_DEPART",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "c008e7e5874908f61a989a7f2c4d4a42b530beffdaf282fe9efe81eaa7d4c702"
+    },
+    {
+      "id": "tutorial-dla-004-h0",
+      "preset": "tutorial",
+      "takeover_step": 4,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 40,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1
+      ],
+      "source_state": {
+        "step": 4,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              2,
+              5
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "READY_TO_DEPART",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "23acf6bde1c919583d7857af5fbf6d9c61cf7168926f28c3bb600cea2b9fd24e"
+    },
+    {
+      "id": "tutorial-dla-006-h1",
+      "preset": "tutorial",
+      "takeover_step": 6,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 40,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1
+      ],
+      "source_state": {
+        "step": 6,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              2,
+              7
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "READY_TO_DEPART",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "fd59d303acb819e4f2bd8e85f5655a7eca9771b239b0c0cf151d4a64647465b2"
+    },
+    {
+      "id": "tutorial-dla-008-h0",
+      "preset": "tutorial",
+      "takeover_step": 8,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 40,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1
+      ],
+      "source_state": {
+        "step": 8,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MALFUNCTION",
+            "position": [
+              2,
+              8
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 3,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "READY_TO_DEPART",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "c7065fe0353fae987e6b69584fdc491e4ed732caab6e09a3061e0462772f3efd"
+    },
+    {
+      "id": "tutorial-dla-010-h1",
+      "preset": "tutorial",
+      "takeover_step": 10,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 40,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1
+      ],
+      "source_state": {
+        "step": 10,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MALFUNCTION",
+            "position": [
+              2,
+              8
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 1,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "READY_TO_DEPART",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "6c5a26dcfede5c8a5ac33c3577b25c8bd3d5e09e119f97a7771f54bf4fb9c76c"
+    },
+    {
+      "id": "tutorial-dla-012-h0",
+      "preset": "tutorial",
+      "takeover_step": 12,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 40,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1
+      ],
+      "source_state": {
+        "step": 12,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              2,
+              9
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "READY_TO_DEPART",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "cf4a9c940176322aaa0a5cfb07ad9bee0565a84b8d02dbfa36ce0f641227dd4f"
+    },
+    {
+      "id": "tutorial-dla-015-h1",
+      "preset": "tutorial",
+      "takeover_step": 15,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 40,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1
+      ],
+      "source_state": {
+        "step": 15,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              2,
+              12
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "READY_TO_DEPART",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "3d6d87719f098a3a0b4cd6b544c066cec332dfeb9b72d0a05aed7d603eb0d064"
+    },
+    {
+      "id": "tutorial-dla-020-h0",
+      "preset": "tutorial",
+      "takeover_step": 20,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 40,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1
+      ],
+      "source_state": {
+        "step": 20,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              2,
+              17
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "READY_TO_DEPART",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "8944508f39ba7a55829cb30559a62d6c095de8a30146f1498a990a892d05967d"
+    },
+    {
+      "id": "tutorial-dla-026-h1",
+      "preset": "tutorial",
+      "takeover_step": 26,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 40,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        1
+      ],
+      "source_state": {
+        "step": 26,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "DONE",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": 24
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              2,
+              20
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "edd0367c19b99ceab2c261927bef9d63eab497f6dd1bbbe40b6a120e370db217"
+    },
+    {
+      "id": "uc2-1-dla-000-h0",
+      "preset": "uc2-1",
+      "takeover_step": 0,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 168,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 0,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "12dcbc8c4052a48400b831226475fbe22f21b61c25cdadcc06e1159885058711"
+    },
+    {
+      "id": "uc2-1-dla-008-h1",
+      "preset": "uc2-1",
+      "takeover_step": 8,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 168,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 8,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              69
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "28076e81fc43f6cffe627f1bc0dd97ecfe7e9b0e43bd4c4fa1716f774f5e7dbc"
+    },
+    {
+      "id": "uc2-1-dla-016-h2",
+      "preset": "uc2-1",
+      "takeover_step": 16,
+      "handle": 2,
+      "seed": 42,
+      "native_horizon": 168,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 16,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              9
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "READY_TO_DEPART",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              61
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "f5aefb1ee25f260cfa08d6a0494cedcd8575b3f6dc886f8fefa3d5b5317144a4"
+    },
+    {
+      "id": "uc2-1-dla-024-h0",
+      "preset": "uc2-1",
+      "takeover_step": 24,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 168,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 24,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              17
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              12
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              53
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "334a4b5c84ad0d74a195ab508a4c6886a040523c356a958db5b3b303cb8f9f18"
+    },
+    {
+      "id": "uc2-1-dla-030-h1",
+      "preset": "uc2-1",
+      "takeover_step": 30,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 168,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 30,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              23
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              18
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              51
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "2043d6b164370d0f71e6131eaf3b639bbfd0fb35ef91ffc091630bb9568986ac"
+    },
+    {
+      "id": "uc2-1-dla-040-h2",
+      "preset": "uc2-1",
+      "takeover_step": 40,
+      "handle": 2,
+      "seed": 42,
+      "native_horizon": 168,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 40,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "STOPPED",
+            "position": [
+              3,
+              29
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              28
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              41
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "38c9607817aae86d6295e9fbe5dbf9c6a71e8d47862b1bd08309726b2619d10f"
+    },
+    {
+      "id": "uc2-1-dla-050-h0",
+      "preset": "uc2-1",
+      "takeover_step": 50,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 168,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 50,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "STOPPED",
+            "position": [
+              3,
+              29
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "STOPPED",
+            "position": [
+              3,
+              28
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              4,
+              32
+            ],
+            "direction": 2,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "c5e7e0b72c953cd614ad71636b1f470c56fced0c091570021d6e45262254be65"
+    },
+    {
+      "id": "uc2-1-dla-067-h1",
+      "preset": "uc2-1",
+      "takeover_step": 67,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 168,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 67,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              46
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              45
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              4,
+              15
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "3c348d325d4a01ee4f785240acad312c27a28b6a209e6db9d7d1358cc8c0ba5a"
+    },
+    {
+      "id": "uc2-1-dla-084-h0",
+      "preset": "uc2-1",
+      "takeover_step": 84,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 168,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1
+      ],
+      "source_state": {
+        "step": 84,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              63
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              62
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "DONE",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": 77
+          }
+        ]
+      },
+      "source_state_sha256": "14c830fbf0eef1ebe25ee566c91b799615871ba65033c36210e3dc068dbb9650"
+    },
+    {
+      "id": "uc2-2-dla-000-h0",
+      "preset": "uc2-2",
+      "takeover_step": 0,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 102,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 0,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "12dcbc8c4052a48400b831226475fbe22f21b61c25cdadcc06e1159885058711"
+    },
+    {
+      "id": "uc2-2-dla-005-h1",
+      "preset": "uc2-2",
+      "takeover_step": 5,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 102,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 5,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              4,
+              53
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "7a4fba233b2ecdb12cda6e1ac80331df6b8419479a30330baf8ad65a8f0adbb5"
+    },
+    {
+      "id": "uc2-2-dla-010-h2",
+      "preset": "uc2-2",
+      "takeover_step": 10,
+      "handle": 2,
+      "seed": 42,
+      "native_horizon": 102,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 10,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              4,
+              58
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "86a5a84cfffa8c8cae7eed004b15f1f04030e4bdc8f8873884e2f08695c08ec9"
+    },
+    {
+      "id": "uc2-2-dla-015-h0",
+      "preset": "uc2-2",
+      "takeover_step": 15,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 102,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 15,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              4,
+              63
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "63bc363e15b3783d8f3a170cde3594a5d1d99a1eb79bd8439caaf083429b1888"
+    },
+    {
+      "id": "uc2-2-dla-020-h1",
+      "preset": "uc2-2",
+      "takeover_step": 20,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 102,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 20,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MALFUNCTION",
+            "position": [
+              4,
+              63
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 15,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "b337f0509316dd51329dd52be120899a738d13deb3bceb2dc58ecbb054c8eb8e"
+    },
+    {
+      "id": "uc2-2-dla-025-h2",
+      "preset": "uc2-2",
+      "takeover_step": 25,
+      "handle": 2,
+      "seed": 42,
+      "native_horizon": 102,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 25,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MALFUNCTION",
+            "position": [
+              4,
+              63
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 10,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              4,
+              53
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "2d075530ae0924fde12a429a16e85be9928f9f0c90e1ae68887d2785d1f2170c"
+    },
+    {
+      "id": "uc2-2-dla-030-h0",
+      "preset": "uc2-2",
+      "takeover_step": 30,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 102,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 30,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MALFUNCTION",
+            "position": [
+              4,
+              63
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 5,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              4,
+              58
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              73
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "230e9f55333ac3629dd85d47adf4f2dcf25d32c0af40e724bd27aae385355193"
+    },
+    {
+      "id": "uc2-2-dla-040-h1",
+      "preset": "uc2-2",
+      "takeover_step": 40,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 102,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 40,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              4,
+              68
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              4,
+              67
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              63
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "100cafa2457b5ebfc409693c23e947a0c44fed9199541688a7b8c316223d1c11"
+    },
+    {
+      "id": "uc2-2-dla-051-h2",
+      "preset": "uc2-2",
+      "takeover_step": 51,
+      "handle": 2,
+      "seed": 42,
+      "native_horizon": 102,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        2
+      ],
+      "source_state": {
+        "step": 51,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "DONE",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": 45
+          },
+          {
+            "handle": 1,
+            "state": "DONE",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": 46
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              52
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "b4c3db406c17917e101d3df1ad2e0e9a6294a97ceedc553b75c08166e3894fa2"
+    },
+    {
+      "id": "uc2-3-dla-000-h0",
+      "preset": "uc2-3",
+      "takeover_step": 0,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 240,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 0,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 0.6,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "8c45143b4b3600c0cf11398c6fa3d8442251ffb7ae51b17446bcb34fbbd5c198"
+    },
+    {
+      "id": "uc2-3-dla-012-h1",
+      "preset": "uc2-3",
+      "takeover_step": 12,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 240,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 12,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              7
+            ],
+            "direction": 1,
+            "speed": 0.6,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              65
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "6f21b411461eb83f323312800ff5200ab92089e29547814e5ed509598bcf646c"
+    },
+    {
+      "id": "uc2-3-dla-024-h2",
+      "preset": "uc2-3",
+      "takeover_step": 24,
+      "handle": 2,
+      "seed": 42,
+      "native_horizon": 240,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 24,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              14
+            ],
+            "direction": 1,
+            "speed": 0.6,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              53
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "2d98113884fbccbfbf042af6b0caa30be85433ed449a49d1ccb96296e9ab4ea3"
+    },
+    {
+      "id": "uc2-3-dla-036-h0",
+      "preset": "uc2-3",
+      "takeover_step": 36,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 240,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 36,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              22
+            ],
+            "direction": 1,
+            "speed": 0.6,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              49
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "353b843214b573f52dd2dbc42a92e3f4fac9b4ca8f6669778440aed7056cd95e"
+    },
+    {
+      "id": "uc2-3-dla-048-h1",
+      "preset": "uc2-3",
+      "takeover_step": 48,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 240,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 48,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              29
+            ],
+            "direction": 1,
+            "speed": 0.6,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              15
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              37
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "4d1d35d3a07a7c250398cc2705fa3f79d12ac916fd4b5432cb102c104762f41e"
+    },
+    {
+      "id": "uc2-3-dla-060-h2",
+      "preset": "uc2-3",
+      "takeover_step": 60,
+      "handle": 2,
+      "seed": 42,
+      "native_horizon": 240,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 60,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              32
+            ],
+            "direction": 1,
+            "speed": 0.6,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              27
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              4,
+              26
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "89cfc22d0f822f3f41cb0f33ed011deb1bd955a8d4b55b342d707a761ab7803c"
+    },
+    {
+      "id": "uc2-3-dla-072-h0",
+      "preset": "uc2-3",
+      "takeover_step": 72,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 240,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 72,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              40
+            ],
+            "direction": 1,
+            "speed": 0.6,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              39
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              4,
+              14
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "bc5542cd4133fbbafe96a392c1cdef09d4c870094eaf36ae3ae5b9f0785a0731"
+    },
+    {
+      "id": "uc2-3-dla-096-h1",
+      "preset": "uc2-3",
+      "takeover_step": 96,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 240,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1
+      ],
+      "source_state": {
+        "step": 96,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              54
+            ],
+            "direction": 1,
+            "speed": 0.6,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              53
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "DONE",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": 81
+          }
+        ]
+      },
+      "source_state_sha256": "ddff34f6159b7e9c6ce632f620c09177ee883b12c387940241ec0dbfa2cfb5c7"
+    },
+    {
+      "id": "uc2-3-dla-120-h0",
+      "preset": "uc2-3",
+      "takeover_step": 120,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 240,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1
+      ],
+      "source_state": {
+        "step": 120,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              68
+            ],
+            "direction": 1,
+            "speed": 0.6,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "STOPPED",
+            "position": [
+              3,
+              67
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "DONE",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": 81
+          }
+        ]
+      },
+      "source_state_sha256": "bc894acffd6497b7fe88ca4f1fce7ef7f200497926faaebf6333bc986446d1be"
+    },
+    {
+      "id": "uc2-4-dla-000-h0",
+      "preset": "uc2-4",
+      "takeover_step": 0,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 180,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 0,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "12dcbc8c4052a48400b831226475fbe22f21b61c25cdadcc06e1159885058711"
+    },
+    {
+      "id": "uc2-4-dla-009-h1",
+      "preset": "uc2-4",
+      "takeover_step": 9,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 180,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 9,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              10
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "27a36642905a414ef1e8b4c041b0305c8e04704c27bd7d1ea99d871665646644"
+    },
+    {
+      "id": "uc2-4-dla-018-h2",
+      "preset": "uc2-4",
+      "takeover_step": 18,
+      "handle": 2,
+      "seed": 42,
+      "native_horizon": 180,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 18,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              19
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              7
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "WAITING",
+            "position": null,
+            "direction": null,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "2fe3d7b5e26d88869005c5bda5c2919213fd3de51833e554bfb0f291b0312b29"
+    },
+    {
+      "id": "uc2-4-dla-027-h0",
+      "preset": "uc2-4",
+      "takeover_step": 27,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 180,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 27,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MALFUNCTION",
+            "position": [
+              3,
+              20
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 12,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              16
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              68
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "8e1812062a11c7adfc92a7e123a14442ca8192766cc1c43c9292a108a33982b5"
+    },
+    {
+      "id": "uc2-4-dla-036-h1",
+      "preset": "uc2-4",
+      "takeover_step": 36,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 180,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 36,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MALFUNCTION",
+            "position": [
+              3,
+              20
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 3,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "STOPPED",
+            "position": [
+              3,
+              19
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              59
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "4822f09b4d363a788d346071897b2414c18f6f441365fd6fc5eb7ac21b5e6eb0"
+    },
+    {
+      "id": "uc2-4-dla-045-h2",
+      "preset": "uc2-4",
+      "takeover_step": 45,
+      "handle": 2,
+      "seed": 42,
+      "native_horizon": 180,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 45,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              26
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              25
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              50
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "aa9cc8f1e33e014d6faa47a30ae39d956cc1a76a23e11eb34c7387b06dc67a38"
+    },
+    {
+      "id": "uc2-4-dla-054-h0",
+      "preset": "uc2-4",
+      "takeover_step": 54,
+      "handle": 0,
+      "seed": 42,
+      "native_horizon": 180,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 54,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "STOPPED",
+            "position": [
+              3,
+              29
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "STOPPED",
+            "position": [
+              3,
+              28
+            ],
+            "direction": 1,
+            "speed": 0.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              3,
+              41
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "ce0c22c84f26fb3b496e60b3842c36972b605dcb7b7aa2af8803198baa3e7a2e"
+    },
+    {
+      "id": "uc2-4-dla-072-h1",
+      "preset": "uc2-4",
+      "takeover_step": 72,
+      "handle": 1,
+      "seed": 42,
+      "native_horizon": 180,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 72,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              37
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              36
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              4,
+              24
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "1048c3ed6e80083c95f6efdee6e8202351aa7932a4ad604c736b0f72c37050e7"
+    },
+    {
+      "id": "uc2-4-dla-090-h2",
+      "preset": "uc2-4",
+      "takeover_step": 90,
+      "handle": 2,
+      "seed": 42,
+      "native_horizon": 180,
+      "driver": "deadlock_avoidance",
+      "standing_overrides": {},
+      "native_faults": "unchanged persisted fixture generator",
+      "active_handles": [
+        0,
+        1,
+        2
+      ],
+      "source_state": {
+        "step": 90,
+        "agents": [
+          {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              3,
+              55
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 1,
+            "state": "MOVING",
+            "position": [
+              3,
+              54
+            ],
+            "direction": 1,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          },
+          {
+            "handle": 2,
+            "state": "MOVING",
+            "position": [
+              4,
+              6
+            ],
+            "direction": 3,
+            "speed": 1.0,
+            "malfunction": 0,
+            "arrival_time": null
+          }
+        ]
+      },
+      "source_state_sha256": "250f4fda8b73fd56916921bb655c57ecf64c3e076fcd119f5961dff487119e1e"
+    }
+  ]
+}

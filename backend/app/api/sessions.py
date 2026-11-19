@@ -15,6 +15,7 @@ from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
 from app.core.env_step import step_env
+from app.core.pf_ch_control import actor_transaction, preflight_policy, is_specialist_policy
 from app.core.scenario_presets import check_session_request, list_presets, preset_image, preset_video, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
@@ -23,8 +24,10 @@ from app.models.session import (
 )
 from app.models.agent import ActionRequest
 from app.policies.override_policy import OverridePolicy
+from app.policies.plan_policy import revert_accepted_plan
 from app.policies.registry import (
     PLAN_POLICY_ID,
+    create_driving_policy,
     create_runtime_policy,
     policy_specs,
     scenario_policy_factories,
@@ -170,8 +173,16 @@ def _scene_counts(infrastructure_scene: dict[str, Any]) -> dict[str, int]:
     }
 
 
+def _check_proposal_agent(req: SessionCreateRequest) -> None:
+    from app.core.proposal_agents.registry import get_proposal_agent
+
+    if req.proposal_agent is not None and get_proposal_agent(req.proposal_agent) is None:
+        raise HTTPException(400, f"Unknown proposal agent {req.proposal_agent!r}")
+
+
 @router.post("", response_model=SessionInfo)
 def create_session(req: SessionCreateRequest):
+    _check_proposal_agent(req)
     scenario_preset_id = req.scenario_preset_id or None
     if scenario_preset_id:
         # Prebuilt scenario preset (e.g. ECML 2026): env is loaded from file,
@@ -197,6 +208,8 @@ def create_session(req: SessionCreateRequest):
             enabled_policy_ids=req.enabled_policy_ids,
             enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
             scenario_preset_id=scenario_preset_id,
+            # Validated above: locked study presets still reject overrides.
+            max_episode_steps=req.max_episode_steps,
             disturbances=disturbances,
             run=req.run.model_dump() if req.run else None,
             # A rate above 0 makes this a live run: random breakdowns seeded by
@@ -206,6 +219,7 @@ def create_session(req: SessionCreateRequest):
             malfunction_min_duration=req.malfunction_min_duration,
             malfunction_max_duration=req.malfunction_max_duration,
         )
+        session.proposal_agent_id = req.proposal_agent
         _perf_log.info(
             "[INFRA] create built session=%s mode=preset id=%s env=%sx%s agents=%s plan=%s policy=%s",
             session.id,
@@ -291,6 +305,7 @@ def create_session(req: SessionCreateRequest):
         infrastructure_scene=infrastructure_scene,
         run=req.run.model_dump() if req.run else None,
     )
+    session.proposal_agent_id = req.proposal_agent
     _capture_marey_history_snapshot(session)
 
     diagnostics = build_scene_diagnostics(infrastructure_scene, session.env)
@@ -413,10 +428,22 @@ async def step(session_id: str, req: StepRequest):
     if req.policy not in enabled:
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
-    policy = _build_policy(session_id, env, req.policy)
+    preflight_policy(env, req.policy)
+    async with actor_transaction(session, req.policy):
+        return await _step_session(session_id, session, req)
+
+
+async def _step_session(session_id: str, session, req: StepRequest):
+    """`step` once validated, inside its actor transaction."""
+    env = session.env
+    # An accepted AI plan keeps driving while the client pins its policy
+    # (registry.driving_policy_id); the pinned policy then drives off-plan trains.
+    effective, driver = create_driving_policy(req.policy, env)
+    policy = OverridePolicy(driver, session_id)
+    policy.reset(env)
     # Track the most recently used policy so /hmi/scenarios can
     # use it as baseline.
-    session.policy = req.policy
+    session.policy = effective
 
     rewards = {}
     dones = {}
@@ -480,6 +507,8 @@ async def reset_session(session_id: str):
     # Replay the IDENTICAL scenario (same rail, schedule, malfunctions) so a
     # Reset — and each guided-demo mode switch — restarts the same situation,
     # instead of env.reset() rolling a fresh random episode.
+    # The episode starts over on the session's own plan, not an accepted AI plan.
+    revert_accepted_plan(session.env)
     if session.seed is not None:
         obs, info = session.env.reset(
             regenerate_rail=False, regenerate_schedule=False, random_seed=session.seed
@@ -496,8 +525,15 @@ async def reset_session(session_id: str):
     # Flatland's reset() overwrites _max_episode_steps; re-apply the session's.
     if session.max_episode_steps:
         session.env._max_episode_steps = session.max_episode_steps
+    # reset may replace a rail map or change its native cache UUID. Release
+    # retired maps once reset completed; live maps lazily repopulate pure LRUs.
+    from app.core.native_env_cache import clear_native_environment_caches
+    clear_native_environment_caches()
     session.last_observations = obs
     session.last_info = info
+    if is_specialist_policy(session.policy):
+        from app.core.disturbances import DisturbanceScheduler
+        session.disturbance_scheduler = DisturbanceScheduler(session.disturbances)
     if session.trajectory is not None:
         session.trajectory.on_reset(session.env)  # a new episode in the same folder
     session.marey_history_snapshots = []
@@ -535,7 +571,14 @@ async def manual_action(session_id: str, req: ActionRequest):
 
 
 @router.delete("/{session_id}")
-def delete_session(session_id: str):
+async def delete_session(session_id: str):
+    if session_manager.get(session_id) is None:
+        raise HTTPException(404, f"Session {session_id} not found")
+    # A demo may have switched from RL to PP. Drain whichever actor is actually
+    # running before releasing its environment; a racing Pause may then 404
+    # safely, rather than leaving an orphan Play task after DELETE succeeds.
+    from app.core.play_manager import play_manager
+    await play_manager.stop(session_id)
     if not session_manager.delete(session_id):
         raise HTTPException(404, f"Session {session_id} not found")
     override_manager.clear_all(session_id)
@@ -545,6 +588,8 @@ def delete_session(session_id: str):
     # this a deleted session's last forecast stayed for the process's life.
     from app.core.contention_cache import contention_cache
     contention_cache.clear_session(session_id)
+    from app.core.scenario_cache import scenario_cache
+    scenario_cache.clear_session(session_id)
     return {"deleted": session_id}
 
 
@@ -560,7 +605,7 @@ class ScenarioPoliciesUpdateRequest(BaseModel):
 
 
 @router.post("/{session_id}/policy")
-def set_session_policy(session_id: str, req: PolicyChangeRequest):
+async def set_session_policy(session_id: str, req: PolicyChangeRequest):
     """Switch the active policy for a session without stepping.
     Subsequent steps and /hmi/scenarios use this as baseline."""
     session = session_manager.get(session_id)
@@ -569,9 +614,18 @@ def set_session_policy(session_id: str, req: PolicyChangeRequest):
     enabled = set(getattr(session, "enabled_policy_ids", set()))
     if req.policy not in enabled:
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
-    session.policy = req.policy
-    _invalidate_scenario_forecasts(session_id)
-    return {"session_id": session_id, "policy": session.policy}
+    preflight_policy(session.env, req.policy)
+    async with actor_transaction(session, req.policy) as actor_change:
+        if actor_change:
+            from app.core.play_manager import play_manager
+
+            await play_manager.stop(session_id)
+        # A deliberate switch ends an accepted AI plan (plan_policy.accept_trainrun_plan).
+        if req.policy != PLAN_POLICY_ID:
+            revert_accepted_plan(session.env)
+        session.policy = req.policy
+        _invalidate_scenario_forecasts(session_id)
+        return {"session_id": session_id, "policy": session.policy}
 
 
 def _invalidate_scenario_forecasts(session_id: str) -> None:

@@ -30,6 +30,9 @@ CLAUDE.local.md
 # Operator profiles written at runtime (carried-over preferences per operator).
 # Runtime state, not source — and it names whoever ran the demo.
 /backend/data/
+# Offline learning artefacts; reviewed inference exports live under app/.
+/backend/lab/runs/
+/backend/lab/checkpoints/
 # Local test browser for `ng test` (CHROME_BIN), ~150 MB.
 /frontend/chrome-headless-shell/
 

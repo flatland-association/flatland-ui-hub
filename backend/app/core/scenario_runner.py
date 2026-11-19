@@ -38,6 +38,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
+import numpy as np
 from flatland.envs.persistence import RailEnvPersister
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_env_action import RailEnvActions
@@ -358,6 +359,16 @@ class TrajectoryBranchRunner:
         # continues from where the main simulation currently is.
         if hasattr(self._base_env, "_elapsed_steps"):
             forked._elapsed_steps = self._base_env._elapsed_steps
+
+        # Flatland's persister leaves `agent_positions` empty ("initialized in
+        # reset() only"), and `step()` writes back only trains that moved, so on
+        # the fork a standing train never shows up in the grid. Observations that
+        # read it (the UC2 driver's "oncoming train ahead") then miss every
+        # stopped train. Rebuild it from the trains' cells.
+        forked.agent_positions = np.zeros((forked.height, forked.width), dtype=int) - 1
+        for agent in forked.agents:
+            if agent.current_configuration is not None:
+                forked.agent_positions[agent.current_configuration[0]] = agent.handle
 
         # A committed reroute is a route fixed on the live env; the fork follows
         # the same one (app.core.route_overrides).

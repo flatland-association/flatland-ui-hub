@@ -26,6 +26,33 @@ describe('AppComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
+  it('constructs the translated UC2 layout before rendering and keeps the header toolbar only where the preset asks', () => {
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+    const store = TestBed.inject(SessionStore);
+    const layout = component.runtimeLayoutOptions().find(option => option.id === 'preset-uc2-rl');
+    expect(layout?.name).toBe('UC2 RL');
+    expect(layout?.purpose).toContain('UC2/tutorial');
+    expect(component.presetHeaderToolbar()).toBeFalse();
+    component.setRuntimeLayout('preset-uc2-rl');
+    expect(component.presetHeaderToolbar()).toBeTrue();
+    expect(component.panelAvailable('director-directive')).toBeFalse();
+    component.setRuntimeLayout(component.systemRuntimeLayoutId);
+    // The driver alone decides nothing: the controls come from the preset.
+    store.setActivePolicy('uc2_rl');
+    expect(component.presetHeaderToolbar()).toBeFalse();
+  });
+
+  it('keeps the optional footer survey out of demos without a survey and preserves other runs', () => {
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+    const store = TestBed.inject(SessionStore);
+    store.startDemo(['director'], false);
+    expect(component.footerSurveyAllowed()).toBeFalse();
+    store.startDemo(['director'], true);
+    expect(component.footerSurveyAllowed()).toBeTrue();
+    store.stopDemo();
+    expect(component.footerSurveyAllowed()).toBeTrue();
+  });
+
   it('should render the Flatland Dispatcher shell', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();

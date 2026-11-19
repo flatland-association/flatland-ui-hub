@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 from app import __version__
+from app.core.pf_ch_control import PFChControlMiddleware
 from app.config import settings
 from app.api import sessions, websockets, overrides, hmi, policies, operator, study, sandbox
 from app.core.call_log import CallLogMiddleware, close_all_session_loggers, ensure_log_dirs, stop_queue_listeners
@@ -40,6 +41,7 @@ app.add_middleware(
 # Server call log (docs/experiment-logging.md): always mounted, inert unless the
 # logging configuration enables `flatland.study.calls` (UVICORN_LOG_CONFIG).
 app.add_middleware(CallLogMiddleware)
+app.add_middleware(PFChControlMiddleware)
 ensure_log_dirs()
 
 app.include_router(sessions.router, prefix="/session", tags=["sessions"])

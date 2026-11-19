@@ -1,0 +1,452 @@
+{
+  "schema": "uc2-rl-adviser-browser-proof-v1",
+  "evaluation_role": "reused_development_demonstration",
+  "started_utc": "2026-11-16T16:34:42.544Z",
+  "cases": [
+    {
+      "condition": "plan-b-uc2",
+      "preset": "uc2-1",
+      "takeover": 16,
+      "handle": 2,
+      "stale": true,
+      "acceptAlternative": false,
+      "session_id": "8fb5560b",
+      "creation": {
+        "seed": 42,
+        "enabled_scenario_policy_ids": [
+          "deadlock_avoidance",
+          "shortest_path",
+          "random"
+        ],
+        "enabled_policy_ids": [
+          "uc2_rl",
+          "pf_ch_rl",
+          "deadlock_avoidance",
+          "shortest_path",
+          "random",
+          "forward_only",
+          "goal_directed"
+        ],
+        "scenario_preset_id": "uc2-1",
+        "proposal_agent": "uc2_rl",
+        "run": {
+          "kind": "condition",
+          "id": "plan-b-uc2",
+          "run_id": "run-mwjhhqem-40hwla",
+          "run_started_at": 1794846883054
+        }
+      },
+      "opening_driver": "deadlock_avoidance",
+      "native_horizon": 168,
+      "original_preview_source_step": 15,
+      "stale_rejection": {
+        "status": 409,
+        "body": {
+          "variant": "ai",
+          "handle": 2,
+          "priority": [],
+          "preview_token": "kmxER3diZnP4qJukjW-vkSL3zOYCLjqF",
+          "candidate_id": "uc2-rl:branch:2:15:1:0",
+          "source_step": 15
+        },
+        "no_choice_recorded": true,
+        "refresh_button_visible": true
+      },
+      "inspection_did_not_apply_or_advance": true,
+      "primary_candidate": "uc2-rl:branch:2:30:1:0",
+      "inspected_candidate": "uc2-rl:rl:2:16",
+      "accepted_candidate": "uc2-rl:branch:2:30:1:0",
+      "accepted_non_default": false,
+      "predicted": {
+        "train": {
+          "arrived": true,
+          "delay": 0,
+          "deadlocked": false,
+          "arrival_step": 89,
+          "planned_arrival": 72,
+          "delay_vs_plan": 17
+        },
+        "system": {
+          "deadlocks": 0,
+          "done": 3,
+          "total": 3,
+          "delay": 0
+        },
+        "metrics": {
+          "lateness": 19,
+          "time_in_network": 206,
+          "not_arrived": 0
+        },
+        "candidate_id": "uc2-rl:branch:2:30:1:0",
+        "intervention": {
+          "kind": "branch",
+          "handle": 2,
+          "step": 30,
+          "action": 1,
+          "wait_steps": 0
+        }
+      },
+      "acceptance": {
+        "request": {
+          "variant": "ai",
+          "handle": 2,
+          "priority": [],
+          "preview_token": "eWP-Y7LrbaUUJVJwQbNe80SmBnxg4HRM",
+          "candidate_id": "uc2-rl:branch:2:30:1:0",
+          "source_step": 16
+        },
+        "response": {
+          "applied": "ai",
+          "label": "KI-Plan übernommen",
+          "step": 16,
+          "policy": "plan"
+        }
+      },
+      "actual": {
+        "finish_step": 89,
+        "completed": 3,
+        "native_lateness": 19,
+        "selected_train_arrival": 89,
+        "replayed_preview_positions_verified": 203,
+        "elapsed_seconds": 2.329
+      },
+      "page_requests": [
+        {
+          "path": "/session",
+          "body": {
+            "seed": 42,
+            "enabled_scenario_policy_ids": [
+              "deadlock_avoidance",
+              "shortest_path",
+              "random"
+            ],
+            "enabled_policy_ids": [
+              "uc2_rl",
+              "pf_ch_rl",
+              "deadlock_avoidance",
+              "shortest_path",
+              "random",
+              "forward_only",
+              "goal_directed"
+            ],
+            "scenario_preset_id": "uc2-1",
+            "proposal_agent": "uc2_rl",
+            "run": {
+              "kind": "condition",
+              "id": "plan-b-uc2",
+              "run_id": "run-mwjhhqem-40hwla",
+              "run_started_at": 1794846883054
+            }
+          },
+          "source": "page_click_or_page_code"
+        },
+        {
+          "path": "/session/8fb5560b/step",
+          "body": {
+            "policy": "deadlock_avoidance",
+            "n_steps": 1
+          },
+          "source": "page_click_or_page_code"
+        },
+        {
+          "path": "/session/8fb5560b/step",
+          "body": {
+            "policy": "deadlock_avoidance",
+            "n_steps": 1
+          },
+          "source": "page_click_or_page_code"
+        },
+        {
+          "path": "/session/8fb5560b/step",
+          "body": {
+            "policy": "deadlock_avoidance",
+            "n_steps": 1
+          },
+          "source": "page_click_or_page_code"
+        },
+        {
+          "path": "/session/8fb5560b/play",
+          "body": {
+            "speed": 0.3333333333333333,
+            "policy": "deadlock_avoidance"
+          },
+          "source": "page_click_or_page_code"
+        },
+        {
+          "path": "/session/8fb5560b/pause",
+          "body": {},
+          "source": "browser_API_test_control"
+        },
+        {
+          "path": "/session/8fb5560b/step",
+          "body": {
+            "policy": "deadlock_avoidance",
+            "n_steps": 11
+          },
+          "source": "browser_API_test_control"
+        },
+        {
+          "path": "/session/8fb5560b/step",
+          "body": {
+            "policy": "deadlock_avoidance",
+            "n_steps": 1
+          },
+          "source": "browser_API_test_control"
+        },
+        {
+          "path": "/session/8fb5560b/proposals/apply",
+          "body": {
+            "variant": "ai",
+            "handle": 2,
+            "priority": [],
+            "preview_token": "kmxER3diZnP4qJukjW-vkSL3zOYCLjqF",
+            "candidate_id": "uc2-rl:branch:2:15:1:0",
+            "source_step": 15
+          },
+          "source": "page_click_or_page_code"
+        },
+        {
+          "path": "/session/8fb5560b/proposals/apply",
+          "body": {
+            "variant": "ai",
+            "handle": 2,
+            "priority": [],
+            "preview_token": "eWP-Y7LrbaUUJVJwQbNe80SmBnxg4HRM",
+            "candidate_id": "uc2-rl:branch:2:30:1:0",
+            "source_step": 16
+          },
+          "source": "page_click_or_page_code"
+        },
+        {
+          "path": "/session/8fb5560b/play",
+          "body": {
+            "policy": "deadlock_avoidance",
+            "speed": 50
+          },
+          "source": "browser_API_test_control"
+        },
+        {
+          "path": "/session/8fb5560b/pause",
+          "body": {},
+          "source": "browser_API_test_control"
+        }
+      ]
+    },
+    {
+      "condition": "plan-b-p02",
+      "preset": "tutorial",
+      "takeover": 6,
+      "handle": 1,
+      "stale": false,
+      "acceptAlternative": true,
+      "session_id": "9015f78b",
+      "creation": {
+        "seed": 42,
+        "enabled_scenario_policy_ids": [
+          "deadlock_avoidance",
+          "shortest_path",
+          "random"
+        ],
+        "enabled_policy_ids": [
+          "uc2_rl",
+          "pf_ch_rl",
+          "deadlock_avoidance",
+          "shortest_path",
+          "random",
+          "forward_only",
+          "goal_directed"
+        ],
+        "scenario_preset_id": "tutorial",
+        "proposal_agent": "uc2_rl",
+        "run": {
+          "kind": "condition",
+          "id": "plan-b-p02",
+          "run_id": "run-mwjhhviu-n1kh9n",
+          "run_started_at": 1794846889686
+        }
+      },
+      "opening_driver": "deadlock_avoidance",
+      "native_horizon": 40,
+      "original_preview_source_step": 6,
+      "inspection_did_not_apply_or_advance": true,
+      "primary_candidate": "uc2-rl:rl:1:6",
+      "inspected_candidate": "uc2-rl:wait:1:6:0:1",
+      "accepted_candidate": "uc2-rl:wait:1:6:0:1",
+      "accepted_non_default": true,
+      "predicted": {
+        "train": {
+          "arrived": true,
+          "delay": 0,
+          "deadlocked": false,
+          "arrival_step": 28,
+          "planned_arrival": 20,
+          "delay_vs_plan": 8
+        },
+        "system": {
+          "deadlocks": 0,
+          "done": 2,
+          "total": 2,
+          "delay": 0
+        },
+        "metrics": {
+          "lateness": 14,
+          "time_in_network": 40,
+          "not_arrived": 0
+        },
+        "candidate_id": "uc2-rl:wait:1:6:0:1",
+        "intervention": {
+          "kind": "wait",
+          "handle": 1,
+          "step": 6,
+          "action": 0,
+          "wait_steps": 1
+        }
+      },
+      "acceptance": {
+        "request": {
+          "variant": "ai",
+          "handle": 1,
+          "priority": [],
+          "preview_token": "sR5PUl9dvHQmw9-ZMMY9rJjSQrCWocX_",
+          "candidate_id": "uc2-rl:wait:1:6:0:1",
+          "source_step": 6
+        },
+        "response": {
+          "applied": "ai",
+          "label": "KI-Plan übernommen",
+          "step": 6,
+          "policy": "plan"
+        }
+      },
+      "actual": {
+        "finish_step": 28,
+        "completed": 2,
+        "native_lateness": 14,
+        "selected_train_arrival": 28,
+        "replayed_preview_positions_verified": 37,
+        "elapsed_seconds": 0.531
+      },
+      "page_requests": [
+        {
+          "path": "/session",
+          "body": {
+            "seed": 42,
+            "enabled_scenario_policy_ids": [
+              "deadlock_avoidance",
+              "shortest_path",
+              "random"
+            ],
+            "enabled_policy_ids": [
+              "uc2_rl",
+              "pf_ch_rl",
+              "deadlock_avoidance",
+              "shortest_path",
+              "random",
+              "forward_only",
+              "goal_directed"
+            ],
+            "scenario_preset_id": "tutorial",
+            "proposal_agent": "uc2_rl",
+            "run": {
+              "kind": "condition",
+              "id": "plan-b-p02",
+              "run_id": "run-mwjhhviu-n1kh9n",
+              "run_started_at": 1794846889686
+            }
+          },
+          "source": "page_click_or_page_code"
+        },
+        {
+          "path": "/session/9015f78b/step",
+          "body": {
+            "policy": "deadlock_avoidance",
+            "n_steps": 1
+          },
+          "source": "page_click_or_page_code"
+        },
+        {
+          "path": "/session/9015f78b/step",
+          "body": {
+            "policy": "deadlock_avoidance",
+            "n_steps": 1
+          },
+          "source": "page_click_or_page_code"
+        },
+        {
+          "path": "/session/9015f78b/play",
+          "body": {
+            "speed": 0.2,
+            "policy": "deadlock_avoidance"
+          },
+          "source": "page_click_or_page_code"
+        },
+        {
+          "path": "/session/9015f78b/pause",
+          "body": {},
+          "source": "browser_API_test_control"
+        },
+        {
+          "path": "/session/9015f78b/step",
+          "body": {
+            "policy": "deadlock_avoidance",
+            "n_steps": 3
+          },
+          "source": "browser_API_test_control"
+        },
+        {
+          "path": "/session/9015f78b/proposals/apply",
+          "body": {
+            "variant": "ai",
+            "handle": 1,
+            "priority": [],
+            "preview_token": "sR5PUl9dvHQmw9-ZMMY9rJjSQrCWocX_",
+            "candidate_id": "uc2-rl:wait:1:6:0:1",
+            "source_step": 6
+          },
+          "source": "page_click_or_page_code"
+        },
+        {
+          "path": "/session/9015f78b/play",
+          "body": {
+            "policy": "deadlock_avoidance",
+            "speed": 50
+          },
+          "source": "browser_API_test_control"
+        },
+        {
+          "path": "/session/9015f78b/pause",
+          "body": {},
+          "source": "browser_API_test_control"
+        }
+      ]
+    }
+  ],
+  "page_errors": [],
+  "websocket_errors": [],
+  "application_error_responses": [
+    {
+      "path": "/session/8fb5560b/proposals/apply",
+      "status": 409
+    }
+  ],
+  "owned_session_cleanup": [
+    {
+      "session_id": "8fb5560b",
+      "status": 200
+    },
+    {
+      "session_id": "9015f78b",
+      "status": 200
+    }
+  ],
+  "source_commit": "2c22f037a1243aa93f9234378145b4d2e8616992",
+  "model_sha256": {
+    "app/policies/learned/checkpoints/uc2_demo_ppo.json": "3eb4255e58f3f8faa492feca7527087cf53f8c195aff6f46acb5bdd81804f944",
+    "app/policies/learned/checkpoints/uc2_demo_ppo.pt": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+    "app/policies/learned/checkpoints/uc2_roam_specialists.json": "b125e9cfef9e8669b4bd733299d418b4e247810eb961e810a6d00d96ac22f689",
+    "app/policies/learned/checkpoints/uc2_roam_tutorial.pt": "ff88e8a4664e51e9bb568c67d91886f757005ff919dbbc1884d69ff53707cc7a",
+    "app/policies/learned/checkpoints/uc2_roam_uc2_track.pt": "8efb91ce718996fc980b3624a637fb70e9a842ec63b865ecad6577e778dcd14a"
+  },
+  "state": "complete",
+  "finished_utc": "2026-11-16T16:34:51.081Z"
+}

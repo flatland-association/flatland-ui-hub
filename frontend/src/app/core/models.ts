@@ -7,7 +7,9 @@ export type PolicyName =
   | 'goal_directed'
   /** Drives the scenario's premade plan. Only offered by a scenario that
    *  ships one; the backend selects it at session creation. */
-  | 'plan';
+  | 'plan'
+  | 'pf_ch_rl'
+  | 'uc2_rl';
 
 export interface PolicyInfo {
   id: PolicyName;
@@ -28,6 +30,10 @@ export interface PolicyInfo {
   provenance: string;
   licence: string;
   grounding: string;
+  /** A trained network bound to its infrastructures (registry `PolicySpec.bundle`):
+   *  never swapped for a fallback, kept selected while unavailable or awaiting
+   *  acceptance (`SessionStore.isSpecialistPolicy`). */
+  specialist?: boolean;
 }
 
 export interface ScenarioPoliciesConfig {
@@ -93,6 +99,10 @@ export interface AgentDTO {
   eta_to_depart: number | null;
   time_to_deadline: number | null;
   delay: number;
+  /** Native observed arrival, when known; absent on older servers. */
+  arrival_time?: number | null;
+  /** Accrued lateness retains completed trains' outcomes; live delay stays separate. */
+  accrued_lateness?: number | null;
   is_visible: boolean;
   delay_color_intensity: number;
   cell_type: CellType;

@@ -8,6 +8,8 @@ Single source of truth for:
 from __future__ import annotations
 
 from dataclasses import dataclass
+import importlib.util
+from types import ModuleType
 from typing import Callable
 
 from flatland.envs.rail_env import RailEnv
@@ -20,6 +22,7 @@ from app.policies.forward_only_policy import ForwardOnlyPolicy
 from app.policies.do_nothing_policy import DoNothingPolicy
 from app.policies.plan_policy import PlanPolicy, trainruns_from_env
 from app.policies.random_policy import RandomPolicy
+from app.policies.learned import pf_ch_bundle, uc2_bundle, uc2_roam_bundle
 
 
 PolicyFactory = Callable[[RailEnv], Policy]
@@ -68,6 +71,18 @@ class PolicySpec:
     #: Why this exists — a source, a paper, or control-room practice.
     grounding: str = ""
 
+    # ── runtime needs ───────────────────────────────────────────────────
+    #: A specialist's bundle module (``compatibility_error(env)``,
+    #: ``verify_bundle()``): a trained network bound to the infrastructures it
+    #: learned on. It is checked before it may drive, its inference runs in the
+    #: worker under the session's command lock (``core/pf_ch_control.py``), and
+    #: the browser never swaps it for a fallback. None for every other policy.
+    bundle: ModuleType | None = None
+
+    @property
+    def specialist(self) -> bool:
+        return self.bundle is not None
+
 
 def _mk_deadlock(env: RailEnv) -> Policy:
     return DeadLockAvoidancePolicy()
@@ -101,7 +116,87 @@ def _mk_plan(env: RailEnv) -> Policy:
     return PlanPolicy(env, trainruns_from_env(env))
 
 
+def _mk_pf_ch_rl(env: RailEnv) -> Policy:
+    pf_ch_bundle.require_compatible(env)
+    pf_ch_bundle.verify_bundle()
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    policy = LearnedPpoPolicy(checkpoint=pf_ch_bundle.CHECKPOINT)
+    # The actor captures its own compact features. Do not compute unused
+    # GlobalObs arrays or inherit Flatland's shared default builder while a
+    # different session/forecast rebinds it. Physics and other drivers use env
+    # state directly, so switching back remains available.
+    builder = policy.build_observation_builder()
+    builder.reset(env)
+    env.obs_builder = builder
+    return policy
+
+
+def _branch_pf_ch_rl() -> Policy:
+    pf_ch_bundle.verify_bundle()
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    return LearnedPpoPolicy(checkpoint=pf_ch_bundle.CHECKPOINT)
+
+
+def _mk_uc2_rl(env: RailEnv) -> Policy:
+    uc2_roam_bundle.require_compatible(env)
+    uc2_roam_bundle.verify_bundle()
+    from app.policies.learned.uc2_roam_policy import UC2RoamPolicy
+
+    policy = UC2RoamPolicy(checkpoint=uc2_bundle.CHECKPOINT, specialists=True)
+    # As with PF-CH, each session owns a tiny native builder while the actor
+    # independently captures compact context; no GlobalObs arrays are needed.
+    builder = policy.build_observation_builder()
+    builder.reset(env)
+    env.obs_builder = builder
+    return policy
+
+
+def _branch_uc2_rl() -> Policy:
+    uc2_roam_bundle.verify_bundle()
+    from app.policies.learned.uc2_roam_policy import UC2RoamPolicy
+
+    return UC2RoamPolicy(checkpoint=uc2_bundle.CHECKPOINT, specialists=True)
+
+
 _REGISTRY: dict[str, PolicySpec] = {
+    "uc2_rl": PolicySpec(
+        id="uc2_rl",
+        label="UC2 RL (trained demos)",
+        description="One trained neural driver per infrastructure (Tutorial track, UC2 track) with joint movement checks for the native Tutorial and UC2-1 to UC2-4 scenarios.",
+        is_default=False,
+        show_in_ui=uc2_roam_bundle.available() and importlib.util.find_spec("torch") is not None,
+        supports_scenarios=False,
+        runtime_factory=_mk_uc2_rl,
+        branch_factory=_branch_uc2_rl,
+        family="learned",
+        bundle=uc2_roam_bundle,
+        deterministic=True,
+        role="operational",
+        observation="UC2ObservationBuilder (313 current-state features + 5 action masks)",
+        at_conflict="Selects neural actions from current train and mission state, then checks the joint movement with ROAM before human overrides.",
+        provenance="Verified native planner demonstrations, declared safe corrections, user-command recovery and distillation of the UC2 scenario specialists into one scenario-blind UC2-track model; joint ROAM adapted from the MIT ECML starter kit.",
+        licence="MIT (ECML starter-kit network/observation code); bundled trained weights.",
+        grounding="One model per infrastructure, blind to the scenario identity, with native faults and fractional speeds; independent variation results are reported separately.",
+    ),
+    "pf_ch_rl": PolicySpec(
+        id="pf_ch_rl",
+        label="PF-CH RL (trained demos)",
+        description="A trained PPO actor specialised for the published PF-CH demos; no PP fallback.",
+        is_default=False,
+        show_in_ui=pf_ch_bundle.available() and importlib.util.find_spec("torch") is not None,
+        supports_scenarios=False,
+        runtime_factory=_mk_pf_ch_rl,
+        branch_factory=_branch_pf_ch_rl,
+        family="learned",
+        bundle=pf_ch_bundle,
+        deterministic=True,
+        role="operational",
+        observation="PFChObservationBuilder (272 features + 5 action masks)",
+        at_conflict="Selects a masked action from the trained network; reliability on unseen timetables is not established.",
+        provenance="PP demonstrations, imitation warm start and PPO; specialised for PF-CH demo fixtures.",
+        licence="MIT (ECML starter-kit network/observation code); bundled trained weights.",
+        grounding="Verified PF-CH demo specialist, not a generally superior or optimal dispatcher.",
+    ),
     "deadlock_avoidance": PolicySpec(
         id="deadlock_avoidance",
         label="DLA (Default)",
@@ -289,6 +384,12 @@ def get_policy_spec(policy_id: str) -> PolicySpec | None:
     return _REGISTRY.get(policy_id)
 
 
+def is_specialist_policy(policy_id: str | None) -> bool:
+    """Whether `policy_id` is a specialist (`PolicySpec.bundle`); unknown ids are not."""
+    spec = _REGISTRY.get(policy_id) if policy_id else None
+    return spec is not None and spec.specialist
+
+
 def create_runtime_policy(policy_id: str, env: RailEnv) -> Policy:
     spec = get_policy_spec(policy_id)
     if spec is None:
@@ -296,6 +397,39 @@ def create_runtime_policy(policy_id: str, env: RailEnv) -> Policy:
     policy = spec.runtime_factory(env)
     policy.reset(env)
     return policy
+
+
+def driving_policy_id(policy_id: str, env: RailEnv) -> str:
+    """What actually drives a live step or play requested with `policy_id`.
+
+    After the operator accepted an AI plan (`plan_policy.accept_trainrun_plan`),
+    a request for an ordinary dispatching policy keeps following that plan: the
+    client may pin its policy on every request (the study conditions do), and the
+    accepted course must not be dropped by the next step. RL drivers are left
+    alone; they never follow trainruns.
+    """
+    from app.policies.plan_policy import plan_accepted
+
+    if policy_id != PLAN_POLICY_ID and not is_specialist_policy(policy_id) and plan_accepted(env):
+        return PLAN_POLICY_ID
+    return policy_id
+
+
+def create_driving_policy(policy_id: str, env: RailEnv, factory=None) -> tuple[str, Policy]:
+    """`(effective id, policy)` for a live step or play; see `driving_policy_id`.
+
+    Following an accepted plan, the requested policy drives the trains that are
+    not on it (overridden by the operator, or not covered). `factory` builds the
+    requested policy (default `create_runtime_policy`; callers pass their own seam).
+    """
+    factory = factory or create_runtime_policy
+    effective = driving_policy_id(policy_id, env)
+    if effective == policy_id:
+        return policy_id, factory(policy_id, env)
+    fallback = factory(policy_id, env)
+    policy = PlanPolicy(env, trainruns_from_env(env), fallback=fallback)
+    policy.reset(env)
+    return effective, policy
 
 
 def scenario_policy_factories() -> dict[str, PolicyBranchFactory]:

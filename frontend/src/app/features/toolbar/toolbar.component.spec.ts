@@ -37,6 +37,19 @@ describe('ToolbarComponent — the policy selector', () => {
 
   const ids = () => cmp.selectablePolicies().map((p) => p.id);
 
+  for (const actor of ['pf_ch_rl', 'uc2_rl'] as const) {
+    it(`does not substitute a baseline for a blocked ${actor} selection`, () => {
+      // The catalog marks the RL drivers as specialists (`PolicySpec.bundle`).
+      (store as unknown as { _policies: { set(v: PolicyInfo[]): void } })._policies.set(
+        [...POLICIES, { id: actor, label: actor, show_in_ui: true, specialist: true } as PolicyInfo]);
+      store.setActivePolicy(actor);
+      store.setEnabledControlPolicyIds(['deadlock_avoidance']);
+      fixture.detectChanges();
+      expect(cmp.policy()).toBe(actor);
+      expect(cmp.missingRlSelection()).toBeTrue();
+    });
+  }
+
   it('offers every policy the session enabled when nothing is configured', () => {
     expect(ids()).toEqual(['deadlock_avoidance', 'shortest_path', 'goal_directed', 'plan']);
   });

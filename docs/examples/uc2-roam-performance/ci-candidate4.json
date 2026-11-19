@@ -1,0 +1,191 @@
+{
+  "schema": "uc2-roam-ci-evidence-v1",
+  "candidate": "final candidate4",
+  "repository": "flatland-association/flatland-ui-hub",
+  "run_id": 43492086369,
+  "run_url": "https://github.com/flatland-association/flatland-ui-hub/actions/runs/43492086369",
+  "event": "workflow_dispatch",
+  "source_commit": "e1b293364ae9b4ccbe0a39741f7836c55643ac5e",
+  "branch": "codex/uc2-roam-performance-20261113",
+  "conclusion": "success",
+  "started_at": "2026-11-13T19:25:38Z",
+  "completed_updated_at": "2026-11-13T19:30:26Z",
+  "scope": "Final candidate4 application source and committed model assets. This CI validates software and native regression tests, not unseen-map generalisation.",
+  "jobs": [
+    {
+      "id": 132115608982,
+      "name": "backend",
+      "conclusion": "success",
+      "url": "https://github.com/flatland-association/flatland-ui-hub/actions/runs/43492086369/job/132115608982",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Test (unit + integration)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 132115609768,
+      "name": "backend-slow",
+      "conclusion": "success",
+      "url": "https://github.com/flatland-association/flatland-ui-hub/actions/runs/43492086369/job/132115609768",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Test (slow, and training when full)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 132115609909,
+      "name": "frontend",
+      "conclusion": "success",
+      "url": "https://github.com/flatland-association/flatland-ui-hub/actions/runs/43492086369/job/132115609909",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "No hardcoded colours (stylelint)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Translation keys (i18n check)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "results": {
+    "frontend": "Stylelint, translation keys/47 data-log IDs and production Angular build passed (14.044s build).",
+    "backend": "990 passed, 22 skipped, 285 warnings in 85.28s",
+    "backend_slow": "20 passed, 2 skipped, 71 warnings in 206.42s"
+  },
+  "native_fatal_crash_lines": {
+    "backend": 0,
+    "backend_slow": 0
+  },
+  "parallel_evidence": {
+    "platform": "ubuntu-latest",
+    "workflow_director_parallel_override": false,
+    "slow_command": "pytest -q -n 2 --run-slow $RUN_TRAINING -m \"slow or training\"",
+    "slow_tests_passed": 20,
+    "training_tests_skipped": 2,
+    "dedicated_test": "tests/test_director_parallel_strategies.py::test_parallel_and_sequential_plan_the_same_options",
+    "interpretation": "All20 slow cases passed with the default Linux parallel setting. The two skipped cases are the opt-in training tier. Local macOS serial results remain separately scoped."
+  },
+  "excerpts": {
+    "frontend": [
+      "2026-11-13T19:26:00.3976820Z ##[group]Run npm run lint:styles",
+      "2026-11-13T19:26:00.3977013Z npm run lint:styles",
+      "2026-11-13T19:26:00.4702046Z > flatland-dispatcher-frontend@0.1.0 lint:styles",
+      "2026-11-13T19:26:01.3852909Z ##[group]Run npm run i18n:check",
+      "2026-11-13T19:26:01.3853118Z npm run i18n:check",
+      "2026-11-13T19:26:01.4622159Z > flatland-dispatcher-frontend@0.1.0 i18n:check",
+      "2026-11-13T19:26:01.7079886Z \u2714 every literal key used in src/ exists in en.json; no stale de/fr keys; no hardcoded template text",
+      "2026-11-13T19:26:01.7493214Z \u2714 47 data-log ids, all translation keys",
+      "2026-11-13T19:26:01.7592568Z ##[group]Run npx ng build --configuration production",
+      "2026-11-13T19:26:01.7592838Z npx ng build --configuration production",
+      "2026-11-13T19:26:16.4256539Z Application bundle generation complete. [14.044 seconds] - 2026-11-13T19:26:16.423Z"
+    ],
+    "backend": [
+      "2026-11-13T19:26:32.1536396Z ##[group]Run pytest -q",
+      "2026-11-13T19:27:58.4418597Z 990 passed, 22 skipped, 285 warnings in 85.28s (0:01:25)"
+    ],
+    "backend_slow": [
+      "2026-11-13T19:26:55.2399532Z ##[group]Run pytest -q -n 2 --run-slow $RUN_TRAINING -m \"slow or training\"",
+      "2026-11-13T19:26:55.2400109Z pytest -q -n 2 --run-slow $RUN_TRAINING -m \"slow or training\"",
+      "2026-11-13T19:30:23.6578499Z 20 passed, 2 skipped, 71 warnings in 206.42s (0:03:26)"
+    ]
+  },
+  "saved_decoded_log_sha256": {
+    "backend.log": "224194a32c623a8b7e4134e038ef17cd985faccaf96729407f1f36453d4e5a1e",
+    "frontend.log": "527e63668ca55d79f7aef1bf52836e12827af703c5896b31309322b1858bcf3a",
+    "backend-slow.log": "6dff9c7911ce125556bca99f40893cc4acac86108000d5f997e02abaf3ee2791"
+  }
+}

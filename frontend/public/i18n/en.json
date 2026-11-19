@@ -260,6 +260,36 @@
     "plan-b-uc2": {
       "name": "Plan B · UC2-01",
       "description": "The Walensee disruption in Co-Learning mode with the reduced study UI, then the post-session survey."
+    },
+    "pf-ch-rl-corridor": {
+      "name": "PF-CH · trained RL dispatcher",
+      "short": "PF-CH RL · 16 trains",
+      "description": "Sixteen trains, 48 required stops and four scripted faults. The trained RL policy drives this known demo. Other timetables are outside the demonstrated scope. About 3 minutes, no survey."
+    },
+    "uc2-rl-tutorial": {
+      "name": "Tutorial · trained RL dispatcher",
+      "short": "Tutorial RL",
+      "description": "The trained RL policy runs the original Tutorial scenario, preserving native faults, speeds and timetable. No survey."
+    },
+    "uc2-rl-1": {
+      "name": "UC2-1 · trained RL dispatcher",
+      "short": "UC2-1 RL",
+      "description": "The trained RL policy runs the original UC2-1 scenario, preserving native faults, speeds and timetable. No survey."
+    },
+    "uc2-rl-2": {
+      "name": "UC2-2 · trained RL dispatcher",
+      "short": "UC2-2 RL",
+      "description": "The trained RL policy runs the original UC2-2 scenario, preserving native faults, speeds and timetable. No survey."
+    },
+    "uc2-rl-3": {
+      "name": "UC2-3 · trained RL dispatcher",
+      "short": "UC2-3 RL",
+      "description": "The trained RL policy runs the original UC2-3 scenario, preserving native faults, speeds and timetable. No survey."
+    },
+    "uc2-rl-4": {
+      "name": "UC2-4 · trained RL dispatcher",
+      "short": "UC2-4 RL",
+      "description": "The trained RL policy runs the original UC2-4 scenario, preserving native faults, speeds and timetable. No survey."
     }
   },
   "intro": {
@@ -545,6 +575,16 @@
     "plan": {
       "label": "Scripted Plan",
       "description": "Drives every train along the scenario's premade plan; trains the plan does not cover, or that the operator overrode, fall back to deadlock avoidance."
+    },
+    "pf_ch_rl": {
+      "label": "PF-CH RL · trained demos",
+      "description": "Learned policy trained on the published PF-CH demos. It controls the trains directly; changed timetables and other maps are outside the validated scope.",
+      "unavailable": "The PF-CH RL policy is unavailable on this server. This session remains stopped."
+    },
+    "uc2_rl": {
+      "label": "UC2 RL · trained demos",
+      "description": "Learned policy trained for the original UC2-1 to UC2-4 and tutorial scenarios. It controls the trains directly.",
+      "unavailable": "The UC2 RL policy is unavailable on this server. This session remains stopped."
     }
   },
   "panels": {
@@ -1607,11 +1647,12 @@
     "compare": "Comparison",
     "lessIsBetter": "less is better",
     "notAvailable": "n/a",
-    "aiMatchesPlan": "The AI would stay with the plan here: its best order changes no arrival.",
-    "hideAlternatives": "Hide further AI orders",
-    "showAlternatives": "Further AI orders ({{n}})",
+    "aiMatchesPlan": "This AI course changes no arrival compared with the plan.",
+    "hideAlternatives": "Hide further AI courses",
+    "showAlternatives": "Further AI courses ({{n}})",
     "holdCaveat": "In the prototype the train stops with this; you give the release yourself once the spot is clear.",
     "aiTakenCaveat": "The trains now run by the AI’s plan. “vs. plan” still measures against the original timetable.",
+    "aiTakenCaveatKept": "The trains now run by the AI’s plan; trains with your decision (stop, turn, reroute) keep it. “vs. plan” still measures against the original timetable.",
     "option": {
       "hold": "Hold",
       "holdHint": "The train stays put until you release it again.",
@@ -1638,7 +1679,19 @@
     "and": "and",
     "quoted": "“{{name}}”",
     "computing": "Working out “{{option}}” …",
-    "compareNote": "Totals over all trains, in simulation steps."
+    "compareNote": "Totals over all trains, in simulation steps.",
+    "previewExpired": "The simulation or plan has changed. Refresh the courses before taking one.",
+    "refreshCourses": "Refresh courses",
+    "inspectCourse": "Show this course",
+    "course": {
+      "rl": "The model’s own course",
+      "branch": "Take the {{direction}} branch at step {{step}}",
+      "wait": "Wait {{n}} steps from step {{step}}",
+      "left": "left",
+      "forward": "straight",
+      "right": "right",
+      "waitOne": "Wait one step from step {{step}}"
+    }
   },
   "zwl": {
     "empty": "Select a train to see its time-distance trajectory.",
@@ -2510,5 +2563,11 @@
     "submit": "Submit",
     "missing": "Please answer all questions on this page.",
     "statement": "Statement"
+  },
+  "layouts": {
+    "uc2Rl": {
+      "name": "UC2 RL",
+      "purpose": "Supervise the trained UC2/tutorial policy on the original native scenarios."
+    }
   }
 }
