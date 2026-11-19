@@ -174,8 +174,12 @@ def test_disturbances_after_the_checkpoint_fire_in_the_sandbox():
 
 def test_advanced_tour_case_rewards_the_reroute():
     """The advanced tour's counter-train case: hold and proceed cost the same,
-    the reroute brings the oncoming train in on time — and the case stays out
-    of the experiment picker."""
+    the reroute brings the oncoming train in nearly on time — and the case
+    stays out of the experiment picker.
+
+    The rerouted train leaves the taken plan, so deadlock avoidance drives it
+    along its route: it waits three steps until train 0 has left the shared
+    track, and arrives at step 60 instead of the plan's 57."""
     from app.core.scenario_presets import list_presets
 
     warnings.filterwarnings("ignore")
@@ -197,8 +201,8 @@ def test_advanced_tour_case_rewards_the_reroute():
         assert run("proceed")["totalDelayVsPlan"] == 40
         assert run("hold_until", release_after=item["clears_in_steps"])["totalDelayVsPlan"] == 40
         reroute = run("reroute")
-        assert reroute["arrived"] == 3 and reroute["totalDelayVsPlan"] == 20
-        assert _arrivals(reroute)[2] == 57  # the oncoming train, on time
+        assert reroute["arrived"] == 3 and reroute["totalDelayVsPlan"] == 23
+        assert _arrivals(reroute)[2] == 60  # the oncoming train, waited for train 0
         proposals = client.get(f"/session/{session.id}/proposals", params={"handle": 2}).json()
         assert proposals["ai_matches_plan"] is False
     finally:

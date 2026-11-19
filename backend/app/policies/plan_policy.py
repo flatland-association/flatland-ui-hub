@@ -42,6 +42,11 @@ Both fall to `fallback` (the app default, deadlock avoidance) and, once off,
 stay off for the rest of the episode. Silently snapping an overridden train
 back onto the plan would hide the consequence of the operator's decision,
 which in this app is the thing under study.
+
+The operator's committed holds and routes (`set_committed_overrides`) are
+passed on to the fallback. A train rerouted after the course was taken is off
+plan from then on, so the fallback drives it along its route; a route the
+course was simulated with keeps it on plan.
 """
 from __future__ import annotations
 
@@ -125,6 +130,36 @@ class PlanPolicy(Policy):
     @property
     def _off_plan(self) -> Set[int]:
         return getattr(self._env, "_plan_off_plan", set())
+
+    def set_committed_overrides(self, holds, routes) -> bool:
+        """Take rerouted trains off the plan, pass the overrides on to the fallback.
+
+        A train with a committed route the course was not simulated with is
+        off plan from now on (Q-8 a): the course's entry steps and its order at
+        each cell answer the old situation, and keeping them would hold the
+        train where the route meant to let it go. The fallback drives it from
+        then on: a fallback that takes the routes into account (DLA) walks it
+        along its route; for any other, `OverridePolicy` forces the route's
+        move. A route the course was simulated with (#208's kept reroute,
+        recorded by `note_course_routes`) stays on plan. The fallback's answer
+        is this policy's: when True, `OverridePolicy` keeps the driver's stop
+        for a rerouted train. Plan:
+        docs/plans/set-route-on-map.md (Q-12, S-6).
+        """
+        if self._env is not None:
+            off = self._off_plan_set()
+            course_routes = getattr(self._env, "_plan_course_routes", None) or {}
+            for handle, route in (routes or {}).items():
+                handle = int(handle)
+                if handle in self.trainruns and handle not in off and _nodes(route) != course_routes.get(handle):
+                    off.add(handle)
+        return bool(self.fallback.set_committed_overrides(holds, routes))
+
+    def _off_plan_set(self) -> Set[int]:
+        """The env's off-plan set, created when `reset` has not run yet."""
+        if not hasattr(self._env, "_plan_off_plan"):
+            self._env._plan_off_plan = set()
+        return self._env._plan_off_plan
 
     def start_step(self, train: bool = False) -> None:
         self.fallback.start_step(train)
@@ -320,9 +355,27 @@ def accept_trainrun_plan(env: RailEnv, trainruns: TrainrunDict) -> None:
     client keeps sending (a study condition pins one for every step and play);
     that policy then only drives trains off the plan. See `plan_accepted` and
     docs/plans/uc2-rl-proposal-agent.md.
+
+    The accepted course is a new course for every train: a train that left the
+    one it replaces is on plan again (a Director strategy and «Handlungsoptionen»
+    both accept here; docs/plans/set-route-on-map.md, S-8).
     """
     install_trainrun_plan(env, trainruns)
     env._accepted_trainrun_plan = True
+    env._plan_off_plan = set()
+
+
+def _nodes(route) -> List[Tuple[int, int, int]]:
+    return [tuple(int(v) for v in node) for node in route]
+
+
+def note_course_routes(env: RailEnv, routes) -> None:
+    """Record the committed routes a just accepted course was simulated with.
+
+    `PlanPolicy` keeps their trains on plan; any other committed route takes
+    its train off plan (`PlanPolicy.set_committed_overrides`).
+    """
+    env._plan_course_routes = {int(h): _nodes(r) for h, r in (routes or {}).items()}
 
 
 def plan_accepted(env: RailEnv) -> bool:
@@ -336,6 +389,7 @@ def revert_accepted_plan(env: RailEnv) -> None:
     env._trainrun_plan = getattr(env, "_baseline_trainrun_plan", None)
     env._baseline_trainrun_plan = None
     env._accepted_trainrun_plan = False
+    env._plan_course_routes = {}
 
 
 def planned_arrival_steps(env: RailEnv) -> Dict[int, int]:
@@ -355,6 +409,7 @@ __all__ = [
     "revert_accepted_plan",
     "baseline_trainruns_from_env",
     "install_trainrun_plan",
+    "note_course_routes",
     "plan_branch_factory",
     "planned_arrival_steps",
     "trainruns_from_env",

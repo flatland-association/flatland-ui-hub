@@ -3,6 +3,7 @@ import { SessionStore } from '../session.store';
 import { ProposalOption } from '../events/event-types';
 import { PanelFrameService } from '../layout/panel-frame';
 import { ReplayService } from '../replay/replay.service';
+import type { DrawnRoute } from '../routing/route-drawing';
 
 /**
  * The option the operator is looking at for one train, shared by the surfaces
@@ -36,6 +37,14 @@ export class ProposalChoiceService {
         lastHandle = handle;
       });
     });
+    // Route mode belongs to one train: selecting another ends it.
+    effect(() => {
+      const handle = this.store.selectedHandle();
+      untracked(() => {
+        const drawing = this.store.routeDrawing();
+        if (drawing && drawing.handle !== handle) this.store.routeDrawing.set(null);
+      });
+    });
     let affected = new Set<number>();
     effect(() => {
       const now = new Set(this.store.impact().map((i) => i.handle));
@@ -65,15 +74,38 @@ export class ProposalChoiceService {
     if (option === 'reroute' && !this.rerouteAvailable(handle)) return;
     if (this.store.selectedHandle() !== handle) this.store.selectedHandle.set(handle);
     this.choice.set({ handle, option });
+    // «Umleiten» is drawn: the map goes into route mode for this train, and the
+    // Mensch course waits for the drawn route (docs/plans/set-route-on-map.md).
+    this.store.routeDrawing.set(option === 'reroute' ? { handle, nodes: [], via: null } : null);
     this.openPanel();
   }
 
+  /** Leave route mode without a route (Esc); the option stays picked. */
+  cancelRouteDrawing(): void {
+    this.store.routeDrawing.set(null);
+  }
+
+  /** The via cells drawn for the selected train, once the drag ended. */
+  readonly drawnVia = computed(() => {
+    const drawing = this.store.routeDrawing();
+    return drawing && drawing.handle === this.store.selectedHandle() ? drawing.via : null;
+  });
+
+  /** The finished drawing for the selected train, as the backend takes it:
+   *  the via cells and the cell and heading the drawing began at. */
+  readonly drawnRoute = computed<DrawnRoute | null>(() => {
+    const via = this.drawnVia();
+    const start = this.store.routeDrawing()?.nodes[0];
+    return via && start ? { via, start } : null;
+  });
+
   /**
-   * While the impact analysis lists the train it also says whether a reroute
-   * exists. Without an entry the backend decides, and explains a refusal.
+   * A route can always be drawn (set-route-on-map, Q-5): for a train on the
+   * map or waiting at its origin, not only around a block. Not for a train that
+   * has arrived.
    */
   rerouteAvailable(handle: number | null): boolean {
-    const item = this.store.impact().find((i) => i.handle === handle);
-    return item ? item.can_reroute : true;
+    if (handle == null) return false;
+    return this.store.agents().find((a) => a.handle === handle)?.state !== 'DONE';
   }
 }

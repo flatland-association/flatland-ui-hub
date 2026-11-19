@@ -17,6 +17,13 @@ route's move every step. The route is fixed when the operator commits it and
 kept on the env (`env._route_overrides`), which branch forks copy, so a
 forecast follows the same route the live run does.
 
+A drawn route ("Fahrweg einstellen") is a reroute too: the operator chooses the
+switches (via cells), `route_through` fills the cells to the target. It is kept
+as drawn (`env._route_drawn`): a train that leaves it ends the override instead
+of getting a computed route. It may start before the train enters the map.
+
+Plan: docs/plans/set-route-on-map.md.
+
 Plan: docs/plans/proposal-agents-roadmap.md (stage 2e).
 """
 from __future__ import annotations
@@ -30,7 +37,13 @@ from flatland.envs.step_utils.states import TrainState
 
 from app.planners.replan import build_rail_digraph
 from app.policies.goal_based_policies.infrastructure_graph import action_for_move
-from app.utils.agent_compat import agent_direction, agent_planned_target, agent_position
+from app.utils.agent_compat import (
+    agent_direction,
+    agent_initial_direction,
+    agent_initial_position,
+    agent_planned_target,
+    agent_position,
+)
 
 #: Override value for "reroute"; never reaches the env.
 REROUTE_ACTION = 5
@@ -110,6 +123,76 @@ def route_around_blocks(env: RailEnv, handle: int) -> Optional[List[Node]]:
     return [tuple(int(v) for v in node) for node in paths[best]]
 
 
+#: States in which a train waits at its origin, off the map.
+_OFF_MAP_WAITING = (TrainState.WAITING, TrainState.READY_TO_DEPART, TrainState.MALFUNCTION_OFF_MAP)
+
+
+def _start_node(agent) -> Optional[Node]:
+    """The train's cell and heading, or its origin's while it waits off the map."""
+    pos = agent_position(agent)
+    if pos is not None:
+        return int(pos[0]), int(pos[1]), int(agent_direction(agent))
+    if agent.state in _OFF_MAP_WAITING:
+        origin, heading = agent_initial_position(agent), agent_initial_direction(agent)
+        if origin is not None and heading is not None:
+            return int(origin[0]), int(origin[1]), int(heading)
+    return None
+
+
+class LeftDrawnRoute(Exception):
+    """The train is no longer on the route the operator drew: it moved on past a
+    drawn switch, or onto another branch, while the operator was drawing or
+    comparing."""
+
+
+def route_through(
+    env: RailEnv,
+    handle: int,
+    via: List[Tuple[int, int]],
+    start: Optional[Node] = None,
+) -> Optional[List[Node]]:
+    """Route through `via`, in order, to the train's target.
+
+    Each leg is the shortest path in the rail graph to any heading in the next
+    via cell; after the last one the route goes on by the shortest path to the
+    target. None when the train is done or a leg has no path. Blocked cells are
+    not avoided: the operator chose the switches.
+
+    Without `start` the route begins at the train's cell and heading (its
+    origin while it waits off the map). With `start`, the cell and heading the
+    drawing began at, it is the line the operator drew, cut where the train is
+    now; `LeftDrawnRoute` when the train is no longer on it. The clock runs
+    while the operator draws and compares, so the train may have moved on: a
+    route rebuilt from its new cell would have to find its way back to the via
+    cells, through a detour nobody drew.
+    """
+    agent = env.agents[int(handle)]
+    if agent.state == TrainState.DONE:
+        return None
+    here = _start_node(agent)
+    origin = tuple(int(v) for v in start) if start is not None else here
+    graph = _rail_digraph(env)
+    if here is None or origin not in graph:
+        return None
+    target = (int(agent_planned_target(agent)[0]), int(agent_planned_target(agent)[1]))
+    route: List[Node] = [origin]
+    for cell in [tuple(int(v) for v in c) for c in via] + [target]:
+        if (route[-1][0], route[-1][1]) == cell:
+            continue
+        lengths = nx.single_source_shortest_path_length(graph, route[-1])
+        ends = [(cell[0], cell[1], h) for h in range(4) if (cell[0], cell[1], h) in lengths]
+        if not ends:
+            return None
+        best = min(ends, key=lambda n: lengths[n])
+        leg = nx.shortest_path(graph, route[-1], best)
+        route.extend(tuple(int(v) for v in node) for node in leg[1:])
+    if start is not None:
+        if here not in route:
+            raise LeftDrawnRoute(f"Train {handle} has left the drawn route")
+        route = route[route.index(here):]
+    return route
+
+
 def first_switch_move(env: RailEnv, route: List[Node]) -> Tuple[Optional[int], Optional[Tuple[int, int]]]:
     """The route's move at its first cell with a choice, and that cell.
 
@@ -133,11 +216,33 @@ def _routes(env: RailEnv) -> Dict[int, List[Node]]:
     return routes
 
 
-def commit_route(env: RailEnv, handle: int) -> Optional[List[Node]]:
-    """Fix the route around the current blocks for `handle`; None if there is none."""
-    route = route_around_blocks(env, handle)
+def _drawn(env: RailEnv) -> Set[int]:
+    drawn = getattr(env, "_route_drawn", None)
+    if drawn is None:
+        drawn = set()
+        env._route_drawn = drawn
+    return drawn
+
+
+def commit_route(
+    env: RailEnv,
+    handle: int,
+    via: Optional[List[Tuple[int, int]]] = None,
+    start: Optional[Node] = None,
+) -> Optional[List[Node]]:
+    """Fix the route for `handle`; None if there is none.
+
+    Without `via` the route around the current blocks; with `via` the route the
+    operator drew through those cells from `start` (`route_through`, which
+    raises `LeftDrawnRoute` when the train has left it), kept as drawn.
+    """
+    route = route_through(env, handle, via, start) if via else route_around_blocks(env, handle)
     if route is not None:
         _routes(env)[int(handle)] = route
+        if via:
+            _drawn(env).add(int(handle))
+        else:
+            _drawn(env).discard(int(handle))
     return route
 
 
@@ -150,6 +255,12 @@ def carry_to_fork(source: RailEnv, target: RailEnv) -> None:
     routes = getattr(source, "_route_overrides", None)
     if routes:
         target._route_overrides = {h: list(r) for h, r in routes.items()}
+    drawn = getattr(source, "_route_drawn", None)
+    if drawn:
+        target._route_drawn = set(drawn)
+    course_routes = getattr(source, "_plan_course_routes", None)
+    if course_routes:
+        target._plan_course_routes = {h: list(r) for h, r in course_routes.items()}
     plan = getattr(source, "_route_reference_plan", None) or getattr(source, "_trainrun_plan", None)
     if plan:
         target._route_reference_plan = plan
@@ -160,17 +271,26 @@ def route_move(env: RailEnv, handle: int) -> Optional[RailEnvActions]:
 
     Follows the committed route. When there is none, or the train is not on it
     (a route left over from an earlier reroute, or a what-if proposing a new one
-    on a fork), the route is committed afresh from here. None when the reroute
-    is over or impossible — the train arrived, or no way around the blocks
-    exists — and the caller then clears the override.
+    on a fork), the route is committed afresh from here — except a drawn route,
+    which is not replaced. A train waiting at the origin of its route enters.
+    None when the reroute is over or impossible — the train arrived, left its
+    drawn route, or no way around the blocks exists — and the caller then
+    clears the override.
     """
     agent = env.agents[int(handle)]
     a_pos = agent_position(agent)
-    if agent.state == TrainState.DONE or a_pos is None:
+    route = _routes(env).get(int(handle))
+    if agent.state == TrainState.DONE:
+        return None
+    if a_pos is None:
+        start = _start_node(agent)
+        if route and start is not None and route[0] == start:
+            return RailEnvActions.MOVE_FORWARD
         return None
     here = (int(a_pos[0]), int(a_pos[1]), int(agent_direction(agent)))
-    route = _routes(env).get(int(handle))
     if not route or here not in route:
+        if int(handle) in _drawn(env):
+            return None
         route = commit_route(env, handle)
         if not route:
             return None
@@ -182,3 +302,4 @@ def route_move(env: RailEnv, handle: int) -> Optional[RailEnvActions]:
 
 def drop_route(env: RailEnv, handle: int) -> None:
     _routes(env).pop(int(handle), None)
+    _drawn(env).discard(int(handle))

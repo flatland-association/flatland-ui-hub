@@ -63,6 +63,36 @@ learning.
 
 **Feel:** the AI is a neutral partner; you decide, then reflect and learn.
 
+### Setting a route (Fahrweg einstellen)
+
+In the layouts with **Handlungsoptionen** (Plan / KI / Mensch, e.g. Plan B), you
+can draw a train's route over the switches yourself, as a dispatcher sets a route.
+
+1. Click the train on the **Streckenspiegel** (also while it still waits at its
+   origin) or in the **Fahrplan**. Handlungsoptionen shows its options.
+2. Pick **Umleiten**. The map is now in route mode (crosshair cursor), and the
+   «Mensch» column says how to draw.
+3. Press on the train and, with the button down, drag along the tracks. The line
+   follows the rails in the train's colour; a cell the train cannot reach is
+   ignored, and dragging back shortens the route. **Esc** leaves route mode.
+4. Release: the «Mensch» course is computed for the drawn route, next to «Plan»
+   (no intervention) and «KI». The route runs through the switches you chose and
+   then the shortest way to the train's destination.
+5. **Umleiten übernehmen** sets it. The clock keeps running while you draw.
+
+The route says *where* the train goes; the deadlock avoidance (DLA, the default
+policy) still says *when*: a rerouted train waits where its route would meet an
+oncoming train, and the others wait for it. Under other policies the drawn route
+is driven without that check.
+
+**Example, the Plan B tutorial:** without help, BA waits at B until AB is through
+and does not arrive by step 40. Click BA at B, «Umleiten», and drag it through the
+second track of the passing loop in the middle; take it. Both trains arrive (in
+the recording AB at step 25, BA at step 28):
+[recording](../plans/set-route-on-map/tutorial-in-app.mp4)
+([GIF](../plans/set-route-on-map/tutorial-in-app.gif)). Design and limits:
+[set-route-on-map.md](../plans/set-route-on-map.md).
+
 ---
 
 ## 3. Director (WP 3.4) — you set the goal, the AI runs it

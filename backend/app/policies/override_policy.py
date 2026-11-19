@@ -13,6 +13,11 @@ UI mental model:
 Reroute (`REROUTE_ACTION`) is the exception: not one action but a whole route
 around the blocked cells, driven every step until the train arrives
 (`app.core.route_overrides`).
+
+Override-aware policies: before each step the wrapped policy gets the committed
+holds and routes (`Policy.set_committed_overrides`). One that takes them into
+account (DLA) keeps the say over go or stop for a rerouted train: its STOP wins,
+otherwise the route's move. For any other policy the route's move wins, as before.
 """
 from __future__ import annotations
 
@@ -27,6 +32,13 @@ from app.core.route_overrides import REROUTE_ACTION, drop_route, route_move
 from app.utils.agent_compat import agent_direction, agent_position
 
 
+def _is_stop(action: Any) -> bool:
+    try:
+        return int(getattr(action, "value", action)) == RailEnvActions.STOP_MOVING.value
+    except (TypeError, ValueError):
+        return False
+
+
 class OverridePolicy:
     """Wrap a runtime policy and delay user overrides until a decision point."""
 
@@ -39,6 +51,9 @@ class OverridePolicy:
         # ("policy", "override" or "reroute").
         self.last_proposed: Dict[int, Any] = {}
         self.last_sources: Dict[int, str] = {}
+        # Whether the wrapped policy took the committed overrides this step
+        # (`_pass_committed_overrides`); then its STOP wins over a route's move.
+        self._policy_knows_overrides = False
 
     def reset(self, env) -> None:
         self.env = env
@@ -54,8 +69,26 @@ class OverridePolicy:
             self.default_policy.end_episode()
 
     def start_step(self) -> None:
+        self._pass_committed_overrides()
         if hasattr(self.default_policy, "start_step"):
             self.default_policy.start_step()
+
+    def _pass_committed_overrides(self) -> bool:
+        """Tell the wrapped policy the committed holds and routes; True if it uses them."""
+        setter = getattr(self.default_policy, "set_committed_overrides", None)
+        if setter is None or self.env is None:
+            self._policy_knows_overrides = False
+            return False
+        committed = override_manager.get_all(self.session_id)
+        env_routes = getattr(self.env, "_route_overrides", None) or {}
+        holds = {int(h) for h, a in committed.items() if int(a) == RailEnvActions.STOP_MOVING.value}
+        routes = {
+            int(h): list(env_routes[int(h)])
+            for h, a in committed.items()
+            if int(a) == REROUTE_ACTION and int(h) in env_routes
+        }
+        self._policy_knows_overrides = bool(setter(holds, routes))
+        return self._policy_knows_overrides
 
     def end_step(self) -> None:
         if hasattr(self.default_policy, "end_step"):
@@ -63,6 +96,7 @@ class OverridePolicy:
 
     def act_many(self, handles: Iterable[int], observations: Dict[int, Any]) -> Dict[int, Any]:
         handles = [int(h) for h in handles]
+        self._pass_committed_overrides()
 
         if hasattr(self.default_policy, "act_many"):
             actions = dict(self.default_policy.act_many(handles, observations) or {})
@@ -95,6 +129,8 @@ class OverridePolicy:
                 if move is None:
                     override_manager.clear(self.session_id, h)
                     drop_route(self.env, h)
+                elif self._policy_knows_overrides and _is_stop(actions.get(h)):
+                    pass  # the policy walked the route and says wait
                 else:
                     actions[h] = move
                     self.last_sources[h] = "reroute"
