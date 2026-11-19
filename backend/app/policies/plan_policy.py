@@ -355,9 +355,14 @@ def accept_trainrun_plan(env: RailEnv, trainruns: TrainrunDict) -> None:
     client keeps sending (a study condition pins one for every step and play);
     that policy then only drives trains off the plan. See `plan_accepted` and
     docs/plans/uc2-rl-proposal-agent.md.
+
+    The accepted course is a new course for every train: a train that left the
+    one it replaces is on plan again (a Director strategy and «Handlungsoptionen»
+    both accept here; docs/plans/set-route-on-map.md, S-8).
     """
     install_trainrun_plan(env, trainruns)
     env._accepted_trainrun_plan = True
+    env._plan_off_plan = set()
 
 
 def _nodes(route) -> List[Tuple[int, int, int]]:

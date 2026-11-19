@@ -288,3 +288,28 @@ def test_too_many_via_cells_and_a_malformed_start_are_rejected():
             assert err.value.status_code == 400, (via[:10], start)
     finally:
         session_manager.delete(session.id)
+
+
+def test_a_new_director_course_puts_a_rerouted_train_back_on_plan():
+    """Review of #207 (S-8): a Director strategy accepts a course like «Handlungsoptionen»
+    does, so a train that left the course it replaces follows the new one."""
+    from app.core.contention_strategies import apply_strategy
+    from app.core.session_manager import session_manager
+    from app.policies.plan_policy import PlanPolicy
+
+    session = session_manager.create(scenario_preset_id="tutorial")
+    try:
+        env = session.env
+        apply_strategy(session.id, session, "pp")  # course A
+        assert not getattr(env, "_plan_off_plan", None)
+        route = commit_route(env, BA, LOOP)  # rerouted under course A
+        policy = PlanPolicy(env, env._trainrun_plan, fallback=DeadLockAvoidancePolicy())
+        policy.reset(env)
+        policy.set_committed_overrides(set(), {BA: route})
+        assert env._plan_off_plan == {BA}
+        apply_strategy(session.id, session, "pp")  # course B plans BA again
+        assert BA in env._trainrun_plan
+        assert env._plan_off_plan == set()
+    finally:
+        override_manager.clear_all(session.id)
+        session_manager.delete(session.id)

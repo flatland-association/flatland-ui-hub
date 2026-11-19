@@ -633,8 +633,7 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
                 env, req.priority or (), handle, candidate_id=req.candidate_id, overrides=kept)
         if not trainruns:
             raise HTTPException(409, "The planner found no collision-free plan from here")
-        accept_trainrun_plan(env, trainruns)
-        env._plan_off_plan = set()  # the replacement starts a new executable course
+        accept_trainrun_plan(env, trainruns)  # also puts every train on plan again
         session.trainrun_plan = trainruns
         session.policy = PLAN_POLICY_ID
         if getattr(agent, "respects_overrides", False):

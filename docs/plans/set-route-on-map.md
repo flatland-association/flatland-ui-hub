@@ -9,7 +9,7 @@
 > [#199](https://github.com/flatland-association/flatland-ui-hub/issues/199), last bullet ("possible extension:
 > Fahrweg einstellen Knoten-Knoten-Knoten"), label "plan b". PR [#207](https://github.com/flatland-association/flatland-ui-hub/pull/207). Open questions: none (§9.1; Q-11 to Q-13 and (Q-12) revisited decided 2026-11-18).
 > Implemented 2026-11-16 (S-2 to S-4), verified in the Plan B tutorial (§4.2); user doc in `docs/reference/mode-guide.md` (S-5). S-6
-> (`PlanPolicy` passes the call on and takes rerouted trains off plan, Q-12 a, revisited) in d71a8eb9.
+> (`PlanPolicy` passes the call on and takes rerouted trains off plan, Q-12 a, revisited) in d71a8eb9; S-7 and S-8 from the review.
 >
 > **Why:** today "Umleiten" computes a route for the operator, only around a broken-down train. A dispatcher sets a
 > route ("stellt einen Fahrweg ein") themselves, e.g. sends a train through the second track of a station so that
@@ -2014,6 +2014,7 @@ No review yet.
 | ✅ S-5 | - | Screenshots and recording (§4.2, in 871984c2 and 510ceabd); user doc: "Setting a route" in the mode guide, with the tutorial example; the plans in the docs index | docs | low | docs(map): setting a route by drawing it, with the tutorial example. | 13b1309f | S-4 | - |
 | ✅ S-6 | - | Q-12 a, revisited: `PlanPolicy.set_committed_overrides` takes a train rerouted after the course was taken off plan and passes the call on to its fallback; tests: only the routes the course was simulated with stay on plan, a train rerouted using the side track under a taken course arrives; the sandbox's counter-train case at its new delay (23 instead of 20, §8.2) | feat | medium | feat(policies): an accepted plan passes committed reroutes on to its fallback. | d71a8eb9 | S-2 | - |
 | ✅ S-7 | PR review | The clock runs while the operator draws and compares: the client sends the cell and heading the drawing began at (`start`) with the via cells; `route_through` rebuilds the drawn line from there and cuts it where the train is when the route is taken, 409 "draw it again" when the train has left it (before: a way back to the via cells that nobody drew, in the tutorial 57 cells via both dead ends). At most 64 via cells; the decision log records the drawn route (`drawnRoute`); the TrainActionService specs expect the route. Tests: the cut, a train past the drawn switch, both endpoints refusing it, the via limit and a malformed start | fix | medium | fix(overrides): take a drawn route as drawn, from where the train is when it is taken. | 519ed14a | S-3, S-4 | - |
+| ✅ S-8 | PR review | A Director strategy (`pp`, `pp-human`) accepts a course without putting the trains back on plan: a train rerouted under the previous course stayed off plan, and DLA drove it instead of the new course that plans it. `accept_trainrun_plan` now starts every accepted course with no train off plan, for the Director and «Handlungsoptionen» alike (before: only `/proposals/apply` reset it). Test: course A, BA rerouted, course B → BA on plan again | fix | medium | fix(policies): a newly accepted course puts every train back on plan. | (this commit) | S-6 | - |
 
 ### 11.2 Rebase and merge
 
