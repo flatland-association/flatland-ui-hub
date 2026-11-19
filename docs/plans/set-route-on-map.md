@@ -1,14 +1,14 @@
 # Fahrweg einstellen: draw a train's route on the Streckenspiegel (#199, last bullet)
 
 > **Status:** plan of 2026-11-16, draft. Now on [#215](https://github.com/flatland-association/flatland-ui-hub/pull/215)
-> (`refactor/196-modularization` 792f6850, on #208 83880783), see §11.2. Originally based on `main` fd0c70cb, on branch `feature/199-flash-ahead-set-path` after
+> (`refactor/196-modularization` 27c585ee, on #208 1e0bf255), see §11.2. Originally based on `main` fd0c70cb, on branch `feature/199-flash-ahead-set-path` after
 > the flash-ahead plan (00fad43d; kept on the same branch on request, may move to its own branch later). Rebased
 > 2026-11-18 onto [#208](https://github.com/flatland-association/flatland-ui-hub/pull/208) (head 17707737, on #196's
 > `codex/pf-ch-rl-main` 29b31139), whose overrides concept for the KI adviser meets this plan's (§3.4, Q-11). Issue
 > [#199](https://github.com/flatland-association/flatland-ui-hub/issues/199), last bullet ("possible extension:
 > Fahrweg einstellen Knoten-Knoten-Knoten"), label "plan b". PR [#207](https://github.com/flatland-association/flatland-ui-hub/pull/207). Open questions: none (§9.1; Q-11 to Q-13 and (Q-12) revisited decided 2026-11-18).
 > Implemented 2026-11-16 (S-2 to S-4), verified in the Plan B tutorial (§4.2); user doc in `docs/reference/mode-guide.md` (S-5). S-6
-> (`PlanPolicy` passes the call on and takes rerouted trains off plan, Q-12 a, revisited) implemented, not committed yet.
+> (`PlanPolicy` passes the call on and takes rerouted trains off plan, Q-12 a, revisited) in 54235345.
 >
 > **Why:** today "Umleiten" computes a route for the operator, only around a broken-down train. A dispatcher sets a
 > route ("stellt einen Fahrweg ein") themselves, e.g. sends a train through the second track of a station so that
@@ -1655,6 +1655,11 @@ Compared with `main`. What is reused, and what is not new on purpose, is in §4.
   was taken off plan, passes the committed routes on to DLA and answers True, so `apply_overrides` keeps the
   driver's stop for a rerouted train. A kept reroute the course was simulated with stays on plan and waits for the
   plan's entry steps and order, any other rerouted train for DLA, where before the route's move was forced. Forecasts and the KI courses' scores (which run `PlanPolicy`) may change. No API or format change.
+  Measured in the advanced tour's counter-train case (`test_sandbox.py::test_advanced_tour_case_rewards_the_reroute`):
+  the reroute's delay goes from 20 to 23 (proceed and hold stay at 40). The rerouted train waits at (0,111) in steps
+  31–33 until train 0 has left the shared track on row 0, and arrives at step 60 instead of 57. Before S-6 its forced
+  moves got through only by timing. DLA's walk of train 0 is its shortest path, not its run (the follow-up "The
+  fallback DLA walks the planned trains along their runs").
 - **`_branch_run` and `TrajectoryBranchRunner.run_branch` take `routes`:** callers keep the default; a stub that
   replaces `_branch_run` must accept `routes=None` (adjusted in #208's `test_proposal_horizon_scope.py`).
 - **«Fahrweg ändern» in the action options and the map popover always draws** (Q-5 a): it is offered for every train that
@@ -2001,24 +2006,27 @@ No review yet.
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
-| ✅ S-1 | - | The plan | docs | low | docs(plans): plan for setting a train's route on the Streckenspiegel (#199). | 2631a368 | - | - |
-| ✅ S-2 | - | The optional override-aware method on `Policy` (Q-4 b), called by `OverridePolicy`; DLA implements it and walks committed routes; `OverridePolicy` keeps DLA's stop for rerouted trains; tutorial test with a fixed route | feat | high | feat(policies): deadlock avoidance respects committed reroutes. | 07978344 | S-1 | Q-4 |
-| ✅ S-3 | - | Route through via cells to the target, `via` on `/proposals` and `/proposals/apply`, off-map trains, backend tests | feat | medium | feat(overrides): reroute along via cells chosen by the operator. | 1e8abcfe | S-2 | Q-2, Q-3, Q-5, Q-7 |
-| ✅ S-4 | - | Route mode and drag drawing on the map, from «Fahrweg ändern» in the action options and the popover, i18n, specs | feat | medium | feat(map): draw a train's route on the Streckenspiegel. | a696227c | S-3 | Q-1, Q-6 |
-| ✅ S-5 | - | Screenshots and recording (§4.2, in a696227c and 7fdd183a); user doc: "Setting a route" in the mode guide, with the tutorial example; the plans in the docs index | docs | low | docs(map): setting a route by drawing it, with the tutorial example. | 969e21cc | S-4 | - |
-| 💡 S-6 | - | Q-12 a, revisited: `PlanPolicy.set_committed_overrides` takes a train rerouted after the course was taken off plan and passes the call on to its fallback; tests: only the routes the course was simulated with stay on plan, a train rerouted using the side track under a taken course arrives | feat | medium | feat(policies): an accepted plan passes committed reroutes on to its fallback. |  | S-2 | - |
+| ✅ S-1 | - | The plan | docs | low | docs(plans): plan for setting a train's route on the Streckenspiegel (#199). | 2924daa3 | - | - |
+| ✅ S-2 | - | The optional override-aware method on `Policy` (Q-4 b), called by `OverridePolicy`; DLA implements it and walks committed routes; `OverridePolicy` keeps DLA's stop for rerouted trains; tutorial test with a fixed route | feat | high | feat(policies): deadlock avoidance respects committed reroutes. | 504e8695 | S-1 | Q-4 |
+| ✅ S-3 | - | Route through via cells to the target, `via` on `/proposals` and `/proposals/apply`, off-map trains, backend tests | feat | medium | feat(overrides): reroute along via cells chosen by the operator. | 16348d46 | S-2 | Q-2, Q-3, Q-5, Q-7 |
+| ✅ S-4 | - | Route mode and drag drawing on the map, from «Fahrweg ändern» in the action options and the popover, i18n, specs | feat | medium | feat(map): draw a train's route on the Streckenspiegel. | 5463d21b | S-3 | Q-1, Q-6 |
+| ✅ S-5 | - | Screenshots and recording (§4.2, in 5463d21b and b3c96102); user doc: "Setting a route" in the mode guide, with the tutorial example; the plans in the docs index | docs | low | docs(map): setting a route by drawing it, with the tutorial example. | 668a8289 | S-4 | - |
+| ✅ S-6 | - | Q-12 a, revisited: `PlanPolicy.set_committed_overrides` takes a train rerouted after the course was taken off plan and passes the call on to its fallback; tests: only the routes the course was simulated with stay on plan, a train rerouted using the side track under a taken course arrives; the sandbox's counter-train case at its new delay (23 instead of 20, §8.2) | feat | medium | feat(policies): an accepted plan passes committed reroutes on to its fallback. | 54235345 | S-2 | - |
 
 ### 11.2 Rebase and merge
 
 *How this branch sits on the open PRs below it.*
 
-- Chain (2026-11-18): `main` ← #196 `codex/pf-ch-rl-main` ← #208 `feature/uc2-rl-keep-human-decisions` 83880783 ←
-  #215 `refactor/196-modularization` 792f6850 ← this branch.
+- Chain (2026-11-19): `main` ← #196 `codex/pf-ch-rl-main` ← #208 `feature/uc2-rl-keep-human-decisions` 1e0bf255 ←
+  #215 `refactor/196-modularization` 27c585ee ← this branch.
   - First rebase 2026-11-18 onto #208's then head 17707737 (`git rebase --onto 17707737 fd0c70cb`); backup
     `backup/199-flash-ahead-set-path-pre-208`.
   - Second rebase 2026-11-18 onto #215 (`git rebase --onto origin/refactor/196-modularization 17707737`; #208 had been
     rewritten, so 17707737 is no longer in its history); backup `backup/199-flash-ahead-set-path-pre-215`.
-  - PR #207 still targets `main`; it should target `refactor/196-modularization`.
+  - Third rebase 2026-11-19 onto #215's rebased head 27c585ee (`git rebase --onto 27c585ee 792f6850`): all 12
+    commits unchanged, no conflicts; the new base changed only `install_trainrun_plan` in the backend. Backup
+    `backup/199-flash-ahead-set-path-pre-215-rebase`.
+  - PR #207 targets `refactor/196-modularization`.
 - Conflicts and how they were resolved:
   - `backend/app/api/overrides.py`: #208 splits `/proposals` into `_capture_proposal_source` (under the command lock)
     and `_evaluate_proposals` (worker); `via` is parsed in the capture, so a malformed `via` is a 400 before the
@@ -2032,7 +2040,7 @@ No review yet.
     "Fahrweg ändern", "Changer d’itinéraire") and kept the old hint ("the other branch at the next switch"); the
     resolution takes the base's label and this branch's hint (drawing the route). The plan's text still says
     «Umleiten» for that option. The other files merged without conflicts.
-- Next rebase: onto `main` once #196, #208 and #215 are merged (`git rebase --onto main 792f6850`).
+- Next rebase: onto `main` once #196, #208 and #215 are merged (`git rebase --onto main 27c585ee`).
 
 ## 12. Change inventory
 
@@ -2042,6 +2050,7 @@ No review yet.
 |---|---|
 | `docs/plans/set-route-on-map.md` | This plan. |
 | `backend/tests/test_route_drawn.py` | Via-cell routes, off-map trains, the tutorial crossing, the endpoints with `via`; S-6: only the routes a course was simulated with stay on plan; a train rerouted using the side track under a taken KI course arrives. |
+| `backend/tests/test_sandbox.py` | S-6: the advanced tour's counter-train case: the reroute's delay 23 instead of 20, the rerouted train at step 60 instead of 57 (§8.2). |
 | `frontend/src/app/core/routing/route-drawing.ts` (+ spec) | Following the track from the rail grid, filling skipped cells, via cells. |
 | `docs/plans/set-route-on-map/walkthrough.md` (+ `walkthrough.py`, `walkthrough/`) | The technical walk-through (§4.2): per step and train, who decides on what, with payloads, pictures and movies; the script that records it. |
 | `scripts/docshots-set-route-walkthrough.mjs` | The walk-through's pictures and movie frames in the app, with the clock held. |
