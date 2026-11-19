@@ -49,7 +49,7 @@ def source_state(session) -> PreviewSource:
     settings = tuple((name, getattr(env, name, None)) for name in (
         "num_resets", "_max_episode_steps", "acceleration_delta", "braking_delta",
         "remove_agents_at_target", "_trainrun_plan", "_baseline_trainrun_plan",
-        "_accepted_trainrun_plan", "_plan_off_plan", "_route_overrides",
+        "_accepted_trainrun_plan", "_plan_off_plan", "_plan_course_routes", "_route_overrides",
         "_route_reference_plan", "_live_seed", "_live_params",
     ))
     payload = (session.policy, getattr(session, "proposal_agent_id", None),

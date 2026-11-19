@@ -19,6 +19,7 @@ from app.core.route_overrides import REROUTE_ACTION, commit_route, drop_route, r
 from app.policies.plan_policy import (
     PlanPolicy,
     accept_trainrun_plan,
+    note_course_routes,
     plan_accepted,
     plan_branch_factory,
     planned_arrival_steps,
@@ -600,6 +601,8 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
             # replan the operator just accepted.
             override_manager.clear_all(session_id)
             env._route_overrides = {}
+        # The routes still committed are the ones the course was simulated with.
+        note_course_routes(env, getattr(env, "_route_overrides", None))
         label = "KI-Plan übernommen"
 
     elif req.variant == "human":

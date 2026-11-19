@@ -229,6 +229,9 @@ def carry_to_fork(source: RailEnv, target: RailEnv) -> None:
     drawn = getattr(source, "_route_drawn", None)
     if drawn:
         target._route_drawn = set(drawn)
+    course_routes = getattr(source, "_plan_course_routes", None)
+    if course_routes:
+        target._plan_course_routes = {h: list(r) for h, r in course_routes.items()}
     plan = getattr(source, "_route_reference_plan", None) or getattr(source, "_trainrun_plan", None)
     if plan:
         target._route_reference_plan = plan

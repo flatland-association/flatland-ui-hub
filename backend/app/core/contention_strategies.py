@@ -255,7 +255,7 @@ def apply_strategy(session_id: str, session, strategy: str, priority: Optional[S
     from app.api.sessions import _invalidate_scenario_forecasts
     from app.core.override_manager import override_manager
     from app.planners.replan import replan_from_state
-    from app.policies.plan_policy import accept_trainrun_plan
+    from app.policies.plan_policy import accept_trainrun_plan, note_course_routes
     from app.policies.registry import PLAN_POLICY_ID
 
     env = session.env
@@ -271,6 +271,7 @@ def apply_strategy(session_id: str, session, strategy: str, priority: Optional[S
         if not trainruns:
             raise LookupError("The planner found no collision-free plan from here")
         accept_trainrun_plan(env, trainruns)
+        note_course_routes(env, {})  # the standing overrides are cleared below
         session.trainrun_plan = trainruns
         session.policy = PLAN_POLICY_ID
         override_manager.clear_all(session_id)

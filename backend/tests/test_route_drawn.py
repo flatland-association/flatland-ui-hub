@@ -137,3 +137,81 @@ def test_override_endpoint_commits_a_drawn_route():
     finally:
         override_manager.clear_all(session.id)
         session_manager.delete(session.id)
+
+
+def _record_plan(steps=40):
+    """The tutorial's DLA run as trainruns: one waypoint per cell entered."""
+    from flatland.envs.rail_trainrun_data_structures import TrainrunWaypoint, Waypoint
+
+    from app.utils.agent_compat import agent_direction
+
+    env = load_preset_env("tutorial")
+    runs = {AB: [], BA: []}
+    for _ in range(steps):
+        policy = OverridePolicy(DeadLockAvoidancePolicy(), "test-route-drawn-record")
+        policy.reset(env)
+        policy.start_step()
+        _, _, dones, _ = env.step(policy.act_many(env.get_agent_handles(), {h: env for h in env.get_agent_handles()}))
+        if dones["__all__"]:
+            break
+        for a in env.agents:
+            pos = agent_position(a)
+            run = runs[a.handle]
+            if pos is not None and (not run or run[-1].waypoint.position != tuple(pos)):
+                run.append(TrainrunWaypoint(
+                    scheduled_at=env._elapsed_steps,
+                    waypoint=Waypoint(tuple(int(v) for v in pos), int(agent_direction(a))),
+                ))
+    return {h: run for h, run in runs.items() if run}
+
+
+def test_plan_policy_keeps_only_the_routes_its_course_was_simulated_with_on_plan():
+    from app.policies.plan_policy import PlanPolicy, note_course_routes
+
+    plan = _record_plan()
+    env = load_preset_env("tutorial")
+    route = route_through(env, BA, LOOP)
+    note_course_routes(env, {BA: route})  # e.g. a kept reroute (#208)
+    policy = PlanPolicy(env, plan, fallback=DeadLockAvoidancePolicy())
+    policy.reset(env)
+
+    assert policy.set_committed_overrides(set(), {BA: route}) is True  # DLA's answer
+    assert policy.off_plan_handles == []  # the course was simulated with it: stays on plan
+
+    note_course_routes(env, {})  # committed after the course was taken
+    assert policy.set_committed_overrides(set(), {BA: route}) is True
+    assert policy.off_plan_handles == [BA]
+
+
+@pytest.mark.integration
+def test_drawn_route_under_a_taken_plan_is_driven_by_the_fallback():
+    """S-6: a train rerouted after the plan was taken leaves it, DLA drives its route."""
+    from app.policies.plan_policy import PlanPolicy, install_trainrun_plan
+
+    plan = _record_plan()
+    session_id = "test-route-drawn-plan"
+    override_manager.clear_all(session_id)
+    try:
+        env = load_preset_env("tutorial")
+        install_trainrun_plan(env, plan)
+        arrived, on_loop = {}, False
+        for t in range(45):
+            if t == 3:
+                assert commit_route(env, BA, LOOP)
+                override_manager.set(session_id, BA, REROUTE_ACTION)
+            policy = OverridePolicy(PlanPolicy(env, plan, fallback=DeadLockAvoidancePolicy()), session_id)
+            policy.reset(env)
+            policy.start_step()
+            _, _, dones, _ = env.step(policy.act_many(env.get_agent_handles(), {h: env for h in env.get_agent_handles()}))
+            position = agent_position(env.agents[BA])
+            on_loop = on_loop or (position is not None and tuple(position) == (1, 12))
+            for a in env.agents:
+                if a.state == TrainState.DONE:
+                    arrived.setdefault(a.handle, env._elapsed_steps)
+            if dones["__all__"]:
+                break
+        assert env._plan_off_plan == {BA}
+        assert on_loop
+        assert AB in arrived and BA in arrived  # not held for the old plan's departure
+    finally:
+        override_manager.clear_all(session_id)
