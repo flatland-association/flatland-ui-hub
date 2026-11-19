@@ -139,24 +139,43 @@ def _start_node(agent) -> Optional[Node]:
     return None
 
 
-def route_through(env: RailEnv, handle: int, via: List[Tuple[int, int]]) -> Optional[List[Node]]:
-    """Route from the train's cell and heading through `via`, in order, to its target.
+class LeftDrawnRoute(Exception):
+    """The train is no longer on the route the operator drew: it moved on past a
+    drawn switch, or onto another branch, while the operator was drawing or
+    comparing."""
+
+
+def route_through(
+    env: RailEnv,
+    handle: int,
+    via: List[Tuple[int, int]],
+    start: Optional[Node] = None,
+) -> Optional[List[Node]]:
+    """Route through `via`, in order, to the train's target.
 
     Each leg is the shortest path in the rail graph to any heading in the next
     via cell; after the last one the route goes on by the shortest path to the
-    target. A train waiting at its origin starts there. None when the train is
-    done or a leg has no path. Blocked cells are not avoided: the operator chose
-    the switches.
+    target. None when the train is done or a leg has no path. Blocked cells are
+    not avoided: the operator chose the switches.
+
+    Without `start` the route begins at the train's cell and heading (its
+    origin while it waits off the map). With `start`, the cell and heading the
+    drawing began at, it is the line the operator drew, cut where the train is
+    now; `LeftDrawnRoute` when the train is no longer on it. The clock runs
+    while the operator draws and compares, so the train may have moved on: a
+    route rebuilt from its new cell would have to find its way back to the via
+    cells, through a detour nobody drew.
     """
     agent = env.agents[int(handle)]
     if agent.state == TrainState.DONE:
         return None
-    start = _start_node(agent)
+    here = _start_node(agent)
+    origin = tuple(int(v) for v in start) if start is not None else here
     graph = _rail_digraph(env)
-    if start is None or start not in graph:
+    if here is None or origin not in graph:
         return None
     target = (int(agent_planned_target(agent)[0]), int(agent_planned_target(agent)[1]))
-    route: List[Node] = [start]
+    route: List[Node] = [origin]
     for cell in [tuple(int(v) for v in c) for c in via] + [target]:
         if (route[-1][0], route[-1][1]) == cell:
             continue
@@ -167,6 +186,10 @@ def route_through(env: RailEnv, handle: int, via: List[Tuple[int, int]]) -> Opti
         best = min(ends, key=lambda n: lengths[n])
         leg = nx.shortest_path(graph, route[-1], best)
         route.extend(tuple(int(v) for v in node) for node in leg[1:])
+    if start is not None:
+        if here not in route:
+            raise LeftDrawnRoute(f"Train {handle} has left the drawn route")
+        route = route[route.index(here):]
     return route
 
 
@@ -201,13 +224,19 @@ def _drawn(env: RailEnv) -> Set[int]:
     return drawn
 
 
-def commit_route(env: RailEnv, handle: int, via: Optional[List[Tuple[int, int]]] = None) -> Optional[List[Node]]:
+def commit_route(
+    env: RailEnv,
+    handle: int,
+    via: Optional[List[Tuple[int, int]]] = None,
+    start: Optional[Node] = None,
+) -> Optional[List[Node]]:
     """Fix the route for `handle`; None if there is none.
 
     Without `via` the route around the current blocks; with `via` the route the
-    operator drew through those cells (`route_through`), kept as drawn.
+    operator drew through those cells from `start` (`route_through`, which
+    raises `LeftDrawnRoute` when the train has left it), kept as drawn.
     """
-    route = route_through(env, handle, via) if via else route_around_blocks(env, handle)
+    route = route_through(env, handle, via, start) if via else route_around_blocks(env, handle)
     if route is not None:
         _routes(env)[int(handle)] = route
         if via:

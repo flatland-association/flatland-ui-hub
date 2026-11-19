@@ -19,6 +19,17 @@ export interface RouteDrawing {
   via: [number, number][] | null;
 }
 
+/**
+ * A finished drawing as the backend takes it: the via cells, and the cell and
+ * heading the drawing began at. The clock runs while the operator draws and
+ * compares, so the backend rebuilds the drawn line from `start` and cuts it
+ * where the train is when the route is taken (409 when it has left it).
+ */
+export interface DrawnRoute {
+  via: [number, number][];
+  start: RouteNode;
+}
+
 const DR = [-1, 0, 1, 0];
 const DC = [0, 1, 0, -1];
 

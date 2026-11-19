@@ -1693,7 +1693,8 @@
       "waitOne": "Ab Schritt {{step}} für einen Schritt warten"
     },
     "drawRoute": "Drück auf der Karte auf den Zug und zieh seinen Fahrweg über die Weichen. Loslassen zeigt den Verlauf; Esc bricht ab.",
-    "noDrawnRoute": "Durch die gezogenen Zellen führt kein Fahrweg."
+    "noDrawnRoute": "Durch die gezogenen Zellen führt kein Fahrweg.",
+    "drawnRouteLeft": "Der Zug hat den gezogenen Fahrweg schon verlassen. Zieh ihn neu, ab dort, wo der Zug jetzt ist."
   },
   "zwl": {
     "empty": "Wähle einen Zug, um seinen Zeit-Weg-Verlauf zu sehen.",

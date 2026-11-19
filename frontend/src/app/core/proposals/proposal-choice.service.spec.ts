@@ -102,6 +102,13 @@ describe('ProposalChoiceService — route mode', () => {
     expect(choice.drawnVia()).toBeNull();
   });
 
+  it('gives the drawn route with the cell and heading the drawing began at', () => {
+    choice.choose(1, 'reroute');
+    expect(choice.drawnRoute()).toBeNull(); // nothing drawn yet
+    store.routeDrawing.set({ handle: 1, nodes: [[2, 21, 3], [2, 20, 3]], via: [[1, 14]] });
+    expect(choice.drawnRoute()).toEqual({ via: [[1, 14]], start: [2, 21, 3] });
+  });
+
   it('lets a route be drawn without a block, not for a train that arrived', () => {
     store.state.set({ agents: [{ handle: 1, state: 'DONE' }] } as never);
     expect(choice.rerouteAvailable(0)).toBeTrue();

@@ -11,7 +11,7 @@ from flatland.envs.step_utils.states import TrainState
 
 from app.core.env_factory import load_preset_env
 from app.core.override_manager import override_manager
-from app.core.route_overrides import REROUTE_ACTION, commit_route, route_move, route_through
+from app.core.route_overrides import REROUTE_ACTION, LeftDrawnRoute, commit_route, route_move, route_through
 from app.policies.deadlock_avoidance_policy import DeadLockAvoidancePolicy
 from app.policies.override_policy import OverridePolicy
 from app.utils.agent_compat import agent_position
@@ -215,3 +215,76 @@ def test_drawn_route_under_a_taken_plan_is_driven_by_the_fallback():
         assert AB in arrived and BA in arrived  # not held for the old plan's departure
     finally:
         override_manager.clear_all(session_id)
+
+
+# ── the clock runs while the operator draws: the train may move on (review of #207) ──
+
+def _drive_ba_west_to(env, col):
+    """BA departs from B and runs straight on, without a route, until it is at
+    `col` on row 2; AB stays at A."""
+    for _ in range(40):
+        pos = agent_position(env.agents[BA])
+        if pos is not None and int(pos[0]) == 2 and int(pos[1]) <= col:
+            return
+        env.step({BA: RailEnvActions.MOVE_FORWARD, AB: RailEnvActions.STOP_MOVING})
+    raise AssertionError(f"BA did not reach column {col}")
+
+
+def test_a_drawn_route_is_cut_where_the_train_is_now():
+    env = load_preset_env("tutorial")
+    drawn = route_through(env, BA, LOOP)  # drawn while BA waits at B
+    _drive_ba_west_to(env, 17)  # it moved on while the operator compared
+    route = route_through(env, BA, LOOP, start=drawn[0])
+    here = route[0]
+    assert (here[0], here[1]) == tuple(int(v) for v in agent_position(env.agents[BA]))
+    assert route == drawn[drawn.index(here):]  # the line drawn, from here on
+
+
+def test_a_train_past_the_drawn_switch_has_left_its_route():
+    env = load_preset_env("tutorial")
+    drawn = route_through(env, BA, LOOP)
+    _drive_ba_west_to(env, 13)  # straight on past (2,14): the loop is behind it
+    with pytest.raises(LeftDrawnRoute):
+        route_through(env, BA, LOOP, start=drawn[0])
+
+
+@pytest.mark.integration
+def test_proposals_and_override_refuse_a_route_the_train_has_left():
+    from fastapi import HTTPException
+
+    from app.api.overrides import OverrideRequest, get_proposals, set_override
+    from app.core.session_manager import session_manager
+
+    session = session_manager.create(scenario_preset_id="tutorial")
+    try:
+        start = list(route_through(session.env, BA, LOOP)[0])
+        _drive_ba_west_to(session.env, 13)
+        with pytest.raises(HTTPException) as err:
+            get_proposals(session.id, handle=BA, option="reroute", via="1,12", start=",".join(map(str, start)))
+        assert err.value.status_code == 409
+        with pytest.raises(HTTPException) as err:
+            set_override(session.id, BA, OverrideRequest(action=REROUTE_ACTION, via=[[1, 12]], start=start))
+        assert err.value.status_code == 409
+        assert override_manager.get(session.id, BA) is None
+        assert BA not in (getattr(session.env, "_route_drawn", None) or set())
+    finally:
+        override_manager.clear_all(session.id)
+        session_manager.delete(session.id)
+
+
+@pytest.mark.integration
+def test_too_many_via_cells_and_a_malformed_start_are_rejected():
+    from fastapi import HTTPException
+
+    from app.api.overrides import MAX_VIA_CELLS, get_proposals
+    from app.core.session_manager import session_manager
+
+    session = session_manager.create(scenario_preset_id="tutorial")
+    try:
+        too_many = ";".join("1,12" for _ in range(MAX_VIA_CELLS + 1))
+        for via, start in ((too_many, None), ("1,12", "2,21"), ("1,12", "2,21,7"), ("1,12", "a,b,c")):
+            with pytest.raises(HTTPException) as err:
+                get_proposals(session.id, handle=BA, option="reroute", via=via, start=start)
+            assert err.value.status_code == 400, (via[:10], start)
+    finally:
+        session_manager.delete(session.id)

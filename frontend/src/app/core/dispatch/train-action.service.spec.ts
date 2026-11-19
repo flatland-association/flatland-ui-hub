@@ -28,7 +28,7 @@ describe('TrainActionService — the single doorway for acting on a train', () =
   it('sets an override for a train that has none, stamped with its origin', () => {
     const spy = spyOn(store, 'setOverride');
     svc.toggle(3, 2, 'map');
-    expect(spy).toHaveBeenCalledWith(3, 2, 'human', 'map');
+    expect(spy).toHaveBeenCalledWith(3, 2, 'human', 'map', undefined);
   });
 
   it('clears the override when the same action is clicked again', () => {
@@ -44,13 +44,20 @@ describe('TrainActionService — the single doorway for acting on a train', () =
   it('sets, not clears, when a different action is clicked on the same train', () => {
     const set = spyOn(store, 'setOverride');
     svc.toggle(7, 2, 'table');
-    expect(set).toHaveBeenCalledWith(7, 2, 'human', 'table');
+    expect(set).toHaveBeenCalledWith(7, 2, 'human', 'table', undefined);
   });
 
   it('keeps the AI/human attribution the caller passes', () => {
     const spy = spyOn(store, 'setOverride');
     svc.set(3, 4, 'impact', 'ai');
-    expect(spy).toHaveBeenCalledWith(3, 4, 'ai', 'impact');
+    expect(spy).toHaveBeenCalledWith(3, 4, 'ai', 'impact', undefined);
+  });
+
+  it('passes a drawn route on with the reroute (set-route-on-map)', () => {
+    const spy = spyOn(store, 'setOverride');
+    const route = { via: [[1, 12]] as [number, number][], start: [2, 21, 3] as [number, number, number] };
+    svc.set(1, 5, 'proposals', 'human', route);
+    expect(spy).toHaveBeenCalledWith(1, 5, 'human', 'proposals', route);
   });
 
   it('reports whether an action is the standing override', () => {

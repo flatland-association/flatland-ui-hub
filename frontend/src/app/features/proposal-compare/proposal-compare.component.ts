@@ -194,9 +194,9 @@ export class ProposalCompareComponent implements OnDestroy {
     this.liveResult.update((r) => (r ? { ...r, variants: r.variants.filter((v) => v.id !== 'human') } : r));
 
     // «Umleiten» is drawn on the map: until the drag ended, plan and AI only.
-    const via = option === 'reroute' ? this.choice.drawnVia() : null;
-    const asked = option === 'reroute' && !via ? undefined : (option ?? undefined);
-    this.api.getProposals(sess.id, handle, asked, via ?? undefined).subscribe({
+    const route = option === 'reroute' ? this.choice.drawnRoute() : null;
+    const asked = option === 'reroute' && !route ? undefined : (option ?? undefined);
+    this.api.getProposals(sess.id, handle, asked, route ?? undefined).subscribe({
       next: (r) => {
         if (generation !== this.loadGeneration || this.store.session()?.id !== sess.id || this.targetHandle() !== handle) return;
         this.liveResult.set(r);
@@ -205,13 +205,14 @@ export class ProposalCompareComponent implements OnDestroy {
       },
       error: (err) => {
         if (generation !== this.loadGeneration || this.store.session()?.id !== sess.id || this.targetHandle() !== handle) return;
-        // The backend refuses an option it cannot offer (409: no reroute here;
-        // 400 for a drawn route: no way through the drawn cells). Its sentence is
-        // English; the operator gets the same answer in their language.
+        // The backend refuses an option it cannot offer (409: no reroute here,
+        // or, for a drawn route, the train has already left it; 400 for a drawn
+        // route: no way through the drawn cells). Its sentence is English; the
+        // operator gets the same answer in their language.
         this.failed.set(
           err?.status === 409
-            ? this.i18n.t('proposals.noReroute')
-            : err?.status === 400 && via
+            ? this.i18n.t(route ? 'proposals.drawnRouteLeft' : 'proposals.noReroute')
+            : err?.status === 400 && route
               ? this.i18n.t('proposals.noDrawnRoute')
               : (err?.error?.detail ?? this.i18n.t('proposals.computeFailed')),
         );
@@ -342,9 +343,9 @@ export class ProposalCompareComponent implements OnDestroy {
     if (option === 'proceed') {
       this.trainActions.clear(handle, 'proposals');
     } else if (option === 'reroute') {
-      const via = this.choice.drawnVia();
-      if (!via) return; // nothing drawn yet: the course is not shown either
-      this.trainActions.set(handle, REROUTE_ACTION, 'proposals', 'human', via);
+      const route = this.choice.drawnRoute();
+      if (!route) return; // nothing drawn yet: the course is not shown either
+      this.trainActions.set(handle, REROUTE_ACTION, 'proposals', 'human', route);
       this.choice.cancelRouteDrawing();
     } else {
       // Both hold options stop the train. The timed release exists in the

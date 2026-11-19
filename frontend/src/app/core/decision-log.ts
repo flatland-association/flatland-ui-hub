@@ -132,6 +132,11 @@ export interface DecisionLogEntry {
   handle: number;
   /** Who owns the outcome of this decision. */
   accountableOwner: DecisionOwner;
+  /** A route the operator drew on the map (`reroute` from «Fahrweg ändern»):
+   *  the cell and heading the drawing began at, `[row, col, heading]`, and the
+   *  via cells it was sent with. Tells a drawn route from a computed reroute,
+   *  whose entry has none (docs/plans/set-route-on-map.md). */
+  drawnRoute?: { start: [number, number, number]; via: [number, number][] };
   /** What was done (movement semantic for overrides; accept/override/dismiss
    *  reserved for the recommendations-panel context, not wired in the first cut). */
   action: DecisionAction;

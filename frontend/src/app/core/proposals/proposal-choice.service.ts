@@ -3,6 +3,7 @@ import { SessionStore } from '../session.store';
 import { ProposalOption } from '../events/event-types';
 import { PanelFrameService } from '../layout/panel-frame';
 import { ReplayService } from '../replay/replay.service';
+import type { DrawnRoute } from '../routing/route-drawing';
 
 /**
  * The option the operator is looking at for one train, shared by the surfaces
@@ -88,6 +89,14 @@ export class ProposalChoiceService {
   readonly drawnVia = computed(() => {
     const drawing = this.store.routeDrawing();
     return drawing && drawing.handle === this.store.selectedHandle() ? drawing.via : null;
+  });
+
+  /** The finished drawing for the selected train, as the backend takes it:
+   *  the via cells and the cell and heading the drawing began at. */
+  readonly drawnRoute = computed<DrawnRoute | null>(() => {
+    const via = this.drawnVia();
+    const start = this.store.routeDrawing()?.nodes[0];
+    return via && start ? { via, start } : null;
   });
 
   /**

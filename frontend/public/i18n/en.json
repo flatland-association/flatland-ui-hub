@@ -1693,7 +1693,8 @@
       "waitOne": "Wait one step from step {{step}}"
     },
     "drawRoute": "Press on the train on the map and drag its route over the switches. Release to see the course; Esc cancels.",
-    "noDrawnRoute": "There is no route through the cells you drew."
+    "noDrawnRoute": "There is no route through the cells you drew.",
+    "drawnRouteLeft": "The train has already left the route you drew. Draw it again from where the train is now."
   },
   "zwl": {
     "empty": "Select a train to see its time-distance trajectory.",

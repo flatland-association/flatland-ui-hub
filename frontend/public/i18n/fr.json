@@ -1693,7 +1693,8 @@
       "waitOne": "Attendre un pas à partir du pas {{step}}"
     },
     "drawRoute": "Appuyez sur le train sur la carte et tracez son itinéraire sur les aiguillages. Relâchez pour voir le déroulement ; Échap annule.",
-    "noDrawnRoute": "Aucun itinéraire ne passe par les cases tracées."
+    "noDrawnRoute": "Aucun itinéraire ne passe par les cases tracées.",
+    "drawnRouteLeft": "Le train a déjà quitté l’itinéraire tracé. Trace-le à nouveau depuis sa position actuelle."
   },
   "zwl": {
     "empty": "Sélectionnez un train pour voir sa trajectoire espace-temps.",
