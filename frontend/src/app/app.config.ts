@@ -12,6 +12,7 @@ import { firstValueFrom, forkJoin } from 'rxjs';
 import { UiConfigService } from './core/config/ui-config.service';
 import { callLogInterceptor } from './core/interaction-log/call-log.interceptor';
 import { replayHttpInterceptor } from './core/replay/replay-http.interceptor';
+import { galleryFixtureInterceptor } from './core/gallery-fixture.interceptor';
 import { initialLang } from './core/i18n/language.service';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
 import { applyBrandTheme, initialBrandTheme } from './core/theme/brand-theme.service';
@@ -23,7 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     // Every backend call into the study log's `calls` stream, with the
     // correlation headers for the server log (experiment-logging plan §5.1.1).
-    provideHttpClient(withFetch(), withInterceptors([replayHttpInterceptor, callLogInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([replayHttpInterceptor, galleryFixtureInterceptor, callLogInterceptor])),
     // i18n (docs/plans/i18n-strategy.md): English source, German and French
     // translations, English as the fallback. `logMissingKey` stays off because
     // partial coverage is intended — not every page exists in every language.
