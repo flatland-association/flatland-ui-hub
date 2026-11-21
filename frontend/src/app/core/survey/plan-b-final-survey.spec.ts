@@ -29,18 +29,18 @@ describe('Plan B final questionnaire', () => {
     expect(s.closable).toBeFalse();
   });
 
-  it('has items 1 … 37 in order, then the four demographics, each id once', () => {
+  it('has items 1 … 38 in order, then the four demographics, each id once', () => {
     const ids = questions.map((q) => q.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids.slice(0, 37)).toEqual(Array.from({ length: 37 }, (_, i) => `pb_${i + 1}`));
-    expect(ids.slice(37)).toEqual(['pb_ai_use', 'pb_age', 'pb_gender', 'pb_years']);
+    expect(ids.slice(0, 38)).toEqual(Array.from({ length: 38 }, (_, i) => `pb_${i + 1}`));
+    expect(ids.slice(38)).toEqual(['pb_ai_use', 'pb_age', 'pb_gender', 'pb_years']);
   });
 
   it('puts the items on the document\'s six pages', () => {
     const pageOf = (id: string) => s.sections.find((sec) => sec.questions.some((q) => q.id === id))!.page;
     const expected: [string, number][] = [
-      ['pb_1', 1], ['pb_4', 1], ['pb_5', 2], ['pb_8', 2], ['pb_9', 3], ['pb_17', 3],
-      ['pb_18', 4], ['pb_27', 4], ['pb_28', 5], ['pb_37', 5], ['pb_ai_use', 6], ['pb_years', 6],
+      ['pb_1', 1], ['pb_4', 1], ['pb_5', 1], ['pb_6', 2], ['pb_9', 2], ['pb_10', 3], ['pb_18', 3],
+      ['pb_19', 4], ['pb_28', 4], ['pb_29', 5], ['pb_38', 5], ['pb_ai_use', 6], ['pb_years', 6],
     ];
     for (const [id, page] of expected) expect(pageOf(id)).withContext(id).toBe(page);
   });
@@ -57,7 +57,7 @@ describe('Plan B final questionnaire', () => {
 
   it('asks the share as a percent, age and years as numbers, the rest as radio lists', () => {
     const q = (id: string) => questions.find((x) => x.id === id)!;
-    expect(q('pb_4').type).toBe('percent');
+    expect(q('pb_5').type).toBe('percent');
     expect(q('pb_age').type).toBe('number');
     expect(q('pb_years').type).toBe('number');
     expect(q('pb_ai_use').options!.length).toBe(6);

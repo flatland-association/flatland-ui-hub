@@ -47,7 +47,7 @@ describe('SurveyComponent — paged and required', () => {
     c.next();
     fixture.detectChanges();
     expect(c.pageIndex()).toBe(0);
-    expect([...c.missing()]).toEqual(['pb_2', 'pb_3', 'pb_4']);
+    expect([...c.missing()]).toEqual(['pb_2', 'pb_3', 'pb_4', 'pb_5']);
     expect(el('.survey-missing')).not.toBeNull();
     c.setAnswer('pb_2', 2);
     expect(c.missing().has('pb_2')).toBeFalse();
@@ -55,20 +55,20 @@ describe('SurveyComponent — paged and required', () => {
 
   it('counts the share only once set: 0 % is an answer, not a default', () => {
     expect(c.isAnswered(c.config().sections[1].questions[0])).toBeFalse();
-    c.setPercent('pb_4', '0');
-    expect(c.answers()['pb_4']).toBe(0);
+    c.setPercent('pb_5', '0');
+    expect(c.answers()['pb_5']).toBe(0);
     expect(c.isAnswered(c.config().sections[1].questions[0])).toBeTrue();
-    c.setPercent('pb_4', '140');
-    expect(c.answers()['pb_4']).toBe(100);
+    c.setPercent('pb_5', '140');
+    expect(c.answers()['pb_5']).toBe(100);
   });
 
   it('answers 0 % with the slider: a click at its left end fires no input event', () => {
     fixture.detectChanges();
     const range = el('.q-percent__range') as HTMLInputElement;
-    expect(c.answers()['pb_4']).toBeUndefined();
+    expect(c.answers()['pb_5']).toBeUndefined();
     expect(range.value).toBe('0');
     range.dispatchEvent(new Event('pointerup'));
-    expect(c.answers()['pb_4']).toBe(0);
+    expect(c.answers()['pb_5']).toBe(0);
   });
 
   it('goes forward and back, keeping the answers', () => {
@@ -117,7 +117,7 @@ describe('SurveyComponent — paged and required', () => {
 
   it('renders the agreement items as a matrix of radio inputs', () => {
     const rows = fixture.nativeElement.querySelectorAll('.q-matrix tbody tr');
-    expect(rows.length).toBe(3);
+    expect(rows.length).toBe(4);
     expect(rows[0].querySelectorAll('input[type=radio]').length).toBe(7);
   });
 });

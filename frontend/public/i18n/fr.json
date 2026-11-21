@@ -1645,7 +1645,6 @@
     "order": "Ordre : {{order}}",
     "placeholder": "Choisissez une option ci-dessus, nous calculerons alors votre déroulement.",
     "compare": "Comparaison",
-    "lessIsBetter": "moins, c’est mieux",
     "notAvailable": "n/d",
     "aiMatchesPlan": "Ce déroulement de l’IA ne change aucune arrivée par rapport au plan.",
     "hideAlternatives": "Masquer les autres déroulements de l’IA",

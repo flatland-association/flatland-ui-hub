@@ -1645,7 +1645,6 @@
     "order": "Reihenfolge: {{order}}",
     "placeholder": "Wähle oben eine Option, dann rechnen wir deinen Verlauf.",
     "compare": "Vergleich",
-    "lessIsBetter": "weniger ist besser",
     "notAvailable": "n. v.",
     "aiMatchesPlan": "Dieser KI-Verlauf ändert gegenüber dem Plan keine Ankunft.",
     "hideAlternatives": "Weitere KI-Verläufe ausblenden",

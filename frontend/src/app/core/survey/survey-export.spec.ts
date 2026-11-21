@@ -59,7 +59,7 @@ describe('survey-export', () => {
   /** docs/plans/plan-b-small-changes.md, item 9: the Plan B questionnaire. */
   describe('Plan B final questionnaire', () => {
     const PB = { surveyId: 'plan-b-final', submittedAt: Date.UTC(2026, 9, 29, 9, 0), lang: 'de', afterLegId: null };
-    const pbRecords = [record('s3', 2, [{ ...PB, answers: { pb_1: 6, pb_4: 70, pb_ai_use: 'nie', pb_age: 34 } }])];
+    const pbRecords = [record('s3', 2, [{ ...PB, answers: { pb_1: 6, pb_5: 70, pb_ai_use: 'nie', pb_age: 34 } }])];
 
     it('codebook: its items with their survey, page, scale labels and options', () => {
       const rows = codebook();
@@ -75,12 +75,12 @@ describe('survey-export', () => {
 
     it('long and wide: its answers come with their question and item columns', () => {
       const long = toLongRows(pbRecords);
-      expect(long.map((r) => r.item_id)).toEqual(['pb_1', 'pb_4', 'pb_ai_use', 'pb_age']);
-      expect(long[0].question).toBe('Ich fühlte mich für das Ergebnis der Aufgabe verantwortlich.');
+      expect(long.map((r) => r.item_id)).toEqual(['pb_1', 'pb_5', 'pb_ai_use', 'pb_age']);
+      expect(long[0].question).toBe('Ich hatte das Gefühl, dass ich für das Ergebnis der Aufgabe verantwortlich war.');
       expect(long[0].subscale).toBe('pb-responsibility');
       const { columns, rows } = toWideRows(pbRecords);
-      expect(columns).toContain('pb_37');
-      expect(rows[0]['pb_4']).toBe(70);
+      expect(columns).toContain('pb_38');
+      expect(rows[0]['pb_5']).toBe(70);
     });
   });
 
