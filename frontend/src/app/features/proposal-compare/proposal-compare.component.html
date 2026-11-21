@@ -139,7 +139,7 @@
 
       @if (comparison(); as axes) {
         <section class="pc-compare">
-          <div class="pc-compare-head">{{ 'proposals.compare' | transloco }} <span class="pc-compare-hint">{{ 'proposals.lessIsBetter' | transloco }}</span></div>
+          <div class="pc-compare-head">{{ 'proposals.compare' | transloco }}</div>
           <p class="pc-compare-note">{{ 'proposals.compareNote' | transloco }}</p>
           @for (axis of axes; track axis.id) {
             <div class="pc-axis">

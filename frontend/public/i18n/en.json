@@ -1645,7 +1645,6 @@
     "order": "Order: {{order}}",
     "placeholder": "Choose an option above, then we compute your course.",
     "compare": "Comparison",
-    "lessIsBetter": "less is better",
     "notAvailable": "n/a",
     "aiMatchesPlan": "This AI course changes no arrival compared with the plan.",
     "hideAlternatives": "Hide further AI courses",
