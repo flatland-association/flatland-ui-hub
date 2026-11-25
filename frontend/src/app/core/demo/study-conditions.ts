@@ -211,6 +211,33 @@ const PLAN_B_CONDITIONS: StudyCondition[] = PLAN_B_ORDERS.map((order, i) => {
   };
 });
 
+/**
+ * The summative Plan B experiments (December, #134): one setting per
+ * participant, two UC2 scenarios, no tutorial, the Schichtbilanz with the
+ * reflection summary (#209), the final questionnaire
+ * (docs/plans/plan-b-control-group.md §4.2). `p01` is the template of the
+ * eight Co-Learning ones: its two scenarios were drawn at random and fixed
+ * (`random.Random(20261125).sample(['uc2-1', 'uc2-2', 'uc2-3', 'uc2-4'], 2)`,
+ * D-17); `p02` … `p08` and the Recommendation ones follow the study leads'
+ * Latin square.
+ */
+const PLAN_B_SUMMATIVE_CONDITIONS: StudyCondition[] = [
+  {
+    id: 'plan-b-summative-colearning-p01',
+    layoutId: 'preset-plan-b',
+    mode: 'co-learning',
+    label: 'Plan B summative · Co-Learning · participant 01',
+    labelKey: 'tours.plan-b-summative-colearning-p01.name',
+    studyLogging: true,
+    briefingIds: { de: 'plan-b-summative', en: 'plan-b-summative' },
+    policy: 'deadlock_avoidance',
+    proposalAgent: 'uc2_rl',
+    // No `shiftSummary: false`: the Schichtbilanz comes after the second scenario.
+    surveyParts: [PLAN_B_FINAL_PART],
+    legs: [UC2_LEGS['uc2-1'], UC2_LEGS['uc2-2']],
+  },
+];
+
 export const STUDY_CONDITIONS: readonly StudyCondition[] = [
   { layoutId: 'preset-recommendation-study2', mode: 'recommendation', label: 'Recommendation · User Study 2', surveyParts: STUDY_SURVEY },
   { layoutId: 'preset-colearning-study2', mode: 'co-learning', label: 'Co-Learning · User Study 2', surveyParts: STUDY_SURVEY },
@@ -232,6 +259,7 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     legs: [WAL_SINGLE_TRACK],
   },
   ...PLAN_B_CONDITIONS,
+  ...PLAN_B_SUMMATIVE_CONDITIONS,
   {
     // A test run, not a participant condition: one drawn scenario (uc2-1)
     // and the two Walensee legs, with the NASA-TLX after each leg, so a

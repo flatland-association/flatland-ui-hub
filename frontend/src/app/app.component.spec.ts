@@ -311,6 +311,21 @@ describe('AppComponent', () => {
       store.startDemo(CONDITION.legs!.map(() => CONDITION.mode), false);
     });
 
+    // docs/plans/plan-b-control-group.md D-14: where the layout hides the mode
+    // strip, the footer doesn't name the mode either.
+    it('names the mode in the footer only where the mode strip is shown', () => {
+      store.session.set({ id: 's1', width: 1, height: 1, num_agents: 0 } as any);
+      const footer = () => {
+        fixture.detectChanges();
+        return (fixture.nativeElement.querySelector('.footer-demo-progress')?.textContent ?? '').replace(/\s+/g, ' ');
+      };
+      expect(footer()).toContain(app.currentModeLabel());
+      TestBed.inject(UiConfigService).apply({ hidden: ['control.modeTabs'] });
+      const hidden = footer();
+      expect(hidden).toContain(app.experimentRun.currentLegLabel());
+      expect(hidden).not.toContain(app.currentModeLabel());
+    });
+
     it('pins the condition policy at a leg start and enables it on the session', () => {
       store.setActivePolicy('shortest_path' as any);
       app.startConditionLeg();

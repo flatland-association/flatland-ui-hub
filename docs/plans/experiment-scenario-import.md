@@ -824,6 +824,12 @@ Decided 2026-11-07:
   | p09 | uc2-2, uc2-1, uc2-3, uc2-4 |
   | p10 | uc2-2, uc2-4, uc2-3, uc2-1 |
 
+  These ten are the formative round (November). The summative experiments
+  of December, one setting and two UC2 scenarios per participant, start
+  with `plan-b-summative-colearning-p01` (`PLAN_B_SUMMATIVE_CONDITIONS`,
+  briefing `plan-b-summative`, with the Schichtbilanz); see
+  `docs/plans/plan-b-control-group.md` §4.2.
+
 - **The former `plan-b-p01`** (two Walensee legs, `nasa-tlx` after each,
   Schichtbilanz) is removed; its id now names participant 01. Records made
   under the old one keep their `conditionId`, so the replay finds the *new*
