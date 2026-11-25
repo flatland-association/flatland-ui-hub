@@ -71,9 +71,12 @@ export class ReplayShiftSummaryComponent {
   private readonly i18n = inject(LanguageService);
 
   /** The reflection overview of the replayed legs (#209), from their recorded
-   *  decision logs; empty for a run without decisions on single trains. */
+   *  decision logs; only for an experiment's run (its sessions name their
+   *  `legId`), as live (F-7), and not for a run without decisions on single
+   *  trains. */
   readonly overviewLegs = computed<OverviewLeg[]>(() => {
     const legs = this.replay.legs();
+    if (!legs.some((leg) => leg.header.legId)) return [];
     const rows = legs.map((leg, i) => ({
       label: this.i18n.t('replay.leg', { n: i + 1, total: legs.length }),
       scenarioId: leg.header.scenarioId,
