@@ -720,7 +720,7 @@ def _course_still_works(session, agent, course) -> bool:
 
 
 def _accept_lead_course(session, agent, course) -> dict:
-    """Accept a KI course computed for a step ahead (docs/plans/proposal-lead-time.md).
+    """Accept a KI course computed for a step ahead (#230).
 
     Before its step, with the run where the forecast put it: pending, installed
     by the step loop when the step is reached (`activate_pending_course`). At
@@ -887,7 +887,7 @@ def _evaluate_proposals_unchecked(captured):
     # Each course is scored the way it runs once accepted: the whole course as
     # the plan, with the other trains' standing overrides on top.
     kept = _kept_overrides(agent, committed, handle)
-    # With a lead (docs/plans/proposal-lead-time.md) the adviser proposes from
+    # With a lead (#230) the adviser proposes from
     # the forecast state at the step the course can still be taken at, and each
     # course is simulated from now: the current driver until that step, then
     # the course, the overrides the acceptance drops released at that step.

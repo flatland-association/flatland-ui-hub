@@ -237,7 +237,7 @@ export interface ProposalVariant {
   /** Exact executable course from this preview, validated again on accept. */
   preview_token?: string;
   /** AI variants computed with a lead: the step the course takes over at
-   *  (docs/plans/proposal-lead-time.md); null when it takes over at once. */
+   *  (#230); null when it takes over at once. */
   activation_step?: number | null;
   matches_plan?: boolean;
   intervention?: {

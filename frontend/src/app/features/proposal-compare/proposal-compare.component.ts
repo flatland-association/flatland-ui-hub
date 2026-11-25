@@ -137,7 +137,7 @@ export class ProposalCompareComponent implements OnDestroy {
   /**
    * While the run plays, the AI courses are computed for the step the
    * participant can still take them at: now plus the computing time plus the
-   * reaction allowance (docs/plans/proposal-lead-time.md). Paused: for now.
+   * reaction allowance (#230). Paused: for now.
    */
   private leadSteps(): number {
     if (!this.store.playing() || this.replay.active()) return 0;
@@ -198,7 +198,7 @@ export class ProposalCompareComponent implements OnDestroy {
 
     // An AI course computed with a lead can be taken exactly until its step.
     // Once that has passed, ask again by itself instead of offering a course
-    // that has run out (docs/plans/proposal-lead-time.md).
+    // that has run out (#230).
     effect(() => {
       const at = this.liveResult()?.ai_activation_step;
       const now = this.store.elapsedSteps();

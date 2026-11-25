@@ -38,7 +38,7 @@ class PreviewCourse:
     candidate_id: str | None
     priority: tuple[int, ...]
     trainruns: dict
-    # A course computed for a step ahead (docs/plans/proposal-lead-time.md):
+    # A course computed for a step ahead (#230):
     # the step it takes over at, the forecast fingerprint of every step from
     # the request to that one, the overrides it was forecast with, and what the
     # preview promised (trains home, deadlocks) for the re-check.

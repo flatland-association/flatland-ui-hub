@@ -201,7 +201,7 @@ describe('ProposalCompareComponent — future AI courses', () => {
   }
 
   it('replaces a stale preview on conflict with a new one, without recording an accepted decision', () => {
-    // docs/plans/proposal-lead-time.md: a 409 asks again by itself and says so,
+    // #230: a 409 asks again by itself and says so,
     // instead of leaving the participant an error and a refresh button.
     const { fixture, component, http, store } = create();
     http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));

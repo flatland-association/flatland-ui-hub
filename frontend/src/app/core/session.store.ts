@@ -899,7 +899,7 @@ export class SessionStore {
   /** How long a participant may take to read and take a KI course while the
    *  run plays. The course is computed for the step reached after this (plus
    *  the computing time), so taking it in time is exact
-   *  (docs/plans/proposal-lead-time.md). A default, not yet a study decision. */
+   *  (#230). A default, not yet a study decision. */
   readonly proposalReactionSeconds = signal<number>(10);
 
   setProposalReactionSeconds(n: number): void {

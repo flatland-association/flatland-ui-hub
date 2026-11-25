@@ -1,4 +1,4 @@
-"""KI courses computed for a step ahead (docs/plans/proposal-lead-time.md).
+"""KI courses computed for a step ahead (#230).
 
 uc2-4 with seed 42: train 0 breaks down at step 20 for 20 steps and train 1,
 behind it, is the affected one Plan B holds.

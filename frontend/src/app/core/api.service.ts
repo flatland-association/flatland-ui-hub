@@ -559,7 +559,7 @@ export class ApiService {
 
   /** `route`: for `option` reroute, the drawn route (via cells and where the drawing began). */
   /** `leadSteps`: compute the AI courses for that many steps ahead, so one can
-   *  still be taken after the participant has read it (docs/plans/proposal-lead-time.md). */
+   *  still be taken after the participant has read it (#230). */
   getProposals(id: string, handle: number, option?: ProposalOption, route?: DrawnRoute, leadSteps = 0) {
     let params = new HttpParams().set('handle', handle).set('alternatives', 8);
     if (leadSteps > 0) params = params.set('lead_steps', leadSteps);

@@ -1,6 +1,6 @@
 """SwitchAtStepPolicy — one policy until a step, another from that step on.
 
-A KI course computed for a step ahead of now (docs/plans/proposal-lead-time.md)
+A KI course computed for a step ahead of now (#230)
 is taken over at that step: until then the trains run as the session drives
 them anyway. Simulating that course from *now* therefore means the session's
 driver first and the course afterwards, which is what this policy does, so the
