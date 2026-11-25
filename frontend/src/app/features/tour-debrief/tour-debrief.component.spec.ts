@@ -105,4 +105,19 @@ describe('TourDebriefComponent', () => {
     const el = render();
     expect(el.querySelector('app-reflection-overview')).toBeNull();
   });
+
+  it('reads a scenario\'s last record, not an aborted attempt before it', () => {
+    afterLastLeg(TWO_LEGS);
+    const tour = TestBed.inject(TourContextService);
+    const leg0 = (sessionId: string, simStep: number) => ({
+      leg: 0, sessionId, played: null, rules: [], ruleApplied: null, legId: TWO_LEGS.legs![0].id,
+      decisions: [{ handle: 0, action: 'hold', simStep, decisionTimeMs: 1 }],
+    });
+    tour.recordShift({ ...leg0('aborted', 5), finishReason: 'aborted' });
+    tour.recordShift(leg0('resumed', 44));
+    const el = render();
+    const first = text(el.querySelector('app-reflection-overview tbody tr') as HTMLElement);
+    expect(first).toContain('Step 44');
+    expect(first).not.toContain('Step 5 ');
+  });
 });

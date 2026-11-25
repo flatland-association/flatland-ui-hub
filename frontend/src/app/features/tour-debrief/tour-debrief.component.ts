@@ -102,14 +102,23 @@ export class TourDebriefComponent {
   readonly inExperiment = computed(() => this.run.active());
 
   /**
+   * The record of the run's leg `i`: the last one, as a leg aborted and
+   * resumed on a new session is recorded once per session (`recordShift`
+   * keys by session), and only the last attempt was finished.
+   */
+  private legShift(i: number): ShiftRecord | undefined {
+    const leg = this.run.legs()[i];
+    return [...this.tourContext.shiftHistory()].reverse().find((s) => s.legId === leg?.id && s.leg === i);
+  }
+
+  /**
    * The Schichtbilanz over all legs of a guided condition (experiment-workflow
    * §2c): one row per leg, as snapshotted at its end, and the totals.
    */
   readonly legRows = computed(() => {
     if (!this.run.multiLeg()) return [];
-    const history = this.tourContext.shiftHistory();
-    return this.run.legs().map((leg, i) => {
-      const shift = history.find((s) => s.legId === leg.id && s.leg === i);
+    return this.run.legs().map((_, i) => {
+      const shift = this.legShift(i);
       return { label: this.run.legLabel(i), kpis: shift?.kpis ?? null, interventions: shift?.interventions ?? 0 };
     });
   });
@@ -122,9 +131,8 @@ export class TourDebriefComponent {
    */
   readonly overviewLegs = computed<OverviewLeg[]>(() => {
     if (!this.inExperiment()) return [];
-    const history = this.tourContext.shiftHistory();
-    return this.run.legs().map((leg, i) => {
-      const shift = history.find((s) => s.legId === leg.id && s.leg === i);
+    return this.run.legs().map((_, i) => {
+      const shift = this.legShift(i);
       return {
         label: this.run.legLabel(i),
         decisions: (shift?.decisions ?? []).map((d) => ({
