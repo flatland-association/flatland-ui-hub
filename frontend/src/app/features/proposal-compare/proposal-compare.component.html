@@ -44,6 +44,9 @@
       }
     </div>
 
+    @if (courseRejected()) {
+      <p class="pc-caveat">{{ 'proposals.courseRejected' | transloco }}</p>
+    }
     @if (loading()) {
       <p class="pc-loading">{{ 'proposals.loading' | transloco }}</p>
     } @else if (failed(); as message) {
@@ -92,10 +95,21 @@
             }
             @if (shownApplied() === 'ai') {
               <p class="pc-taken">{{ 'proposals.taken' | transloco }}</p>
+              @if (pendingActivation() !== null) {
+                <p class="pc-system pc-deadline">
+                  {{ pendingSecondsLeft() === null ? ('proposals.aiPendingPaused' | transloco) : ('proposals.aiPending' | transloco: { seconds: pendingSecondsLeft() }) }}
+                </p>
+              }
             } @else if (!decided()) {
               <button type="button" class="pc-take pc-take--ai" data-log="proposals.takeAi" [disabled]="loading() || applying() !== null" (click)="take('ai')">
                 {{ (applying() === 'ai' ? 'proposals.taking' : 'proposals.takeAi') | transloco }}
               </button>
+              @if (aiSecondsLeft() !== null && !loading()) {
+                <p class="pc-system pc-deadline">{{ 'proposals.aiValidFor' | transloco: { seconds: aiSecondsLeft() } }}</p>
+              }
+              @if (aiRefreshed()) {
+                <p class="pc-caveat">{{ 'proposals.aiRefreshed' | transloco }}</p>
+              }
             }
           </section>
         }

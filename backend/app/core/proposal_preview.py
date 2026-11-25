@@ -38,6 +38,37 @@ class PreviewCourse:
     candidate_id: str | None
     priority: tuple[int, ...]
     trainruns: dict
+    # A course computed for a step ahead (docs/plans/proposal-lead-time.md):
+    # the step it takes over at, the forecast fingerprint of every step from
+    # the request to that one, the overrides it was forecast with, and what the
+    # preview promised (trains home, deadlocks) for the re-check.
+    activation_step: int | None = None
+    expected: tuple = ()
+    committed: tuple = ()
+    arrived: int = 0
+    deadlocks: int = 0
+
+
+def fingerprint(env) -> tuple:
+    """What the trains look like at this step: enough to tell whether the live
+    run is where a forecast said it would be."""
+    rows = []
+    for agent in env.agents:
+        handle = int(agent.handle)
+        position = getattr(agent, "position", None)
+        direction = getattr(agent, "direction", None)
+        handler = getattr(agent, "malfunction_handler", None)
+        down = int(getattr(handler, "malfunction_down_counter", 0) or 0)
+        state = getattr(agent, "state", None)
+        rows.append((handle,
+                     None if position is None else tuple(int(v) for v in position),
+                     None if direction is None else int(direction),
+                     None if state is None else int(state), down))
+    return tuple(rows)
+
+
+def committed_snapshot(session) -> tuple:
+    return tuple(sorted((int(h), int(a)) for h, a in override_manager.get_all(session.id).items()))
 
 
 def source_state(session) -> PreviewSource:
@@ -61,13 +92,14 @@ def source_state(session) -> PreviewSource:
     return PreviewSource(id(env), int(env._elapsed_steps), digest)
 
 
-def remember_course(session, source: PreviewSource, handle: int, proposal) -> str:
+def remember_course(session, source: PreviewSource, handle: int, proposal, lead: dict | None = None) -> str:
     cache = getattr(session, "_proposal_previews", None)
     if cache is None:
         cache = session._proposal_previews = OrderedDict()
     token = secrets.token_urlsafe(24)
     cache[token] = PreviewCourse(source, handle, proposal.candidate_id,
-                                 tuple(proposal.priority), copy.deepcopy(proposal.trainruns))
+                                 tuple(proposal.priority), copy.deepcopy(proposal.trainruns),
+                                 **(lead or {}))
     while len(cache) > MAX_COURSES_PER_SESSION:
         cache.popitem(last=False)
     return token
@@ -85,8 +117,59 @@ def exact_course(session, token: str, *, handle: int, candidate_id: str | None,
     return copy.deepcopy(course.trainruns)
 
 
+def lead_course(session, token: str, *, handle: int, candidate_id: str | None,
+                source_step: int | None, priority: list[int] | None) -> PreviewCourse | None:
+    """The remembered course behind `token` if it was computed for a step
+    ahead; None for an exact (same-step) course. Ids must match either way."""
+    course = getattr(session, "_proposal_previews", {}).get(token)
+    if course is None or course.activation_step is None:
+        return None
+    if (source_step != course.source.step or handle != course.handle
+            or candidate_id != course.candidate_id
+            or tuple(priority or ()) != course.priority
+            or id(session.env) != course.source.env_id):
+        raise HTTPException(409, "This proposal preview is stale or no longer matches; load proposals again")
+    return course
+
+
+def matches_forecast(session, course: PreviewCourse) -> bool:
+    """The live run is where the course's forecast put it at this step, with the
+    overrides it was forecast with."""
+    step = int(getattr(session.env, "_elapsed_steps", 0) or 0)
+    expected = dict(course.expected).get(step)
+    return (expected is not None and expected == fingerprint(session.env)
+            and course.committed == committed_snapshot(session))
+
+
+def pending_course(session) -> PreviewCourse | None:
+    return getattr(session, "_pending_course", None)
+
+
+def set_pending(session, course: PreviewCourse) -> None:
+    session._pending_course = course
+
+
+def clear_pending(session, handle: int | None = None) -> None:
+    """Drop the pending course (only if it is for `handle`, when given)."""
+    course = pending_course(session)
+    if course is not None and (handle is None or course.handle == int(handle)):
+        session._pending_course = None
+
+
+def course_state(session) -> dict:
+    """The state payload's view of a KI course accepted for a step ahead:
+    the one still waiting, and how the last one went when its step came."""
+    course = pending_course(session)
+    return {
+        "pending_course": None if course is None else {
+            "handle": course.handle, "activation_step": course.activation_step},
+        "course_activation": getattr(session, "_course_activation", None),
+    }
+
+
 def clear_previews(session) -> None:
     getattr(session, "_proposal_previews", {}).clear()
+    clear_pending(session)
 
 
 async def run_preview_work(work):

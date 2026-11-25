@@ -200,7 +200,9 @@ describe('ProposalCompareComponent — future AI courses', () => {
     });
   }
 
-  it('discards a stale preview on conflict without recording an accepted decision', () => {
+  it('replaces a stale preview on conflict with a new one, without recording an accepted decision', () => {
+    // docs/plans/proposal-lead-time.md: a 409 asks again by itself and says so,
+    // instead of leaving the participant an error and a refresh button.
     const { fixture, component, http, store } = create();
     http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));
     fixture.detectChanges();
@@ -210,10 +212,14 @@ describe('ProposalCompareComponent — future AI courses', () => {
       { detail: 'stale forecast' }, { status: 409, statusText: 'Conflict' },
     );
     fixture.detectChanges();
-    expect(component.result()).toBeNull();
     expect(store.decisionLog().length).toBe(before);
-    expect(fixture.nativeElement.textContent).toContain('Refresh the courses');
-    expect(fixture.nativeElement.querySelector('[data-log="proposals.refreshCourses"]')).toBeTruthy();
+    expect(fixture.nativeElement.textContent).toContain('no longer fitted the situation');
+    const again = http.match((r) => r.url.endsWith('/proposals'));
+    expect(again.length).toBe(1);
+    again[0].flush({ ...courses(), step: 9 });
+    fixture.detectChanges();
+    expect(component.result()?.step).toBe(9);
+    expect(store.decisionLog().length).toBe(before);
   });
 
   it('keeps the newer train forecast when an earlier response arrives last', () => {

@@ -42,6 +42,12 @@ def step_env(session_id: str, session, actions: dict, *, disturbances: bool = Tr
         fired = apply_due_disturbances(session_id, session, env)
     if recorder is not None:
         recorder.after_step(env, rewards, dones, info, fired)
+    if getattr(session, "_pending_course", None) is not None:
+        # A KI course accepted for a step ahead takes over once that step is
+        # reached (docs/plans/proposal-lead-time.md). The callers pick up the
+        # new plan before the next step.
+        from app.api.overrides import activate_pending_course
+        activate_pending_course(session)
     return next_obs, rewards, dones, info
 
 

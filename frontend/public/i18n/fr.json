@@ -1693,7 +1693,12 @@
     },
     "drawRoute": "Appuyez sur le train sur la carte et tracez son itinéraire sur les aiguillages. Relâchez pour voir le déroulement ; Échap annule.",
     "noDrawnRoute": "Aucun itinéraire ne passe par les cases tracées.",
-    "drawnRouteLeft": "Le train a déjà quitté l’itinéraire tracé. Trace-le à nouveau depuis sa position actuelle."
+    "drawnRouteLeft": "Le train a déjà quitté l’itinéraire tracé. Trace-le à nouveau depuis sa position actuelle.",
+    "aiValidFor": "Peut encore être adopté pendant {{seconds}} s ; ensuite, il est recalculé.",
+    "aiPending": "Le déroulement de l’IA prend le relais dans environ {{seconds}} s. D’ici là, les trains circulent comme maintenant.",
+    "aiPendingPaused": "Le déroulement de l’IA prend le relais dès que la simulation reprend. D’ici là, les trains circulent comme maintenant.",
+    "aiRefreshed": "Le déroulement précédent de l’IA ne correspondait plus à la situation. Celui-ci est nouveau.",
+    "courseRejected": "Le déroulement de l’IA ne correspondait plus à la situation au moment prévu ; il n’a pas été appliqué. Choisissez à nouveau un déroulement."
   },
   "zwl": {
     "empty": "Sélectionnez un train pour voir sa trajectoire espace-temps.",

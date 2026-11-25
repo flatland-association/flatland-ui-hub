@@ -236,6 +236,9 @@ export interface ProposalVariant {
   candidate_id?: string | null;
   /** Exact executable course from this preview, validated again on accept. */
   preview_token?: string;
+  /** AI variants computed with a lead: the step the course takes over at
+   *  (docs/plans/proposal-lead-time.md); null when it takes over at once. */
+  activation_step?: number | null;
   matches_plan?: boolean;
   intervention?: {
     kind: 'rl' | 'branch' | 'wait';
@@ -266,6 +269,9 @@ export interface ProposalsResult {
   /** True when other trains have standing decisions (stop, turn, reroute)
    *  that taking the AI course keeps; false: none, or the agent clears them all. */
   ai_keeps_overrides?: boolean;
+  /** With a lead: the step the AI courses take over at, and the last step at
+   *  which taking one is still exact. Null: computed for now. */
+  ai_activation_step?: number | null;
   /** plan, the best AI order, and the human's choice when one is given. */
   variants: ProposalVariant[];
   /** Further AI priority orders, ranked after the best one. */

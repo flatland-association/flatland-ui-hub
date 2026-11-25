@@ -893,6 +893,16 @@ export class SessionStore {
     this.decisionCountdownSeconds.set(Math.max(3, Math.min(60, Math.floor(n || 10))));
   }
 
+  /** How long a participant may take to read and take a KI course while the
+   *  run plays. The course is computed for the step reached after this (plus
+   *  the computing time), so taking it in time is exact
+   *  (docs/plans/proposal-lead-time.md). A default, not yet a study decision. */
+  readonly proposalReactionSeconds = signal<number>(10);
+
+  setProposalReactionSeconds(n: number): void {
+    this.proposalReactionSeconds.set(Math.max(0, Math.min(60, Math.floor(n || 0))));
+  }
+
   /** How long an AI recommendation shows a countdown before it reads as
    *  "stale". 0 = no countdown: the recommendation stays as long as it
    *  makes sense (i.e. until the backend stops surfacing it, or the human

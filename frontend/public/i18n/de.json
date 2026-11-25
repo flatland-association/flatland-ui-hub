@@ -1693,7 +1693,12 @@
     },
     "drawRoute": "Drück auf der Karte auf den Zug und zieh seinen Fahrweg über die Weichen. Loslassen zeigt den Verlauf; Esc bricht ab.",
     "noDrawnRoute": "Durch die gezogenen Zellen führt kein Fahrweg.",
-    "drawnRouteLeft": "Der Zug hat den gezogenen Fahrweg schon verlassen. Zieh ihn neu, ab dort, wo der Zug jetzt ist."
+    "drawnRouteLeft": "Der Zug hat den gezogenen Fahrweg schon verlassen. Zieh ihn neu, ab dort, wo der Zug jetzt ist.",
+    "aiValidFor": "Noch {{seconds}} s übernehmbar, danach wird er neu berechnet.",
+    "aiPending": "Der KI-Verlauf übernimmt in etwa {{seconds}} s. Bis dahin fahren die Züge wie jetzt.",
+    "aiPendingPaused": "Der KI-Verlauf übernimmt, sobald die Simulation weiterläuft. Bis dahin fahren die Züge wie jetzt.",
+    "aiRefreshed": "Der vorherige KI-Verlauf passte nicht mehr zur Lage. Dieser ist neu berechnet.",
+    "courseRejected": "Der KI-Verlauf passte zum vorgesehenen Zeitpunkt nicht mehr zur Lage und wurde nicht ausgeführt. Wähle bitte erneut einen Verlauf."
   },
   "zwl": {
     "empty": "Wähle einen Zug, um seinen Zeit-Weg-Verlauf zu sehen.",

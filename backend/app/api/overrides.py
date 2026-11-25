@@ -32,6 +32,7 @@ from app.policies.plan_policy import (
     planned_arrival_steps,
 )
 from app.policies.registry import PLAN_POLICY_ID, get_policy_spec, scenario_policy_factories
+from app.policies.switch_policy import SwitchAtStepPolicy
 
 router = APIRouter()
 
@@ -277,6 +278,9 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
 
     if req.action not in _OVERRIDE_VALUES:
         raise HTTPException(400, f"Invalid action {req.action}")
+
+    # A new decision for this train replaces a KI course still waiting for its step.
+    proposal_preview.clear_pending(session, handle)
 
     # Keep current overrides for before/after impact estimate.
     before_overrides = dict(override_manager.get_all(session_id))
@@ -609,6 +613,8 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
         raise HTTPException(409, "A proposal preview token can only accept its AI course")
 
     step = int(getattr(env, "_elapsed_steps", 0) or 0)
+    # Whatever is taken now replaces a KI course still waiting for its step.
+    proposal_preview.clear_pending(session)
 
     if req.variant == "plan":
         override_manager.clear(session_id, handle)
@@ -617,6 +623,12 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
 
     elif req.variant == "ai":
         agent = proposal_agent_for(session)
+        if req.preview_token is not None:
+            lead = proposal_preview.lead_course(
+                session, req.preview_token, handle=handle, candidate_id=req.candidate_id,
+                source_step=req.source_step, priority=req.priority)
+            if lead is not None:
+                return _accept_lead_course(session, agent, lead)
         kept = _kept_overrides(agent, override_manager.get_all(session_id), handle)
         if kept and req.preview_token is None and req.candidate_id is None:
             # The courses with kept decisions are ranked by `/proposals`; which
@@ -633,22 +645,7 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
                 env, req.priority or (), handle, candidate_id=req.candidate_id, overrides=kept)
         if not trainruns:
             raise HTTPException(409, "The planner found no collision-free plan from here")
-        accept_trainrun_plan(env, trainruns)  # also puts every train on plan again
-        session.trainrun_plan = trainruns
-        session.policy = PLAN_POLICY_ID
-        if getattr(agent, "respects_overrides", False):
-            # The last decision wins per train: the course answers the selected
-            # train's question; the other trains keep the operator's decision,
-            # on top of the course that was simulated with it.
-            override_manager.clear(session_id, handle)
-            drop_route(env, handle)
-        else:
-            # The overrides answered the old course; leaving them would fight the
-            # replan the operator just accepted.
-            override_manager.clear_all(session_id)
-            env._route_overrides = {}
-        # The routes still committed are the ones the course was simulated with.
-        note_course_routes(env, getattr(env, "_route_overrides", None))
+        _install_ai_course(session, agent, handle, trainruns)
         label = "KI-Plan übernommen"
 
     elif req.variant == "human":
@@ -668,9 +665,7 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
     else:
         raise HTTPException(400, f"Unknown variant {req.variant!r}")
 
-    proposal_preview.clear_previews(session)
-    from app.api.sessions import _invalidate_scenario_forecasts
-    _invalidate_scenario_forecasts(session_id)
+    _finish_apply(session)
 
     return {
         "applied": req.variant,
@@ -680,7 +675,104 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
     }
 
 
-def _capture_proposal_source(session, handle, action, option, alternatives, via=None, start=None):
+def _install_ai_course(session, agent, handle: int, trainruns) -> None:
+    """Make an AI course the plan the session runs on (see `apply_proposal`)."""
+    env = session.env
+    accept_trainrun_plan(env, trainruns)  # also puts every train on plan again
+    session.trainrun_plan = trainruns
+    session.policy = PLAN_POLICY_ID
+    if getattr(agent, "respects_overrides", False):
+        # The last decision wins per train: the course answers the selected
+        # train's question; the other trains keep the operator's decision,
+        # on top of the course that was simulated with it.
+        override_manager.clear(session.id, handle)
+        drop_route(env, handle)
+    else:
+        # The overrides answered the old course; leaving them would fight the
+        # replan the operator just accepted.
+        override_manager.clear_all(session.id)
+        env._route_overrides = {}
+    # The routes still committed are the ones the course was simulated with.
+    note_course_routes(env, getattr(env, "_route_overrides", None))
+
+
+def _finish_apply(session) -> None:
+    proposal_preview.clear_previews(session)
+    from app.api.sessions import _invalidate_scenario_forecasts
+    _invalidate_scenario_forecasts(session.id)
+
+
+def _course_still_works(session, agent, course) -> bool:
+    """The live run left the course's forecast (or the step passed): replay the
+    course from where the trains are now. `PlanPolicy` follows it by position
+    and order, so it usually still works; take it only if it gets at least as
+    many trains home, with no more deadlocks, as the preview promised."""
+    env = session.env
+    kept = _kept_overrides(agent, override_manager.get_all(session.id), course.handle)
+    res = _branch_run(env, lambda: PlanPolicy(None, course.trainruns), kept, agent.forecast_horizon(env))
+    return (int(res.success_count or 0) >= course.arrived
+            and _kpis_from_result(res)["deadlocks"] <= course.deadlocks)
+
+
+def _accept_lead_course(session, agent, course) -> dict:
+    """Accept a KI course computed for a step ahead (docs/plans/proposal-lead-time.md).
+
+    Before its step, with the run where the forecast put it: pending, installed
+    by the step loop when the step is reached (`activate_pending_course`). At
+    its step, likewise exact. Otherwise (the run diverged, or the step passed):
+    re-checked from the live state, installed now or refused with 409.
+    """
+    step = int(getattr(session.env, "_elapsed_steps", 0) or 0)
+    on_forecast = proposal_preview.matches_forecast(session, course)
+    reply = {"applied": "ai", "step": step, "activation_step": course.activation_step}
+    if step < course.activation_step and on_forecast:
+        proposal_preview.clear_previews(session)
+        proposal_preview.set_pending(session, course)
+        return {**reply, "label": "KI-Plan vorgemerkt", "pending": True,
+                "policy": getattr(session, "policy", None) or ""}
+    if not (step == course.activation_step and on_forecast) and not _course_still_works(session, agent, course):
+        raise HTTPException(409, "This proposal preview is stale or no longer matches; load proposals again")
+    _install_ai_course(session, agent, course.handle, copy.deepcopy(course.trainruns))
+    _finish_apply(session)
+    return {**reply, "label": "KI-Plan übernommen", "pending": False,
+            "policy": getattr(session, "policy", None) or ""}
+
+
+def activate_pending_course(session) -> dict | None:
+    """Called by the step loop after every step: install a pending KI course
+    once its step is reached. Exact when the run is where the forecast put it,
+    else re-checked; dropped if the re-check fails. The outcome is kept on the
+    session (`course_activation` in the state) so the HMI can say so."""
+    course = proposal_preview.pending_course(session)
+    if course is None:
+        return None
+    step = int(getattr(session.env, "_elapsed_steps", 0) or 0)
+    if step < course.activation_step:
+        return None
+    proposal_preview.clear_pending(session)
+    outcome = "rejected"
+    try:
+        agent = proposal_agent_for(session)
+        if step == course.activation_step and proposal_preview.matches_forecast(session, course):
+            outcome = "installed"
+        elif _course_still_works(session, agent, course):
+            outcome = "rechecked"
+        if outcome != "rejected":
+            _install_ai_course(session, agent, course.handle, copy.deepcopy(course.trainruns))
+            _finish_apply(session)
+    except Exception:  # never break the step loop over a suggestion
+        import logging
+        logging.getLogger(__name__).exception("Activating the pending KI course failed")
+        outcome = "rejected"
+    result = {"handle": course.handle, "step": step, "activation_step": course.activation_step, "outcome": outcome}
+    session._course_activation = result
+    return result
+
+
+MAX_LEAD_STEPS = 60
+
+
+def _capture_proposal_source(session, handle, action, option, alternatives, via=None, start=None, lead_steps=0):
     """Capture synchronously on ASGI while command_lock protects the live state."""
     if handle < 0 or handle >= len(session.env.agents):
         raise HTTPException(404, f"Agent {handle} not found")
@@ -703,7 +795,47 @@ def _capture_proposal_source(session, handle, action, option, alternatives, via=
                else _policy_factory_for_session(snapshot))
     return (root, factory, dict(override_manager.get_all(session.id)),
             _baseline_source(session), proposal_preview.source_state(session),
-            snapshot, handle, action, option, max(1, min(int(alternatives), 8)), drawn)
+            snapshot, handle, action, option, max(1, min(int(alternatives), 8)), drawn,
+            max(0, min(int(lead_steps or 0), MAX_LEAD_STEPS)))
+
+
+def _roll_forward(env, policy_factory, committed: dict, steps: int):
+    """Step a copy of `env` `steps` steps the way the session drives it now (its
+    policy with the standing overrides, holds included) and return the copy with
+    the fingerprint of every step from now to then.
+
+    A deep copy rather than the branch runner's fork: it keeps everything the
+    adviser reads off the env, and the breakdown generator's state with it, so a
+    breakdown under way keeps its down-time and a scheduled one still comes.
+    """
+    from flatland.envs.step_utils.states import TrainState
+
+    from app.core.scenario_runner import TrajectoryBranchRunner
+
+    future = copy.deepcopy(env)
+    expected = [(int(future._elapsed_steps), proposal_preview.fingerprint(future))]
+    runner = TrajectoryBranchRunner(future, policy_factory)
+    policy, temp_id = runner._make_override_policy(future, committed)
+    try:
+        policy.start_episode()
+        for _ in range(steps):
+            if all(getattr(a, "state", None) == TrainState.DONE for a in future.agents):
+                break
+            handles = future.get_agent_handles()
+            policy.start_step()
+            actions = policy.act_many(handles, {h: future for h in handles})
+            try:
+                future.step(actions)
+            except Exception as e:
+                policy.end_step()
+                if "Episode is done" in str(e):
+                    break
+                raise
+            policy.end_step()
+            expected.append((int(future._elapsed_steps), proposal_preview.fingerprint(future)))
+    finally:
+        override_manager.clear_all(temp_id)
+    return future, tuple(expected)
 
 
 def _evaluate_proposals(captured):
@@ -735,7 +867,7 @@ def _evaluate_proposals_unchecked(captured):
 
     Read-only, like the what-if. Plan: docs/plans/proposal-agents-roadmap.md (2a/2c).
     """
-    env, plan_factory, committed, baseline_source, source, snapshot, handle, action, option, alternatives, drawn = captured
+    env, plan_factory, committed, baseline_source, source, snapshot, handle, action, option, alternatives, drawn, lead_steps = captured
 
     agent = proposal_agent_for(snapshot)
     elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
@@ -750,9 +882,24 @@ def _evaluate_proposals_unchecked(captured):
     # Each course is scored the way it runs once accepted: the whole course as
     # the plan, with the other trains' standing overrides on top.
     kept = _kept_overrides(agent, committed, handle)
+    # With a lead (docs/plans/proposal-lead-time.md) the adviser proposes from
+    # the forecast state at the step the course can still be taken at, and each
+    # course is simulated from now: the current driver until that step, then
+    # the course, the overrides the acceptance drops released at that step.
+    future, expected = (_roll_forward(env, plan_factory, committed, lead_steps)
+                        if lead_steps else (env, ()))
+    activation = int(getattr(future, "_elapsed_steps", elapsed) or elapsed) if lead_steps else None
+    if activation == elapsed:
+        activation = None  # nothing to run ahead of (episode over)
+    dropped = {int(h): activation for h in committed if int(h) not in kept} if activation else {}
     ranked = []
-    for proposal in agent.propose_for(env, handle, kept):
-        res = _branch_run(env, lambda tr=proposal.trainruns: PlanPolicy(None, tr), kept, horizon)
+    for proposal in agent.propose_for(future, handle, kept):
+        if activation is None:
+            res = _branch_run(env, lambda tr=proposal.trainruns: PlanPolicy(None, tr), kept, horizon)
+        else:
+            res = _branch_run(
+                env, lambda tr=proposal.trainruns: SwitchAtStepPolicy(plan_factory(), PlanPolicy(None, tr), activation),
+                committed, horizon, release_at=dropped)
         ranked.append((proposal_rank(res, planned, elapsed, horizon), proposal, res))
     ranked.sort(key=lambda entry: entry[0])
 
@@ -766,7 +913,14 @@ def _evaluate_proposals_unchecked(captured):
         variant["matches_plan"] = _arrivals(res) == _arrivals(plan_res)
         variant["score"] = _course_score(res, planned)
         variant["metrics"] = _variant_metrics(res, planned, elapsed, horizon)
-        courses.append((variant, proposal))
+        variant["activation_step"] = activation
+        lead = None if activation is None else {
+            "activation_step": activation, "expected": expected,
+            "committed": tuple(sorted((int(h), int(a)) for h, a in committed.items())),
+            "arrived": int(res.success_count or 0),
+            "deadlocks": _kpis_from_result(res)["deadlocks"],
+        }
+        courses.append((variant, proposal, lead))
         if rank == 0:
             variants.append(variant)
         else:
@@ -791,6 +945,9 @@ def _evaluate_proposals_unchecked(captured):
         # some (an agent that doesn't respect them leaves `kept` empty).
         "ai_keeps_overrides": bool(kept),
         "ai_available": bool(ranked),
+        # The step the AI courses take over at, when computed with a lead; until
+        # then the trains run as they do now. None: they take over at once.
+        "ai_activation_step": activation,
         # The best replan keeps every arrival of the plan: the AI would not change course.
         "ai_matches_plan": bool(ranked) and _arrivals(ranked[0][2]) == _arrivals(plan_res),
         "variants": variants,
@@ -800,35 +957,36 @@ def _evaluate_proposals_unchecked(captured):
 
 def _publish_proposals(session, captured, evaluated):
     payload, courses = evaluated
-    for variant, proposal in courses:
+    for variant, proposal, lead in courses:
         variant["preview_token"] = proposal_preview.remember_course(
-            session, captured[4], captured[6], proposal)
+            session, captured[4], captured[6], proposal, lead)
     payload["session_id"] = session.id
     return payload
 
 
 def get_proposals(session_id: str, handle: int, action: int | None = None,
                   option: str | None = None, alternatives: int = 3, via: str | None = None,
-                  start: str | None = None):
+                  start: str | None = None, lead_steps: int = 0):
     """Synchronous service entry for callers that already own the live state."""
     session = session_manager.get(session_id)
     if session is None:
         raise HTTPException(404, f"Session {session_id} not found")
-    captured = _capture_proposal_source(session, handle, action, option, alternatives, via, start)
+    captured = _capture_proposal_source(session, handle, action, option, alternatives, via, start, lead_steps)
     return _publish_proposals(session, captured, _evaluate_proposals(captured))
 
 
 @router.get("/{session_id}/proposals")
 async def get_proposals_endpoint(session_id: str, handle: int, action: int | None = None,
                                  option: str | None = None, alternatives: int = 3,
-                                 via: str | None = None, start: str | None = None):
+                                 via: str | None = None, start: str | None = None,
+                                 lead_steps: int = 0):
     session = session_manager.get(session_id)
     if session is None:
         raise HTTPException(404, f"Session {session_id} not found")
     async with command_lock(session):
         if session_manager.get(session_id) is not session:
             raise HTTPException(404, f"Session {session_id} not found")
-        captured = _capture_proposal_source(session, handle, action, option, alternatives, via, start)
+        captured = _capture_proposal_source(session, handle, action, option, alternatives, via, start, lead_steps)
     evaluated = await proposal_preview.run_preview_work(lambda: _evaluate_proposals(captured))
     if session_manager.get(session_id) is not session:
         raise HTTPException(409, "This proposal preview's session no longer exists")
@@ -852,6 +1010,7 @@ def clear_override(session_id: str, handle: int):
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
 
+    proposal_preview.clear_pending(session, handle)
     scenario_cache.clear_session(session_id); override_manager.clear(session_id, handle)
     drop_route(session.env, handle)
     return {"session_id": session_id, "handle": handle, "cleared": True}
