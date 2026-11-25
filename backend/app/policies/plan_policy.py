@@ -60,7 +60,7 @@ from flatland.envs.rail_trainrun_data_structures import TrainrunDict
 from app.policies.base import Policy
 from app.policies.deadlock_avoidance_policy import DeadLockAvoidancePolicy
 from app.policies.goal_based_policies.infrastructure_graph import action_for_move
-from app.utils.agent_compat import agent_direction, agent_position
+from app.utils.agent_compat import agent_direction, agent_position, agent_target_positions
 
 
 class PlanPolicy(Policy):
@@ -77,6 +77,9 @@ class PlanPolicy(Policy):
             int(handle): list(run) for handle, run in (trainruns or {}).items()
         }
         self.fallback: Policy = fallback or DeadLockAvoidancePolicy()
+        # The trains with a committed hold, as `set_committed_overrides` last
+        # passed them; a held train at the end of its run keeps the course.
+        self._holds: Set[int] = set()
         # cell -> handles in the order the plan sends them through it.
         self._order: Dict[Tuple[int, int], List[int]] = self._build_order()
         # Per train, where each waypoint sits in its run. Both are lookups into
@@ -146,6 +149,7 @@ class PlanPolicy(Policy):
         for a rerouted train. Plan:
         docs/plans/set-route-on-map.md (Q-12, S-6).
         """
+        self._holds = {int(h) for h in (holds or ())}
         if self._env is not None:
             off = self._off_plan_set()
             course_routes = getattr(self._env, "_plan_course_routes", None) or {}
@@ -179,7 +183,44 @@ class PlanPolicy(Policy):
         return int(handle) in self.trainruns and int(handle) not in self._off_plan
 
     # ── action selection ─────────────────────────────────────────────
+    def _drop_exhausted_course(self) -> None:
+        """Every train to the fallback once the course has run out for a free train.
+
+        A run that never reaches the train's target was cut short: a course
+        computed while the train was held lists only the cell it stood on, and
+        a forecast horizon can cut a run the same way. (A complete run ends on
+        the cell before the target: the rollout records no position for the
+        step the train enters it and is done. Its train finishing is not this
+        case.) The course assumed the train would stay where its run ends, and
+        the other trains' runs were made around that. Once the hold is gone that assumption is void for all of
+        them. Handing only this train to the fallback sends it into trains that
+        still follow the course (they never wait for a train off its plan);
+        handing every train to the fallback lets deadlock avoidance sort them
+        out. Measured on uc2-4 (train 1 held at 20, an AI course for train 0
+        taken at 24, train 1 released): only train 0 arrives when train 1 alone
+        is handed over, all three when every train is. A train still held keeps
+        the course, as it assumed.
+        """
+        env = self._env
+        if env is None:
+            return
+        off = self._off_plan_set()
+        for handle, run in self.trainruns.items():
+            if handle in off or handle in self._holds or not run:
+                continue
+            agent = env.agents[handle]
+            if getattr(agent.state, "name", str(agent.state)) == "DONE" or agent_position(agent) is None:
+                continue
+            end = run[-1].waypoint.position
+            if any(abs(end[0] - t[0]) + abs(end[1] - t[1]) <= 1 for t in agent_target_positions(agent)):
+                continue  # a complete run: its train is about to finish
+            index = self._locate(handle)
+            if index is not None and index >= len(run) - 1:
+                off.update(self.trainruns)
+                return
+
     def act_many(self, handles, observations, **kwargs) -> Dict[int, Any]:
+        self._drop_exhausted_course()
         handles = [int(h) for h in handles]
         actions: Dict[int, Any] = {}
         needs_fallback: List[int] = []
@@ -196,6 +237,7 @@ class PlanPolicy(Policy):
         return actions
 
     def act_for_handle(self, handle, observation=None, eps: float = 0.0):
+        self._drop_exhausted_course()
         action = self._plan_action(int(handle))
         if action is None:
             return self.fallback.act_for_handle(handle, observation, eps)
@@ -235,8 +277,8 @@ class PlanPolicy(Policy):
             return None
 
         if index >= len(run) - 1:
-            # Standing on the last planned cell; Flatland ends the run itself
-            # when the target is reached.
+            # Standing on the last planned cell, still held: as the course
+            # assumed (`_drop_exhausted_course` handles the released case).
             return RailEnvActions.DO_NOTHING
 
         nxt = run[index + 1]

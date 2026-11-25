@@ -366,10 +366,14 @@ export class ApiService {
   }
 
   /** `route`: for a reroute (5), the drawn route (via cells and where the drawing began). */
-  setOverride(id: string, handle: number, action: ActionInt, route?: DrawnRoute): Observable<any> {
+  /** `source` 'system': the HMI's automatic hold, not the operator's (#230). */
+  setOverride(id: string, handle: number, action: ActionInt, route?: DrawnRoute, source?: 'system'): Observable<any> {
     return this.http.post(
       `${API_BASE}/session/${id}/agent/${handle}/override`,
-      route?.via.length ? { action, via: route.via, start: route.start } : { action },
+      {
+        ...(route?.via.length ? { action, via: route.via, start: route.start } : { action }),
+        ...(source ? { source } : {}),
+      },
     );
   }
 

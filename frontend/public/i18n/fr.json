@@ -414,6 +414,11 @@
         "message": "{{train}} : intervention {{direction}} en attente.",
         "short": "Intervention {{direction}} en attente."
       },
+      "systemHold": {
+        "title": "Retenu par le système",
+        "message": "{{train}} : retenu par le système jusqu’à une décision.",
+        "short": "Retenu par le système jusqu’à une décision."
+      },
       "decisionPending": {
         "title": "Décision en attente",
         "message": "{{train}} : {{cell}} en ({{row}},{{col}}) dans {{distance}} cases.",

@@ -754,6 +754,9 @@ export class SessionStore {
   /** Clear the log (e.g. on session reset). */
   clearDecisionLog(): void {
     this.decisionLog.set([]);
+    // A decision window still open from the previous leg would otherwise time
+    // the next leg's decision for the same train number from back then (#230).
+    this._decisionWindowStart.set({});
     // A reflection patches its decision: with the decisions gone, nothing is
     // left to ask (docs/plans/reflection-inline.md §4.1). Every reset clears
     // the log, so this also starts a new leg without open reflections.
@@ -2568,7 +2571,7 @@ export class SessionStore {
       aiSuggestion: null,
       decisionTimeMs: null,
     });
-    this.api.setOverride(s.id, handle, 4 as any).subscribe({
+    this.api.setOverride(s.id, handle, 4 as any, undefined, 'system').subscribe({
       next: () => this.refreshState(),
       error: () => {},
     });

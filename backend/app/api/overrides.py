@@ -41,6 +41,9 @@ class OverrideRequest(BaseModel):
     action: int  # 0=DO_NOTHING, 1=LEFT, 2=FORWARD, 3=RIGHT, 4=STOP, 5=REROUTE
     via: list[list[int]] | None = None  # REROUTE: the cells the operator drew through
     start: list[int] | None = None  # REROUTE with via: [row, col, heading] the drawing began at
+    # "system": the HMI set it (the automatic hold of an affected train), not
+    # the operator; the notifications say so (#230).
+    source: str | None = None
 
 
 def _policy_factory_for(policy_id: str):
@@ -287,6 +290,8 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
     via = _parse_via(req.via) if req.action == REROUTE_ACTION else []
     start = _parse_start(req.start) if via else None
     _commit_override(session.env, session_id, handle, req.action, via, start)
+    if req.source == "system":
+        override_manager.set(session_id, handle, req.action, system=True)
 
     # Estimate impact of the new override from the current env state.
     # If deadlocks increase or done-count drops, emit a warning notification.

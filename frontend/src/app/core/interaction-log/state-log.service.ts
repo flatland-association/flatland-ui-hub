@@ -33,6 +33,7 @@ export class StateLogService {
   private _mapKey: string | null = null;
   private _maxSteps: number | null = null;
   private _episodeDone = false;
+  private _lastStep: number | null = null;
   private readonly _agents = new Map<number, string>();
 
   constructor() {
@@ -59,7 +60,14 @@ export class StateLogService {
       this._agents.set(a.handle, json);
       return true;
     });
-    const frame: StateFrame = { seq: ++this._seq, t: Date.now(), simStep: state.elapsed_steps ?? 0, agents };
+    const simStep = state.elapsed_steps ?? 0;
+    // The same state broadcast again (the step answer and the WebSocket both
+    // send it) changes nothing: writing it made every other frame empty,
+    // the last one included (#230).
+    if (!withMap && !agents.length && simStep === this._lastStep
+      && state.max_episode_steps === this._maxSteps && !!state.episode_done === this._episodeDone) return;
+    this._lastStep = simStep;
+    const frame: StateFrame = { seq: ++this._seq, t: Date.now(), simStep, agents };
     if (withMap || state.max_episode_steps !== this._maxSteps) frame.maxSteps = state.max_episode_steps;
     if (withMap || !!state.episode_done !== this._episodeDone) frame.episodeDone = !!state.episode_done;
     if (withMap) {
@@ -83,6 +91,7 @@ export class StateLogService {
     this._mapKey = null;
     this._maxSteps = null;
     this._episodeDone = false;
+    this._lastStep = null;
     this._agents.clear();
   }
 }

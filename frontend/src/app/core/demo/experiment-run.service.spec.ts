@@ -154,6 +154,45 @@ describe('ExperimentRunService', () => {
     });
   }
 
+  it('counts the trains that broke down during the leg, not only at its end (#230)', () => {
+    begin(run, store, ONE_LEG);
+    store.session.set({ id: 'broke-down' } as SessionInfo);
+    const at = (step: number, broken: boolean) => store.state.set({
+      width: 78, height: 8, num_agents: 2, elapsed_steps: step, max_episode_steps: 180,
+      rail_grid: [], rail_tiles: [], episode_done: false,
+      agents: [0, 1].map((handle) => ({
+        handle, state: 'MOVING', delay: 0,
+        is_malfunctioning: broken && handle === 0, malfunction_remaining: broken && handle === 0 ? 5 : 0,
+      } as AgentDTO)),
+    });
+    at(20, true);
+    TestBed.tick();
+    at(60, false); // the breakdown is over when the leg ends
+    TestBed.tick();
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory()[0].kpis?.malfunctions).toBe(1);
+  });
+
+  it('does not carry a breakdown over into the next session', () => {
+    begin(run, store, ONE_LEG);
+    store.session.set({ id: 'first' } as SessionInfo);
+    store.state.set({
+      width: 78, height: 8, num_agents: 1, elapsed_steps: 20, max_episode_steps: 180,
+      rail_grid: [], rail_tiles: [], episode_done: false,
+      agents: [{ handle: 0, state: 'MALFUNCTION', delay: 0, is_malfunctioning: true, malfunction_remaining: 5 } as AgentDTO],
+    });
+    TestBed.tick();
+    store.session.set({ id: 'second' } as SessionInfo);
+    store.state.set({
+      width: 78, height: 8, num_agents: 1, elapsed_steps: 3, max_episode_steps: 180,
+      rail_grid: [], rail_tiles: [], episode_done: false,
+      agents: [{ handle: 0, state: 'MOVING', delay: 0 } as AgentDTO],
+    });
+    TestBed.tick();
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory()[0].kpis?.malfunctions).toBe(0);
+  });
+
   it('records a run error on the leg, and nothing when there was none', () => {
     const noteLeg = spyOn(log, 'noteLegFinished');
     begin(run, store, TWO_LEGS);

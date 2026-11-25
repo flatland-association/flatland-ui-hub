@@ -414,6 +414,11 @@
         "message": "{{train}}: operator override {{direction}} pending.",
         "short": "Override {{direction}} pending."
       },
+      "systemHold": {
+        "title": "Held by the system",
+        "message": "{{train}}: held by the system until a decision is taken.",
+        "short": "Held by the system until a decision."
+      },
       "decisionPending": {
         "title": "Decision pending",
         "message": "{{train}} reaches a {{cell}} at ({{row}},{{col}}) in {{distance}} cells.",

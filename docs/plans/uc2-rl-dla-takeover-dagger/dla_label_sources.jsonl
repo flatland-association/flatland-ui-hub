@@ -1,0 +1,46 @@
+{"id": "tutorial-dla-000-h0", "preset": "tutorial", "step": 0, "handle": 0, "student": [0, 9, 47], "dla": [1, 6, 64], "pp": [0, 9, 47], "pp_orders": 2, "pp_seconds": 0.02}
+{"id": "tutorial-dla-002-h1", "preset": "tutorial", "step": 2, "handle": 1, "student": [0, 9, 43], "dla": [1, 6, 60], "pp": [0, 9, 43], "pp_orders": 2, "pp_seconds": 0.02}
+{"id": "tutorial-dla-004-h0", "preset": "tutorial", "step": 4, "handle": 0, "student": [0, 11, 41], "dla": [1, 6, 56], "pp": [0, 11, 41], "pp_orders": 2, "pp_seconds": 0.02}
+{"id": "tutorial-dla-006-h1", "preset": "tutorial", "step": 6, "handle": 1, "student": [0, 13, 39], "dla": [1, 6, 52], "pp": [0, 13, 39], "pp_orders": 2, "pp_seconds": 0.02}
+{"id": "tutorial-dla-008-h0", "preset": "tutorial", "step": 8, "handle": 0, "student": [0, 15, 37], "dla": [1, 6, 48], "pp": [0, 15, 37], "pp_orders": 2, "pp_seconds": 0.02}
+{"id": "tutorial-dla-010-h1", "preset": "tutorial", "step": 10, "handle": 1, "student": [0, 19, 37], "dla": [1, 6, 44], "pp": [0, 17, 35], "pp_orders": 2, "pp_seconds": 0.02}
+{"id": "tutorial-dla-012-h0", "preset": "tutorial", "step": 12, "handle": 0, "student": [0, 21, 35], "dla": [1, 6, 40], "pp": [0, 21, 35], "pp_orders": 2, "pp_seconds": 0.02}
+{"id": "tutorial-dla-015-h1", "preset": "tutorial", "step": 15, "handle": 1, "student": [0, 29, 37], "dla": [1, 6, 34], "pp": [1, 6, 34], "pp_orders": 1, "pp_seconds": 0.01}
+{"id": "tutorial-dla-020-h0", "preset": "tutorial", "step": 20, "handle": 0, "student": [1, 6, 24], "dla": [1, 6, 24], "pp": [1, 6, 24], "pp_orders": 1, "pp_seconds": 0.01}
+{"id": "tutorial-dla-026-h1", "preset": "tutorial", "step": 26, "handle": 1, "student": [1, 0, 14], "dla": [1, 0, 14], "pp": [1, 0, 14], "pp_orders": 1, "pp_seconds": 0.01}
+{"id": "uc2-1-dla-000-h0", "preset": "uc2-1", "step": 0, "handle": 0, "student": [0, 19, 254], "dla": [0, 31, 266], "teacher": [0, 19, 254], "pp": [0, 19, 254], "pp_orders": 4, "pp_seconds": 0.34}
+{"id": "uc2-1-dla-008-h1", "preset": "uc2-1", "step": 8, "handle": 1, "student": [0, 72, 283], "dla": [0, 31, 242], "teacher": [0, 72, 283], "pp": [0, 19, 230], "pp_orders": 4, "pp_seconds": 0.31}
+{"id": "uc2-1-dla-016-h2", "preset": "uc2-1", "step": 16, "handle": 2, "student": [0, 19, 206], "dla": [0, 31, 218], "teacher": [0, 72, 259], "pp": [0, 19, 206], "pp_orders": 4, "pp_seconds": 0.3}
+{"id": "uc2-1-dla-024-h0", "preset": "uc2-1", "step": 24, "handle": 0, "student": [0, 72, 235], "dla": [0, 31, 194], "teacher": [0, 72, 235], "pp": [0, 19, 182], "pp_orders": 4, "pp_seconds": 0.23}
+{"id": "uc2-1-dla-030-h1", "preset": "uc2-1", "step": 30, "handle": 1, "student": [0, 72, 217], "dla": [0, 31, 176], "teacher": [0, 72, 217], "pp": [0, 19, 164], "pp_orders": 4, "pp_seconds": 0.2}
+{"id": "uc2-1-dla-040-h2", "preset": "uc2-1", "step": 40, "handle": 2, "student": [0, 25, 140], "dla": [0, 31, 146], "teacher": [0, 127, 242], "pp": null, "pp_orders": 0, "pp_seconds": 0.04}
+{"id": "uc2-1-dla-050-h0", "preset": "uc2-1", "step": 50, "handle": 0, "student": [0, 31, 116], "dla": [0, 31, 116], "teacher": [0, 31, 116], "pp": [0, 31, 116], "pp_orders": 1, "pp_seconds": 0.07}
+{"id": "uc2-1-dla-067-h1", "preset": "uc2-1", "step": 67, "handle": 1, "student": [0, 31, 65], "dla": [0, 31, 65], "teacher": [0, 31, 65], "pp": [0, 31, 65], "pp_orders": 1, "pp_seconds": 0.09}
+{"id": "uc2-1-dla-084-h0", "preset": "uc2-1", "step": 84, "handle": 0, "student": [0, 26, 21], "dla": [0, 26, 21], "teacher": [0, 26, 21], "pp": [0, 26, 21], "pp_orders": 1, "pp_seconds": 0.02}
+{"id": "uc2-2-dla-000-h0", "preset": "uc2-2", "step": 0, "handle": 0, "student": [0, 24, 143], "dla": [0, 24, 143], "teacher": [0, 24, 143], "pp": [0, 24, 143], "pp_orders": 1, "pp_seconds": 0.06}
+{"id": "uc2-2-dla-005-h1", "preset": "uc2-2", "step": 5, "handle": 1, "student": [0, 24, 128], "dla": [0, 24, 128], "teacher": [0, 24, 128], "pp": [0, 24, 128], "pp_orders": 1, "pp_seconds": 0.06}
+{"id": "uc2-2-dla-010-h2", "preset": "uc2-2", "step": 10, "handle": 2, "student": [0, 24, 113], "dla": [0, 24, 113], "teacher": [0, 24, 113], "pp": [0, 24, 113], "pp_orders": 1, "pp_seconds": 0.06}
+{"id": "uc2-2-dla-015-h0", "preset": "uc2-2", "step": 15, "handle": 0, "student": [0, 24, 98], "dla": [0, 24, 98], "teacher": [0, 24, 98], "pp": [0, 24, 98], "pp_orders": 1, "pp_seconds": 0.1}
+{"id": "uc2-2-dla-020-h1", "preset": "uc2-2", "step": 20, "handle": 1, "student": [0, 24, 83], "dla": [0, 24, 83], "teacher": [0, 24, 83], "pp": [0, 24, 83], "pp_orders": 1, "pp_seconds": 0.06}
+{"id": "uc2-2-dla-025-h2", "preset": "uc2-2", "step": 25, "handle": 2, "student": [0, 31, 75], "dla": [0, 24, 68], "teacher": [0, 33, 77], "pp": [0, 24, 68], "pp_orders": 1, "pp_seconds": 0.05}
+{"id": "uc2-2-dla-030-h0", "preset": "uc2-2", "step": 30, "handle": 0, "student": [0, 32, 61], "dla": [0, 24, 53], "teacher": [0, 33, 62], "pp": [0, 24, 53], "pp_orders": 1, "pp_seconds": 0.05}
+{"id": "uc2-2-dla-040-h1", "preset": "uc2-2", "step": 40, "handle": 1, "student": [0, 24, 23], "dla": [0, 24, 23], "teacher": [0, 24, 23], "pp": [0, 24, 23], "pp_orders": 1, "pp_seconds": 0.05}
+{"id": "uc2-2-dla-051-h2", "preset": "uc2-2", "step": 51, "handle": 2, "student": [0, 1, 1], "dla": [0, 1, 1], "teacher": [0, 1, 1], "pp": [0, 1, 1], "pp_orders": 1, "pp_seconds": 0.05}
+{"id": "uc2-3-dla-000-h0", "preset": "uc2-3", "step": 0, "handle": 0, "student": [0, 22, 319], "dla": [0, 39, 336], "teacher": [0, 22, 319], "pp": [0, 50, 347], "pp_orders": 4, "pp_seconds": 0.47}
+{"id": "uc2-3-dla-012-h1", "preset": "uc2-3", "step": 12, "handle": 1, "student": [0, 22, 283], "dla": [0, 39, 300], "teacher": [0, 22, 283], "pp": [0, 49, 310], "pp_orders": 4, "pp_seconds": 0.38}
+{"id": "uc2-3-dla-024-h2", "preset": "uc2-3", "step": 24, "handle": 2, "student": [0, 22, 247], "dla": [0, 39, 264], "teacher": [0, 22, 247], "pp": [0, 39, 264], "pp_orders": 4, "pp_seconds": 0.3}
+{"id": "uc2-3-dla-036-h0", "preset": "uc2-3", "step": 36, "handle": 0, "student": [0, 22, 211], "dla": [0, 39, 228], "teacher": [0, 22, 211], "pp": [0, 43, 232], "pp_orders": 4, "pp_seconds": 0.31}
+{"id": "uc2-3-dla-048-h1", "preset": "uc2-3", "step": 48, "handle": 1, "student": [0, 22, 175], "dla": [0, 39, 192], "teacher": [0, 22, 175], "pp": [0, 33, 186], "pp_orders": 1, "pp_seconds": 0.08}
+{"id": "uc2-3-dla-060-h2", "preset": "uc2-3", "step": 60, "handle": 2, "student": [0, 22, 139], "dla": [0, 39, 156], "teacher": [0, 22, 139], "pp": [0, 39, 156], "pp_orders": 1, "pp_seconds": 0.11}
+{"id": "uc2-3-dla-072-h0", "preset": "uc2-3", "step": 72, "handle": 0, "student": [0, 22, 103], "dla": [0, 39, 120], "teacher": [0, 22, 103], "pp": [0, 39, 120], "pp_orders": 1, "pp_seconds": 0.06}
+{"id": "uc2-3-dla-096-h1", "preset": "uc2-3", "step": 96, "handle": 1, "student": [0, 22, 55], "dla": [0, 30, 63], "teacher": [0, 32, 65], "pp": [0, 30, 63], "pp_orders": 1, "pp_seconds": 0.03}
+{"id": "uc2-3-dla-120-h0", "preset": "uc2-3", "step": 120, "handle": 0, "student": [0, 32, 17], "dla": [0, 30, 15], "teacher": [0, 32, 17], "pp": [0, 30, 15], "pp_orders": 1, "pp_seconds": 0.02}
+{"id": "uc2-4-dla-000-h0", "preset": "uc2-4", "step": 0, "handle": 0, "student": [0, 30, 274], "dla": [0, 64, 308], "teacher": [0, 30, 274], "pp": [0, 38, 282], "pp_orders": 1, "pp_seconds": 0.12}
+{"id": "uc2-4-dla-009-h1", "preset": "uc2-4", "step": 9, "handle": 1, "student": [0, 30, 247], "dla": [0, 64, 281], "teacher": [0, 30, 247], "pp": [0, 38, 255], "pp_orders": 1, "pp_seconds": 0.12}
+{"id": "uc2-4-dla-018-h2", "preset": "uc2-4", "step": 18, "handle": 2, "student": [0, 30, 220], "dla": [0, 64, 254], "teacher": [0, 30, 220], "pp": [0, 38, 228], "pp_orders": 1, "pp_seconds": 0.17}
+{"id": "uc2-4-dla-027-h0", "preset": "uc2-4", "step": 27, "handle": 0, "student": [0, 142, 305], "dla": [0, 64, 227], "teacher": [0, 147, 310], "pp": [0, 38, 201], "pp_orders": 4, "pp_seconds": 0.27}
+{"id": "uc2-4-dla-036-h1", "preset": "uc2-4", "step": 36, "handle": 1, "student": [0, 145, 281], "dla": [0, 64, 200], "teacher": [0, 147, 283], "pp": [0, 38, 174], "pp_orders": 4, "pp_seconds": 0.23}
+{"id": "uc2-4-dla-045-h2", "preset": "uc2-4", "step": 45, "handle": 2, "student": [0, 38, 147], "dla": [0, 64, 173], "teacher": [0, 147, 256], "pp": [0, 38, 147], "pp_orders": 4, "pp_seconds": 0.2}
+{"id": "uc2-4-dla-054-h0", "preset": "uc2-4", "step": 54, "handle": 0, "student": [0, 154, 236], "dla": [0, 64, 146], "teacher": [0, 157, 239], "pp": null, "pp_orders": 0, "pp_seconds": 0.08}
+{"id": "uc2-4-dla-072-h1", "preset": "uc2-4", "step": 72, "handle": 1, "student": [0, 64, 92], "dla": [0, 64, 92], "teacher": [0, 64, 92], "pp": [0, 64, 92], "pp_orders": 1, "pp_seconds": 0.06}
+{"id": "uc2-4-dla-090-h2", "preset": "uc2-4", "step": 90, "handle": 2, "student": [0, 64, 38], "dla": [0, 64, 38], "teacher": [0, 64, 38], "pp": [0, 64, 38], "pp_orders": 1, "pp_seconds": 0.09}

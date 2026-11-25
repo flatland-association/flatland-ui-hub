@@ -414,6 +414,11 @@
         "message": "{{train}}: Eingriff {{direction}} steht an.",
         "short": "Eingriff {{direction}} steht an."
       },
+      "systemHold": {
+        "title": "Vom System angehalten",
+        "message": "{{train}}: vom System angehalten, bis entschieden ist.",
+        "short": "Vom System angehalten, bis entschieden ist."
+      },
       "decisionPending": {
         "title": "Entscheidung steht an",
         "message": "{{train}}: {{cell}} bei ({{row}},{{col}}) in {{distance}} Feldern.",
