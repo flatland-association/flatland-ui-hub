@@ -95,6 +95,11 @@ export class TourDebriefComponent {
 
   private readonly run = inject(ExperimentRunService);
 
+  /** A running experiment (a guided condition), not a tour: its Schichtbilanz
+   *  is cut to the overview and leads on to the questionnaire (#209,
+   *  docs/plans/plan-b-control-group.md D-15, D-18). */
+  readonly inExperiment = computed(() => this.run.active());
+
   /**
    * The Schichtbilanz over all legs of a guided condition (experiment-workflow
    * §2c): one row per leg, as snapshotted at its end, and the totals.
@@ -250,8 +255,9 @@ export class TourDebriefComponent {
     });
   }
 
-  /** Only while the episode could still go on; a debrief must not be a trap. */
-  readonly canReopen = computed(() => !this.store.episodeDone() && this.store.shiftEnded());
+  /** Only while the episode could still go on; a debrief must not be a trap.
+   *  Not in an experiment: its scenario is finished, there is no way back. */
+  readonly canReopen = computed(() => !this.inExperiment() && !this.store.episodeDone() && this.store.shiftEnded());
 
   reopenShift(): void {
     this.store.reopenShift();

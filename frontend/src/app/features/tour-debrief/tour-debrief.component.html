@@ -70,16 +70,21 @@
               </tr>
             </tbody>
           </table>
-          <p class="db-note">{{ 'experimentRun.review.lastLeg' | transloco }}</p>
+          @if (!inExperiment()) {
+            <p class="db-note">{{ 'experimentRun.review.lastLeg' | transloco }}</p>
+          }
         }
 
         @if (review(); as r) {
+          <!-- In an experiment with several scenarios the table has the last one's row already. -->
+          @if (!(inExperiment() && legRows().length)) {
           <div class="db-kpis">
             <span class="db-kpi"><strong>{{ r.kpis.arrived }}/{{ r.kpis.total }}</strong> {{ 'tourUi.debrief.kpi.arrived' | transloco }}</span>
             <span class="db-kpi" [class.is-warn]="r.kpis.delayed > 0"><strong>{{ r.kpis.delayed }}</strong> {{ 'tourUi.debrief.kpi.delayed' | transloco }}</span>
             <span class="db-kpi"><strong>{{ r.kpis.totalDelay }}</strong> {{ 'tourUi.debrief.kpi.totalDelay' | transloco }}</span>
             <span class="db-kpi" [class.is-alert]="r.kpis.malfunctions > 0"><strong>{{ r.kpis.malfunctions }}</strong> {{ 'tourUi.debrief.kpi.malfunctions' | transloco }}</span>
           </div>
+          }
 
           <div class="db-block">
             <span class="db-block__title">{{ 'tourUi.debrief.interventions' | transloco: { n: interventions().length } }}</span>
@@ -134,9 +139,11 @@
           }
         }
 
-        <p class="db-concept">
-          {{ 'tourUi.debrief.summaryConcept' | transloco }}
-        </p>
+        @if (!inExperiment()) {
+          <p class="db-concept">
+            {{ 'tourUi.debrief.summaryConcept' | transloco }}
+          </p>
+        }
       </section>
     }
 
@@ -319,6 +326,8 @@
         {{ 'tourUi.debrief.next' | transloco: { n: n.n, title: ('tourUi.debrief.section.' + n.id | transloco) } }}
       } @else if (!store.demoIsLast()) {
         {{ 'tourUi.debrief.toNextShift' | transloco }}
+      } @else if (inExperiment()) {
+        {{ 'experimentRun.finish.toFinalSurvey' | transloco }}
       } @else if (store.demoSurveyEnabled()) {
         {{ 'tourUi.debrief.toSurvey' | transloco }}
       } @else {
