@@ -120,4 +120,23 @@ describe('TourDebriefComponent', () => {
     expect(first).toContain('Step 44');
     expect(first).not.toContain('Step 5 ');
   });
+
+  it('names each scenario\'s trains as that scenario did, not as the session open now', () => {
+    const legA = { id: 'leg-a', scenarioId: 'leg-a', disturbanceIds: [], seed: 1 };
+    const legB = { id: 'leg-b', scenarioId: 'leg-b', disturbanceIds: [], seed: 1 };
+    const tour = TestBed.inject(TourContextService);
+    tour.scenarioPresets.set([
+      { id: 'leg-a', name: 'A', width: 30, height: 30, agents: 2, train_names: ['A-0', 'A-1'] },
+      { id: 'leg-b', name: 'B', width: 30, height: 30, agents: 2, train_names: ['B-0', 'B-1'] },
+    ]);
+    afterLastLeg({ ...TWO_LEGS, legs: [legA, legB] });
+    store.session.set({ id: 's1', width: 30, height: 30, num_agents: 2, scenario_preset_id: 'leg-b' } as any);
+    tour.recordShift({ leg: 0, sessionId: 's0', played: null, rules: [], ruleApplied: null, legId: 'leg-a',
+      decisions: [{ handle: 1, action: 'hold', simStep: 9, decisionTimeMs: 1,
+        events: [{ code: 'train.malfunction', title: 'Malfunction', message: 'Train 0 is malfunctioning (3 steps remaining).', params: { train: 0, steps: 3 } }] }] });
+    const row = text(render().querySelector('app-reflection-overview tbody tr') as HTMLElement);
+    expect(row).toContain('A-1');
+    expect(row).toContain('A-0');
+    expect(row).not.toContain('B-');
+  });
 });

@@ -131,10 +131,11 @@ export class TourDebriefComponent {
    */
   readonly overviewLegs = computed<OverviewLeg[]>(() => {
     if (!this.inExperiment()) return [];
-    return this.run.legs().map((_, i) => {
+    return this.run.legs().map((leg, i) => {
       const shift = this.legShift(i);
       return {
         label: this.run.legLabel(i),
+        scenarioId: leg.scenarioId,
         decisions: (shift?.decisions ?? []).map((d) => ({
           step: d.simStep,
           handle: d.handle,

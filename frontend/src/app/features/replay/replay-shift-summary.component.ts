@@ -76,6 +76,7 @@ export class ReplayShiftSummaryComponent {
     const legs = this.replay.legs();
     const rows = legs.map((leg, i) => ({
       label: this.i18n.t('replay.leg', { n: i + 1, total: legs.length }),
+      scenarioId: leg.header.scenarioId,
       decisions: interventionsFrom(leg.decisions ?? []),
     }));
     return rows.some((r) => r.decisions.length) ? rows : [];

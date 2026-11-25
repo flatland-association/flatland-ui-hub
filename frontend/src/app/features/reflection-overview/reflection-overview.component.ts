@@ -47,12 +47,12 @@ import { TrainIdentityService } from '../../core/train-identity.service';
                   <td>
                     <span class="ro__step">{{ 'tourUi.guide.step' | transloco: { n: d.step } }}</span>
                     @for (e of d.events; track $index) {
-                      <span class="ro__line">{{ eventText(e) }}</span>
+                      <span class="ro__line">{{ eventText(e, leg.scenarioId) }}</span>
                     } @empty {
                       <span class="ro__line">–</span>
                     }
                   </td>
-                  <td><strong>{{ trainName(d.handle) }}</strong> · {{ actionLabel(d.action) }}</td>
+                  <td><strong>{{ trainName(d.handle, leg.scenarioId) }}</strong> · {{ actionLabel(d.action) }}</td>
                   <td>
                     @if (d.reason) {
                       <span class="ro__line">{{ 'tourUi.debrief.reason' | transloco: { reason: d.reason } }}</span>
@@ -83,17 +83,20 @@ export class ReflectionOverviewComponent {
   private readonly identity = inject(TrainIdentityService);
   private readonly wording = inject(NotificationWordingService);
 
-  /** As the TMS panel words it, in the viewer's language. */
-  eventText(e: DecisionEvent): string {
-    return this.wording.messageOf({ id: '', kind: 'error', timestamp: 0, ...e });
+  /** As the TMS panel words it, in the viewer's language, with the trains
+   *  named as in the leg's scenario. */
+  eventText(e: DecisionEvent, scenarioId: string | null): string {
+    return this.wording.messageOf({ id: '', kind: 'error', timestamp: 0, ...e }, (h) => this.identity.nameIn(scenarioId, h));
   }
 
   lines(reflection: Record<string, string> | null): string[] {
     return reflectionLines(reflection, (key, params) => this.i18n.t(key, params));
   }
 
-  trainName(handle: number): string {
-    return this.identity.nameFor(handle);
+  /** As the leg's scenario named it, not the session open now (an earlier
+   *  leg's trains had their own names). */
+  trainName(handle: number, scenarioId: string | null): string {
+    return this.identity.nameIn(scenarioId, handle);
   }
 
   actionLabel(action: DecisionAction): string {

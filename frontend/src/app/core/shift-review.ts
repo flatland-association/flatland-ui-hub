@@ -168,6 +168,8 @@ export type OverviewDecision = Pick<ShiftIntervention, 'step' | 'handle' | 'acti
 /** One scenario's row group in the overview. */
 export interface OverviewLeg {
   label: string;
+  /** The leg's scenario (preset id), whose own names its trains had (F-5). */
+  scenarioId: string | null;
   decisions: OverviewDecision[];
 }
 
