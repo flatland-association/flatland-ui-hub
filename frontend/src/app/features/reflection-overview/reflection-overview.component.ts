@@ -54,13 +54,14 @@ import { TrainIdentityService } from '../../core/train-identity.service';
                   </td>
                   <td><strong>{{ trainName(d.handle, leg.scenarioId) }}</strong> · {{ actionLabel(d.action) }}</td>
                   <td>
+                    @let reflection = lines(d.reflection);
                     @if (d.reason) {
                       <span class="ro__line">{{ 'tourUi.debrief.reason' | transloco: { reason: d.reason } }}</span>
                     }
-                    @for (line of lines(d.reflection); track line) {
+                    @for (line of reflection; track line) {
                       <span class="ro__line">{{ line }}</span>
                     }
-                    @if (!d.reason && !lines(d.reflection).length) {
+                    @if (!d.reason && !reflection.length) {
                       <span class="ro__line">–</span>
                     }
                   </td>
