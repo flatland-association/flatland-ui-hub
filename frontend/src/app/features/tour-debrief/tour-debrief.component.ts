@@ -97,8 +97,8 @@ export class TourDebriefComponent {
   private readonly run = inject(ExperimentRunService);
 
   /** A running experiment (a guided condition), not a tour: its Schichtbilanz
-   *  is cut to the overview and leads on to the questionnaire (#209,
-   *  docs/plans/plan-b-control-group.md D-15, D-18). */
+   *  is cut to the overview and leads on to the questionnaire
+   *  (docs/plans/plan-b-control-group.md D-15, D-18). */
   readonly inExperiment = computed(() => this.run.active());
 
   /**
@@ -124,7 +124,7 @@ export class TourDebriefComponent {
   });
 
   /**
-   * The reflection overview of an experiment (#209, plan-b-control-group.md
+   * The reflection overview of an experiment (docs/plans/plan-b-control-group.md
    * §4.5): every leg's decisions as kept at its end, with their events and
    * reflections. Empty outside an experiment, where "Deine Eingriffe" lists
    * the session's decisions instead.

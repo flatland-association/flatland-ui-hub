@@ -7,8 +7,8 @@ import { OverviewLeg, reflectionLines } from '../../core/shift-review';
 import { TrainIdentityService } from '../../core/train-identity.service';
 
 /**
- * The reflection overview of the Schichtbilanz (#209,
- * docs/plans/plan-b-control-group.md §4.5): per scenario, each decision with
+ * The reflection overview of the Schichtbilanz
+ * (docs/plans/plan-b-control-group.md §4.5): per scenario, each decision with
  * the disturbance messages open at it, and its reason and reflection answers.
  * Szenario | Ereignisse | Entscheidungen | Reflexion. Used live by
  * `TourDebriefComponent` in an experiment and by `ReplayShiftSummaryComponent`.

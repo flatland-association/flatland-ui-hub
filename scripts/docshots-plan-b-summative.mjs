@@ -5,7 +5,7 @@
 //                                the Schichtbilanz before the questionnaire
 //   <prefix>-3-footer.png        the footer without the mode name (D-14)
 //   <prefix>-4-schichtbilanz.png the Schichtbilanz: the KPI table and the
-//                                reflection overview (#209, D-15, D-18, D-21)
+//                                reflection overview (§4.5, D-15, D-18, D-21)
 // In scenario 1 a train with courses is picked in the Fahrplan, "Halten" chosen,
 // the Mensch course taken and its reflection answered, so the overview has a decision with its
 // reflection and the disturbance messages open at it; scenario 2 is finished

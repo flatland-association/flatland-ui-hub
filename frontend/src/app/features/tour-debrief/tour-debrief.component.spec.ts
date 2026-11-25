@@ -18,8 +18,8 @@ const TWO_LEGS: StudyCondition = {
   legs: [WAL_SINGLE_TRACK, WAL_FOLLOWER],
 };
 
-/** The Schichtbilanz in an experiment and in a tour (#209's feedback,
- *  docs/plans/plan-b-control-group.md D-15, D-18). */
+/** The Schichtbilanz in an experiment and in a tour (the study leads'
+ *  feedback, docs/plans/plan-b-control-group.md D-15, D-18). */
 describe('TourDebriefComponent', () => {
   let fixture: ComponentFixture<TourDebriefComponent>;
   let run: ExperimentRunService;

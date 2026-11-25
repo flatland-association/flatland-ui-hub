@@ -212,9 +212,9 @@ const PLAN_B_CONDITIONS: StudyCondition[] = PLAN_B_ORDERS.map((order, i) => {
 });
 
 /**
- * The summative Plan B experiments (December, #134): one setting per
+ * The summative Plan B experiments (December, the control-group study): one setting per
  * participant, two UC2 scenarios, no tutorial, the Schichtbilanz with the
- * reflection summary (#209), the final questionnaire
+ * reflection summary, the final questionnaire
  * (docs/plans/plan-b-control-group.md §4.2). `p01` is the template of the
  * eight Co-Learning ones: its two scenarios were drawn at random and fixed
  * (`random.Random(20261125).sample(['uc2-1', 'uc2-2', 'uc2-3', 'uc2-4'], 2)`,

@@ -70,7 +70,7 @@ export class ReplayShiftSummaryComponent {
   readonly replay = inject(ReplayService);
   private readonly i18n = inject(LanguageService);
 
-  /** The reflection overview of the replayed legs (#209), from their recorded
+  /** The reflection overview of the replayed legs, from their recorded
    *  decision logs; only for an experiment's run (its sessions name their
    *  `legId`), as live (F-7), and not for a run without decisions on single
    *  trains. */
