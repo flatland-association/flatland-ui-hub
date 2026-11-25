@@ -2514,7 +2514,12 @@
       "leg": "Szenario",
       "interventions": "Eingriffe",
       "total": "Total",
-      "lastLeg": "Darunter das letzte Szenario im Detail."
+      "lastLeg": "Darunter das letzte Szenario im Detail.",
+      "overviewTitle": "Deine Entscheidungen und Reflexionen",
+      "events": "Ereignisse",
+      "decisions": "Entscheidungen",
+      "reflection": "Reflexion",
+      "noDecisions": "Keine Eingriffe"
     },
     "media": {
       "workingScreenAlt": "Die Arbeitsansicht: links die Lage, in der Mitte der Streckenspiegel, rechts die Co-Learning-Module.",

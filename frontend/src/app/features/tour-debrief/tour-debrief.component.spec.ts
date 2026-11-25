@@ -80,4 +80,29 @@ describe('TourDebriefComponent', () => {
     expect(el.querySelector('.db-link')).toBeNull();
     expect(nextLabel(el)).toBe('On to the questionnaire');
   });
+
+  it('lists every scenario\'s decisions with their events and reflections in an experiment', () => {
+    afterLastLeg(TWO_LEGS);
+    const tour = TestBed.inject(TourContextService);
+    const leg = (i: number, decisions: any[]) => ({
+      leg: i, sessionId: `s${i}`, played: null, rules: [], ruleApplied: null, legId: TWO_LEGS.legs![i].id, decisions,
+    });
+    tour.recordShift(leg(0, [{ handle: 0, action: 'hold', simStep: 31, decisionTimeMs: 1, rationale: null, reflection: { tradeoff: 'later' },
+      events: [{ code: 'train.malfunction', title: 'Malfunction', message: 'Train 1 is malfunctioning (8 steps remaining).', params: { train: 1, steps: 8 } }] }]));
+    tour.recordShift(leg(1, []));
+    const el = render();
+    const rows = [...el.querySelectorAll('app-reflection-overview tbody tr')].map((r) => text(r as HTMLElement).trim());
+    expect(rows.length).toBe(2);
+    expect(rows[0]).toContain('Step 31');
+    expect(rows[0]).toContain('8');
+    expect(rows[0]).toContain('later');
+    expect(rows[1]).toContain('No interventions');
+    expect(el.textContent).not.toContain('Your interventions');
+  });
+
+  it('keeps the list of the session\'s interventions in a tour', () => {
+    store.endShift();
+    const el = render();
+    expect(el.querySelector('app-reflection-overview')).toBeNull();
+  });
 });

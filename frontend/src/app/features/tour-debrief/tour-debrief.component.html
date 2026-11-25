@@ -86,6 +86,15 @@
           </div>
           }
 
+          @if (inExperiment()) {
+          <!-- Every scenario's decisions with their events and reflections (#209). -->
+          <div class="db-block">
+            <app-reflection-overview [legs]="overviewLegs()" />
+            @if (systemHolds() > 0) {
+              <p class="db-note">{{ 'tourUi.debrief.systemHolds' | transloco: { n: systemHolds() } }}</p>
+            }
+          </div>
+          } @else {
           <div class="db-block">
             <span class="db-block__title">{{ 'tourUi.debrief.interventions' | transloco: { n: interventions().length } }}</span>
             @if (interventions().length === 0) {
@@ -113,6 +122,7 @@
               <p class="db-note">{{ 'tourUi.debrief.systemHolds' | transloco: { n: systemHolds() } }}</p>
             }
           </div>
+          }
 
           <div class="db-block">
             <span class="db-block__title" id="db-insight-title">{{ 'tourUi.debrief.insightTitle' | transloco }}</span>

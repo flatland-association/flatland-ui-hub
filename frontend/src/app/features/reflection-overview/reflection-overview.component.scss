@@ -1,0 +1,46 @@
+.ro {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ro__title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+}
+
+.ro__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th,
+  td {
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--app-border);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  thead th {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--app-text-muted);
+  }
+}
+
+.ro__leg {
+  border-top: 1px solid var(--app-border);
+}
+
+.ro__step {
+  display: block;
+  color: var(--app-text-muted);
+}
+
+.ro__line {
+  display: block;
+}

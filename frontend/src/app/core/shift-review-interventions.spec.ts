@@ -1,5 +1,6 @@
-import { DecisionLogEntry } from './decision-log';
-import { interventionsFrom } from './shift-review';
+import { DecisionLogEntry, disturbanceEventsAt } from './decision-log';
+import { AppNotification } from './events/event-types';
+import { interventionsFrom, reflectionLines } from './shift-review';
 
 function entry(partial: Partial<DecisionLogEntry>): DecisionLogEntry {
   return {
@@ -43,5 +44,49 @@ describe('interventionsFrom', () => {
     const [only] = interventionsFrom([entry({ rationale: 'Strategie: Anschlüsse halten; Schützt Anschluss' })]);
 
     expect(only.reason).toBe('Schützt Anschluss');
+  });
+});
+
+// docs/plans/plan-b-control-group.md D-21: the disturbance messages open at a decision.
+describe('disturbanceEventsAt', () => {
+  const note = (code: string, train: number): AppNotification => ({
+    id: `${code}-${train}`, kind: 'error', title: 'Malfunction', message: `Train ${train} …`, timestamp: 5,
+    relatedElement: { kind: 'train', id: String(train) }, code, params: { train, steps: 8 },
+  });
+
+  it('keeps the disturbances of any train, the decided one first, and drops other messages', () => {
+    const events = disturbanceEventsAt(
+      [note('train.malfunction', 2), note('train.decisionPending', 1), note('disturbance.event', 1), note('train.malfunction', 1)],
+      1,
+    );
+    expect(events.map((e) => [e.code, e.relatedElement?.id])).toEqual([
+      ['disturbance.event', '1'],
+      ['train.malfunction', '1'],
+      ['train.malfunction', '2'],
+    ]);
+    expect(Object.keys(events[0]).sort()).toEqual(['code', 'message', 'params', 'relatedElement', 'title']);
+  });
+
+  it('is empty when no disturbance is open', () => {
+    expect(disturbanceEventsAt([note('train.overridePending', 1)], 1)).toEqual([]);
+  });
+});
+
+describe('interventionsFrom events and reflectionLines', () => {
+  it('carries the events of a decision, none where it has none', () => {
+    const events = [{ code: 'train.malfunction', title: 'Malfunction', message: 'Train 2 …', params: { train: 2 } }];
+    const [a, b] = interventionsFrom([entry({ seq: 1, events }), entry({ seq: 2 })]);
+    expect(a.events).toEqual(events);
+    expect(b.events).toEqual([]);
+  });
+
+  it('words the reflection answers as lines', () => {
+    const t = (key: string, params?: Record<string, unknown>) => `${key}${params ? JSON.stringify(params) : ''}`;
+    expect(reflectionLines(null, t)).toEqual([]);
+    expect(reflectionLines({ gut: 'fit', missing: 'duration,other', tradeoff: 'G4 later' }, t)).toEqual([
+      'tourUi.debrief.reflection.gut{"v":"reflectionPrompt.gut.fit"}',
+      'tourUi.debrief.reflection.missing{"v":"reflectionPrompt.missing.duration, reflectionPrompt.missing.other"}',
+      'tourUi.debrief.reflection.tradeoff{"v":"G4 later"}',
+    ]);
   });
 });

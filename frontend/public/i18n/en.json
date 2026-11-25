@@ -2514,7 +2514,12 @@
       "leg": "Scenario",
       "interventions": "Interventions",
       "total": "Total",
-      "lastLeg": "Below, the last scenario in detail."
+      "lastLeg": "Below, the last scenario in detail.",
+      "overviewTitle": "Your decisions and reflections",
+      "events": "Events",
+      "decisions": "Decisions",
+      "reflection": "Reflection",
+      "noDecisions": "No interventions"
     },
     "media": {
       "workingScreenAlt": "The working screen: the situation on the left, the track map in the centre, the Co-Learning modules on the right.",

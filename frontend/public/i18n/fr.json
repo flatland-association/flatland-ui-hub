@@ -2514,7 +2514,12 @@
       "leg": "Scénario",
       "interventions": "Interventions",
       "total": "Total",
-      "lastLeg": "Ci-dessous, le dernier scénario en détail."
+      "lastLeg": "Ci-dessous, le dernier scénario en détail.",
+      "overviewTitle": "Tes décisions et réflexions",
+      "events": "Événements",
+      "decisions": "Décisions",
+      "reflection": "Réflexion",
+      "noDecisions": "Aucune intervention"
     },
     "media": {
       "workingScreenAlt": "L’écran de travail : la situation à gauche, le plan de voies au centre, les modules Co-Learning à droite.",

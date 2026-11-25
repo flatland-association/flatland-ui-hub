@@ -1,4 +1,4 @@
-import { DecisionAction, DecisionLogEntry } from './decision-log';
+import { DecisionAction, DecisionEvent, DecisionLogEntry } from './decision-log';
 import type { AgentDTO } from './models';
 import { LearningRecord } from './learning-store.service';
 import { ValueAxis } from './operator-model.service';
@@ -157,6 +157,38 @@ export interface ShiftIntervention {
   response: 'yes' | 'once' | 'no' | null;
   /** Guided reflection answers, question id → answer (see DecisionLogEntry.reflection). */
   reflection: Record<string, string> | null;
+  /** The disturbance messages open at the decision (DecisionLogEntry.events). */
+  events: DecisionEvent[];
+}
+
+/** A decision as the reflection overview lists it: live from a leg's
+ *  `ShiftRecord`, in a replay from the leg's recorded decision log. */
+export type OverviewDecision = Pick<ShiftIntervention, 'step' | 'handle' | 'action' | 'reason' | 'reflection' | 'events'>;
+
+/** One scenario's row group in the overview. */
+export interface OverviewLeg {
+  label: string;
+  decisions: OverviewDecision[];
+}
+
+/**
+ * The guided reflection answers as short lines ("Bauchgefühl: …", "Gefehlt:
+ * …", "In Kauf genommen: «…»"), worded by `t` in the viewer's language. Shared
+ * by the live Schichtbilanz and the reflection overview.
+ */
+export function reflectionLines(
+  r: Record<string, string> | null | undefined,
+  t: (key: string, params?: Record<string, unknown>) => string,
+): string[] {
+  if (!r) return [];
+  const lines: string[] = [];
+  if (r['gut']) lines.push(t('tourUi.debrief.reflection.gut', { v: t(`reflectionPrompt.gut.${r['gut']}`) }));
+  if (r['missing']) {
+    const items = r['missing'].split(',').map((id) => t(`reflectionPrompt.missing.${id}`));
+    lines.push(t('tourUi.debrief.reflection.missing', { v: items.join(', ') }));
+  }
+  if (r['tradeoff']) lines.push(t('tourUi.debrief.reflection.tradeoff', { v: r['tradeoff'] }));
+  return lines;
 }
 
 /**
@@ -176,6 +208,7 @@ export function interventionsFrom(decisionLog: DecisionLogEntry[]): ShiftInterve
       reason: statedReason(e.rationale),
       response: e.hypothesisResponse ?? null,
       reflection: e.reflection ?? null,
+      events: e.events ?? [],
     }));
 }
 

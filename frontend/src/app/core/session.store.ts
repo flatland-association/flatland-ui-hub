@@ -17,6 +17,7 @@ import {
   DecisionValueAxis,
   actionLabelFor,
   CoordinatedDecision,
+  disturbanceEventsAt,
 } from './decision-log';
 import type { ActionOrigin } from './dispatch/train-action.service';
 import {
@@ -732,6 +733,11 @@ export class SessionStore {
   private _appendDecision(entry: Omit<DecisionLogEntry, 'seq'>): number {
     let seq = 0;
     let trimmed = false;
+    // What the TMS reports at this moment goes with the decision: the list
+    // changes every step (docs/plans/plan-b-control-group.md D-21).
+    // Untracked: a decision made inside an effect must not subscribe it to the TMS list.
+    const events = entry.events ?? disturbanceEventsAt(untracked(() => this.notifications()), entry.handle);
+    if (events.length && !entry.events) entry = { ...entry, events };
     this.decisionLog.update((list) => {
       seq = list.length ? list[list.length - 1].seq + 1 : 1;
       const next = [...list, { ...entry, seq }];

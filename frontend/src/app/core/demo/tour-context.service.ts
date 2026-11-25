@@ -7,6 +7,7 @@ import { ModeIntro } from './mode-intro-configs';
 import { TourBriefing } from './tour-briefings';
 import { SandboxOutcome } from './sandbox-replay';
 import { ShiftKpis } from '../shift-review';
+import type { DecisionEvent } from '../decision-log';
 import type { ExperimentLeg } from './study-conditions';
 import { ScenarioPreset } from '../models';
 import { backendHttpBase } from '../backend-origin';
@@ -37,8 +38,19 @@ export interface ShiftRecord {
   /** The run as played, to the end of the episode (`GET /sandbox`), or null
    *  when the sandbox could not be read. */
   played: SandboxOutcome | null;
-  /** The person's decisions on single trains, in order. */
-  decisions: { handle: number; action: string; simStep: number; decisionTimeMs: number | null }[];
+  /** The person's decisions on single trains, in order. A guided condition's
+   *  leg also keeps each one's stated reason, reflection answers and the
+   *  disturbance messages open at it, for the Schichtbilanz's overview
+   *  (docs/plans/plan-b-control-group.md §4.5); absent in older records. */
+  decisions: {
+    handle: number;
+    action: string;
+    simStep: number;
+    decisionTimeMs: number | null;
+    rationale?: string | null;
+    reflection?: Record<string, string> | null;
+    events?: DecisionEvent[];
+  }[];
   /** Hypotheses confirmed as rules in this shift. */
   rules: string[];
   /** A rule from an earlier shift that fitted this shift's situation, and

@@ -1,6 +1,9 @@
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ReplayService } from '../../core/replay/replay.service';
+import { OverviewLeg, interventionsFrom } from '../../core/shift-review';
+import { LanguageService } from '../../core/i18n/language.service';
+import { ReflectionOverviewComponent } from '../reflection-overview/reflection-overview.component';
 
 /**
  * The Schichtbilanz of a replayed run, read-only (docs/plans/experiment-logging-frontend-and-replay.md
@@ -12,7 +15,7 @@ import { ReplayService } from '../../core/replay/replay.service';
 @Component({
   selector: 'app-replay-shift-summary',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, ReflectionOverviewComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <section class="replay-summary" data-test="replay-shift-summary">
@@ -55,6 +58,9 @@ import { ReplayService } from '../../core/replay/replay.service';
           }
         </tbody>
       </table>
+      @if (overviewLegs().length) {
+        <app-reflection-overview class="replay-summary__overview" [legs]="overviewLegs()" />
+      }
     </section>
   `,
   styleUrl: './replay-shift-summary.component.scss',
@@ -62,6 +68,18 @@ import { ReplayService } from '../../core/replay/replay.service';
 })
 export class ReplayShiftSummaryComponent {
   readonly replay = inject(ReplayService);
+  private readonly i18n = inject(LanguageService);
+
+  /** The reflection overview of the replayed legs (#209), from their recorded
+   *  decision logs; empty for a run without decisions on single trains. */
+  readonly overviewLegs = computed<OverviewLeg[]>(() => {
+    const legs = this.replay.legs();
+    const rows = legs.map((leg, i) => ({
+      label: this.i18n.t('replay.leg', { n: i + 1, total: legs.length }),
+      decisions: interventionsFrom(leg.decisions ?? []),
+    }));
+    return rows.some((r) => r.decisions.length) ? rows : [];
+  });
 
   readonly totals = computed(() =>
     this.replay.legSummaries().reduce(

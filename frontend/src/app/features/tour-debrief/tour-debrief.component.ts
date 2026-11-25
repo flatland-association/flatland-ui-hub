@@ -4,7 +4,7 @@ import { DecisionAction } from '../../core/decision-log';
 import { OperatorModelService } from '../../core/operator-model.service';
 import { REFLECTION_CASE_LABELS, ReflectionCaseType } from '../../core/reflection-moments';
 import { SessionStore } from '../../core/session.store';
-import { ShiftIntervention, ShiftKpis, buildShiftReview, interventionsFrom, shiftKpis } from '../../core/shift-review';
+import { OverviewLeg, ShiftIntervention, ShiftKpis, buildShiftReview, interventionsFrom, reflectionLines, shiftKpis } from '../../core/shift-review';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ShiftRecord, TourContextService } from '../../core/demo/tour-context.service';
 import { ApiService } from '../../core/api.service';
@@ -17,6 +17,7 @@ import { TrainIdentityService } from '../../core/train-identity.service';
 import { LearningRecordsComponent } from '../learning-records/learning-records.component';
 import { SandboxReplayComponent } from '../sandbox-replay/sandbox-replay.component';
 import { RuleBuilderComponent } from '../rule-builder/rule-builder.component';
+import { ReflectionOverviewComponent } from '../reflection-overview/reflection-overview.component';
 
 /** The sections that are steps of the tour guide (thesis flow 7-9). */
 type GuideSection = 'shift-summary' | 'event-simulation' | 'ai-learns';
@@ -56,7 +57,7 @@ const MEASURE_OF_ACTION: Record<string, string> = {
 @Component({
   selector: 'app-tour-debrief',
   standalone: true,
-  imports: [LearningRecordsComponent, SandboxReplayComponent, RuleBuilderComponent, TranslocoPipe],
+  imports: [LearningRecordsComponent, SandboxReplayComponent, RuleBuilderComponent, ReflectionOverviewComponent, TranslocoPipe],
   templateUrl: './tour-debrief.component.html',
   styleUrl: './tour-debrief.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -110,6 +111,31 @@ export class TourDebriefComponent {
     return this.run.legs().map((leg, i) => {
       const shift = history.find((s) => s.legId === leg.id && s.leg === i);
       return { label: this.run.legLabel(i), kpis: shift?.kpis ?? null, interventions: shift?.interventions ?? 0 };
+    });
+  });
+
+  /**
+   * The reflection overview of an experiment (#209, plan-b-control-group.md
+   * §4.5): every leg's decisions as kept at its end, with their events and
+   * reflections. Empty outside an experiment, where "Deine Eingriffe" lists
+   * the session's decisions instead.
+   */
+  readonly overviewLegs = computed<OverviewLeg[]>(() => {
+    if (!this.inExperiment()) return [];
+    const history = this.tourContext.shiftHistory();
+    return this.run.legs().map((leg, i) => {
+      const shift = history.find((s) => s.legId === leg.id && s.leg === i);
+      return {
+        label: this.run.legLabel(i),
+        decisions: (shift?.decisions ?? []).map((d) => ({
+          step: d.simStep,
+          handle: d.handle,
+          action: d.action as DecisionAction,
+          reason: d.rationale ?? null,
+          reflection: d.reflection ?? null,
+          events: d.events ?? [],
+        })),
+      };
     });
   });
 
@@ -221,20 +247,7 @@ export class TourDebriefComponent {
 
   /** The guided reflection answers of an intervention, as short lines. */
   reflectionLines(i: ShiftIntervention): string[] {
-    const r = i.reflection;
-    if (!r) return [];
-    const lines: string[] = [];
-    if (r['gut']) {
-      lines.push(this.i18n.t('tourUi.debrief.reflection.gut', { v: this.i18n.t(`reflectionPrompt.gut.${r['gut']}`) }));
-    }
-    if (r['missing']) {
-      const items = r['missing'].split(',').map((id) => this.i18n.t(`reflectionPrompt.missing.${id}`));
-      lines.push(this.i18n.t('tourUi.debrief.reflection.missing', { v: items.join(', ') }));
-    }
-    if (r['tradeoff']) {
-      lines.push(this.i18n.t('tourUi.debrief.reflection.tradeoff', { v: r['tradeoff'] }));
-    }
-    return lines;
+    return reflectionLines(i.reflection, (key, params) => this.i18n.t(key, params));
   }
 
   isUserChoice(sandboxCase: SandboxCase, variant: SandboxVariant): boolean {

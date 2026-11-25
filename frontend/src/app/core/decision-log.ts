@@ -1,4 +1,4 @@
-import { InteractionMode } from './events/event-types';
+import { AppNotification, InteractionMode } from './events/event-types';
 import type { ActionOrigin } from './dispatch/train-action.service';
 
 /**
@@ -113,6 +113,29 @@ export interface CoordinatedDecision {
   committed: boolean;
 }
 
+/** A TMS message as kept with a decision: enough to word it again in the
+ *  viewer's language (`NotificationWordingService`), the English text as the
+ *  fallback (docs/plans/plan-b-control-group.md D-21). */
+export type DecisionEvent = Pick<AppNotification, 'code' | 'params' | 'title' | 'message' | 'relatedElement'>;
+
+/** The notification codes of a disturbance: a train that is itself disrupted
+ *  (`backend/app/core/hmi_mock.py`) and a scripted disturbance
+ *  (`backend/app/core/disturbances.py`). Conflicts are no TMS messages. */
+const DISTURBANCE_CODES: ReadonlySet<string> = new Set(['train.malfunction', 'disturbance.event']);
+
+/**
+ * The disturbance messages open at a decision, for any train: the decided
+ * train is mostly one held behind the disrupted one, so its own message would
+ * mostly be missing. Its own come first. Empty when none is open.
+ */
+export function disturbanceEventsAt(notifications: readonly AppNotification[], handle: number): DecisionEvent[] {
+  const own = (n: AppNotification) => n.relatedElement?.kind === 'train' && n.relatedElement.id === String(handle);
+  return notifications
+    .filter((n) => !!n.code && DISTURBANCE_CODES.has(n.code))
+    .sort((a, b) => Number(own(b)) - Number(own(a)))
+    .map(({ code, params, title, message, relatedElement }) => ({ code, params, title, message, relatedElement }));
+}
+
 export interface DecisionLogEntry {
   /** Monotonic sequence number within the session (1-based). */
   seq: number;
@@ -160,6 +183,10 @@ export interface DecisionLogEntry {
    * text is kept as typed. Absent where no question was answered.
    */
   reflection?: Record<string, string>;
+  /** The disturbance messages open when the decision was made, for the
+   *  Schichtbilanz's overview (`disturbanceEventsAt`). Absent when none was
+   *  open, and on entries written before 2026-11-25. */
+  events?: DecisionEvent[];
   /** When the reflection was answered (epoch ms), and at which sim step. The
    *  run no longer waits for it, so it can come at once or much later
    *  (docs/plans/reflection-inline.md D7). Absent until answered. */

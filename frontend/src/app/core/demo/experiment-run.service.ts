@@ -238,11 +238,17 @@ export class ExperimentRunService {
     // The leg is over: it does not play on behind its questionnaire.
     if (this.store.playing()) this.store.pause();
     const agents = this.store.agents();
+    // With the reasons, reflections and events, for the Schichtbilanz's overview
+    // (docs/plans/plan-b-control-group.md §4.5): "Szenario abschliessen" waits
+    // for open reflections, so they are complete here.
     const decisions = interventionsFrom(this.store.decisionLog()).map((i) => ({
       handle: i.handle,
       action: i.action,
       simStep: i.step,
       decisionTimeMs: this.store.decisionLog().find((e) => e.seq === i.seq)?.decisionTimeMs ?? null,
+      rationale: i.reason,
+      reflection: i.reflection,
+      events: i.events,
     }));
     const finishedAt = Date.now();
     const runError = this.store.runError();
