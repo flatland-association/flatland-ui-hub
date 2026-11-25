@@ -1088,7 +1088,7 @@
             @if (experimentRun.active()) {
               {{ activeTourName() }} · {{ experimentRun.currentLegLabel() }}@if (!uiConfig.isHidden('control.modeTabs')) { · <strong>{{ currentModeLabel() }}</strong>}
             } @else {
-              {{ activeTourName() }} · {{ 'footer.mode' | transloco }} {{ store.demoStepIndex() + 1 }}/{{ store.demoSequence().length }} · <strong>{{ currentModeLabel() }}</strong>
+              {{ activeTourName() }} · {{ 'footer.mode' | transloco }} {{ store.demoStepIndex() + 1 }}/{{ store.demoSequence().length }}@if (!uiConfig.isHidden('control.modeTabs')) { · <strong>{{ currentModeLabel() }}</strong>}
             }
           </span>
         }

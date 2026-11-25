@@ -86,6 +86,22 @@ describe('AppComponent', () => {
   });
 
   // docs/plans/hide-scenario-bar.md §4.4: Plan B hides the strip, the toolbar stays at the top.
+  // docs/plans/plan-b-control-group.md D-14, F-13: a tour too.
+  it('names the mode in a tour\'s footer only where the mode strip is shown', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const cmp = fixture.componentInstance;
+    const store = TestBed.inject(SessionStore);
+    store.startDemo(['co-learning'], false);
+    store.session.set({ id: 'sess-1', width: 1, height: 1, num_agents: 0 } as SessionInfo);
+    const footer = () => {
+      fixture.detectChanges();
+      return (fixture.nativeElement.querySelector('.footer-demo-progress')?.textContent ?? '').replace(/\s+/g, ' ');
+    };
+    expect(footer()).toContain(cmp.currentModeLabel());
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.modeTabs'] });
+    expect(footer()).not.toContain(cmp.currentModeLabel());
+  });
+
   it('leaves the guide strip out where the condition hides it, and keeps the toolbar at the top', () => {
     const cmp = TestBed.createComponent(AppComponent).componentInstance;
     const store = TestBed.inject(SessionStore);
