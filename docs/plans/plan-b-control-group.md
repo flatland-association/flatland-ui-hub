@@ -8,7 +8,8 @@
 > `plan-b-summative-colearning-p01`, as the template of the eight Co-Learning
 > ones, with the reflection summary of #209 and its feedback of 2026-11-25.
 > The Recommendation setting (§4.3) and the experiments `p02` … `p08` of both
-> settings come in a later PR (§1.4). All questions are decided. Findings: F-2–F-4 fixed in
+> settings come in a later PR (§1.4). All questions are decided. Built
+> 2026-11-25: S-9, S-11, S-4, S-7; after screenshots in §6.1 (S-5). Findings: F-2–F-4 fixed in
 > S-6, F-1 dropped (§3.1). Issue
 > [#209](https://github.com/flatland-association/flatland-ui-hub/issues/209)
 > ("Reflexion: am Ende eine Zusammenfassung anzeigen", @CleverManu, label
@@ -498,6 +499,9 @@ stays).
 
 | File | What it adds |
 |---|---|
+| `scripts/docshots-plan-b-summative.mjs` | The after screenshots of the summative template (§6.1, S-5) |
+| `frontend/src/app/features/reflection-overview/reflection-overview.component.ts` / `.scss` | The overview Szenario \| Ereignisse \| Entscheidungen \| Reflexion, shared by the live and the replay Schichtbilanz (S-7) |
+| `frontend/src/app/features/tour-debrief/tour-debrief.component.spec.ts` | The first spec of the debrief: the trimmed Schichtbilanz in an experiment, the overview (S-11, S-7) |
 | `scripts/docshots-plan-b-control.mjs` | Screenshots of both settings for the PR, as `scripts/docshots-zwl-default.mjs` (added with S-0; on 2026-11-23 moved to the first UC2 scenario, the inline reflection, the intro card and the progress bar, without the guide picture, and naming the plan instead of #134 in its header, F-4) |
 | `docs/plans/plan-b-control-group/*.png` | Before (S-0, retaken 2026-11-23 in S-6), mockups of open questions (S-10) and after (S-5) screenshots |
 
@@ -514,7 +518,7 @@ stays).
 | `frontend/src/app/app.component.html` / `.spec.ts` | no mode name in the footer where `control.modeTabs` is hidden (D-14) |
 | `frontend/src/app/features/tour-debrief/tour-debrief.component.ts` / `.html` / `.scss` / `.spec.ts` | the reflection overview in `shift-summary`; in an experiment, the trimmed Schichtbilanz and "Weiter zum Fragebogen" (D-15, D-18) |
 | `frontend/src/app/features/replay/replay-shift-summary.component.ts` / `.spec.ts` | the same overview from the recorded legs |
-| `frontend/public/i18n/{en,de,fr}.json` | `tours.plan-b-summative-colearning-p01.name`, `experimentRun.review.events`, `.decisions`, `.reflection`; the wording of `tourUi.debrief.kpi.malfunctions` (S-9) |
+| `frontend/public/i18n/{en,de,fr}.json` | `tours.plan-b-summative-colearning-p01.name`/`.description`, `experimentRun.review.overviewTitle`, `.events`, `.decisions`, `.reflection`, `.noDecisions`; the wording of `tourUi.debrief.kpi.malfunctions` (S-9) |
 | `docs/plans/experiment-scenario-import.md` | the summative template next to `plan-b-p01` … `p10` |
 | `docs/experiment-logging.md` | the new fields of a leg's decisions in the record |
 
@@ -536,6 +540,35 @@ the Recommendation setting (§4.3).
 - The replay of that run shows the same Schichtbilanz.
 - `plan-b-p01` unchanged: no Schichtbilanz, tutorial first, five scenarios.
 
+### 6.1 After (`plan-b-summative-colearning-p01`)
+
+Taken on 2026-11-25 on cc399513, production build with the Plan B
+deployment config, German, 1600 × 1000 (the Schichtbilanz 1600 × 1400), by
+`scripts/docshots-plan-b-summative.mjs … after`: in scenario 1 a train
+picked in the Fahrplan, "Halten" chosen, the Mensch course taken and its
+reflection answered (the script picks the first chip of each question and
+types the trade-off); scenario 2 finished at once.
+
+| Requirement | Result | After |
+|---|---|---|
+| 1, 7, D-20 | The opening announces "das erste von zwei Szenarien"; no tutorial | <img src="plan-b-control-group/after-1-opening.png" width="640"> |
+| 7, 8 | Progress bar: Einführung, ↻ ×2, Szenario 1/2, Szenario 2/2, Schichtbilanz, Fragebogen, Ende | <img src="plan-b-control-group/after-2-progress.png" width="640"> |
+| D-14 | Footer without the mode name; the experiment's name itself says "Co-Learning" | <img src="plan-b-control-group/after-3-footer.png" width="320"> |
+| 9–14, D-21 | The KPI table ("bei Abschluss noch gestört"), then the overview: scenario 1 with its decision, reason and reflection, scenario 2 "Keine Eingriffe"; no note "Darunter …", no KPI chips, no concept note, no "← Zurück zur laufenden Schicht"; "Weiter zum Fragebogen". "Ereignisse" shows "–": no disturbance was open at the decision (step 12) | <img src="plan-b-control-group/after-4-schichtbilanz.png" width="640"> |
+
+| Read from the page (2026-11-25) | Value |
+|---|---|
+| Overview, scenario 1 | "Schritt 12 – S17u · Halten Grund: «Schützt Anschluss» Bauchgefühl: passte zur Entscheidung Gefehlt: Dauer der Störung In Kauf genommen: «…»" |
+| Last button of the Schichtbilanz | "Weiter zum Fragebogen" |
+
+Not checked in the running app: a decision during an open disturbance (the
+event line; covered by specs), the replay of the run, `plan-b-final` and
+the saved record after the Schichtbilanz, `plan-b-p01` (covered by specs).
+The frontend specs log 152 "NG0101: ApplicationRef.tick is called
+recursively" errors from `decision-log`, `flatland-map`, `toolbar`,
+`view-tabs` and `zwl`; the same count on b237cdd3, before S-7, so not from
+this PR.
+
 ## 7. Steps
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
@@ -543,16 +576,16 @@ the Recommendation setting (§4.3).
 | ✅ S-0 | - | Plan, before screenshots and their script (rebased: d88be0ef, b62ffec1) | — | — | docs(plans): plan for #134, the Plan B control group, with before screenshots. | d88be0ef, b62ffec1 | - | - |
 | ✅ S-6 | F-1, F-2, F-3, F-4 | Plan text for the PR review comments: the leg questionnaire through one helper, also in the replay's progress bar, in §4.1 and §5 (F-1); the replay's questionnaires by `surveyId` since #210 in §4.4 (F-2); the same-looking questionnaires in Q-7 (F-3); the planned code comments and the screenshot script name the plan, not #134 (F-4); the before screenshots retaken on 85e36e5c with the updated script (§2.1) | docs | low | docs(plans): add #209 to the #134 plan, take in the PR review comments and retake the before screenshots on main 85e36e5c. | 6f0f2932 | - | - |
 | ✅ S-10 | - | Mockups of the options of Q-4, Q-8 and Q-9 (§8); Q-10 and Q-11 decided; Q-9 b) corrected (`kpis.malfunctions` is no count of disturbances); S-9 | docs | low | docs(plans): add mockups for Q-4, Q-8 and Q-9, decide Q-10 and Q-11, correct Q-9 b) and add S-9 in the #134 plan. | cf85c7e3 | - | - |
-| 💡 S-12 | - | This revision: #134's run order of 2026-11-25 ((Q-1), (Q-6) revisited, Q-12, Q-13): one summative Co-Learning template in this PR, the Recommendation setting for a later one; #209's feedback (requirements 11–14, D-15, D-18, S-11); S-6's findings | docs | low | docs(plans): replan #134 for one setting per participant with a summative Co-Learning template, and take in the Schichtbilanz feedback of #209. |  | - | - |
+| ✅ S-12 | - | This revision: #134's run order of 2026-11-25 ((Q-1), (Q-6) revisited, Q-12, Q-13): one summative Co-Learning template in this PR, the Recommendation setting for a later one; #209's feedback (requirements 11–14, D-15, D-18, S-11); S-6's findings | docs | low | docs(plans): replan #134 for one setting per participant with a summative Co-Learning template, and take in the Schichtbilanz feedback of #209. | 4261adbc, 1053a265 | - | - |
 | — S-1 | - | Moved 2026-11-25 to the later PR (§1.4). `proposal-compare` in Recommendation: availability, `recommending()`, no comparison, tag, map strip, specs, matrix doc | — | — | feat(proposal-compare): offer the panel in Recommendation, with Plan and KI only and the KI course tagged as the recommendation. |  | - | - |
 | — S-2 | - | Moved 2026-11-25 to the later PR (§1.4). `decisionMoment` briefing flag, read by `modeBehavior()`, specs | — | — | feat(tours): let a briefing hold the affected trains in Recommendation instead of the countdown. |  | - | - |
 | — S-3 | F-1 | Dropped 2026-11-25 with §4.1 ((Q-1) revisited); the footer moved to S-4. A leg's own `mode`, `briefingIds` and `surveyParts`: `ExperimentLeg`, `useBriefing()`, app start, next leg and resume, run service, the replay's progress bar through one helper (F-1, after S-6); the footer leaves out the mode name where the mode strip is hidden (Q-11, D-14); specs, experiment-workflow doc | correctness | medium | feat(experiment-run): let a leg run in its own mode and briefing and ask its own questionnaire. |  | - | - |
-| 💡 S-4 | - | `plan-b-summative` briefing (D-20); `plan-b-summative-colearning-p01` with `uc2-1`, `uc2-2`, no tutorial, the Schichtbilanz; the footer without the mode name where the mode strip is hidden (D-14); i18n; specs; experiment-scenario-import doc | — | — | feat(study): add plan-b-summative-colearning-p01, the template of the summative Co-Learning experiments. |  | - | - |
-| 💡 S-7 | - | Reflection summary: each leg's decisions with their reflections in `ShiftRecord`; the overview in the Schichtbilanz (in place of "Deine Eingriffe" in an experiment) and its replay copy; i18n; specs; experiment-logging doc | — | — | feat(debrief): show each scenario's events, decisions and reflections in the Schichtbilanz. |  | - | - |
+| ✅ S-4 | - | `plan-b-summative` briefing (D-20); `plan-b-summative-colearning-p01` with `uc2-1`, `uc2-2`, no tutorial, the Schichtbilanz; the footer without the mode name where the mode strip is hidden (D-14); i18n; specs; experiment-scenario-import doc | — | — | feat(study): add plan-b-summative-colearning-p01, the template of the summative Co-Learning experiments. | b237cdd3 | - | - |
+| ✅ S-7 | - | Reflection summary: each leg's decisions with their reflections in `ShiftRecord`; the overview in the Schichtbilanz (in place of "Deine Eingriffe" in an experiment) and its replay copy; i18n; specs; experiment-logging doc | — | — | feat(debrief): show each scenario's events, decisions and reflections in the Schichtbilanz. | cc399513 | - | - |
 | — S-8 | - | Dropped 2026-11-25: the formative experiments stay without the Schichtbilanz (D-19), and the summative one has it from S-4 on. | — | — | - |  | - | - |
-| 💡 S-9 | - | Rename the Schichtbilanz column "Störung(en) am Ende" to "bei Abschluss noch gestört" (en "still disrupted at the finish", fr "encore perturbé(s) à la clôture"): wording only, key `tourUi.debrief.kpi.malfunctions` kept; it counts the trains still disrupted when the scenario ends, not the disturbances during it (D-13, Q-9) | correctness | low | fix(debrief): name the Schichtbilanz column after what it counts, the trains still disrupted when the scenario ends. |  | - | - |
-| 💡 S-11 | - | Schichtbilanz in an experiment (`run.active()`): no "Darunter das letzte Szenario im Detail." and no KPI chips under the table (with several scenarios), no concept note, no "← Zurück zur laufenden Schicht"; the last button leads to the questionnaire with the label of Q-14; tours unchanged; specs (requirements 11–14, D-15) | — | low | fix(debrief): trim the Schichtbilanz of an experiment to its overview and lead its button to the questionnaire. |  | - | - |
-| 💡 S-5 | - | After screenshots of `plan-b-summative-colearning-p01`: the progress bar, the Schichtbilanz with the reflection overview; plan status | — | — | docs(plans): after screenshots of the summative Co-Learning template and its Schichtbilanz. |  | S-4, S-7, S-11 | - |
+| ✅ S-9 | - | Rename the Schichtbilanz column "Störung(en) am Ende" to "bei Abschluss noch gestört" (en "still disrupted at the finish", fr "encore perturbé(s) à la clôture"): wording only, key `tourUi.debrief.kpi.malfunctions` kept; it counts the trains still disrupted when the scenario ends, not the disturbances during it (D-13, Q-9) | correctness | low | fix(debrief): name the Schichtbilanz column after what it counts, the trains still disrupted when the scenario ends. | 3efa0a54 | - | - |
+| ✅ S-11 | - | Schichtbilanz in an experiment (`run.active()`): no "Darunter das letzte Szenario im Detail." and no KPI chips under the table (with several scenarios), no concept note, no "← Zurück zur laufenden Schicht"; the last button leads to the questionnaire with the label of Q-14; tours unchanged; specs (requirements 11–14, D-15) | — | low | fix(debrief): trim the Schichtbilanz of an experiment to its overview and lead its button to the questionnaire. | 16ae5e60 | - | - |
+| 💡 S-5 | - | After screenshots of `plan-b-summative-colearning-p01` and their script `scripts/docshots-plan-b-summative.mjs` (§6.1): the opening, the progress bar, the footer, the Schichtbilanz with the reflection overview; plan status | — | — | docs(plans): after screenshots of the summative Co-Learning template and its Schichtbilanz. |  | S-4, S-7, S-11 | - |
 
 Each step passes the CI checks on its own.
 
