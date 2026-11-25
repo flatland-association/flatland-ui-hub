@@ -139,4 +139,15 @@ describe('TourDebriefComponent', () => {
     expect(row).toContain('A-0');
     expect(row).not.toContain('B-');
   });
+
+  it('counts no system holds under an experiment\'s overview, whose decision log is only the last scenario\'s', () => {
+    afterLastLeg(TWO_LEGS);
+    store.decisionLog.set([
+      { seq: 1, t: 0, simStep: 3, mode: 'co-learning', handle: 0, accountableOwner: 'system', action: 'hold', aiSuggestion: null, decisionTimeMs: null },
+    ]);
+    const el = render();
+    expect(fixture.componentInstance.systemHolds()).toBe(1);
+    expect(el.querySelector('app-reflection-overview')).not.toBeNull();
+    expect(text(el)).not.toContain('The system held');
+  });
 });

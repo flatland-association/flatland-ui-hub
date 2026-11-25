@@ -89,10 +89,8 @@
           @if (inExperiment()) {
           <!-- Every scenario's decisions with their events and reflections (#209). -->
           <div class="db-block">
+            <!-- No system-hold count: the decision log holds only the last scenario's (F-6). -->
             <app-reflection-overview [legs]="overviewLegs()" />
-            @if (systemHolds() > 0) {
-              <p class="db-note">{{ 'tourUi.debrief.systemHolds' | transloco: { n: systemHolds() } }}</p>
-            }
           </div>
           } @else {
           <div class="db-block">
