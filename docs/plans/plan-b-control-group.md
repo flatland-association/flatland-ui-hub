@@ -3,9 +3,9 @@
 > **Status:** plan, 2026-11-05, revised 2026-11-16, and 2026-11-23 against
 > `main` 85e36e5c (the branch is rebased onto it, §7.1). Open questions in
 > §8: Q-7 (for the study leads, does not block), Q-4 revisited (blocks S-4),
-> Q-8–Q-10 (#209, for the study leads, block S-7 and S-8), Q-11 (the
-> footer's mode name, found in the before pictures).
-> Q-1–Q-3, Q-5, Q-6 decided. Findings F-1–F-4 (§3.1) are open, planned in S-6 (this
+> Q-8, Q-9 (#209, for the study leads, block S-7 and S-8); mockups of their
+> options in §8 (2026-11-25).
+> Q-1–Q-3, Q-5, Q-6, Q-10, Q-11 decided. Findings F-1–F-4 (§3.1) are open, planned in S-6 (this
 > revision) and S-3. Implementation waits for
 > the final matrix of [#179](https://github.com/flatland-association/flatland-ui-hub/issues/179)
 > (decided 2026-11-16). Issue
@@ -331,6 +331,8 @@ hides the guide strip since #198.
 | D-10 | One experiment per participant: a leg can override the experiment's `mode`, `briefingIds` and leg questionnaire (`surveyParts`) (Q-1) | The issue's preferred form ("konzeptuell sauberer"): one run id, one sitting. The store already switches the mode per step; the briefing carries reflection, guide, badges and intro card, so one override per leg covers them all. Not taken: two experiments per participant |
 | D-11 | Names: `plan-b-control-group-p01` … `p10`, briefing `plan-b-control-group`; no own layout (Q-5) | The issue's term; ids are stored in records and never renamed (AGENTS.md), so they are fixed now |
 | D-12 | The Recommendation setting's briefing drops the violet module badges and has its own guide hints; the Co-Learning setting keeps `plan-b` (Q-4; the guide hints revisited 2026-11-23) | Each setting reads what fits it; the per-leg briefing makes this free |
+| D-13 | The Schichtbilanz keeps its KPI table (one row per scenario, the totals) above the reflection summary (Q-10); its column "Störung(en) am Ende" is renamed "bei Abschluss noch gestört" (wording only, key `tourUi.debrief.kpi.malfunctions` kept; S-9), since it counts the trains still disrupted when the leg ends, not the disturbances during it | Decided 2026-11-25 after looking at the KPI table in `plan-b-p01` (local, experimental, not committed: `shiftSummary: i === 0`); the table exists and costs nothing |
+| D-14 | The footer leaves out the mode name where the layout hides the mode strip (`control.modeTabs`) (Q-11) | Plan B hides the mode everywhere else; the experimenter reads the setting from the progress bar and the record |
 
 ### 3.1 Code Review Findings
 
@@ -492,7 +494,7 @@ for S-6).
 
 ### 4.5 Reflection summary (requirements 9, 10; #209)
 
-Draft; Q-8–Q-10 decide its shape.
+Draft; Q-8 and Q-9 decide its shape (Q-10 decided: the KPI table stays).
 
 - **Data:** `finishLeg()` already snapshots each leg into `ShiftRecord`.
   Its `decisions` entries gain `rationale` and `reflection` from the
@@ -500,12 +502,15 @@ Draft; Q-8–Q-10 decide its shape.
   is complete at the leg's end: "Szenario abschliessen" waits for open
   reflections (`refuseFinish`). If Q-9 asks for the event per decision,
   the entry also gains the TMS message about that train that was open at
-  the decision (`store.notifications`, by `relatedElement`).
+  the decision (`store.notifications`, by `relatedElement`). If it asks
+  for the disturbances per scenario (b), `ShiftRecord` gains their count
+  during the leg, not `kpis.malfunctions` (Q-9).
 - **Screen:** the Schichtbilanz's `shift-summary` section shows, for a
   guided condition, one block per Co-Learning scenario: the scenario
   ("Szenario k", names hidden as in Plan B), its events (Q-9), and each
   decision (train · action) with its reflection lines
-  (`reflectionLines()`). Whether the KPI table stays: Q-10.
+  (`reflectionLines()`). The KPI table stays above it, one row per scenario
+  and the totals, as it is today (`legRows()`, Q-10, D-13).
 - **When:** `plan-b-pNN` drops `shiftSummary: false`, so the Schichtbilanz
   comes after the fourth scenario, before `plan-b-final`. The control group
   as Q-8 decides; with a), a leg can ask for the Schichtbilanz after it
@@ -535,7 +540,7 @@ Draft; Q-8–Q-10 decide its shape.
 | `frontend/src/app/core/demo/experiment-run.service.ts` / `.spec.ts` | `legSurveyPartsNow` through `legSurveyParts()`; a leg's questionnaire only after that leg; the finish label; `finishLeg()` keeps each decision's reflection |
 | `frontend/src/app/features/experiment-progress/experiment-progress.component.ts` / `.spec.ts` | the replay's `hasLegSurvey` through `legSurveyParts()`; a spec with a questionnaire on one leg (F-1) |
 | `frontend/src/app/core/demo/tour-context.service.ts` | `useBriefing()`, `decisionMoment`; `ShiftRecord.decisions[].rationale`, `.reflection` (and the event, Q-9) |
-| `frontend/src/app/app.component.ts` / `.spec.ts` | the mode per leg in `startDemo`; the briefing per leg at every leg start and on resume |
+| `frontend/src/app/app.component.ts` / `.html` / `.spec.ts` | the mode per leg in `startDemo`; the briefing per leg at every leg start and on resume; no mode name in the footer where `control.modeTabs` is hidden (D-14) |
 | `frontend/src/app/core/demo/tour-briefings.ts` | `TourBriefing.decisionMoment`; `plan-b-control-group` (`PLAN_B_CONTROL_GROUP_DE`), its guide without `reflect` (own hints per Q-4 revisited) |
 | `frontend/src/app/features/impact-panel/impact-panel.component.ts` / `.spec.ts` | `modeBehavior()` honours `decisionMoment` |
 | `frontend/src/app/core/layout/panel-mode-availability.ts` | `proposal-compare` in `recommendation` |
@@ -584,10 +589,11 @@ Draft; Q-8–Q-10 decide its shape.
 | 💡 S-6 | F-1, F-2, F-3, F-4 | Plan text for the PR review comments: the leg questionnaire through one helper, also in the replay's progress bar, in §4.1 and §5 (F-1); the replay's questionnaires by `surveyId` since #210 in §4.4 (F-2); the same-looking questionnaires in Q-7 (F-3); the planned code comments and the screenshot script name the plan, not #134 (F-4); the before screenshots retaken on 85e36e5c with the updated script (§2.1) | docs | low | docs(plans): add #209 to the #134 plan, take in the PR review comments and retake the before screenshots on main 85e36e5c. |  | - | - |
 | 💡 S-1 | - | `proposal-compare` in Recommendation: availability, `recommending()`, no comparison, tag, map strip, specs, matrix doc | — | — | feat(proposal-compare): offer the panel in Recommendation, with Plan and KI only and the KI course tagged as the recommendation. |  | - | - |
 | 💡 S-2 | - | `decisionMoment` briefing flag, read by `modeBehavior()`, specs | — | — | feat(tours): let a briefing hold the affected trains in Recommendation instead of the countdown. |  | - | - |
-| 💡 S-3 | F-1 | A leg's own `mode`, `briefingIds` and `surveyParts`: `ExperimentLeg`, `useBriefing()`, app start, next leg and resume, run service, the replay's progress bar through one helper (F-1, after S-6), specs, experiment-workflow doc | correctness | medium | feat(experiment-run): let a leg run in its own mode and briefing and ask its own questionnaire. |  | - | - |
+| 💡 S-3 | F-1 | A leg's own `mode`, `briefingIds` and `surveyParts`: `ExperimentLeg`, `useBriefing()`, app start, next leg and resume, run service, the replay's progress bar through one helper (F-1, after S-6); the footer leaves out the mode name where the mode strip is hidden (Q-11, D-14); specs, experiment-workflow doc | correctness | medium | feat(experiment-run): let a leg run in its own mode and briefing and ask its own questionnaire. |  | - | - |
 | 💡 S-4 | - | `plan-b-control-group` briefing; experiments `plan-b-control-group-p01` … `p10`; i18n; specs; plan docs | — | — | feat(study): add the Plan B control-group experiments plan-b-control-group-p01 to p10. |  | S-1, S-2, S-3 | #179, Q-4 |
-| 💡 S-7 | - | Reflection summary: each leg's decisions with their reflections in `ShiftRecord`; the overview in the Schichtbilanz and its replay copy; i18n; specs; experiment-logging doc | — | — | feat(debrief): show each Co-Learning scenario's events, decisions and reflections in the Schichtbilanz. |  | - | Q-9, Q-10 |
+| 💡 S-7 | - | Reflection summary: each leg's decisions with their reflections in `ShiftRecord`; the overview in the Schichtbilanz and its replay copy; i18n; specs; experiment-logging doc | — | — | feat(debrief): show each Co-Learning scenario's events, decisions and reflections in the Schichtbilanz. |  | - | Q-9 |
 | 💡 S-8 | - | The Schichtbilanz back in `plan-b-p01` … `p10`, and in the control group where Q-8 puts it (with a leg's own Schichtbilanz for Q-8 a) | — | — | feat(study): show the reflection summary at the end of Plan B's Co-Learning scenarios. |  | S-3, S-4, S-7 | Q-8 |
+| 💡 S-9 | - | Rename the Schichtbilanz column "Störung(en) am Ende" to "bei Abschluss noch gestört" (en "still disrupted at the finish", fr "encore perturbé(s) à la clôture"): wording only, key `tourUi.debrief.kpi.malfunctions` kept; it counts the trains still disrupted when the scenario ends, not the disturbances during it (D-13, Q-9) | correctness | low | fix(debrief): name the Schichtbilanz column after what it counts, the trains still disrupted when the scenario ends. |  | - | - |
 | 💡 S-5 | - | After screenshots of both settings and of the reflection summary (the before ones are retaken in S-6), plan status | — | — | docs(plans): before and after screenshots of the Plan B control group for #134. |  | S-4, S-8 | - |
 
 Each step passes the CI checks on its own.
@@ -626,6 +632,16 @@ three are on `main` 85e36e5c as d88be0ef, b62ffec1, b87130ab, pushed.
   eine zu empfehlen" stays in the code, unseen. b) Keep them as decided, in
   case a later layout shows the strip. *Proposal:* a); the badges part of
   D-12 stays. For the maintainer; blocks S-4.
+
+  Mockups (2026-11-25, the strip of `colearning-experiment` with the
+  control briefing's steps and no badges). In Plan B neither shows: the
+  strip is hidden (`before-5-screen.png`), so the participant sees the same
+  under a) and b). The draft hints for b) are new wording, not decided:
+
+  | Step | a) `plan-b`'s hints | b) own hints (draft) |
+  |---|---|---|
+  | 3 Alternativen | <img src="plan-b-control-group/q4-a-alternatives.png" width="420"> | <img src="plan-b-control-group/q4-b-alternatives.png" width="420"> |
+  | 4 Entscheiden | <img src="plan-b-control-group/q4-a-decide.png" width="420"> | <img src="plan-b-control-group/q4-b-decide.png" width="420"> |
 - ✅ ~~**(Q-5) Names?**~~ **Decided 2026-11-16:** new experiments named
   `plan-b-control-group`: `plan-b-control-group-p01` … `p10`, briefing
   `plan-b-control-group`. The Plan B experiments stay as they are (D-11).
@@ -655,18 +671,55 @@ three are on `main` 85e36e5c as d88be0ef, b62ffec1, b87130ab, pushed.
   setting; the Recommendation one has no reflections. *Proposal:* a), as
   the comment says; b) if a) does not make round 2 (it is the larger
   change, in S-8).
+
+  Mockups of the progress bar (2026-11-25; the setting is the small text
+  after each scenario). Under a) and b) alike, `p01` (Recommendation first)
+  has the Schichtbilanz at the end:
+
+  <img src="plan-b-control-group/q8-p01-a-and-b.png" width="840">
+
+  The options differ for `p02` (Co-Learning first):
+
+  | a) after the Co-Learning setting | b) at the end of the run |
+  |---|---|
+  | <img src="plan-b-control-group/q8-a-p02.png" width="420"> | <img src="plan-b-control-group/q8-b-p02.png" width="420"> |
+
+  Under b), `p02`'s Schichtbilanz comes two Recommendation scenarios and a
+  questionnaire after the Co-Learning scenarios it summarises.
 - 💡 **(Q-9) What does the "Ereignisse" column hold?** For the study
   leads. a) Per decision: the TMS message about the decided train that was
   open at the decision (recorded with the decision from now on). b) Per
-  scenario: the number of disturbances (`kpis.malfunctions`, already
-  recorded). c) Per scenario: the scenario's own description of its event.
+  scenario: the number of disturbances during the scenario. Not recorded
+  today: `kpis.malfunctions` is no such count, it is the number of trains
+  still disrupted at the moment the leg ends (`shiftKpis()`,
+  `core/shift-review.ts:46`), usually 0 when a scenario runs to its end.
+  b) needs a new count per leg: each time a train turns malfunctioning in
+  the agent stream (`SessionStore.isMalfunctioning()` going from false to
+  true), kept in the leg's `ShiftRecord` by `finishLeg()`.
+  c) Per scenario: the scenario's own description of its event.
   *Proposal:* a): it pairs each decision and its reflection with what it
   answered.
-- 💡 **(Q-10) Does the KPI table stay in the Schichtbilanz?** For the study
-  leads. a) No: Plan B's Schichtbilanz shows only the reflection summary,
-  the goal is delay only and the per-scenario KPIs were not asked for.
-  b) Yes, above the summary, as before #174. *Proposal:* a).
-- 💡 **(Q-11) Does the footer name the setting?** For the study leads.
+
+  Mockups (2026-11-25): the Schichtbilanz of `p02` under Q-8 a), after
+  its two Co-Learning UC2 scenarios (the tutorial left out), with the KPI
+  table (Q-10) and below it the overview of #209. Made-up numbers,
+  messages and reflections:
+
+  | a) the TMS message per decision | b) disturbances per scenario | c) the scenario's description |
+  |---|---|---|
+  | <img src="plan-b-control-group/q9-a.png" width="280"> | <img src="plan-b-control-group/q9-b.png" width="280"> | <img src="plan-b-control-group/q9-c.png" width="280"> |
+
+  c) shows today's `scenario.json` descriptions: the four UC2 scenarios
+  share one text (the goal line), so the column says the same everywhere
+  until each scenario gets its own event description. b) says little in
+  UC2, where every scenario has one disturbance; its "1 Störung(en)" in the
+  mockup is made up, the app does not count it yet (see above).
+- ✅ ~~**(Q-10) Does the KPI table stay in the Schichtbilanz?**~~ **Decided
+  2026-11-25:** b) yes, above the summary, as it is today: one row per
+  scenario, all of them, and the totals (D-13). Looked at in `plan-b-p01`
+  with the Schichtbilanz switched on locally (experimental, not
+  committed). Not taken: a), only the reflection summary.
+- ✅ ~~**(Q-11) Does the footer name the setting?**~~ **Decided 2026-11-25:** b), hide the mode name in the footer where the mode strip is hidden, in S-3 (D-14). For the study leads.
   The footer of an experiment reads "Plan B · Teilnehmer:in 01 · Szenario
   2/5 · Co-Learning" (`currentModeLabel()`, `app.component.html:1089`), so
   in the Recommendation setting it would read "· Recommendation". Plan B
