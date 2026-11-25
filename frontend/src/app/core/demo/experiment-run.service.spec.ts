@@ -132,7 +132,7 @@ describe('ExperimentRunService', () => {
     ]);
     run.finishLeg('clicked');
     expect(tour.shiftHistory()[0].decisions).toEqual([
-      { handle: 1, action: 'hold', simStep: 31, decisionTimeMs: 900, rationale: 'Vermeide Deadlock', reflection: { gut: 'fit' }, events },
+      { handle: 1, action: 'hold', simStep: 31, decisionTimeMs: 900, reason: 'Vermeide Deadlock', reflection: { gut: 'fit' }, events },
     ]);
   });
 

@@ -87,7 +87,7 @@ describe('TourDebriefComponent', () => {
     const leg = (i: number, decisions: any[]) => ({
       leg: i, sessionId: `s${i}`, played: null, rules: [], ruleApplied: null, legId: TWO_LEGS.legs![i].id, decisions,
     });
-    tour.recordShift(leg(0, [{ handle: 0, action: 'hold', simStep: 31, decisionTimeMs: 1, rationale: null, reflection: { tradeoff: 'later' },
+    tour.recordShift(leg(0, [{ handle: 0, action: 'hold', simStep: 31, decisionTimeMs: 1, reason: null, reflection: { tradeoff: 'later' },
       events: [{ code: 'train.malfunction', title: 'Malfunction', message: 'Train 1 is malfunctioning (8 steps remaining).', params: { train: 1, steps: 8 } }] }]));
     tour.recordShift(leg(1, []));
     const el = render();

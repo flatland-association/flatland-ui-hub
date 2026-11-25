@@ -131,7 +131,7 @@ export class TourDebriefComponent {
           step: d.simStep,
           handle: d.handle,
           action: d.action as DecisionAction,
-          reason: d.rationale ?? null,
+          reason: d.reason ?? null,
           reflection: d.reflection ?? null,
           events: d.events ?? [],
         })),

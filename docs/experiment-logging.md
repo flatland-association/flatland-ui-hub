@@ -279,7 +279,7 @@ decision was made, for any train, the decided train's own first, each as
 server's English text). Absent when none was open, and in records made
 before 2026-11-25. A guided condition's leg also keeps its decisions with
 them in its entry of the run record's `legs`: `decisions[]` gains
-`rationale` (the stated reason), `reflection` (the guided reflection
+`reason` (the stated reason), `reflection` (the guided reflection
 answers, question id → answer) and `events`. The Schichtbilanz's overview
 Szenario | Ereignisse | Entscheidungen | Reflexion is built from these
 (#209, `docs/plans/plan-b-control-group.md` §4.5).

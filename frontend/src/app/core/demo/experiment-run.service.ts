@@ -246,7 +246,7 @@ export class ExperimentRunService {
       action: i.action,
       simStep: i.step,
       decisionTimeMs: this.store.decisionLog().find((e) => e.seq === i.seq)?.decisionTimeMs ?? null,
-      rationale: i.reason,
+      reason: i.reason,
       reflection: i.reflection,
       events: i.events,
     }));

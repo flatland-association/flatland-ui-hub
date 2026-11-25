@@ -47,7 +47,7 @@ export interface ShiftRecord {
     action: string;
     simStep: number;
     decisionTimeMs: number | null;
-    rationale?: string | null;
+    reason?: string | null;
     reflection?: Record<string, string> | null;
     events?: DecisionEvent[];
   }[];
