@@ -148,7 +148,7 @@
 |---|---|---|
 | A summative experiment with two scenarios, the Schichtbilanz and the final questionnaire | the formative condition's fields (`PLAN_B_CONDITIONS`), `shiftSummary` left at its default | §4.2 |
 | A briefing derived from `plan-b` with another opening | `PLAN_B_DE`'s own derivation from `CO_LEARNING_EXPERIMENT_2X_DE` | §4.2 (Q-15) |
-| A leg's decisions with their reflections and the disturbance messages open at each (`DecisionLogEntry.events`, `ShiftRecord.decisions[].reflection`, `.rationale`, `.events`) kept at the leg's end | the snapshot of `kpis` and `interventions` per leg for the Schichtbilanz over all legs (`ExperimentRunService.finishLeg`) | §4.5 |
+| A leg's decisions with their reflections and the disturbance messages open at each (`DecisionLogEntry.events`, `ShiftRecord.decisions[].reflection`, `.reason`, `.events`) kept at the leg's end | the snapshot of `kpis` and `interventions` per leg for the Schichtbilanz over all legs (`ExperimentRunService.finishLeg`) | §4.5 |
 | The reflection overview in the Schichtbilanz, and its trimmed form in an experiment | its `shift-summary` section and the per-leg table (`legRows()`), the reflection lines (`reflectionLines()`); the gate on the running experiment that `sections()` already has | §4.5 (Q-9, D-15) |
 
 Not new on purpose: no new layout (`preset-plan-b`), no new UiConfig id, no
@@ -160,7 +160,7 @@ D-18), no leg fields for a second setting in one run ((Q-1) revisited).
 ### 1.3 Breaking changes
 
 None in an API, payload, file format or config. The run record's
-`legs` gain optional fields per decision (`reflection`, `rationale`,
+`legs` gain optional fields per decision (`reflection`, `reason`,
 `events`, §4.5), and so does the decision log entry (`events`); older
 records lack them, and readers treat them as absent.
 Behaviour outside the new experiment:
@@ -178,8 +178,17 @@ Behaviour outside the new experiment:
 
 - **Limitations:**
   - The reflection summary shows the decisions the participant made by
-    hand; the AI's own holds are counted, not listed (`systemHolds`), as in
-    the Schichtbilanz today.
+    hand; the AI's own holds are not listed. In a tour they are counted
+    (`systemHolds`), as in the Schichtbilanz today; in an experiment not
+    even counted, since the decision log holds only the last scenario's
+    (F-6).
+  - The disturbance messages kept with a decision are those of
+    `notifications()` at that moment, which is polled every 2 s
+    (`NotificationPollingService`): a decision within 2 s after a breakdown
+    can miss it, one within 2 s after its end can still list it (F-15).
+  - Trains of an earlier scenario are named from its preset's
+    `train_names` (`TrainIdentityService.nameIn()`); a scenario without
+    names falls back to the session's names (F-5).
 - **Follow-ups (not in this PR):**
 
   | Follow-up | Why not in this PR | From | Findings | Issue |
@@ -336,7 +345,9 @@ PR [#201](https://github.com/flatland-association/flatland-ui-hub/pull/201);
 branch rebased onto `main` 85e36e5c (was fd0c70cb, before that 333013c),
 checked at b87130ab, again at cf85c7e3 on 2026-11-25 (no new comments). No
 code review yet. PR review comments (F-1 to F-3) were added on 2026-11-23;
-line numbers refer to b87130ab. No TODOs added.
+line numbers refer to b87130ab. Code review findings (F-5–F-17) were added on 2026-11-25, at 20050677
+(base `main` 85e36e5c; the local `main` was stale at fd0c70cb); their line
+numbers refer to it. No TODOs added.
 F-4 comes from the issue-reference check below. In Fixed, ✅ marks a fixed
 finding, ⏭️ one taken over by a follow-up, — a dropped one, ⚠️ a comment
 resolved on GitHub without a code change and without a reason; ❌ next to ✅
@@ -349,6 +360,21 @@ marks a finding fixed in the code whose PR comment is not resolved yet.
 | ✅ ❌ | F-2 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/201#discussion_r4612119426) | docs | low | `docs/plans/plan-b-control-group.md:381` (§4.4): the replay shows each questionnaire by its recorded `surveyId`, without the condition (#210). §4.4 should say so, and that the plan depends on #210, so a replay of a control-group run shows both `plan-b-final` questionnaires. #210 is in `main` 85e36e5c, the branch's base. Fixed in S-6 (§4.4). | docs(plans): say that a replay shows both questionnaires by their recorded surveyId, since #210. |
 | ✅ ❌ | F-3 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/201#discussion_r4612120026) | docs | low | `docs/plans/plan-b-control-group.md:106` (§1.1, Q-7): `postSessionSurvey()` returns a fixed questionnaire before it looks at `afterLeg`, so the questionnaire after setting 1 has the same title ("Fragebogen") and wording as the final one. The data tells them apart (`after` = `leg`/`final`, `leg_id` in the export), the participant does not. "After this setting" wording would be a second entry in `FIXED_QUESTIONNAIRES` (#210) with its own part and id. Q-7 should note this. Fixed in S-6 (Q-7). | docs(plans): note in Q-7 that both questionnaires look the same to the participant. |
 | ✅ | F-4 | code review | style | low | `scripts/docshots-plan-b-control.mjs:1` names the issue the PR closes ("Screenshots for #134"), and §4.1 and §4.3 plan code comments that name it too (`(#134: two settings in one run)`, `(#134)`). A PR that closes an issue leaves no reference to it in the code: name the plan or the behaviour instead. Fixed in S-6 (plan text and script). | docs(scripts): point the control-group screenshot script at its plan, not at the issue. |
+| ✅ | F-5 | code review | bug | medium | `frontend/src/app/features/reflection-overview/reflection-overview.component.ts:55,87,95`, `core/train-identity.service.ts:49`: the overview names trains (and words the event messages) through `TrainIdentityService`, which takes the names of the session open *now*. In `plan-b-summative-colearning-p01` the Schichtbilanz opens on `uc2-2`'s session, so the `uc2-1` rows show `uc2-2`'s name for each handle: the participant reflects on a train that wasn't in that scenario. Same in the replay overview. Suggested: resolve the train name and the event texts at the leg's end (`finishLeg()`, while that leg's session is open) and keep them in `ShiftRecord.decisions[]` (`trainName`, `eventTexts`); in the replay, word them per leg or fall back to the handle. Fixed in 083016fe: the overview names trains and words events through `TrainIdentityService.nameIn()`, from the leg's scenario preset's `train_names` (falling back to the session's names). | fix(debrief): name each scenario's trains in the reflection overview as that scenario named them. |
+| ✅ | F-6 | code review | bug | medium | `frontend/src/app/features/tour-debrief/tour-debrief.component.html:93-95`, `tour-debrief.component.ts:220`: under the overview of all scenarios, the note "n Halte des Systems" counts only the last session's decision log. 3 system holds in scenario 1 and none in scenario 2 show no note; the other way round the note reads as if for the whole run. Suggested: drop the note in an experiment (the overview lists the participant's decisions only, §1.4 limitation), or keep a per-leg count in `ShiftRecord`. Fixed in 83a198ec: the system-holds note is left out under the overview in an experiment. | fix(debrief): leave the last scenario's system-hold count out of an experiment's overview. |
+| ✅ | F-7 | code review | design | medium | `frontend/src/app/features/replay/replay-shift-summary.component.ts:75-82`: the replay shows the overview for every replayed run with decisions, also for tours (`replay.screen()` is `shiftSummary` on `shift_review` and an ended shift, `replay.service.ts:75`), while the live Schichtbilanz shows it only in an experiment (`inExperiment()`, D-15). A tour's replay then looks different from what was seen. Suggested: show it only for a guided condition's record (`header.shiftSummary` is set only there). Fixed in 2fb05692: the replay shows the overview only for a guided condition's record (a leg with `legId`). | fix(replay): show the reflection overview only in the replay of an experiment, as live. |
+| ✅ | F-8 | code review | robustness | low | `frontend/src/app/features/tour-debrief/tour-debrief.component.ts:112,127`: `legRows` and `overviewLegs` take the *first* `ShiftRecord` with the leg's id and index. A leg aborted and resumed on a new session is recorded twice (`recordShift` keys by `sessionId`), so the overview and the table show the aborted attempt. `legRows` had this before; `overviewLegs` copied it. Suggested: one helper `legShift(i)` with the last match (`findLast`), used by both. Fixed in 70e92f0f: one helper `legShift(i)` takes the last matching record, used by `legRows` and `overviewLegs`. | fix(debrief): read each scenario's last record in the Schichtbilanz, not an aborted attempt. |
+| ✅ | F-9 | code review | naming | low | `frontend/src/app/core/demo/tour-context.service.ts:50`, `experiment-run.service.ts:249`, `tour-debrief.component.ts:131`: `ShiftRecord.decisions[].rationale` holds the *stated reason* (`statedReason()`, i.e. `ShiftIntervention.reason`), not the raw `DecisionLogEntry.rationale`; the value is renamed `reason → rationale → reason` on its way to the overview. Not released yet, so the record field can still change. Suggested: call it `reason` (and in `docs/experiment-logging.md`). Fixed in 08ca89d8: the field is `reason`, also in `docs/experiment-logging.md`. | refactor(experiment-run): name a leg decision's stated reason reason, as ShiftIntervention does. |
+| ✅ | F-10 | code review | style | low | `frontend/src/app/core/demo/study-conditions.ts:215,217`, `features/reflection-overview/reflection-overview.component.ts:10`, `features/replay/replay-shift-summary.component.ts:73`, `features/tour-debrief/tour-debrief.component.ts:100,118`, `tour-debrief.component.html:90`, `tour-debrief.component.spec.ts:21`, `scripts/docshots-plan-b-summative.mjs:8`: new comments name #134 and #209, the issues the PR is to close; a closed issue should leave no reference in the code (as F-4). Suggested: name the plan (`docs/plans/plan-b-control-group.md`) or the behaviour instead. Fixed in dce2775e: the comments name the plan. | docs(debrief): point the summative and reflection-overview comments at the plan, not at the issues. |
+| ✅ | F-11 | code review | docs | low | PR #201 body: "Closes #134", but since 2026-11-25 the PR is to close #209 and only refer to #134, whose Recommendation setting follows in a later PR (§3.1 issue references, §1.4). Merging would close #134 too early. Suggested: "Closes #209", "Refs #134" (`/flatland-association:suggest-pr-diff-and-post`). Fixed: the PR body says "Closes #209" and "Refs #134" (edited on GitHub, no commit). | docs(pr): close #209 and refer to #134 in the PR description. |
+| ✅ | F-12 | code review | dead-code | low | `frontend/src/app/features/tour-debrief/tour-debrief.component.html:73-75`, `public/i18n/{en,de,fr}.json` (`experimentRun.review.lastLeg`): the note sits inside `@if (legRows().length)`, which needs `run.multiLeg()`, i.e. a running experiment, and S-11 hides it there: it can never show. Suggested: remove the note and its key. Fixed in cd4f1f54: the note and its key are removed. | refactor(debrief): drop the Schichtbilanz note that can no longer show. |
+| ✅ | F-13 | code review | consistency | low | `frontend/src/app/app.component.html:1091`: D-14 hides the mode name where the layout hides the mode strip, but only in the experiment branch of the footer; the tour branch still shows it under the same layout. Suggested: the same `@if` in both branches. Fixed in 03030cbb: the tour branch hides the mode name under the same layout. | fix(footer): leave out the mode name in a tour too where the mode strip is hidden. |
+| ✅ | F-14 | code review | test-coverage | low | `frontend/src/app/features/replay/replay-shift-summary.component.ts:75-82`, `features/reflection-overview/reflection-overview.component.ts`: the replay overview has no spec, and the overview component none of its own (only through `tour-debrief.component.spec.ts`: no spec for a worded event, a decision without reason or reflection, the rowspan). Suggested: a spec per component. Fixed in 3e13ea91: specs for `ReflectionOverviewComponent` and `ReplayShiftSummaryComponent`. | test(debrief): cover the reflection overview and its replay copy. |
+| ✅ | F-15 | code review | robustness | low | `frontend/src/app/core/session.store.ts:739`: the events kept with a decision come from `notifications()`, which `NotificationPollingService` refreshes every 2 s (`notification-polling.service.ts:43`). A decision within 2 s of a breakdown misses it ("–"); one just after it ended still lists it. The study data inherits the lag. Suggested: accept and list it as a limitation (§1.4), or refresh the notifications at the decision. Fixed in the plan: listed as a limitation (§1.4). | docs(plans): list the up-to-2-s lag of a decision's events as a limitation. |
+| ✅ | F-16 | code review | performance | low | `frontend/src/app/features/reflection-overview/reflection-overview.component.ts:60,63`: `lines(d.reflection)` runs twice per row on every change detection, translating each line again. Suggested: `@let lines = lines(d.reflection);` once per row, or precompute in the `OverviewLeg`. Fixed in d1ed9921: `@let reflection = lines(d.reflection);` once per row. | perf(debrief): word each decision's reflection once per row in the overview. |
+|  | F-17 | code review | design | low | `frontend/src/app/core/demo/experiment-run.service.ts:236-285` (`finishLeg`, ~50 lines), `features/tour-debrief/tour-debrief.component.ts:162-178` (`currentShift`): both map `interventionsFrom(decisionLog)` to `ShiftRecord` decisions with the same `decisionLog().find((e) => e.seq === i.seq)` per decision (quadratic). Suggested refactoring: one `shiftDecisionsFrom(decisionLog)` in `shift-review.ts` (a `seq → entry` map once), used by both; `finishLeg` then shrinks to the record and the log. Open. | refactor(experiment-run): build a leg's decisions in one place for the run and the debrief. |
+| — | F-18 | code review | consistency | low | `frontend/src/app/features/replay/replay-shift-summary.component.ts:78`: the replay labels the overview's scenarios "Scenario n/total" (`replay.leg`), live they read `run.legLabel(i)`. Dropped: the replay's own KPI table above uses the same `replay.leg` labels since before this PR, and in Plan B both read "Szenario n/N" (`control.legNames` hidden). | - |
+| — | F-19 | code review | design | low | `frontend/src/app/core/decision-log.ts:136`: each event keeps the server's English `title` and `message`, copied into the decision log, `ShiftRecord` and the run record. Dropped: they are the fallback for codes without a translation (`NotificationWordingService`), kept on purpose (D-21); a few short strings per decision. | - |
 
 **Issue references:** the PR is to close #209 and to refer to #134, whose Recommendation setting follows in a later PR (since 2026-11-25; until then it was to close both) (#209 added to the
 plan 2026-11-23; the PR description does not name it yet). The screenshot script
@@ -460,7 +486,7 @@ Draft; Q-9 decides the column "Ereignisse" (Q-10 decided: the KPI table
 stays).
 
 - **Data:** `finishLeg()` already snapshots each leg into `ShiftRecord`.
-  Its `decisions` entries gain `rationale` and `reflection` from the
+  Its `decisions` entries gain `reason` and `reflection` from the
   decision log (the same source as `interventionsFrom()`). The reflection
   is complete at the leg's end: "Szenario abschliessen" waits for open
   reflections (`refuseFinish`). Each decision entry also gains the
@@ -512,9 +538,9 @@ stays).
 | `frontend/src/app/core/demo/study-conditions.ts` | `plan-b-summative-colearning-p01` in `STUDY_CONDITIONS` |
 | `frontend/src/app/core/demo/study-conditions.spec.ts` | `plan-b-p01` … `p10` unchanged; `plan-b-summative-colearning-p01`: two legs `uc2-1`, `uc2-2`, no tutorial, the Schichtbilanz, `plan-b-final`, briefing `plan-b-summative` |
 | `frontend/src/app/core/demo/tour-briefings.ts` / `.spec.ts` | `plan-b-summative` (`PLAN_B_SUMMATIVE_DE`), `plan-b`'s opening with the sentence of D-20 |
-| `frontend/src/app/core/demo/experiment-run.service.ts` / `.spec.ts` | `finishLeg()` keeps each decision's reflection, rationale and events |
+| `frontend/src/app/core/demo/experiment-run.service.ts` / `.spec.ts` | `finishLeg()` keeps each decision's reflection, reason and events |
 | `frontend/src/app/core/decision-log.ts`, `core/session.store.ts` / `.spec.ts` | `DecisionLogEntry.events?`, filled from `notifications()` in `_appendDecision()`, the one place entries are written (D-21) |
-| `frontend/src/app/core/demo/tour-context.service.ts` | `ShiftRecord.decisions[].rationale`, `.reflection`, `.events` (D-21) |
+| `frontend/src/app/core/demo/tour-context.service.ts` | `ShiftRecord.decisions[].reason`, `.reflection`, `.events` (D-21) |
 | `frontend/src/app/app.component.html` / `.spec.ts` | no mode name in the footer where `control.modeTabs` is hidden (D-14) |
 | `frontend/src/app/features/tour-debrief/tour-debrief.component.ts` / `.html` / `.scss` / `.spec.ts` | the reflection overview in `shift-summary`; in an experiment, the trimmed Schichtbilanz and "Weiter zum Fragebogen" (D-15, D-18) |
 | `frontend/src/app/features/replay/replay-shift-summary.component.ts` / `.spec.ts` | the same overview from the recorded legs |
