@@ -1967,7 +1967,7 @@
         "arrived": "angekommen",
         "delayed": "verspätet",
         "totalDelay": "Schritte Verspätung gesamt",
-        "malfunctions": "Störung(en) am Ende"
+        "malfunctions": "bei Abschluss noch gestört"
       },
       "interventions": "Deine Eingriffe ({{n}})",
       "noInterventions": "Du hast in dieser Schicht nicht selbst eingegriffen.",

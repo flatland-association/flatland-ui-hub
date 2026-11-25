@@ -1967,7 +1967,7 @@
         "arrived": "arrived",
         "delayed": "delayed",
         "totalDelay": "steps of delay in total",
-        "malfunctions": "disruption(s) at the end"
+        "malfunctions": "still disrupted at the finish"
       },
       "interventions": "Your interventions ({{n}})",
       "noInterventions": "You did not intervene yourself in this shift.",

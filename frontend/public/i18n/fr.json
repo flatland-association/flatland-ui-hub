@@ -1967,7 +1967,7 @@
         "arrived": "arrivés",
         "delayed": "en retard",
         "totalDelay": "pas de retard au total",
-        "malfunctions": "perturbation(s) à la fin"
+        "malfunctions": "encore perturbé(s) à la clôture"
       },
       "interventions": "Vos interventions ({{n}})",
       "noInterventions": "Vous n’êtes pas intervenu vous-même pendant ce service.",
