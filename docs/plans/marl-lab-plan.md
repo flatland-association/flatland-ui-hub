@@ -412,14 +412,77 @@ variant costs about 1 ms/step: the cost is DLA's own walk.
    other variants) cost more: Olten stays at 32–43/52.
 4. **It loses what the PPO is good at.** On ECML scene 1, the PPO's own
    topology, every hybrid falls from 6/6 with no delay to 4–5/6 with
-   277–571 delay. The likely reason (not verified): DLA's corridor check assumes that every train follows its
-   own shortest path under DLA. A train the PPO holds or routes differently
-   breaks that assumption, so the two rules work against each other.
+   277–571 delay. The analysis below says why.
 5. **Decision: not registered.** It beats the plain PPO, but as a practice
    partner it is a worse DLA that no longer acts like the learned policy. For
    the lab, the next steps stay training on the corridor density (step 3,
    reading 2). The hybrid stays as a lab measurement
    (`--policy hybrid:<flags>`).
+
+#### Analysis — why the hybrid does not fix the deadlocks
+
+A per-step diagnostic (2026-10-20, a lab script outside the repo) counted
+every train-step on which the hybrid's action differed from what DLA alone
+would have done, and the state of every train that had not arrived when the
+episode ended. "Train-step" means one active train on one step. In the counts,
+`noop` stands for DO_NOTHING and `F`, `L`, `R` for forward, left and right.
+
+| Variant · scenario | Train-steps | Differs from DLA | Most common difference | Not arrived at the end |
+|---|---|---|---|---|
+| veto · corridor | 2693 | 1976 | stopped train: PPO `noop`, DLA `F` (1139) | 15, all STOPPED |
+| veto · Olten | 13841 | 3484 | train before departure: PPO `noop`, DLA `F` (2074) | 14 (12 STOPPED) |
+| gate + veto · Olten | 16545 | 1310 | departure: PPO `F`, DLA holds (1299) | 20 (15 STOPPED) |
+| gate + veto · ECML scene 1 | 1155 | 12 | PPO turns `L`/`R`, DLA `F` | 1, in a malfunction at step 494 |
+| PPO stops only · 36×24 | 227 | **1** | one PPO `noop`, DLA `F` | 3 STOPPED |
+| PPO stops only · corridor | 2287 | 129 | PPO `noop`, DLA stops (98) or `F` (31) | 7 (DLA alone: 5) |
+
+What the counts show:
+
+1. **The PPO's deadlock is not "driving into the conflict". It is "not
+   starting again".** The ECML PPO's most common action is DO_NOTHING. For a
+   moving train that means forward, which the veto catches. For a stopped
+   train or one before departure, it means staying put. In the veto variant on
+   the corridor, the PPO kept a stopped train standing 1139 times while DLA
+   would have driven it on, and all 15 trains that did not arrive ended up
+   STOPPED. A veto can only stop a train; it cannot make the PPO start one.
+   That is why the veto, as the idea describes it, leaves the corridor at
+   1/16.
+2. **Departures are the second way into single-track deadlocks.** With gating,
+   the PPO sent 1299 trains onto the Olten network that DLA would have held
+   back. Vetoing departures too (`dep`) brings Olten from 32 to 43/52, the
+   biggest single gain of any flag.
+3. **Even a few PPO decisions break DLA's guarantee.** DLA is deadlock-free
+   only if every train runs under DLA. Its check for a free corridor assumes
+   that the other trains move on whenever DLA would move them. One PPO hold on
+   the 36×24 network, against DLA's forward, left 3 trains short of their
+   target when the episode ended. On ECML scene 1, 12 turns the PPO took
+   against DLA's route stretched the episode to its limit of 494 steps (DLA
+   alone takes 180, the PPO alone 216). The last train was in a malfunction
+   when time ran out.
+4. **Interpretation: the PPO and DLA expect different teammates.** The ECML
+   PPO learned in self-play, so its "wait here" assumes that the oncoming train
+   is the same PPO and will behave as it did in training. Next to trains under
+   DLA, that expectation is wrong, and DLA's expectation about the PPO-driven
+   trains is wrong too. Every lever the PPO keeps (holding, departing, routing)
+   costs trains. The best hybrid is the one in which the PPO decides least.
+   This is an interpretation, not a measurement. Testing it would mean training
+   the PPO inside the hybrid (below).
+
+What this means for the lab:
+
+- **Combining two finished policies by rules does not work here.** A safety
+  layer (shield) has to be in place while the PPO trains, so the PPO learns
+  next to it. The hybrid can serve as that environment: `train_ppo.py` with
+  `HybridPpoDlaPolicy` executing the actions and the PPO's own logits as the
+  learned part. That would be a step-3 exercise, not a code change in the
+  hub.
+- **A veto has to work both ways.** A shield for this PPO would also need a
+  "release": when DLA would move a train and the PPO holds it for more than
+  *k* steps, DLA moves it. That is untested. It would make the PPO advisory
+  for stops as well, so most of what is left is DLA again.
+- **For practice with people, the plain PPO stays the better partner.** Its
+  deadlocks are the reason to intervene (reading of step 1, point 1), and its
+  behaviour is its own. The hybrid hides both.
 
 ## Exercises (what "practising" means)
 
