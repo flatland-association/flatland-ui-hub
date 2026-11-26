@@ -297,9 +297,106 @@
         3,
         22
       ]
+    },
+    {
+      "id": 3,
+      "name": "Betriebspunkt X",
+      "city_position": [
+        2,
+        12
+      ],
+      "city_orientation": 1,
+      "stopping_points": [
+        {
+          "name": "Betriebspunkt X.0",
+          "node": [
+            1,
+            12
+          ]
+        },
+        {
+          "name": "Betriebspunkt X.1",
+          "node": [
+            2,
+            12
+          ]
+        }
+      ],
+      "edges": [
+        [
+          1,
+          11
+        ],
+        [
+          1,
+          12
+        ],
+        [
+          1,
+          13
+        ],
+        [
+          2,
+          11
+        ],
+        [
+          2,
+          12
+        ],
+        [
+          2,
+          13
+        ]
+      ],
+      "gates": {
+        "E": {
+          "name": "Betriebspunkt X.E",
+          "pins": {
+            "0": {
+              "name": "Betriebspunkt X.E.0",
+              "node": [
+                1,
+                13
+              ]
+            },
+            "1": {
+              "name": "Betriebspunkt X.E.1",
+              "node": [
+                2,
+                13
+              ]
+            }
+          }
+        },
+        "W": {
+          "name": "Betriebspunkt X.W",
+          "pins": {
+            "0": {
+              "name": "Betriebspunkt X.W.0",
+              "node": [
+                1,
+                11
+              ]
+            },
+            "1": {
+              "name": "Betriebspunkt X.W.1",
+              "node": [
+                2,
+                11
+              ]
+            }
+          }
+        }
+      },
+      "area": [
+        0,
+        11,
+        3,
+        13
+      ]
     }
   ],
-  "nextStationId": 3,
+  "nextStationId": 4,
   "lines": [
     {
       "id": 1794084461089,
