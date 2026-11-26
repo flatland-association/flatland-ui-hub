@@ -24,7 +24,10 @@ from app.utils.agent_compat import agent_direction, agent_position
 
 PRESET = "pf-ch-corridor-stops"  # no plan to prefer: the untimed reroute meets oncoming trains
 FORK_STEP = 20
-#: Without timing this reroute strands it and drags four more trains down (4 of 16 arrive).
+#: Without timing this reroute stranded it and dragged four more trains down (4 of
+#: 16 arrived) until DLA took committed routes into account (#207, override_policy
+#: `set_committed_overrides`): its STOP now wins over the route's move, so the
+#: untimed reroute arrives too (11 of 16, as the timed one).
 TRAIN = 14
 
 
@@ -40,16 +43,15 @@ def session():
     return session
 
 
-def test_the_timed_reroute_arrives_where_the_untimed_one_strands(session):
+def test_the_timed_reroute_arrives_and_does_no_worse_than_the_untimed_one(session):
     factory = _policy_factory_for_session(session)
     untimed = TrajectoryBranchRunner(session.env, factory, timed_routes=False).run_branch(
         overrides={TRAIN: REROUTE_ACTION}, max_steps=200,
     )
     timed = _branch_run(session.env, factory, {TRAIN: REROUTE_ACTION}, 200)
 
-    assert not untimed.agent_outcomes[TRAIN]["arrived"]
     assert timed.agent_outcomes[TRAIN]["arrived"]
-    assert timed.success_count > untimed.success_count
+    assert timed.success_count >= untimed.success_count
 
 
 def test_a_committed_route_keeps_when_each_cell_is_due(session):

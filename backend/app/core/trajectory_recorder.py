@@ -183,6 +183,10 @@ def recorder_for(session) -> Optional[TrajectoryRecorder]:
             "seed": session.seed,
             "max_episode_steps": getattr(env, "_max_episode_steps", None),
             "disturbances": session.disturbances,
+            # The AI behind the KI column: what the condition asked for and what
+            # serves this env (a leg on another infrastructure falls back).
+            "proposal_agent_requested": getattr(session, "proposal_agent_id", None),
+            "proposal_agent": _proposal_agent_id(session),
             "rewards": type(getattr(env, "rewards", None)).__name__,
             "flatland_rl_version": version("flatland-rl"),
             "app_version": __version__,
@@ -191,6 +195,15 @@ def recorder_for(session) -> Optional[TrajectoryRecorder]:
         recorder = TrajectoryRecorder(session_dir(session) / "trajectory", env, meta, settings.study_snapshot_interval)
         session.trajectory = recorder
     return recorder
+
+
+def _proposal_agent_id(session) -> str | None:
+    try:
+        from app.core.proposal_agents.registry import proposal_agent_for
+
+        return proposal_agent_for(session).id
+    except Exception:  # never let study metadata break a step
+        return None
 
 
 def close_trajectory(session) -> None:

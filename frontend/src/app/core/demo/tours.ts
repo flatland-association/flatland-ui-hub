@@ -33,6 +33,10 @@ export interface Tour {
   /** Enforce "Study logging" on or off for this tour's runs, over the
    *  participant's setting (docs/experiment-logging.md). Unset: the setting decides. */
   studyLogging?: boolean;
+  /** Ask "Aktuelles Szenario abschliessen?" before a mode is finished by hand;
+   *  `false` = finish at once (#180, docs/plans/confirm-finish-scenario.md).
+   *  Absent = ask. */
+  finishConfirm?: boolean;
   /** Shown in the picker. */
   name: string;
   /** One sentence: what this tour shows, and what it costs in minutes. */

@@ -5,6 +5,7 @@ import { StagedDispositionService } from '../dispatch/staged-disposition.service
 import { TourContextService } from './tour-context.service';
 import { GuideStepId, TourGuideStep } from './tour-briefings';
 import { ReplayService } from '../replay/replay.service';
+import { UiConfigService } from '../config/ui-config.service';
 
 /**
  * Progress through the running tour's guide (`TourBriefing.guide`).
@@ -22,6 +23,7 @@ export class TourGuideService {
   private readonly learning = inject(OnlineLearningService);
   private readonly staged = inject(StagedDispositionService);
   private readonly replay = inject(ReplayService);
+  private readonly uiConfig = inject(UiConfigService);
   private readonly _done = signal<ReadonlySet<GuideStepId>>(new Set());
   /** Step at which the session first ran under the online policy. */
   private readonly _onlineSince = signal<number | null>(null);
@@ -30,6 +32,10 @@ export class TourGuideService {
     this.replay.active() ? this.replay.guideSteps() : this.tour.briefing()?.guide ?? [],
   );
   readonly active = computed(() => this.steps().length > 0);
+  /** Whether the guide strip is drawn: there is a guide and the condition does not hide the strip
+   *  (`control.guide`). The guide ticks and logs either way. The one answer for the strip and the
+   *  stepper's lines to it (docs/plans/hide-scenario-bar.md §4.5). */
+  readonly stripShown = computed(() => this.active() && !this.uiConfig.isHidden('control.guide'));
   readonly done: Signal<ReadonlySet<GuideStepId>> = computed(() =>
     this.replay.active() ? this.replay.guideDone() : this._done(),
   );

@@ -22,7 +22,7 @@ from app.core.env_step import step_env
 from app.core.dispatcher_driver import playback, run_in_worker, interrupted
 from app.core.dispatcher import before_step as dispatcher_before_step, identity, require_human
 from app.core.pf_ch_control import preflight_policy, is_specialist_policy
-from app.core.scenario_presets import check_session_request, list_presets, preset_image, select_disturbances
+from app.core.scenario_presets import check_session_request, list_presets, preset_image, preset_video, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
     SessionInfo,
@@ -30,8 +30,10 @@ from app.models.session import (
 )
 from app.models.agent import ActionRequest
 from app.policies.override_policy import OverridePolicy
+from app.policies.plan_policy import revert_accepted_plan
 from app.policies.registry import (
     PLAN_POLICY_ID,
+    create_driving_policy,
     create_runtime_policy,
     policy_specs,
     selectable_policy_ids,
@@ -124,6 +126,22 @@ def _build_policy(session_id: str, env, policy_name: str):
     return wrapped
 
 
+def _build_driving_policy(session_id: str, env, policy_name: str):
+    """`(effective id, OverridePolicy)` for a live step: like `_build_policy`, but
+    an accepted AI plan keeps driving (`registry.create_driving_policy`)."""
+    try:
+        effective, default = create_driving_policy(policy_name, env)
+    except KeyError:
+        raise HTTPException(400, f"Unknown policy: {policy_name}")
+    except ValueError as exc:
+        if is_specialist_policy(policy_name):
+            raise HTTPException(400, str(exc)) from exc
+        raise
+    wrapped = OverridePolicy(default, session_id)
+    wrapped.reset(env)
+    return effective, wrapped
+
+
 def _scene_counts(infrastructure_scene: dict[str, Any]) -> dict[str, int]:
     cells = [cell for cell in infrastructure_scene.get("cells", []) if isinstance(cell, dict)]
     agents = [agent for agent in infrastructure_scene.get("agents", []) if isinstance(agent, dict)]
@@ -135,8 +153,16 @@ def _scene_counts(infrastructure_scene: dict[str, Any]) -> dict[str, int]:
     }
 
 
+def _check_proposal_agent(req: SessionCreateRequest) -> None:
+    from app.core.proposal_agents.registry import get_proposal_agent
+
+    if req.proposal_agent is not None and get_proposal_agent(req.proposal_agent) is None:
+        raise HTTPException(400, f"Unknown proposal agent {req.proposal_agent!r}")
+
+
 @router.post("", response_model=SessionInfo)
 def create_session(req: SessionCreateRequest):
+    _check_proposal_agent(req)
     scenario_preset_id = req.scenario_preset_id or None
     if scenario_preset_id:
         # Prebuilt scenario preset (e.g. ECML 2026): env is loaded from file,
@@ -178,6 +204,7 @@ def create_session(req: SessionCreateRequest):
         )
         if settings.online_learning_autostart and req.operator_type == "human":
             online_learning_manager.note_scenario(scenario_preset_id)
+        session.proposal_agent_id = req.proposal_agent
         _perf_log.info(
             "[INFRA] create built session=%s mode=preset id=%s env=%sx%s agents=%s plan=%s policy=%s",
             session.id,
@@ -273,6 +300,7 @@ def create_session(req: SessionCreateRequest):
     )
     if settings.online_learning_autostart and infrastructure_scene is None and req.operator_type == "human":
         online_learning_manager.note_scenario(f"gen:{width}x{height}:{number_of_agents}:{req.seed}")
+    session.proposal_agent_id = req.proposal_agent
     capture_marey_history_snapshot(session)
 
     diagnostics = build_scene_diagnostics(infrastructure_scene, session.env)
@@ -347,6 +375,20 @@ def get_scenario_preset_image(preset_id: str):
     return FileResponse(path, media_type=media_type, headers=_IMAGE_HEADERS)
 
 
+@router.get("/scenario-presets/{preset_id}/video")
+def get_scenario_preset_video(preset_id: str):
+    """The video an experiment scenario's `scenario.json` names — that one file
+    only. `FileResponse` answers range requests, so the player can seek."""
+    try:
+        video = preset_video(preset_id)
+    except (KeyError, FileNotFoundError):
+        video = None
+    if video is None:
+        raise HTTPException(404, f"No video for scenario preset {preset_id!r}")
+    path, media_type = video
+    return FileResponse(path, media_type=media_type, headers={"X-Content-Type-Options": "nosniff"})
+
+
 @router.get("/{session_id}/state")
 def get_state(session_id: str):
     session = session_manager.get(session_id)
@@ -396,11 +438,13 @@ def _step_sync(session_id: str, req: StepRequest):
     defer_comparison_policy = bool(session.dispatcher and session.dispatcher.config.comparison)
     step_policy = session.policy if session.dispatcher else req.policy
     preflight_policy(env, step_policy)
-    policy = None if defer_comparison_policy else _build_policy(session_id, env, step_policy)
+    # An accepted AI plan keeps driving while the client pins its policy
+    # (registry.driving_policy_id); the pinned policy then drives off-plan trains.
+    effective, policy = (step_policy, None) if defer_comparison_policy else _build_driving_policy(session_id, env, step_policy)
     # Track the most recently used policy so /hmi/scenarios can
     # use it as baseline.
     if not session.dispatcher:
-        session.policy = req.policy
+        session.policy = effective
 
     rewards = {}
     dones = {}
@@ -523,6 +567,8 @@ async def reset_session(session_id: str):
     # Replay the IDENTICAL scenario (same rail, schedule, malfunctions) so a
     # Reset — and each guided-demo mode switch — restarts the same situation,
     # instead of env.reset() rolling a fresh random episode.
+    # The episode starts over on the session's own plan, not an accepted AI plan.
+    revert_accepted_plan(session.env)
     if session.seed is not None:
         obs, info = session.env.reset(
             regenerate_rail=False, regenerate_schedule=False, random_seed=session.seed
@@ -637,6 +683,9 @@ def set_session_policy(session_id: str, req: PolicyChangeRequest):
     if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
     preflight_policy(session.env, req.policy)
+    # A deliberate switch ends an accepted AI plan (plan_policy.accept_trainrun_plan).
+    if req.policy != PLAN_POLICY_ID:
+        revert_accepted_plan(session.env)
     session.policy = req.policy
     _invalidate_scenario_forecasts(session_id)
     return {"session_id": session_id, "policy": session.policy}

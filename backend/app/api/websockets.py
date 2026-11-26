@@ -11,6 +11,7 @@ Play / Pause:
 import asyncio
 import logging
 import time
+from contextlib import nullcontext
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 from typing import Optional, Any
@@ -26,7 +27,7 @@ from app.core.ws_manager import ws_manager
 from app.core.play_manager import play_manager, PlayState
 from app.core.pf_ch_control import preflight_policy, is_specialist_policy
 from app.policies.override_policy import OverridePolicy
-from app.policies.registry import create_runtime_policy
+from app.policies.registry import create_driving_policy, create_runtime_policy, driving_policy_id
 from app.core.override_manager import override_manager
 
 router = APIRouter()
@@ -103,18 +104,23 @@ async def _human_play_loop(session_id: str):
     env = session.env
 
     try:
-        default_policy = create_runtime_policy(state.policy, env)
+        driving_id, default_policy = create_driving_policy(state.policy, env, factory=lambda pid, e: create_runtime_policy(pid, e))
     except KeyError:
         if is_specialist_policy(state.policy):
             state.running = False
             await ws_manager.broadcast(session_id, {"type": "error", "session_id": session_id,
                                                     "message": "The selected RL policy is unavailable"})
             return
-        default_policy = create_runtime_policy("deadlock_avoidance", env)
+        driving_id, default_policy = "deadlock_avoidance", create_runtime_policy("deadlock_avoidance", env)
 
     policy = OverridePolicy(default_policy, session_id)
     policy.reset(env)
     policy_revision = session.control_revision
+    # An accepted AI plan keeps driving while the client pins its policy
+    # (registry.driving_policy_id); the pinned policy drives off-plan trains.
+    driving_plan = getattr(env, "_trainrun_plan", None)
+    if driving_id != state.policy and not session.dispatcher:
+        session.policy = driving_id
 
     while state.running:
         step_started = time.perf_counter()
@@ -128,7 +134,9 @@ async def _human_play_loop(session_id: str):
             break
 
         async with session.command_lock:
-            if is_specialist_policy(state.policy) and not state.running:
+            # A Pause that came while this step waited for the lock (e.g. behind
+            # a proposal's source capture) wins: no step after it, for any driver.
+            if not state.running:
                 break
             try:
                 may_step = dispatcher_before_step(session)
@@ -143,6 +151,18 @@ async def _human_play_loop(session_id: str):
                         policy = OverridePolicy(create_runtime_policy(selected_policy, env), session_id)
                         policy.reset(env)
                         policy_revision = session.control_revision
+                elif not is_specialist_policy(state.policy):
+                    # Accepting a proposal is serialized with this lookup and the
+                    # physical step, including when the pinned driver is DLA.
+                    effective_id = driving_policy_id(state.policy, env)
+                    replacement_plan = (effective_id == "plan"
+                                        and getattr(env, "_trainrun_plan", None) is not driving_plan)
+                    if effective_id != driving_id or replacement_plan:
+                        driving_id, default_policy = create_driving_policy(state.policy, env, factory=lambda pid, e: create_runtime_policy(pid, e))
+                        policy = OverridePolicy(default_policy, session_id)
+                        policy.reset(env)
+                        driving_plan = getattr(env, "_trainrun_plan", None)
+                        session.policy = driving_id
                 handles = env.get_agent_handles()
                 observations: dict[int, Any] = session.last_observations or {}
                 # Split timing: policy.act_many vs env.step. With heavy policies
@@ -223,7 +243,7 @@ async def _human_play_loop(session_id: str):
 
         n_agents = len(handles)
         elapsed = int(env._elapsed_steps)
-        policy_id = state.policy
+        policy_id = state.policy if driving_id == state.policy else f"{state.policy}->{driving_id}"
         _perf_log.info(
             f"[PLAY] elapsed={elapsed} agents={n_agents} policy={policy_id} "
             f"act_many={t_pol_ms:.1f}ms env_step={t_env_ms:.1f}ms "
@@ -382,6 +402,19 @@ async def play(session_id: str, req: PlayRequest):
         await play_manager.stop(session_id)
     if not session.dispatcher and any(
             is_specialist_policy(policy) for policy in (req.policy, session.policy, getattr(previous, "policy", None))):
+        effective = previous.policy if previous and play_manager.is_playing(session_id) else req.policy
+        if session.policy != effective or pf_ch_switch:
+            from app.api.sessions import _invalidate_scenario_forecasts
+            session.policy = effective
+            _invalidate_scenario_forecasts(session_id)
+
+    preflight_policy(session.env, req.policy)
+    previous = play_manager.get(session_id)
+    pf_ch_switch = (previous is not None and previous.policy != req.policy
+                    and any(is_specialist_policy(policy) for policy in (previous.policy, req.policy)))
+    if pf_ch_switch:
+        await play_manager.stop(session_id)
+    if any(is_specialist_policy(policy) for policy in (req.policy, session.policy, getattr(previous, "policy", None))):
         effective = previous.policy if previous and play_manager.is_playing(session_id) else req.policy
         if session.policy != effective or pf_ch_switch:
             from app.api.sessions import _invalidate_scenario_forecasts

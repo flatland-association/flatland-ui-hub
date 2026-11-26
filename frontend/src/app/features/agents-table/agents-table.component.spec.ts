@@ -144,7 +144,7 @@ describe('AgentsTableComponent — Trains v2 (Dispositionstabelle)', () => {
   it('reads slack as time in hand, and lateness as lateness', () => {
     expect(cmp.rows().find((r) => r.handle === 0)!.slack).toBe('40 left');
     const late = cmp.rows().find((r) => r.handle === 1)!;
-    expect(late.slack).toBe('+19 late');
+    expect(late.slack).toBe('+19 steps late');
     expect(late.slackLate).toBeTrue();
   });
 

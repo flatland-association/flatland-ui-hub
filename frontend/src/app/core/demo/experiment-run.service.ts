@@ -10,7 +10,7 @@ import {
 import { interventionsFrom, shiftKpis } from '../shift-review';
 import { LegFinishReason, ShiftRecord, TourContextService } from './tour-context.service';
 import { TourGuideService } from './tour-guide.service';
-import { ExperimentLeg, StudyCondition, conditionId, hasShiftSummary } from './study-conditions';
+import { ExperimentLeg, StudyCondition, conditionId, hasFinishConfirm, hasShiftSummary } from './study-conditions';
 
 /**
  * Where a guided condition's run stands (docs/plans/experiment-workflow.md §5).
@@ -87,6 +87,13 @@ export class ExperimentRunService {
   readonly hasLegSurvey = computed(() => (this.condition()?.legSurveyParts?.length ?? 0) > 0);
   /** The Schichtbilanz comes after the last leg; a condition can leave it out (#174). */
   readonly hasShiftSummary = computed(() => hasShiftSummary(this.condition()));
+  /** A hand-made finish asks "Aktuelles Szenario abschliessen?" first (#180). */
+  readonly hasFinishConfirm = computed(() => hasFinishConfirm(this.condition()));
+  /** How often the finish dialog was closed without "Ja" in the current leg.
+   *  Not persisted: a resumed leg restarts on a fresh session. */
+  private finishConfirmBacks = 0;
+  /** The current leg's finish dialog was answered with "Ja". */
+  private finishConfirmYesGiven = false;
   /** The stepper and the guide's outer level show from two legs on. */
   readonly multiLeg = computed(() => this.legCount() > 1);
   /** With several legs the guide strip is a leg's subtree, so it shows only
@@ -100,15 +107,12 @@ export class ExperimentRunService {
     return this.phase() === 'legSurvey' ? c.legSurveyParts ?? null : c.surveyParts;
   });
 
-  legName(leg: ExperimentLeg): string {
-    return this.tourContext.legName(leg);
-  }
-
-  /** "⟨name⟩ (k/N)" for the leg at `index`. */
+  /** "⟨name⟩ (k/N)" for the leg at `index`, or "Szenario k/N" where names are hidden
+   *  (docs/plans/hide-scenario-bar.md §4.3). */
   legLabel(index: number): string {
     const leg = this.legs()[index];
     if (!leg) return '';
-    return this.i18n.t('experimentRun.legLabel', { name: this.legName(leg), k: index + 1, n: this.legCount() });
+    return this.tourContext.legLabel(leg, index, this.legCount());
   }
 
   readonly currentLegLabel = computed(() => {
@@ -153,6 +157,8 @@ export class ExperimentRunService {
     this.experimentRunId.set(newExperimentRunId());
     this.startedAt = Date.now();
     this.legStartedAt = this.startedAt;
+    this.finishConfirmBacks = 0;
+    this.finishConfirmYesGiven = false;
     this.questionnaires = [];
     this.resumedAt = [];
     this.questionnaireOpen.set(false);
@@ -183,12 +189,13 @@ export class ExperimentRunService {
   }
 
   /** What the run adds to the record of the session that starts now; `RunContext`'s run fields. */
-  runContext(): { experimentRunId: string | null; legId: string | null; legIndex: number; shiftSummary: boolean } {
+  runContext(): { experimentRunId: string | null; legId: string | null; legIndex: number; shiftSummary: boolean; finishConfirm: boolean } {
     return {
       experimentRunId: this.experimentRunId(),
       legId: this.currentLeg()?.id ?? null,
       legIndex: this.legIndex(),
       shiftSummary: this.hasShiftSummary(),
+      finishConfirm: this.hasFinishConfirm(),
     };
   }
 
@@ -201,12 +208,24 @@ export class ExperimentRunService {
   /** A leg's session was started. */
   legStarted(): void {
     this.legStartedAt = Date.now();
+    this.finishConfirmBacks = 0;
+    this.finishConfirmYesGiven = false;
     this.persist();
   }
 
   setPhase(phase: ExperimentPhase): void {
     this.phase.set(phase);
     this.persist();
+  }
+
+  /** The finish dialog was closed without "Ja" (Zurück, Escape, backdrop). */
+  finishConfirmBack(): void {
+    this.finishConfirmBacks++;
+  }
+
+  /** The finish dialog was answered with "Ja"; the leg finishes next. */
+  finishConfirmYes(): void {
+    this.finishConfirmYesGiven = true;
   }
 
   /** Record the current leg as finished and log it. Safe to call twice. */
@@ -227,6 +246,9 @@ export class ExperimentRunService {
     }));
     const finishedAt = Date.now();
     const runError = this.store.runError();
+    // From the dialog itself, not from the reason: a `clicked` finish can also
+    // come without it (a resume into a questionnaire).
+    const finishConfirm = this.hasFinishConfirm() ? { confirmed: this.finishConfirmYesGiven, backs: this.finishConfirmBacks } : null;
     this.tourContext.recordShift({
       leg: this.legIndex(),
       sessionId,
@@ -245,6 +267,7 @@ export class ExperimentRunService {
       finishedAt,
       guideDone: [...this.guide.done()],
       ...(runError ? { runError } : {}),
+      ...(finishConfirm ? { finishConfirm } : {}),
     });
     this.interactionLog.noteLegFinished({
       legId: leg.id,
@@ -254,6 +277,7 @@ export class ExperimentRunService {
       elapsedSteps: this.store.elapsedSteps(),
       episodeDone: this.store.episodeDone(),
       ...(runError ? { runError } : {}),
+      ...(finishConfirm ? { finishConfirm } : {}),
     });
     this.persist();
   }

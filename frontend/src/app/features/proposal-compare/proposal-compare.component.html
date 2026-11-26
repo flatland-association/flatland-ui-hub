@@ -48,6 +48,9 @@
       <p class="pc-loading">{{ 'proposals.loading' | transloco }}</p>
     } @else if (failed(); as message) {
       <p class="pc-empty">{{ message }}</p>
+      <button type="button" class="pc-option" data-log="proposals.refreshCourses" (click)="load(chosenOption())">
+        {{ 'proposals.refreshCourses' | transloco }}
+      </button>
     }
     }
 
@@ -64,7 +67,7 @@
             @if (shownApplied() === 'plan') {
               <p class="pc-taken">{{ 'proposals.taken' | transloco }}</p>
             } @else if (!decided()) {
-              <button type="button" class="pc-take" data-log="proposals.keepPlan" [disabled]="applying() !== null" (click)="take('plan')">
+              <button type="button" class="pc-take" data-log="proposals.keepPlan" [disabled]="loading() || applying() !== null" (click)="take('plan')">
                 {{ (applying() === 'plan' ? 'proposals.taking' : 'proposals.keepPlan') | transloco }}
               </button>
             }
@@ -84,10 +87,13 @@
             @if (priorityText(v); as order) {
               <p class="pc-priority">{{ 'proposals.order' | transloco: { order: order } }}</p>
             }
+            @if (v.intervention) {
+              <p class="pc-priority">{{ courseText(v) }}</p>
+            }
             @if (shownApplied() === 'ai') {
               <p class="pc-taken">{{ 'proposals.taken' | transloco }}</p>
             } @else if (!decided()) {
-              <button type="button" class="pc-take pc-take--ai" data-log="proposals.takeAi" [disabled]="applying() !== null" (click)="take('ai')">
+              <button type="button" class="pc-take pc-take--ai" data-log="proposals.takeAi" [disabled]="loading() || applying() !== null" (click)="take('ai')">
                 {{ (applying() === 'ai' ? 'proposals.taking' : 'proposals.takeAi') | transloco }}
               </button>
             }
@@ -120,7 +126,9 @@
               <span class="pc-course-name">{{ 'proposals.human' | transloco }}</span>
               <span class="pc-course-sub">{{ 'proposals.humanSub' | transloco }}</span>
             </header>
-            @if (loading() && chosenOption(); as option) {
+            @if (awaitingRoute()) {
+              <p class="pc-placeholder pc-placeholder--route">{{ 'proposals.drawRoute' | transloco }}</p>
+            } @else if (loading() && chosenOption(); as option) {
               <p class="pc-placeholder is-busy">{{ 'proposals.computing' | transloco: { option: (optionLabelKey(option) | transloco) } }}</p>
             } @else {
               <p class="pc-placeholder">{{ 'proposals.placeholder' | transloco }}</p>
@@ -131,7 +139,7 @@
 
       @if (comparison(); as axes) {
         <section class="pc-compare">
-          <div class="pc-compare-head">{{ 'proposals.compare' | transloco }} <span class="pc-compare-hint">{{ 'proposals.lessIsBetter' | transloco }}</span></div>
+          <div class="pc-compare-head">{{ 'proposals.compare' | transloco }}</div>
           <p class="pc-compare-note">{{ 'proposals.compareNote' | transloco }}</p>
           @for (axis of axes; track axis.id) {
             <div class="pc-axis">
@@ -171,10 +179,14 @@
           <ul class="pc-alternatives">
             @for (v of alternatives(); track v.id) {
               <li class="pc-alternative">
-                <span class="pc-alternative-order">{{ priorityText(v) }}</span>
+                <span class="pc-alternative-order">{{ courseText(v) }}</span>
                 <span class="pc-alternative-outcome"
                       [class.bad]="worseThanPlan(v)"
                       [class.good]="betterThanPlan(v)">{{ arrivalText(v) }}</span>
+                <button type="button" class="pc-option" data-log="proposals.inspectCourse"
+                        [disabled]="loading() || applying() !== null" (click)="selectAlternative(v)">
+                  {{ 'proposals.inspectCourse' | transloco }}
+                </button>
               </li>
             }
           </ul>
@@ -185,7 +197,7 @@
         <p class="pc-caveat">{{ 'proposals.holdCaveat' | transloco }}</p>
       }
       @if (shownApplied() === 'ai' && !decided()) {
-        <p class="pc-caveat">{{ 'proposals.aiTakenCaveat' | transloco }}</p>
+        <p class="pc-caveat">{{ (r.ai_keeps_overrides ? 'proposals.aiTakenCaveatKept' : 'proposals.aiTakenCaveat') | transloco }}</p>
       }
     }
   }

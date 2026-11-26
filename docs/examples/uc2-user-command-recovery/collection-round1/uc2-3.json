@@ -1,0 +1,277 @@
+{
+ "schema": "uc2-user-command-recovery-collection-v1",
+ "preset": "uc2-3",
+ "driver_checkpoint": "uc2_roam_uc2_3.pt",
+ "driver_sha256": "ef351df10878554a67485b8ce03dce2175b6601d62329f18d9eadeb469523577",
+ "base_cases": [
+  "uc2-3-ffcca0d12a61",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-225",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-420",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-566",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-025",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-011"
+ ],
+ "seed": 20261114,
+ "episodes": 1428,
+ "effective": 1167,
+ "solved": 1368,
+ "failed_effective": 60,
+ "labelled_episodes": 17,
+ "labels": 21,
+ "prior_states": 60460,
+ "labelled": [
+  {
+   "key": "uc2-3-ffcca0d12a61:220",
+   "corrections": [
+    [
+     131,
+     1,
+     0
+    ]
+   ],
+   "lateness": 105
+  },
+  {
+   "key": "uc2-3-ffcca0d12a61:225",
+   "corrections": [
+    [
+     60,
+     1,
+     0
+    ],
+    [
+     228,
+     0,
+     0
+    ]
+   ],
+   "lateness": 320
+  },
+  {
+   "key": "uc2-3-ffcca0d12a61:51",
+   "corrections": [
+    [
+     131,
+     1,
+     0
+    ]
+   ],
+   "lateness": 105
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-011:220",
+   "corrections": [
+    [
+     131,
+     1,
+     0
+    ]
+   ],
+   "lateness": 103
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-011:225",
+   "corrections": [
+    [
+     61,
+     1,
+     0
+    ],
+    [
+     228,
+     0,
+     0
+    ]
+   ],
+   "lateness": 318
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-011:51",
+   "corrections": [
+    [
+     131,
+     1,
+     0
+    ]
+   ],
+   "lateness": 103
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-011:84",
+   "corrections": [
+    [
+     131,
+     1,
+     0
+    ]
+   ],
+   "lateness": 103
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-025:213",
+   "corrections": [
+    [
+     43,
+     2,
+     4
+    ]
+   ],
+   "lateness": 41
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-025:215",
+   "corrections": [
+    [
+     51,
+     0,
+     4
+    ]
+   ],
+   "lateness": 46
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-225:220",
+   "corrections": [
+    [
+     133,
+     1,
+     0
+    ]
+   ],
+   "lateness": 102
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-225:225",
+   "corrections": [
+    [
+     62,
+     1,
+     0
+    ],
+    [
+     228,
+     0,
+     0
+    ]
+   ],
+   "lateness": 311
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-225:51",
+   "corrections": [
+    [
+     142,
+     1,
+     0
+    ]
+   ],
+   "lateness": 129
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-225:84",
+   "corrections": [
+    [
+     133,
+     1,
+     0
+    ]
+   ],
+   "lateness": 102
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-420:225",
+   "corrections": [
+    [
+     62,
+     1,
+     0
+    ],
+    [
+     228,
+     0,
+     0
+    ]
+   ],
+   "lateness": 314
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-566:220",
+   "corrections": [
+    [
+     136,
+     1,
+     0
+    ]
+   ],
+   "lateness": 103
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-566:60",
+   "corrections": [
+    [
+     146,
+     1,
+     0
+    ]
+   ],
+   "lateness": 133
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-3-offsets-566:84",
+   "corrections": [
+    [
+     136,
+     1,
+     0
+    ]
+   ],
+   "lateness": 103
+  }
+ ],
+ "unlabelled_failures": [
+  "uc2-3-ffcca0d12a61:211",
+  "uc2-3-ffcca0d12a61:217",
+  "uc2-3-ffcca0d12a61:219",
+  "uc2-3-ffcca0d12a61:223",
+  "uc2-3-ffcca0d12a61:224",
+  "uc2-3-ffcca0d12a61:236",
+  "uc2-3-ffcca0d12a61:237",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-011:211",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-011:217",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-011:219",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-011:223",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-011:224",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-011:236",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-011:237",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-025:208",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-025:211",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-025:217",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-025:219",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-025:223",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-025:224",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-025:236",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-025:237",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-225:208",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-225:211",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-225:219",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-225:223",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-225:224",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-225:236",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-225:237",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-420:211",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-420:217",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-420:219",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-420:223",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-420:224",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-420:232",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-420:236",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-420:237",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-566:211",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-566:219",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-566:223",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-566:224",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-566:236",
+  "uc2-roam-systematic1472-v3-uc2-3-offsets-566:237"
+ ],
+ "elapsed_seconds": 2321
+}

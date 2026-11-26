@@ -356,7 +356,7 @@ def test_rejected_delegation_preserves_playback_and_never_waits_for_the_writer_l
 
 
 def test_generated_pp_plan_enables_its_policy_only_after_successful_install(monkeypatch):
-    session = SimpleNamespace(id="generated-plan", env=object(), dispatcher=None,
+    session = SimpleNamespace(id="generated-plan", env=SimpleNamespace(), dispatcher=None,
                               policy="random", enabled_policy_ids={"random"})
     from app.policies.registry import PLAN_POLICY_ID
     installed = []

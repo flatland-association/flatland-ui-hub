@@ -47,7 +47,7 @@ describe('SurveyComponent — paged and required', () => {
     c.next();
     fixture.detectChanges();
     expect(c.pageIndex()).toBe(0);
-    expect([...c.missing()]).toEqual(['pb_2', 'pb_3', 'pb_4']);
+    expect([...c.missing()]).toEqual(['pb_2', 'pb_3', 'pb_4', 'pb_5']);
     expect(el('.survey-missing')).not.toBeNull();
     c.setAnswer('pb_2', 2);
     expect(c.missing().has('pb_2')).toBeFalse();
@@ -55,20 +55,20 @@ describe('SurveyComponent — paged and required', () => {
 
   it('counts the share only once set: 0 % is an answer, not a default', () => {
     expect(c.isAnswered(c.config().sections[1].questions[0])).toBeFalse();
-    c.setPercent('pb_4', '0');
-    expect(c.answers()['pb_4']).toBe(0);
+    c.setPercent('pb_5', '0');
+    expect(c.answers()['pb_5']).toBe(0);
     expect(c.isAnswered(c.config().sections[1].questions[0])).toBeTrue();
-    c.setPercent('pb_4', '140');
-    expect(c.answers()['pb_4']).toBe(100);
+    c.setPercent('pb_5', '140');
+    expect(c.answers()['pb_5']).toBe(100);
   });
 
   it('answers 0 % with the slider: a click at its left end fires no input event', () => {
     fixture.detectChanges();
     const range = el('.q-percent__range') as HTMLInputElement;
-    expect(c.answers()['pb_4']).toBeUndefined();
+    expect(c.answers()['pb_5']).toBeUndefined();
     expect(range.value).toBe('0');
     range.dispatchEvent(new Event('pointerup'));
-    expect(c.answers()['pb_4']).toBe(0);
+    expect(c.answers()['pb_5']).toBe(0);
   });
 
   it('goes forward and back, keeping the answers', () => {
@@ -117,7 +117,37 @@ describe('SurveyComponent — paged and required', () => {
 
   it('renders the agreement items as a matrix of radio inputs', () => {
     const rows = fixture.nativeElement.querySelectorAll('.q-matrix tbody tr');
-    expect(rows.length).toBe(3);
+    expect(rows.length).toBe(4);
     expect(rows[0].querySelectorAll('input[type=radio]').length).toBe(7);
+  });
+});
+
+/** A replay finds the questionnaire by the recorded `surveyId`, without the
+ *  condition's survey parts (docs/plans/plan-b-small-changes.md, item 9). */
+describe('SurveyComponent — replay by surveyId', () => {
+  const create = (surveyId: string | null, answers: Record<string, unknown>) => {
+    TestBed.configureTestingModule({
+      imports: [SurveyComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const fixture = TestBed.createComponent(SurveyComponent);
+    fixture.componentRef.setInput('replayAnswers', answers);
+    fixture.componentRef.setInput('surveyId', surveyId);
+    fixture.componentRef.setInput('embedded', true);
+    fixture.detectChanges();
+    return fixture.componentInstance;
+  };
+
+  it('shows the Plan B questionnaire for plan-b-final answers, only the answered sections', () => {
+    const c = create('plan-b-final', { pb_1: 4 });
+    expect(c.config().id).toBe('plan-b-final');
+    expect(c.config().sections.length).toBe(1);
+    expect(c.config().sections[0].questions.some((q) => q.id === 'pb_1')).toBeTrue();
+  });
+
+  it('falls back to the current mode\'s building blocks for an unknown id', () => {
+    const c = create('nope', { pb_1: 4 });
+    expect(c.config().id).toMatch(/^post-session-/);
+    expect(c.config().sections.length).toBe(0);
   });
 });

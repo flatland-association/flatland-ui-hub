@@ -222,7 +222,7 @@
     },
     "colearning-advanced": {
       "name": "Co-Learning vertieft: Sandbox selbst spielen",
-      "description": "Der Einspurabschnitt am Walensee: Ein Zug bleibt darin stehen, ein Gegenzug fährt darauf zu. Im Co-Learning-Modus mit markierten Modulen; nach der Schicht spielst du den Entscheidungsmoment in der Sandbox mit anderen Optionen nochmals durch (halten bis zu einem gewählten Schritt, weiterfahren, umleiten), jede bis zum Ende simuliert und mit deinem Lauf verglichen. Ohne Fragebogen.",
+      "description": "Der Einspurabschnitt am Walensee: Ein Zug bleibt darin stehen, ein Gegenzug fährt darauf zu. Im Co-Learning-Modus mit markierten Modulen; nach der Schicht spielst du den Entscheidungsmoment in der Sandbox mit anderen Optionen nochmals durch (halten bis zu einem gewählten Schritt, weiterfahren, Fahrweg ändern), jede bis zum Ende simuliert und mit deinem Lauf verglichen. Ohne Fragebogen.",
       "short": "Vertieft: Sandbox selbst spielen"
     },
     "colearning-experiment": {
@@ -510,7 +510,7 @@
       "left": "LINKS",
       "forward": "GERADEAUS",
       "right": "RECHTS",
-      "reroute": "UMLEITEN",
+      "reroute": "FAHRWEG ÄNDERN",
       "stop": "STOPP"
     },
     "cell": {
@@ -743,7 +743,7 @@
   "train": {
     "name": "Zug {{n}}",
     "slackLeft": "noch {{n}}",
-    "late": "+{{n}} spät",
+    "late": "+{{n}} Schritte spät",
     "now": "jetzt",
     "inSteps": "in {{n}}",
     "arr": "Ank.",
@@ -876,7 +876,7 @@
     },
     "status": {
       "arrived": "angekommen",
-      "depIn": "ab in {{n}}",
+      "depIn": "ab in {{n}} Schritten",
       "ready": "bereit"
     }
   },
@@ -1016,7 +1016,7 @@
     "preview": {
       "pinned": "Vorausschau fixiert",
       "pin": "Vorausschau fixieren",
-      "hintPinned": "Umleitung bleibt auf Karte & ZWL sichtbar",
+      "hintPinned": "Der geänderte Fahrweg bleibt auf Karte & ZWL sichtbar",
       "hintHover": "Hover zeigt die geänderte Route auf Karte & ZWL"
     },
     "accept": "Übernehmen",
@@ -1054,7 +1054,7 @@
     "action": {
       "hold": "Halten",
       "proceed": "Weiterfahren",
-      "reroute": "Umleiten"
+      "reroute": "Fahrweg ändern"
     },
     "verb": {
       "accepted": "Übernommen",
@@ -1121,7 +1121,7 @@
     "impact": {
       "eta": "Erreicht die Stelle in",
       "clears": "Stelle frei in",
-      "reroute": "Umleitung möglich",
+      "reroute": "anderer Fahrweg möglich",
       "steps": "{{n}} Schritten",
       "yes": "ja",
       "no": "nein"
@@ -1148,7 +1148,7 @@
     "bufferTight": "reicht knapp",
     "measures": "Mögliche Massnahmen",
     "measureHold": "Halten",
-    "measureHoldOrReroute": "Halten oder Umleiten",
+    "measureHoldOrReroute": "Halten oder Fahrweg ändern",
     "handoff": "Entscheide unter «Handlungsoptionen».",
     "autonomous": "Die KI erledigt das autonom",
     "recommendedTag": "Empfohlen",
@@ -1173,7 +1173,7 @@
       "fits": "Passt auch hier. Sie spricht für: {{measure}}. Die Optionen bleiben gleichwertig; entscheiden musst du.",
       "measure": {
         "hold": "Halten",
-        "reroute": "Umleiten",
+        "reroute": "Fahrweg ändern",
         "proceed": "Weiterfahren",
         "ai": "den KI-Vorschlag"
       }
@@ -1445,8 +1445,8 @@
     "identicalToRunning": "identisch mit dem laufenden Plan",
     "simFailed": "Die Simulation ist fehlgeschlagen — es bleiben die Modellwerte oben.",
     "planFailed": "Strategien konnten nicht geplant werden.",
-    "previewComputing": "Die Umleitung wird gerade berechnet.",
-    "previewPause": "Pausiere den Lauf — dann wird die Umleitung berechnet und hier anklickbar.",
+    "previewComputing": "Der geänderte Fahrweg wird gerade berechnet.",
+    "previewPause": "Pausiere den Lauf — dann wird der geänderte Fahrweg berechnet und hier anklickbar.",
     "previewNoPlan": "Erst «Optionen berechnen» — ohne Plan gibt es keine Route zu zeigen.",
     "previewNoRoute": "Für dieses Ziel liegt keine Route vor.",
     "limitedBy": "begrenzt durch {{factor}} ({{value}})",
@@ -1707,7 +1707,7 @@
       "steeredGroup": "Gesteuert",
       "sideEffects": "Nicht gesteuert, aber betroffen",
       "untouched": "Unberührt: {{trains}}",
-      "planDetail": "Umleitung im Detail",
+      "planDetail": "Geänderter Fahrweg im Detail",
       "inOrder": "{{n}} Züge in der Reihenfolge",
       "goesFirst": "fährt zuerst durch den Abschnitt",
       "holdsUntil": "hält, bis {{train}} frei ist",
@@ -1735,7 +1735,7 @@
     "note": "Drei Verläufe für den gewählten Zug: der Plan ohne Eingriff, der Vorschlag der KI und deine Wahl. Nichts davon wird umgesetzt, bis du eine der drei Varianten übernimmst.",
     "empty": "Wähle einen Zug — auf der Karte, im Fahrplan oder im Lage-Panel.",
     "optionAria": "Deine Option",
-    "noReroute": "Für diesen Zug gibt es hier keine Umleitung.",
+    "noReroute": "Für diesen Zug gibt es hier keinen anderen Fahrweg.",
     "loading": "Verläufe werden gerechnet…",
     "plan": "Plan",
     "ai": "KI",
@@ -1752,13 +1752,13 @@
     "order": "Reihenfolge: {{order}}",
     "placeholder": "Wähle oben eine Option, dann rechnen wir deinen Verlauf.",
     "compare": "Vergleich",
-    "lessIsBetter": "weniger ist besser",
     "notAvailable": "n. v.",
-    "aiMatchesPlan": "Die KI würde hier beim Plan bleiben: ihre beste Reihenfolge ändert keine Ankunft.",
-    "hideAlternatives": "Weitere KI-Reihenfolgen ausblenden",
-    "showAlternatives": "Weitere KI-Reihenfolgen ({{n}})",
+    "aiMatchesPlan": "Dieser KI-Verlauf ändert gegenüber dem Plan keine Ankunft.",
+    "hideAlternatives": "Weitere KI-Verläufe ausblenden",
+    "showAlternatives": "Weitere KI-Verläufe ({{n}})",
     "holdCaveat": "Im Prototyp hält der Zug damit an; die Freigabe gibst du selbst, sobald die Stelle frei ist.",
     "aiTakenCaveat": "Die Züge fahren ab jetzt nach dem Plan der KI. «Gegenüber Plan» misst weiterhin am ursprünglichen Fahrplan.",
+    "aiTakenCaveatKept": "Die Züge fahren jetzt nach dem Plan der KI; Züge mit deinem Entscheid (anhalten, abbiegen, umleiten) behalten ihn. «Gegenüber Plan» misst weiterhin am ursprünglichen Fahrplan.",
     "option": {
       "hold": "Halten",
       "holdHint": "Der Zug bleibt stehen, bis du ihn wieder freigibst.",
@@ -1766,8 +1766,8 @@
       "holdUntilClearHint": "Der Zug wartet, bis die Stelle wieder frei ist, und fährt dann weiter.",
       "proceed": "Weiterfahren",
       "proceedHint": "Der Zug fährt ohne Eingriff weiter.",
-      "reroute": "Umleiten",
-      "rerouteHint": "Der Zug fährt auf einem Weg um die gesperrte Stelle herum und hält trotzdem an seinen Halten."
+      "reroute": "Fahrweg ändern",
+      "rerouteHint": "Zeichne den Fahrweg des Zugs auf der Karte, über die Weichen deiner Wahl."
     },
     "computeFailed": "Die Varianten konnten nicht gerechnet werden.",
     "applyFailed": "Die Variante konnte nicht übernommen werden.",
@@ -1787,7 +1787,22 @@
     "and": "und",
     "quoted": "«{{name}}»",
     "computing": "«{{option}}» wird gerechnet …",
-    "compareNote": "Summen über alle Züge, in Schritten der Simulation."
+    "compareNote": "Summen über alle Züge, in Schritten der Simulation.",
+    "previewExpired": "Die Simulation oder der Plan hat sich geändert. Berechne die Verläufe vor der Übernahme erneut.",
+    "refreshCourses": "Verläufe erneut berechnen",
+    "inspectCourse": "Diesen Verlauf anzeigen",
+    "course": {
+      "rl": "Eigener Verlauf des Modells",
+      "branch": "Ab Schritt {{step}} den Ast {{direction}} nehmen",
+      "wait": "Ab Schritt {{step}} für {{n}} Schritte warten",
+      "left": "links",
+      "forward": "geradeaus",
+      "right": "rechts",
+      "waitOne": "Ab Schritt {{step}} für einen Schritt warten"
+    },
+    "drawRoute": "Drück auf der Karte auf den Zug und zieh seinen Fahrweg über die Weichen. Loslassen zeigt den Verlauf; Esc bricht ab.",
+    "noDrawnRoute": "Durch die gezogenen Zellen führt kein Fahrweg.",
+    "drawnRouteLeft": "Der Zug hat den gezogenen Fahrweg schon verlassen. Zieh ihn neu, ab dort, wo der Zug jetzt ist."
   },
   "zwl": {
     "empty": "Wähle einen Zug, um seinen Zeit-Weg-Verlauf zu sehen.",
@@ -1807,10 +1822,11 @@
     "holdMark": "Zug {{train}} wartet hier {{n}} Schritt(e) statt umzufahren",
     "agentTitle": "{{name}} (Zug {{train}}): {{problems}}",
     "released": "{{name}} — als {{rank}}. der Massnahme freigegeben",
-    "predicted": " · {{delta}} min erwartet",
+    "predicted": " · {{delta}} Schritte erwartet",
     "clickToPin": "Zelle anklicken zum Fixieren",
     "optionsAria": "Optionen für {{name}}",
     "compareInPanel": "{{name}} · im Panel vergleichen",
+    "closeTrainOptions": "Optionen schliessen",
     "panUp": "Nach oben schieben",
     "panLeft": "Nach links schieben",
     "panRight": "Nach rechts schieben",
@@ -1825,7 +1841,7 @@
       "blockedBy": "blockiert von Zug {{train}} bei ({{row}}, {{col}}) — erreicht in {{eta}}, frei in {{clears}}",
       "blocking": "blockiert Zug {{trains}}"
     },
-    "noReroute": "Für diesen Zug gibt es hier keine Umleitung.",
+    "noReroute": "Für diesen Zug gibt es hier keinen anderen Fahrweg.",
     "compareTitle": "Unter «Handlungsoptionen» durchrechnen",
     "selectTrain": "{{name}} auswählen",
     "zugWeg": {
@@ -1942,14 +1958,14 @@
       "template": "Wenn {{block}} und {{reroute}}, wählst du {{strategy}}.",
       "blockLong": "der Abschnitt noch {{n}} Schritte blockiert ist",
       "blockShort": "der Abschnitt innerhalb von {{n}} Schritten frei wird",
-      "reroute": "eine Umleitung möglich ist",
-      "noReroute": "keine Umleitung möglich ist"
+      "reroute": "ein anderer Fahrweg möglich ist",
+      "noReroute": "kein anderer Fahrweg möglich ist"
     }
   },
   "reflectionPrompt": {
     "title": "Warum diese Entscheidung?",
     "optional": "freiwillig, ein paar Worte",
-    "ruleHint": "Als Regel: Die KI berücksichtigt das künftig in ähnlichen Lagen. Nur diesmal: Sie merkt sich deinen Grund, lernt aber nichts daraus.",
+    "ruleHint": "Als Regel: Die KI berücksichtigt das künftig in ähnlichen Lagen.",
     "q": {
       "factors": "Welche Faktoren waren wichtig?",
       "gut": "Hat ein Bauchgefühl mitgespielt?",
@@ -1975,6 +1991,9 @@
     "wholeLine": "Ganze Strecke",
     "fitTraffic": "Auf Verkehr zoomen",
     "singleTrack": "Einspur",
+    "timeUnit": "Schritt",
+    "toNow": "Zu jetzt",
+    "delaySteps": "{{n}} Schritte",
     "kind": {
       "blocked": "Behinderung",
       "swap_attempt": "Gegenfahrt",
@@ -1983,7 +2002,7 @@
     "conflicts": {
       "label": "Prognostizierte Konflikte",
       "none": "Keine Konflikte prognostiziert",
-      "inMin": "in {{min}} min",
+      "inMin": "in {{min}} Schritten",
       "now": "jetzt",
       "unnamed": "Unbenannter Abschnitt",
       "offView": "ausserhalb dieser Ansicht",
@@ -2112,7 +2131,7 @@
       "action": {
         "hold": "Halten",
         "proceed": "Weiterfahren",
-        "reroute": "Umleiten",
+        "reroute": "Fahrweg ändern",
         "accept": "Übernommen",
         "override": "Übersteuert",
         "dismiss": "Verworfen",
@@ -2164,7 +2183,7 @@
               "description": "{T2} fährt bis an die Einfahrt und wartet dort."
             },
             "reroute": {
-              "label": "{T2} umleiten",
+              "label": "Fahrweg von {T2} ändern",
               "description": "{T2} nimmt die von der KI angebotene Umfahrung."
             }
           }
@@ -2241,7 +2260,7 @@
         "hold_until": "Halten, dann freigeben",
         "hold": "Halten ohne Freigabe",
         "proceed": "Weiterfahren",
-        "reroute": "Umleiten"
+        "reroute": "Fahrweg ändern"
       },
       "releaseLabel": "Freigabe bei Schritt",
       "releaseHint": "Abschnitt frei ab etwa Schritt {{n}}",
@@ -2255,7 +2274,7 @@
         "hold_until": "{{train}} halten, Freigabe bei Schritt {{release}}",
         "hold": "{{train}} halten, keine Freigabe",
         "proceed": "{{train}} weiterfahren lassen",
-        "reroute": "{{train}} umleiten"
+        "reroute": "Fahrweg von {{train}} ändern"
       },
       "vsPlayed": {
         "better": "{{n}} Schritte weniger Verspätung als dein Lauf",
@@ -2283,18 +2302,18 @@
       "blockLabel": "Der Abschnitt ist noch mindestens",
       "blockSteps": "Schritte",
       "blockUnit": "Schritte blockiert",
-      "rerouteAria": "Bedingung Umleitung",
+      "rerouteAria": "Bedingung anderer Fahrweg",
       "reroute": {
-        "yes": "Umleitung möglich",
-        "no": "keine Umleitung möglich",
-        "any": "Umleitung egal"
+        "yes": "anderer Fahrweg möglich",
+        "no": "kein anderer Fahrweg möglich",
+        "any": "Fahrweg egal"
       },
       "measureAria": "Massnahme",
       "thenLabel": "dann:",
       "measure": {
         "proceed": "Weiterfahren",
         "hold_until": "Halten bis frei",
-        "reroute": "Umleiten"
+        "reroute": "Fahrweg ändern"
       },
       "then": {
         "proceed": "lässt du den Zug weiterfahren",
@@ -2303,8 +2322,8 @@
       },
       "cond": {
         "block": "der Abschnitt noch mindestens {{n}} Schritte blockiert ist",
-        "reroute": "eine Umleitung möglich ist",
-        "noReroute": "keine Umleitung möglich ist"
+        "reroute": "ein anderer Fahrweg möglich ist",
+        "noReroute": "kein anderer Fahrweg möglich ist"
       },
       "and": " und ",
       "sentence": "Wenn {{cond}}, {{measure}}.",
@@ -2314,8 +2333,8 @@
       "summary": "Deine Regel passt in {{applied}} von {{total}} Fällen. Dort war sie {{best}}× die beste Wahl, {{tie}}× ohne Gewinn und {{worse}}× schlechter.",
       "caseShift": "Schicht {{n}}, Schritt {{step}}: {{train}}",
       "caseTest": "Schritt {{step}}: {{train}}",
-      "factsReroute": "{{n}} Schritte blockiert, Umleitung möglich",
-      "factsNoReroute": "{{n}} Schritte blockiert, keine Umleitung",
+      "factsReroute": "{{n}} Schritte blockiert, anderer Fahrweg möglich",
+      "factsNoReroute": "{{n}} Schritte blockiert, kein anderer Fahrweg",
       "notApplies": "Regel passt nicht",
       "verdict": {
         "best": "hier die beste Wahl",
@@ -3089,6 +3108,7 @@
   },
   "experimentRun": {
     "legLabel": "{{name}} ({{k}}/{{n}})",
+    "legUnnamed": "Szenario {{k}}/{{n}}",
     "summaryOne": "{{name}}: ein Szenario im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
     "summary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
     "meta": "Szenarien: {{n}} · danach Schichtbilanz und Fragebogen",
@@ -3100,6 +3120,11 @@
       "toLeg": "Szenario abschliessen → {{next}}",
       "toReview": "Szenario abschliessen → Schichtbilanz",
       "toFinalSurvey": "Weiter zum Fragebogen"
+    },
+    "finishConfirm": {
+      "title": "Aktuelles Szenario abschliessen?",
+      "yes": "Ja",
+      "back": "Zurück"
     },
     "done": {
       "title": "Danke",

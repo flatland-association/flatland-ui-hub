@@ -48,6 +48,7 @@ describe('InteractionLogService', () => {
   let sinkEnabled: boolean;
   const deployment = signal<boolean | null>(null);
   const restrictions = signal({ hidden: [] as string[], collapsedByDefault: [] as string[], policyAllowlist: null as string[] | null });
+  const questionOrder = signal<readonly string[]>(['gut', 'missing', 'tradeoff']);
 
   beforeEach(async () => {
     localStorage.clear();
@@ -60,13 +61,14 @@ describe('InteractionLogService', () => {
     store = fakeStore();
     deployment.set(null);
     restrictions.set({ hidden: [], collapsedByDefault: [], policyAllowlist: null });
+    questionOrder.set(['gut', 'missing', 'tradeoff']);
     TestBed.configureTestingModule({
       providers: [
         { provide: SessionStore, useValue: store },
         { provide: LearningStore, useValue: { records: signal([]) } },
         { provide: BuildInfoService, useValue: { info: signal({ commit: 'test' }) } },
         { provide: OperatorModelService, useValue: { operatorId: signal('operator1') } },
-        { provide: UiConfigService, useValue: { studyLogging: deployment, snapshot: () => restrictions() } },
+        { provide: UiConfigService, useValue: { studyLogging: deployment, snapshot: () => restrictions(), reflectionPromptQuestionOrder: questionOrder } },
       ],
     });
   });
@@ -116,6 +118,15 @@ describe('InteractionLogService', () => {
     log.setRunContext({ conditionId: 'plan-b-p01', experimentRunId: 'run-1', legId: 'wal-single-track', legIndex: 0, shiftSummary: false });
     start('s1');
     expect(log.header()!.shiftSummary).toBeFalse();
+  });
+
+  it('records whether a guided run asks before a hand-made finish (#180)', async () => {
+    await create();
+    start('s0');
+    expect('finishConfirm' in log.header()!).withContext('outside a guided run').toBeFalse();
+    log.setRunContext({ conditionId: 'plan-b-p01', experimentRunId: 'run-1', legId: 'wal-single-track', legIndex: 0, finishConfirm: false });
+    start('s1');
+    expect(log.header()!.finishConfirm).toBeFalse();
   });
 
   it('mirrors the record to the server when the sink is enabled', async () => {
@@ -358,5 +369,11 @@ describe('InteractionLogService', () => {
     expect(last.type).toBe('ui_state');
     expect(last.payload).toEqual({ key: 'uiRestrictions', value: { hidden: [], collapsedByDefault: [], policyAllowlist: null, values: {} } });
   });
-});
 
+  it('records the order of the reflection\'s questions in the header', async () => {
+    questionOrder.set(['tradeoff', 'gut', 'missing']);
+    await create();
+    start('s1');
+    expect(log.header()!.reflectionPromptQuestionOrder).toEqual(['tradeoff', 'gut', 'missing']);
+  });
+});

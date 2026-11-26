@@ -3,7 +3,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 import { InteractionLogService } from '../../core/interaction-log/interaction-log.service';
 import { SessionStore } from '../../core/session.store';
-import { postSessionSurvey } from '../../core/survey/survey-configs';
+import { postSessionSurvey, surveyById } from '../../core/survey/survey-configs';
 import { SurveyContext, surveyRecord } from '../../core/survey/survey-scoring';
 import { SurveyAnswers, SurveyConfig, SurveyQuestion, SurveySection } from '../../core/survey/survey.types';
 import { LanguageService } from '../../core/i18n/language.service';
@@ -41,17 +41,21 @@ export class SurveyComponent implements OnInit {
   /** Part of a guided condition: the run saves one file with every
    *  questionnaire, so this one is not downloaded on its own. */
   readonly embedded = input(false);
-  /** A replay: the recorded final answers, shown read-only; without `parts`,
-   *  only the sections they belong to. Nothing is stored or logged. */
+  /** A replay: the recorded answers, shown read-only, with only the sections
+   *  they belong to. Nothing is stored or logged. */
   readonly replayAnswers = input<Record<string, unknown> | null>(null);
+  /** A replay: the `surveyId` the answers were recorded under. It names the
+   *  questionnaire (a building-block or a fixed one, survey-configs.ts), so a
+   *  replay needs neither the condition nor its survey parts. */
+  readonly surveyId = input<string | null>(null);
   /** Asked after one scenario of a guided condition, not at the end. */
   readonly afterLeg = input(false);
 
   readonly config = computed<SurveyConfig>(() => {
     const recorded = this.replayAnswers();
-    const parts = this.parts();
-    if (!recorded || parts) return postSessionSurvey(this.store.interactionMode(), [...(parts ?? this.store.enabledSurveyParts())], this.afterLeg());
-    const all = postSessionSurvey(this.store.interactionMode(), undefined, this.afterLeg());
+    if (!recorded) return postSessionSurvey(this.store.interactionMode(), [...(this.parts() ?? this.store.enabledSurveyParts())], this.afterLeg());
+    const id = this.surveyId();
+    const all = (id && surveyById(id, this.afterLeg())) || postSessionSurvey(this.store.interactionMode(), undefined, this.afterLeg());
     return { ...all, sections: all.sections.filter((sec) => sec.questions.some((q) => q.id in recorded)) };
   });
   readonly answers = signal<SurveyAnswers>({});

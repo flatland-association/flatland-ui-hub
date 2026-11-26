@@ -174,9 +174,10 @@ export const PLAN_B_FINAL_SURVEY: SurveyConfig = {
   closable: false,
   sections: [
     pbMatrix('pb-responsibility', 1, 7, [
-      [1, 'Ich fühlte mich für das Ergebnis der Aufgabe verantwortlich.'],
-      [2, 'Ich musste für das Ergebnis der Aufgabe Rechenschaft ablegen.'],
-      [3, 'Ich hatte Kontrolle über das Ergebnis.'],
+      [1, 'Ich hatte das Gefühl, dass ich für das Ergebnis der Aufgabe verantwortlich war.'],
+      [2, 'Ich hatte das Gefühl, dass ich für das Ergebnis der Aufgabe rechenschaftspflichtig war.'],
+      [3, 'Ich hatte das Gefühl, dass ich für das Ergebnis der Aufgabe Rechenschaft ablegen müsste.'],
+      [4, 'Ich hatte das Gefühl, dass ich Kontrolle über das Ergebnis der Aufgabe hatte.'],
     ], {
       title: 'Bitte denke an alle Entscheidungen zurück, die du während der Aufgabe getroffen hast, sowie an deren Ergebnisse.',
       description: 'Auf einer Skala von 1–7: Inwieweit stimmst du folgenden Aussagen zu? (1 = stimme überhaupt nicht zu, 7 = stimme voll und ganz zu)',
@@ -185,7 +186,7 @@ export const PLAN_B_FINAL_SURVEY: SurveyConfig = {
       id: 'pb-share',
       page: 1,
       questions: [{
-        id: 'pb_4',
+        id: 'pb_5',
         text: 'Wie gross schätzt du deinen eigenen Anteil am Ergebnis der Aufgabe im Vergleich zum KI-System ein?',
         type: 'percent',
         min: 0,
@@ -195,47 +196,47 @@ export const PLAN_B_FINAL_SURVEY: SurveyConfig = {
       }],
     },
     pbMatrix('pb-challenge', 2, 5, [
-      [5, 'Während dieser Aufgaben fühlte ich mich herausgefordert.'],
-      [6, 'Während dieser Aufgaben hat mir die Bewältigung der Aufgaben geholfen, meine Fähigkeiten weiterzuentwickeln.'],
-      [7, 'Während dieser Aufgaben nahm ich die Aufgaben als herausfordernd wahr.'],
-      [8, 'Während dieser Aufgaben passte die Art, wie ich in die Entscheidung eingebunden war, zu meinen persönlichen Zielen, die mir in meiner Rolle als Bahndisponent*in wichtig sind.'],
+      [6, 'Bei diesen Aufgaben fühlte ich mich in meiner Rolle als Bahndisponent*in herausgefordert.'],
+      [7, 'Bei diesen Aufgaben passte die Interaktion mit der KI zu den Zielen, die mir in meiner Rolle als Bahndisponent*in wichtig sind.'],
+      [8, 'Ich nahm meine Rolle als Bahndisponent*in während der KI-Interaktion als herausfordernd wahr.'],
+      [9, 'Bei diesen Aufgaben passte die Art, wie ich in die Entscheidungen eingebunden war, zu den Zielen, die mir in meiner Rolle als Bahndisponent*in wichtig sind.'],
     ], { title: PB_AGREE, description: PB_AGREE_5 }),
     pbMatrix('pb-significance', 3, 5, [
-      [9, 'Diese Aufgaben wirkten sich bedeutsam auf das Leben anderer Menschen aus.'],
-      [10, 'Diese Aufgaben waren bedeutsam und wichtig in einem grösseren Zusammenhang.'],
-      [11, 'Diese Aufgaben wirkten sich stark auf Menschen ausserhalb der Organisation aus.'],
-      [12, 'Das Ergebnis dieser Aufgaben hatte einen grossen Einfluss auf andere Menschen.'],
+      [10, 'Diese Aufgaben wirkten sich bedeutsam auf das Leben anderer Menschen aus.'],
+      [11, 'Diese Aufgaben waren bedeutsam und wichtig in einem grösseren Zusammenhang.'],
+      [12, 'Diese Aufgaben wirkten sich stark auf Menschen ausserhalb der Organisation aus.'],
+      [13, 'Das Ergebnis dieser Aufgaben hatte einen grossen Einfluss auf andere Menschen.'],
     ], { title: PB_AGREE, description: PB_AGREE_5 }),
     pbMatrix('pb-role', 3, 5, [
-      [13, 'Ich hatte in diesen Situationen das Gefühl, dass meine Entscheidungen einen wichtigen Unterschied für den weiteren Verlauf gemacht haben.'],
-      [14, 'Ich hatte in diesen Situationen das Gefühl, einen wichtigen Beitrag zum Gesamtziel zu leisten.'],
-      [15, 'Ich hatte in diesen Situationen das Gefühl, dass menschliche Entscheidungen wie meine für eine gute Bewältigung der Situation wichtig waren.'],
-      [16, 'Ich hatte in diesen Situationen das Gefühl, bei der Bearbeitung der Aufgabe eine bedeutsame Rolle zu spielen.'],
-      [17, 'Meine Rolle war in diesen Situationen ein wichtiger Teil der Aufgabenbearbeitung mit der KI.'],
+      [14, 'Ich hatte in diesen Situationen das Gefühl, dass meine Entscheidungen einen wichtigen Unterschied für den weiteren Verlauf gemacht haben.'],
+      [15, 'Ich hatte in diesen Situationen das Gefühl, einen wichtigen Beitrag zum Gesamtziel zu leisten.'],
+      [16, 'Ich hatte in diesen Situationen das Gefühl, dass menschliche Entscheidungen wie meine für eine gute Bewältigung der Situation wichtig waren.'],
+      [17, 'Ich hatte in diesen Situationen das Gefühl, bei der Bearbeitung der Aufgabe eine bedeutsame Rolle zu spielen.'],
+      [18, 'Meine Rolle war in diesen Situationen ein wichtiger Teil der Aufgabenbearbeitung mit der KI.'],
     ]),
     pbMatrix('pb-trust', 4, 7, [
-      [18, 'Das System bietet Sicherheit.'],
-      [19, 'Das System arbeitet tadellos.'],
-      [20, 'Das System ist verlässlich.'],
-      [21, 'Das System ist vertrauenswürdig.'],
-      [22, 'Ich kann dem System vertrauen.'],
-      [23, 'Das System ist irreführend.'],
-      [24, 'Das System verhält sich undurchsichtig.'],
-      [25, 'Ich misstraue den Entscheidungen des Systems.'],
-      [26, 'Ich muss vorsichtig im Umgang mit dem System sein.'],
-      [27, 'Die Handlungen des Systems haben negative Auswirkungen zur Folge.'],
+      [19, 'Das System bietet Sicherheit.'],
+      [20, 'Das System arbeitet tadellos.'],
+      [21, 'Das System ist verlässlich.'],
+      [22, 'Das System ist vertrauenswürdig.'],
+      [23, 'Ich kann dem System vertrauen.'],
+      [24, 'Das System ist irreführend.'],
+      [25, 'Das System verhält sich undurchsichtig.'],
+      [26, 'Ich misstraue den Entscheidungen des Systems.'],
+      [27, 'Ich muss vorsichtig im Umgang mit dem System sein.'],
+      [28, 'Die Handlungen des Systems haben negative Auswirkungen zur Folge.'],
     ], { title: PB_AGREE, description: PB_AGREE_7 }),
     pbMatrix('pb-acceptance', 5, 7, [
-      [28, 'Der Umgang mit dem System ist für mich klar und verständlich.'],
-      [29, 'Die Benützung des Systems erfordert von mir keine grosse mentale Anstrengung.'],
-      [30, 'Ich finde, das System macht ohne Probleme das, was ich möchte.'],
-      [31, 'Die Nutzung des Systems würde meine Leistung verbessern.'],
-      [32, 'Die Nutzung des Systems würde meine Produktivität erhöhen.'],
-      [33, 'Die Nutzung des Systems würde meine Effektivität erhöhen.'],
-      [34, 'Ich finde, das System wäre nützlich für diesen Job.'],
-      [35, 'Angenommen, ich habe Zugang zum System, dann beabsichtige ich, dieses zu nutzen.'],
-      [36, 'Wenn ich Zugang zum System hätte, sage ich voraus, dass ich es nutzen würde.'],
-      [37, 'Ich würde planen, das System in den kommenden Monaten wieder zu nutzen.'],
+      [29, 'Der Umgang mit dem System ist für mich klar und verständlich.'],
+      [30, 'Die Benützung des Systems erfordert von mir keine grosse mentale Anstrengung.'],
+      [31, 'Ich finde, das System macht ohne Probleme das, was ich möchte.'],
+      [32, 'Die Nutzung des Systems würde meine Leistung verbessern.'],
+      [33, 'Die Nutzung des Systems würde meine Produktivität erhöhen.'],
+      [34, 'Die Nutzung des Systems würde meine Effektivität erhöhen.'],
+      [35, 'Ich finde, das System wäre nützlich für diesen Job.'],
+      [36, 'Angenommen, ich habe Zugang zum System, dann beabsichtige ich, dieses zu nutzen.'],
+      [37, 'Wenn ich Zugang zum System hätte, sage ich voraus, dass ich es nutzen würde.'],
+      [38, 'Ich würde planen, das System in den kommenden Monaten wieder zu nutzen.'],
     ], { title: PB_AGREE, description: PB_AGREE_7 }),
     {
       id: 'pb-demographics',
@@ -256,6 +257,28 @@ export const PLAN_B_FINAL_SURVEY: SurveyConfig = {
     },
   ],
 };
+
+/**
+ * The app has two kinds of questionnaire, both chosen by survey parts (a
+ * tour's or an experiment's `surveyParts`, or the parts enabled in Settings):
+ *
+ * - **Built from building blocks** (`SURVEY_PARTS`: `mode`, `nasa-tlx`,
+ *   `trust`, `understanding`, `ueq-s`, `open`), combined freely. The id is
+ *   `post-session-<mode>`, and the content depends on the mode, the enabled
+ *   parts and `afterLeg`, so the id alone doesn't say which parts were asked.
+ * - **Fixed questionnaires** (this map): fixed, one part stands for the whole
+ *   questionnaire, and it replaces the building blocks. Its id is its own
+ *   (`plan-b-final`) and names the questionnaire completely. Any tour,
+ *   experiment or setting that names the part gets it. Only Plan B has one so
+ *   far.
+ *
+ * Keyed by the survey part that asks for it.
+ */
+export const FIXED_QUESTIONNAIRES: Readonly<Record<string, SurveyConfig>> = {
+  [PLAN_B_FINAL_PART]: PLAN_B_FINAL_SURVEY,
+};
+
+const MODES: InteractionMode[] = ['recommendation', 'co-learning', 'director'];
 
 const MODE_LABEL: Record<InteractionMode, string> = {
   recommendation: 'Recommendation',
@@ -293,8 +316,9 @@ export function postSessionSurvey(
   enabledParts: string[] = DEFAULT_SURVEY_PARTS,
   afterLeg = false,
 ): SurveyConfig {
-  // A study's own questionnaire replaces the building blocks (plan-b-final, §3.10).
-  if (enabledParts.includes(PLAN_B_FINAL_PART)) return PLAN_B_FINAL_SURVEY;
+  // A fixed questionnaire replaces the building blocks (FIXED_QUESTIONNAIRES).
+  const fixed = enabledParts.find((part) => part in FIXED_QUESTIONNAIRES);
+  if (fixed) return FIXED_QUESTIONNAIRES[fixed];
   const byPart: { part: string; section: SurveySection }[] = [
     { part: 'mode', section: modeSection(mode) },
     { part: 'nasa-tlx', section: NASA_TLX },
@@ -309,4 +333,26 @@ export function postSessionSurvey(
     description: `Please answer based on the ${afterLeg ? 'scenario' : 'run'} you just completed.`,
     sections: byPart.filter((x) => enabledParts.includes(x.part)).map((x) => x.section),
   };
+}
+
+/**
+ * Every questionnaire the app can show, whole: the building-block ones
+ * (`post-session-<mode>` with all parts) and the fixed ones. For looking up
+ * recorded answers by their `surveyId` (export, replay); showing one to a
+ * participant goes through `postSessionSurvey`, which picks the parts.
+ */
+export function allSurveys(): SurveyConfig[] {
+  return [...MODES.map((mode) => postSessionSurvey(mode)), ...Object.values(FIXED_QUESTIONNAIRES)];
+}
+
+/**
+ * The whole questionnaire a record's `surveyId` names, or null for an unknown
+ * id. `afterLeg` words a building-block one for a scenario, as when it was
+ * asked; a fixed one has a single wording.
+ */
+export function surveyById(surveyId: string, afterLeg = false): SurveyConfig | null {
+  const fixed = Object.values(FIXED_QUESTIONNAIRES).find((config) => config.id === surveyId);
+  if (fixed) return fixed;
+  const mode = MODES.find((m) => surveyId === `post-session-${m}`);
+  return mode ? postSessionSurvey(mode, DEFAULT_SURVEY_PARTS, afterLeg) : null;
 }

@@ -180,6 +180,7 @@ This is a context event, so it is recorded with "Study logging" off too.
 | `mode_intro` | `{tourId, leg, mode}`, with `legId` in a guided condition |
 | `session` | `{centerTab, layoutId}`, plus `centerView` (the centre tab's view type, e.g. `zug-weg-diagramm` for the ZWL or `flatland-map`; the ZWL's type keeps its old name for the study data, #173) in a layout with view tabs (records made before have only `centerTab`, which says `map` for the ZWL too), plus `guideStep` while the tour guide is open, plus `reflection` (`co-learning`, `rationale` or `strategy`) while a reflection waits |
 | `survey` | `{legId}` in a guided condition |
+| `finish_confirm` | `{legId}` in a guided condition: the dialog "Aktuelles Szenario abschliessen?" over the working screen (#180); the replay draws it from here |
 | `shift_review` | `{debrief}` |
 | `help` | – |
 | `settings` | `{tab}` |
@@ -199,6 +200,21 @@ one is a panel, and the participant works on while it waits. It is
 working screen is the last `session` entry before it, and a click's `panel`
 says where it went. See `docs/plans/reflection-inline.md` D17.
 
+**The order of the reflection prompt's questions.** After a decision, the
+reflection prompt (`reflectionPrompt.q.*`; not the Co-Learning reflection,
+which has questions of its own) asks, after «Welche Faktoren waren
+wichtig?», its guided questions in one order for the whole installation:
+`gut`, `missing`, `tradeoff` by default, or the order `ui-config.json` sets,
+e.g. `"reflectionPromptQuestionOrder": ["missing", "gut", "tradeoff"]` (questions not listed follow in the default order). The header's
+`reflectionPromptQuestionOrder` names the order in effect; it is written for
+every session, whether or not the prompt appears. Records made before it
+existed have no such field: there the order was drawn per decision, by
+`pickQuestions(t, 3)` in
+`frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts`
+(last at commit fd0c70c, removed since), seeded by the decision's `t`. To
+re-derive an older record's order, run that function on each decision's
+`t`. See `docs/plans/reflection-question-order.md`.
+
 **Between sessions.** A record keeps receiving these events after its
 session ended, until the next session starts. The questionnaire after
 leg 1 is therefore in leg 1's record, after its `endedAt`. Each new record
@@ -211,7 +227,10 @@ played (tours have no `legId`). A reset keeps both. `header.shiftSummary`
 is `true` or `false` in every session of a guided condition: whether its run
 ends with the Schichtbilanz. Tours and other sessions have no such field,
 nor do records made before it existed (before #174), which all had the
-Schichtbilanz. Group the legs of a run:
+Schichtbilanz. `header.finishConfirm` is `true` or `false` the same way:
+whether a hand-made finish asks first (#180); absent in tours, other
+sessions and records made before #180, which never asked. Group the legs of
+a run:
 
 ```python
 import gzip, json, pandas as pd
@@ -239,6 +258,18 @@ call stream has the moment itself, as a `WS` entry with
 `body: {event: "error", message}`, and the replay shows the notice from there
 on. `finishReason` stays how the leg was ended (`clicked`, `endShift`,
 `aborted`).
+
+**Finish confirmation.** A hand-made finish (the finish button) first asks
+"Aktuelles Szenario abschliessen?" with "Ja" and "Zurück"; the simulation
+pauses meanwhile (#180, `docs/plans/confirm-finish-scenario.md`). Each leg
+then carries `finishConfirm: {confirmed, backs}` in its `leg_finished` event
+and in its entry of the run record's `legs`: `confirmed` is `true` when the
+leg ended with "Ja" (`finishReason: 'clicked'`), `false` when it ended
+otherwise; `backs` counts how often the dialog was closed without "Ja"
+(Zurück, Escape, the backdrop) in that leg. A condition with
+`finishConfirm: false` finishes at once and its legs have no such field, nor
+have records made before #180; `header.finishConfirm` tells the two apart. The two buttons are also clicks
+(`experimentRun.finishConfirm.yes`, `experimentRun.finishConfirm.back`).
 
 ### UI state: panels and viewports
 
@@ -564,18 +595,27 @@ studies: a control whose meaning changes gets a new one.
 | `ca.card.apply` | `features/combined-actions/components/action-card/action-card.component.html` |
 | `dispatcher.consent.approve` | `features/dispatcher-activity-overlay/dispatcher-activity-overlay.component.html` |
 | `dispatcher.consent.decline` | `features/dispatcher-activity-overlay/dispatcher-activity-overlay.component.html` |
+| `experimentRun.finishConfirm.back` | `app.component.html` |
+| `experimentRun.finishConfirm.back` | `app.component.html` |
+| `experimentRun.finishConfirm.yes` | `app.component.html` |
+| `experimentRun.finishConfirm.yes` | `app.component.html` |
 | `log.action.<opt.action>` | `features/impact-panel/impact-panel.component.html` |
 | `log.reflectionOpen` | `features/decision-log/decision-log-panel.component.html` |
 | `log.showOpenReflections` | `features/decision-log/decision-log-panel.component.html` |
+| `map.closeTrainOptions` | `features/flatland-map/flatland-map.component.html` |
 | `mode.<m.id>` | `app.component.html` |
 | `panels.coLearningReflection` | `features/co-learning-reflection/co-learning-reflection.component.html` |
+| `proposals.inspectCourse` | `features/proposal-compare/proposal-compare.component.html` |
 | `proposals.keepPlan` | `features/proposal-compare/proposal-compare.component.html` |
+| `proposals.refreshCourses` | `features/proposal-compare/proposal-compare.component.html` |
 | `proposals.takeAi` | `features/proposal-compare/proposal-compare.component.html` |
 | `proposals.takeHuman` | `features/proposal-compare/proposal-compare.component.html` |
 | `rationale.no` | `features/rationale-capture/rationale-capture.component.html` |
+| `rationale.no` | `features/reflection-prompt/reflection-prompt.component.html` |
 | `rationale.once` | `features/rationale-capture/rationale-capture.component.html` |
 | `rationale.once` | `features/strategy-reflection/strategy-reflection.component.html` |
 | `rationale.yes` | `features/rationale-capture/rationale-capture.component.html` |
+| `rationale.yes` | `features/reflection-prompt/reflection-prompt.component.html` |
 | `rec.accept` | `features/recommendations-classic/recommendations-classic.component.html` |
 | `rec.accept` | `features/recommendations-panel/recommendations-panel.component.html` |
 | `rec.reject` | `features/recommendations-classic/recommendations-classic.component.html` |
@@ -603,6 +643,7 @@ studies: a control whose meaning changes gets a new one.
 | `toolbar.play` | `features/toolbar/toolbar.component.html` |
 | `toolbar.policy` | `features/toolbar/toolbar.component.html` |
 | `toolbar.speed` | `features/toolbar/toolbar.component.html` |
+| `zwd.toNow` | `features/zwl/zwl.component.html` |
 <!-- data-log-ids:end -->
 
 ### Pointer movement
@@ -651,7 +692,8 @@ session record (`surveys`) and, in a guided condition, in the run file
 (`questionnaires`), each with the language it was answered in (`lang`). In
 a guided condition each answer set also names the leg it followed
 (`afterLegId`, `null` for the final questionnaire). This is recorded with
-"Study logging" off too. The questionnaires themselves are in English.
+"Study logging" off too. The post-session questionnaires (`post-session-<mode>`)
+are in English; Plan B's final questionnaire (`plan-b-final`) is in German.
 
 **Tables.** The saved-runs list on the start screen exports the answers as
 tables (one `.xlsx` per run and one over all selected runs, see "Saved
@@ -670,11 +712,23 @@ runs"):
 - **wide**: one row per submitted questionnaire, one column per item (free
   text left out) and the scores as `<part>.<score>`, e.g. `nasa-tlx.raw`,
   `trust.trust`, `trust.distrust`, `ueq-s.pragmatic`, `understanding.perceived`.
-  Scores are computed when exporting, with the app's own scoring.
-- **codebook**: every item once: `survey_part, item_id, question, type,
-  min, max, reverse, subscale, instrument, source`. `source` is the item's
-  file and position in AI4REALNET `hmisurveys`, e.g.
-  `trust/trust.html #7`, where the item comes from there.
+  Scores are computed when exporting, with the app's own scoring. Plan B's
+  questionnaire has item columns (`pb_1` … `pb_37`, `pb_ai_use`, `pb_age`,
+  `pb_gender`, `pb_years`) but no scores: none are defined for it.
+- **codebook**: every item of every questionnaire the app can show, once:
+  `survey_id, survey_part, page, item_id, question, type, min, max, step,
+  unit, options, reverse, subscale, instrument, source`.
+  - `survey_id` names every questionnaire that asks the item, e.g.
+    `post-session-recommendation, post-session-co-learning,
+    post-session-director` for a shared building block, `plan-b-final` for
+    Plan B's.
+  - `options` lists a choice's answers (`nie | seltener als einmal pro
+    Monat | …`) or a scale's labels with the value each is stored as
+    (`1=stimme überhaupt nicht zu; …; 7=stimme voll und ganz zu`).
+  - `page` is the page of a paged questionnaire (Plan B's), `unit` and
+    `step` belong to number fields.
+  - `source` is the item's file and position in AI4REALNET `hmisurveys`,
+    e.g. `trust/trust.html #7`, where the item comes from there.
 
 **Privacy:** free-text answers (`free_text = true`, the "Open feedback"
 part) can contain anything the participant typed. Remove those rows from the

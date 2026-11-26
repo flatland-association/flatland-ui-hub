@@ -1,0 +1,82 @@
+{
+ "tutorial": {
+  "G2": {
+   "pass": true,
+   "lateness": 9,
+   "base_lateness": 9,
+   "complete": true
+  },
+  "G1": {
+   "pass": true,
+   "cases": 100,
+   "lateness": 823,
+   "pp_lateness": 826,
+   "incomplete": [],
+   "lateness_regrets": {}
+  }
+ },
+ "uc2-1": {
+  "G2": {
+   "pass": true,
+   "lateness": 19,
+   "base_lateness": 19,
+   "complete": true
+  },
+  "G1": {
+   "pass": true,
+   "cases": 343,
+   "lateness": 6552,
+   "pp_lateness": 6552,
+   "incomplete": [],
+   "lateness_regrets": {}
+  }
+ },
+ "uc2-2": {
+  "G2": {
+   "pass": true,
+   "lateness": 24,
+   "base_lateness": 24,
+   "complete": true
+  },
+  "G1": {
+   "pass": true,
+   "cases": 343,
+   "lateness": 8397,
+   "pp_lateness": 8397,
+   "incomplete": [],
+   "lateness_regrets": {}
+  }
+ },
+ "uc2-3": {
+  "G2": {
+   "pass": true,
+   "lateness": 20,
+   "base_lateness": 20,
+   "complete": true
+  },
+  "G1": {
+   "pass": true,
+   "cases": 343,
+   "lateness": 7922,
+   "pp_lateness": 17150,
+   "incomplete": [],
+   "lateness_regrets": {}
+  }
+ },
+ "uc2-4": {
+  "G2": {
+   "pass": true,
+   "lateness": 30,
+   "base_lateness": 30,
+   "complete": true
+  },
+  "G1": {
+   "pass": true,
+   "cases": 343,
+   "lateness": 10674,
+   "pp_lateness": 10674,
+   "incomplete": [],
+   "lateness_regrets": {}
+  }
+ }
+}

@@ -21,6 +21,50 @@ describe('UiConfigService — the shipped deployment file', () => {
     expect(service.isCollapsedByDefault('widget.decision-log')).toBeFalse();
     expect(service.policyAllowlist()).toBeNull();
     expect(service.studyLogging()).toBeNull();
+    expect(service.reflectionPromptQuestionOrder()).toEqual(['gut', 'missing', 'tradeoff']);
+  });
+});
+
+describe('UiConfigService — the deployment\'s order of the reflection\'s questions', () => {
+  let service: UiConfigService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    service = TestBed.inject(UiConfigService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  it('is the default order before the file is read', () => {
+    expect(service.reflectionPromptQuestionOrder()).toEqual(['gut', 'missing', 'tradeoff']);
+  });
+
+  it('reads it from the deployment file and keeps it when a condition applies', async () => {
+    const loaded = service.load('ui-config.json');
+    http.expectOne('ui-config.json').flush({ reflectionPromptQuestionOrder: ['tradeoff', 'gut'] });
+    await loaded;
+    expect(service.reflectionPromptQuestionOrder()).toEqual(['tradeoff', 'gut', 'missing']);
+    const warn = spyOn(console, 'warn');
+    service.apply({ reflectionPromptQuestionOrder: ['missing'] });
+    expect(service.reflectionPromptQuestionOrder()).toEqual(['tradeoff', 'gut', 'missing']);
+    expect(warn).toHaveBeenCalledOnceWith(jasmine.stringContaining('"reflectionPromptQuestionOrder" is set by the deployment file only'));
+  });
+
+  it('warns about no deployment-only value when a condition sets none', async () => {
+    const loaded = service.load('ui-config.json');
+    http.expectOne('ui-config.json').flush({ reflectionPromptQuestionOrder: ['tradeoff'], studyLogging: true });
+    const warn = spyOn(console, 'warn');
+    await loaded;
+    service.apply({ hidden: ['control.contrast'] });
+    service.apply({});
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it('falls back to the default order when the value is not a list', async () => {
+    const loaded = service.load('ui-config.json');
+    http.expectOne('ui-config.json').flush({ reflectionPromptQuestionOrder: 'tradeoff' });
+    await loaded;
+    expect(service.reflectionPromptQuestionOrder()).toEqual(['gut', 'missing', 'tradeoff']);
   });
 });
 
@@ -40,8 +84,10 @@ describe('UiConfigService — the deployment\'s "Study logging" value', () => {
     await loaded;
     expect(service.studyLogging()).toBeFalse();
     expect(service.isHidden('control.studyLogging')).toBeTrue();
+    const warn = spyOn(console, 'warn');
     service.apply({ studyLogging: true } as UiConfig);
     expect(service.studyLogging()).toBeFalse();
+    expect(warn).toHaveBeenCalledOnceWith(jasmine.stringContaining('"studyLogging" is set by the deployment file only'));
   });
 });
 
@@ -62,7 +108,8 @@ describe('UiConfigService — the Plan B preset block', () => {
 
   it('hides every item the condition removes', () => {
     service.apply(planB());
-    expect(service.isHidden('control.mapNavigation')).toBeTrue();
+    expect(service.isHidden('control.mapPan')).toBeTrue();
+    expect(service.isHidden('control.mapOpacity')).toBeTrue();
     expect(service.isHidden('control.endShift')).toBeTrue();
     expect(service.isHidden('control.playback')).toBeTrue();
     expect(service.isHidden('control.modeTabs')).toBeTrue();
@@ -80,6 +127,29 @@ describe('UiConfigService — the Plan B preset block', () => {
       defaultTab: 'zug-weg-diagramm',
       tabSize: 'l',
     }));
+  });
+
+  // docs/plans/hide-scenario-bar.md §4.3: only Plan B numbers its scenarios.
+  it('numbers the scenarios without their names and hides the guide strip, and no other layout does', () => {
+    service.apply(planB());
+    for (const id of ['control.legNames', 'control.guide']) {
+      expect(service.isHidden(id)).withContext(id).toBeTrue();
+      const others = LAYOUT_PRESETS.filter((p) => p.id !== 'preset-plan-b' && p.ui?.hidden?.includes(id));
+      expect(others.map((p) => p.id)).withContext(id).toEqual([]);
+    }
+  });
+
+  it('keeps the map zoom buttons in Plan B (plan-b-small-changes.md, item 2)', () => {
+    service.apply(planB());
+    expect(service.isHidden('control.mapZoom')).toBeFalse();
+  });
+
+  it('reads the legacy control.mapNavigation as pan arrows and zoom buttons, as before', () => {
+    service.apply({ hidden: ['control.mapNavigation'] });
+    expect(service.isHidden('control.mapPan')).toBeTrue();
+    expect(service.isHidden('control.mapZoom')).toBeTrue();
+    expect(service.isHidden('control.mapOpacity')).toBeFalse();
+    expect(service.snapshot().hidden).toEqual(['control.mapPan', 'control.mapZoom']);
   });
 
   it('leaves the sibling comparison axis visible', () => {
@@ -118,7 +188,7 @@ describe('UiConfigService — the Plan B preset block', () => {
   it('drops the condition again when a layout without a block is selected', () => {
     service.apply(planB());
     service.apply({});
-    expect(service.isHidden('control.mapNavigation')).toBeFalse();
+    expect(service.isHidden('control.mapPan')).toBeFalse();
     expect(service.policyAllowlist()).toBeNull();
   });
 });

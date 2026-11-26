@@ -552,6 +552,7 @@ export class InteractionLogService {
       scenarioId: session.scenario_preset_id ?? session.infrastructure_scene_id ?? ctx.scenarioId,
       ...(ctx.experimentRunId ? { experimentRunId: ctx.experimentRunId, legId: ctx.legId, legIndex: ctx.legIndex } : {}),
       ...(ctx.shiftSummary !== null ? { shiftSummary: ctx.shiftSummary } : {}),
+      ...(ctx.finishConfirm !== null ? { finishConfirm: ctx.finishConfirm } : {}),
       disturbanceIds: [...(session.disturbance_ids ?? [])],
       liveSeed: session.live_seed ?? null,
       grid: { width: session.width, height: session.height, numAgents: session.num_agents },
@@ -559,6 +560,7 @@ export class InteractionLogService {
       backendVersion: this.backendVersion(),
       operatorId: this.operatorModel.operatorId(),
       uiRestrictions: this.uiRestrictions(),
+      reflectionPromptQuestionOrder: [...this.uiConfig.reflectionPromptQuestionOrder()],
       ...(typeof window !== 'undefined'
         ? { screen: { width: window.innerWidth, height: window.innerHeight, dpr: window.devicePixelRatio } }
         : {}),

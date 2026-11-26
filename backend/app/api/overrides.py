@@ -1,6 +1,10 @@
 """
 Override API: User can set/clear per-agent action overrides.
 """
+import copy
+import math
+from types import SimpleNamespace
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -10,15 +14,26 @@ from app.core.scenario_cache import scenario_cache
 from app.core import intervention_log, lab_session
 from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
-from app.core.proposal_agents.registry import active_proposal_agent
-from app.core.route_overrides import REROUTE_ACTION, commit_route, drop_route, route_around_blocks
+from app.core.proposal_agents.registry import proposal_agent_for
+from app.core.pf_ch_control import command_lock
+from app.core import proposal_preview
+from app.core.route_overrides import (
+    REROUTE_ACTION,
+    LeftDrawnRoute,
+    commit_route,
+    drop_route,
+    route_around_blocks,
+    route_through,
+)
 from app.policies.plan_policy import (
     PlanPolicy,
-    install_trainrun_plan,
+    accept_trainrun_plan,
+    note_course_routes,
+    plan_accepted,
     plan_branch_factory,
     planned_arrival_steps,
 )
-from app.policies.registry import PLAN_POLICY_ID, scenario_policy_factories
+from app.policies.registry import PLAN_POLICY_ID, get_policy_spec, scenario_policy_factories
 
 router = APIRouter()
 
@@ -29,9 +44,15 @@ class OverrideRequest(BaseModel):
     # the interaction mode the HMI was in, and who decided (human / system).
     mode: str | None = None
     owner: str | None = None
+    via: list[list[int]] | None = None  # REROUTE: the cells the operator drew through
+    start: list[int] | None = None  # REROUTE with via: [row, col, heading] the drawing began at
 
 
 def _policy_factory_for(policy_id: str):
+    # Bounded RL actors are deliberately excluded from the general scenario
+    # catalogue, but a forecast must still follow the actual selected Driver.
+    if policy_id in {"uc2_rl", "pf_ch_rl"}:
+        return get_policy_spec(policy_id).branch_factory
     factories = scenario_policy_factories()
     return factories.get(policy_id, factories["deadlock_avoidance"])
 
@@ -88,13 +109,14 @@ def _branch_kpis_full(env, policy_factory, overrides: dict, horizon: int) -> dic
     return _kpis_from_result(res)
 
 
-def _branch_run(env, policy_factory, overrides: dict, horizon: int, release_at: dict | None = None):
+def _branch_run(env, policy_factory, overrides: dict, horizon: int, release_at: dict | None = None,
+                routes: dict | None = None):
     """Run a what-if branch and return the full BranchResult (system KPIs
     + per-agent outcomes + snapshots for trajectory extraction)."""
     from app.core.scenario_runner import TrajectoryBranchRunner
 
     runner = TrajectoryBranchRunner(env, policy_factory)
-    return runner.run_branch(overrides=overrides, max_steps=horizon, release_at=release_at)
+    return runner.run_branch(overrides=overrides, max_steps=horizon, release_at=release_at, routes=routes)
 
 
 def _kpis_from_result(res) -> dict:
@@ -184,12 +206,71 @@ def _require_route(env, handle: int) -> None:
         raise HTTPException(409, f"No reroute is available for train {handle} now")
 
 
-def _commit_override(env, session_id: str, handle: int, action: int, policy_factory=None) -> None:
+#: More via cells than any drawing on the map produces (one per switch passed,
+#: and the last cell); each one costs a shortest-path search over the rail graph.
+MAX_VIA_CELLS = 64
+
+
+def _parse_via(via: str | list | None) -> list[tuple[int, int]]:
+    """Via cells from ``"r,c;r,c"`` (query) or ``[[r, c], ...]`` (body); 400 if malformed."""
+    if not via:
+        return []
+    cells = [part.split(",") for part in via.split(";") if part.strip()] if isinstance(via, str) else list(via)
+    if len(cells) > MAX_VIA_CELLS:
+        raise HTTPException(400, f"via takes at most {MAX_VIA_CELLS} cells")
+    try:
+        if any(len(cell) != 2 for cell in cells):
+            raise ValueError
+        return [(int(cell[0]), int(cell[1])) for cell in cells]
+    except (TypeError, ValueError):
+        raise HTTPException(400, "via must be cells 'row,col;row,col'") from None
+
+
+def _parse_start(start: str | list | None) -> tuple[int, int, int] | None:
+    """The cell and heading a drawing began at, from ``"r,c,h"`` (query) or
+    ``[r, c, h]`` (body); None when absent (older clients), 400 if malformed."""
+    if start is None or start == "":
+        return None
+    parts = start.split(",") if isinstance(start, str) else list(start)
+    try:
+        if len(parts) != 3:
+            raise ValueError
+        row, col, heading = (int(p) for p in parts)
+        if heading not in range(4):
+            raise ValueError
+        return row, col, heading
+    except (TypeError, ValueError):
+        raise HTTPException(400, "start must be a cell and heading 'row,col,heading'") from None
+
+
+def _left_drawn_route(handle: int) -> HTTPException:
+    return HTTPException(409, f"Train {handle} has already left the drawn route; draw it again")
+
+
+def _drawn_route(env, handle: int, via: list, start: tuple | None = None) -> list:
+    try:
+        route = route_through(env, handle, via, start)
+    except LeftDrawnRoute:
+        raise _left_drawn_route(handle) from None
+    if route is None:
+        raise HTTPException(400, f"No route for train {handle} through the drawn cells")
+    return route
+
+
+def _commit_override(env, session_id: str, handle: int, action: int, policy_factory=None, *,
+                     via: list | None = None, start: tuple | None = None) -> None:
     """Set `action` as the train's standing override; a reroute fixes its route
-    now, timed against the session's course when `policy_factory` is given."""
+    now: through the drawn `via` cells, or around the blocks, timed against the
+    session's course when `policy_factory` is given."""
     if action == REROUTE_ACTION:
-        others = override_manager.get_all(session_id)
-        if commit_route(env, handle, policy_factory, others) is None:
+        if via:
+            try:
+                committed = commit_route(env, handle, via=via, start=start)
+            except LeftDrawnRoute:
+                raise _left_drawn_route(handle) from None
+        else:
+            committed = commit_route(env, handle, policy_factory, override_manager.get_all(session_id))
+        if committed is None:
             raise HTTPException(409, f"No reroute is available for train {handle} now")
     else:
         drop_route(env, handle)
@@ -223,7 +304,10 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
 
     # Keep current overrides for before/after impact estimate.
     before_overrides = dict(override_manager.get_all(session_id))
-    _commit_override(session.env, session_id, handle, req.action, _policy_factory_for_session(session))
+    via = _parse_via(req.via) if req.action == REROUTE_ACTION else []
+    start = _parse_start(req.start) if via else None
+    _commit_override(session.env, session_id, handle, req.action, _policy_factory_for_session(session),
+                     via=via, start=start)
     intervention_log.note_request(
         session_id, handle, req.action,
         step=int(getattr(session.env, "_elapsed_steps", 0) or 0), mode=req.mode, owner=req.owner,
@@ -408,12 +492,29 @@ def _course_score(res, planned: dict) -> int:
                 score += _NOT_ARRIVED_PENALTY
             continue
         reference = planned.get(handle)
-        score += int(arrival) - int(reference) if reference is not None else int(arrival)
+        score += max(0, int(arrival) - int(reference)) if reference is not None else int(arrival)
     return score
 
 
 def _arrivals(res) -> dict:
     return {h: o.get("arrival_step") for h, o in sorted(res.agent_outcomes.items())}
+
+
+def proposal_arrival_reference(env) -> dict[int, int]:
+    """Keep native UC2 deadlines as yardstick even after accepting an AI plan."""
+    from app.policies.learned import uc2_roam_bundle
+
+    deadlines = {}
+    for agent in env.agents:
+        latest = getattr(agent, "latest_arrival", None)
+        if latest is not None and math.isfinite(float(latest)):
+            deadlines[int(agent.handle)] = int(latest)
+    if ((env.height, env.width) in {(6, 25), (8, 78)}
+            and uc2_roam_bundle.compatibility_error(env) is None):
+        return deadlines
+    # Explicit scenario trainruns retain their original timetable reference.
+    planned = dict(planned_arrival_steps(env))
+    return {**deadlines, **planned}
 
 
 def _variant_metrics(res, planned: dict, now: int, horizon: int) -> dict:
@@ -439,6 +540,8 @@ def _variant_metrics(res, planned: dict, now: int, horizon: int) -> dict:
             stops_missed += max(0, int(outcome.get("stops_total", 0) or 0) - int(outcome.get("stops_served", 0) or 0))
         arrival = outcome.get("arrival_step")
         if arrival is None:
+            if outcome.get("arrived"):
+                continue  # DONE before the fork: no remaining network time
             not_arrived += 1
             time_in_network += int(horizon)
             continue
@@ -454,10 +557,18 @@ def _variant_metrics(res, planned: dict, now: int, horizon: int) -> dict:
     }
 
 
-def _human_course(env, handle: int, committed: dict, elapsed: int, action, option):
-    """Overrides and release steps for the operator's choice, and its label."""
+def proposal_rank(res, planned: dict, now: int, horizon: int) -> tuple[int, int, int]:
+    """Completion first; early trains cannot cancel another train's lateness."""
+    metrics = _variant_metrics(res, planned, now, horizon)
+    return metrics["not_arrived"], metrics["lateness"], metrics["time_in_network"]
+
+
+def _human_course(env, handle: int, committed: dict, elapsed: int, action, option, via: list | None = None,
+                  start: tuple | None = None):
+    """Overrides, release steps and drawn routes for the operator's choice, and its label."""
     overrides = dict(committed)
     release: dict = {}
+    routes: dict = {}
     handle = int(handle)
     if option is not None:
         if option not in PROPOSAL_OPTIONS:
@@ -470,12 +581,24 @@ def _human_course(env, handle: int, committed: dict, elapsed: int, action, optio
                 item = _impact_item(env, handle)
                 clears = int(item["clears_in_steps"]) if item else 0
                 release[handle] = elapsed + max(1, clears)
+        elif via:  # reroute along the cells the operator drew
+            routes[handle] = _drawn_route(env, handle, via, start)
+            overrides[handle] = REROUTE_ACTION
         else:  # reroute: a whole route around the blocks (app.core.route_overrides)
             _require_route(env, handle)
             overrides[handle] = REROUTE_ACTION
-        return overrides, release, option
+        return overrides, release, routes, option
     overrides[handle] = int(action)
-    return overrides, release, f"action:{int(action)}"
+    return overrides, release, routes, f"action:{int(action)}"
+
+
+def _kept_overrides(agent, overrides: dict, handle: int) -> dict:
+    """The standing overrides an agent's course keeps: every train's but the
+    selected one's, for an agent that `respects_overrides`; none otherwise.
+    Plan: docs/plans/uc2-rl-keep-human-decisions.md."""
+    if not getattr(agent, "respects_overrides", False):
+        return {}
+    return {int(h): int(a) for h, a in overrides.items() if int(h) != int(handle)}
 
 
 class ProposalApplyRequest(BaseModel):
@@ -484,16 +607,24 @@ class ProposalApplyRequest(BaseModel):
     handle: int
     option: str | None = None      # human: hold | hold_until_clear | proceed | reroute
     priority: list[int] | None = None  # ai: the order this replan was computed for
+    candidate_id: str | None = None
+    preview_token: str | None = None
+    source_step: int | None = None
+    via: list[list[int]] | None = None  # human reroute: the cells the operator drew through
+    start: list[int] | None = None  # human reroute with via: [row, col, heading] the drawing began at
 
 
-@router.post("/{session_id}/proposals/apply")
 def apply_proposal(session_id: str, req: ProposalApplyRequest):
     """Commit one of Plan / KI / Mensch to the running session.
 
     - ``plan``: drop this train's override — it follows the timetable again.
     - ``ai``: re-solve the replan for `priority` and make it the plan the session
       runs on (`install_trainrun_plan`), with the standing overrides cleared,
-      because they were answers to the course the replan just replaced. The
+      because they were answers to the course the replan just replaced. An
+      agent that `respects_overrides` (uc2_rl) clears only the selected train's
+      own: its whole course becomes the plan, the trains with a decision
+      included, and their overrides stay, because the course was simulated with
+      them. Accepting another course later replaces the whole plan. The
       timetable stays the yardstick for "delay vs plan".
     - ``human``: the operator's option as an override, exactly what the what-if
       simulated.
@@ -502,13 +633,20 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
     """
     session = session_manager.get(session_id)
     if not session:
+        if req.preview_token is not None:
+            raise HTTPException(409, "This proposal preview's session no longer exists; load proposals again")
         raise HTTPException(404, f"Session {session_id} not found")
     require_human(session)
 
     env = session.env
     handle = int(req.handle)
     if handle < 0 or handle >= len(env.agents):
+        if req.preview_token is not None:
+            raise HTTPException(409, "This proposal preview belongs to another train")
         raise HTTPException(404, f"Agent {handle} not found")
+
+    if req.preview_token is not None and req.variant != "ai":
+        raise HTTPException(409, "A proposal preview token can only accept its AI course")
 
     step = int(getattr(env, "_elapsed_steps", 0) or 0)
 
@@ -518,33 +656,63 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
         label = "Plan behalten"
 
     elif req.variant == "ai":
-        trainruns = active_proposal_agent().resolve(env, req.priority or ())
+        agent = proposal_agent_for(session)
+        kept = _kept_overrides(agent, override_manager.get_all(session_id), handle)
+        if kept and req.preview_token is None and req.candidate_id is None:
+            # The courses with kept decisions are ranked by `/proposals`; which
+            # one the operator took can't be re-derived without its id.
+            raise HTTPException(400, "Name the AI course (candidate_id or preview_token): "
+                                     "other trains keep standing decisions")
+        if req.preview_token is not None:
+            trainruns = proposal_preview.exact_course(
+                session, req.preview_token, handle=handle, candidate_id=req.candidate_id,
+                source_step=req.source_step, priority=req.priority)
+        else:
+            # Existing clients and PP priority orders retain their resolver.
+            trainruns = agent.resolve_for(
+                env, req.priority or (), handle, candidate_id=req.candidate_id, overrides=kept)
         if not trainruns:
             raise HTTPException(409, "The planner found no collision-free plan from here")
-        install_trainrun_plan(env, trainruns)
+        accept_trainrun_plan(env, trainruns)  # also puts every train on plan again
         session.trainrun_plan = trainruns
         session.policy = PLAN_POLICY_ID
-        # The overrides answered the old course; leaving them would fight the
-        # replan the operator just accepted.
-        override_manager.clear_all(session_id)
-        env._route_overrides = {}
-        env._route_times = {}
+        if getattr(agent, "respects_overrides", False):
+            # The last decision wins per train: the course answers the selected
+            # train's question; the other trains keep the operator's decision,
+            # on top of the course that was simulated with it.
+            override_manager.clear(session_id, handle)
+            drop_route(env, handle)
+        else:
+            # The overrides answered the old course; leaving them would fight the
+            # replan the operator just accepted.
+            override_manager.clear_all(session_id)
+            env._route_overrides = {}
+            env._route_times = {}
+        # The routes still committed are the ones the course was simulated with.
+        note_course_routes(env, getattr(env, "_route_overrides", None))
         label = "KI-Plan übernommen"
 
     elif req.variant == "human":
         if not req.option:
             raise HTTPException(400, "variant 'human' needs an option")
-        overrides, _release, choice = _human_course(env, handle, {}, step, None, req.option)
+        via = _parse_via(req.via) if req.option == "reroute" else []
+        start = _parse_start(req.start) if via else None
+        overrides, _release, _routes, choice = _human_course(env, handle, {}, step, None, req.option, via, start)
         action = overrides.get(handle)
         if action is None:
             override_manager.clear(session_id, handle)
             drop_route(env, handle)
         else:
-            _commit_override(env, session_id, handle, int(action), _policy_factory_for_session(session))
+            _commit_override(env, session_id, handle, int(action), _policy_factory_for_session(session),
+                             via=via, start=start)
         label = f"Mensch: {choice}"
 
     else:
         raise HTTPException(400, f"Unknown variant {req.variant!r}")
+
+    proposal_preview.clear_previews(session)
+    from app.api.sessions import _invalidate_scenario_forecasts
+    _invalidate_scenario_forecasts(session_id)
 
     return {
         "applied": req.variant,
@@ -554,72 +722,107 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
     }
 
 
-@router.get("/{session_id}/proposals")
-def get_proposals(
-    session_id: str,
-    handle: int,
-    action: int | None = None,
-    option: str | None = None,
-    alternatives: int = 3,
-):
+def _capture_proposal_source(session, handle, action, option, alternatives, via=None, start=None):
+    """Capture synchronously on ASGI while command_lock protects the live state."""
+    if handle < 0 or handle >= len(session.env.agents):
+        raise HTTPException(404, f"Agent {handle} not found")
+    if action is not None and action not in (0, 1, 2, 3, 4):
+        raise HTTPException(400, f"Invalid action {action}")
+    if option is not None and option not in PROPOSAL_OPTIONS:
+        raise HTTPException(400, f"Invalid option {option!r}")
+    drawn_via = _parse_via(via) if option == "reroute" else []
+    drawn = (drawn_via, _parse_start(start) if drawn_via else None)
+
+    # A Director factory normally snapshots its live player when invoked. Bind
+    # that replay now, before the live Driver advances during worker rollouts.
+    replay = None
+    if session.policy == "goal_directed":
+        replay = _policy_factory_for_session(session)()
+    root = copy.deepcopy(session.env)
+    snapshot = SimpleNamespace(env=root, policy=session.policy,
+                               proposal_agent_id=getattr(session, "proposal_agent_id", None))
+    factory = ((lambda: copy.deepcopy(replay)) if replay is not None
+               else _policy_factory_for_session(snapshot))
+    return (root, factory, dict(override_manager.get_all(session.id)),
+            _baseline_source(session), proposal_preview.source_state(session),
+            snapshot, handle, action, option, max(1, min(int(alternatives), 8)), drawn)
+
+
+def _evaluate_proposals(captured):
+    from app.core.native_env_cache import clear_native_environment_caches
+
+    try:
+        return _evaluate_proposals_unchecked(captured)
+    finally:
+        clear_native_environment_caches()
+
+
+def _evaluate_proposals_unchecked(captured):
     """Plan / KI / Mensch for one train, each simulated to the same horizon.
 
     - ``plan``: what drives the session now (its plan, a Director plan or a
       policy) with the committed overrides — the course if nobody steps in.
     - ``ai``: the best of the active proposal agent's courses
-      (`app.core.proposal_agents`, today Prioritized Planning over priority
-      orders), each followed by `PlanPolicy` and ranked by delay against the
+      (`app.core.proposal_agents`, the session's agent — Prioritized Planning over
+      priority orders by default, the trained UC2 model where a study condition asks for it), each followed by `PlanPolicy` and ranked by delay against the
       plan; the next best come back as ``ai_alternatives``. Each carries its
       ``priority`` order and ``score``. The agent only proposes — the scoring
       here is the same for plan, AI and human.
     - ``human``: the plan course with the operator's choice — an ``option``
       (hold, hold_until_clear, proceed, reroute) or a raw ``action`` — when given.
+      A reroute with ``via`` (``"row,col;row,col"``) follows the cells the
+      operator drew, then the shortest way to the target (set-route-on-map).
+      With ``start`` (``"row,col,heading"``, where the drawing began) it is the
+      drawn line from where the train is now; 409 when the train has left it.
 
     Read-only, like the what-if. Plan: docs/plans/proposal-agents-roadmap.md (2a/2c).
     """
-    session = session_manager.get(session_id)
-    if not session:
-        raise HTTPException(404, f"Session {session_id} not found")
+    env, plan_factory, committed, baseline_source, source, snapshot, handle, action, option, alternatives, drawn = captured
 
-    env = session.env
-    if handle < 0 or handle >= len(env.agents):
-        raise HTTPException(404, f"Agent {handle} not found")
-    if action is not None and action not in (0, 1, 2, 3, 4):
-        raise HTTPException(400, f"Invalid action {action}")
-
+    agent = proposal_agent_for(snapshot)
     elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
     max_ep = int(getattr(env, "_max_episode_steps", 0) or 0)
-    horizon = min(max(50, max_ep - elapsed) if max_ep else 200, 250)
-    planned = planned_arrival_steps(env)
-    committed = dict(override_manager.get_all(session_id))
-    plan_factory = _policy_factory_for_session(session)
+    if agent.id == "uc2_rl":
+        horizon = max(0, max_ep - elapsed) if max_ep else 200
+    else:
+        # Keep ordinary PP forecasts bounded as before; full native replay is
+        # the specialised UC2 adviser's contract, not a global cost increase.
+        horizon = min(max(50, max_ep - elapsed) if max_ep else 200, 250)
+    planned = proposal_arrival_reference(env)
 
     plan_res = _branch_run(env, plan_factory, committed, horizon)
-    variants = [_proposal_variant("plan", _baseline_source(session), plan_res, handle, planned)]
+    variants = [_proposal_variant("plan", baseline_source, plan_res, handle, planned)]
     variants[0]["score"] = _course_score(plan_res, planned)
     variants[0]["metrics"] = _variant_metrics(plan_res, planned, elapsed, horizon)
 
-    agent = active_proposal_agent()
+    # Each course is scored the way it runs once accepted: the whole course as
+    # the plan, with the other trains' standing overrides on top.
+    kept = _kept_overrides(agent, committed, handle)
     ranked = []
-    for proposal in agent.propose(env):
-        res = _branch_run(env, lambda tr=proposal.trainruns: PlanPolicy(None, tr), {}, horizon)
-        ranked.append((_course_score(res, planned), list(proposal.priority), res))
+    for proposal in agent.propose_for(env, handle, kept):
+        res = _branch_run(env, lambda tr=proposal.trainruns: PlanPolicy(None, tr), kept, horizon)
+        ranked.append((proposal_rank(res, planned, elapsed, horizon), proposal, res))
     ranked.sort(key=lambda entry: entry[0])
 
     ai_alternatives = []
-    for rank, (score, order, res) in enumerate(ranked[: max(1, int(alternatives))]):
+    courses = []
+    for rank, (_, proposal, res) in enumerate(ranked[:alternatives]):
         variant = _proposal_variant("ai" if rank == 0 else f"ai-{rank + 1}", agent.id, res, handle, planned)
-        variant["priority"] = order
-        variant["score"] = score
+        variant["priority"] = list(proposal.priority)
+        variant["candidate_id"] = proposal.candidate_id
+        variant["intervention"] = proposal.intervention
+        variant["matches_plan"] = _arrivals(res) == _arrivals(plan_res)
+        variant["score"] = _course_score(res, planned)
         variant["metrics"] = _variant_metrics(res, planned, elapsed, horizon)
+        courses.append((variant, proposal))
         if rank == 0:
             variants.append(variant)
         else:
             ai_alternatives.append(variant)
 
     if action is not None or option is not None:
-        overrides, release, choice = _human_course(env, handle, committed, elapsed, action, option)
-        human_res = _branch_run(env, plan_factory, overrides, horizon, release_at=release)
+        overrides, release, routes, choice = _human_course(env, handle, committed, elapsed, action, option, *drawn)
+        human_res = _branch_run(env, plan_factory, overrides, horizon, release_at=release, routes=routes)
         variant = _proposal_variant("human", "operator", human_res, handle, planned)
         variant["choice"] = choice
         variant["score"] = _course_score(human_res, planned)
@@ -627,17 +830,68 @@ def get_proposals(
         variants.append(variant)
 
     return {
-        "session_id": session_id,
         "handle": int(handle),
         "step": elapsed,
+        "source_step": source.step,
         "horizon": horizon,
         "ai_agent": {"id": agent.id, "label": agent.label},
+        # Accepting keeps standing overrides of other trains: only when there are
+        # some (an agent that doesn't respect them leaves `kept` empty).
+        "ai_keeps_overrides": bool(kept),
         "ai_available": bool(ranked),
         # The best replan keeps every arrival of the plan: the AI would not change course.
         "ai_matches_plan": bool(ranked) and _arrivals(ranked[0][2]) == _arrivals(plan_res),
         "variants": variants,
         "ai_alternatives": ai_alternatives,
-    }
+    }, courses
+
+
+def _publish_proposals(session, captured, evaluated):
+    payload, courses = evaluated
+    for variant, proposal in courses:
+        variant["preview_token"] = proposal_preview.remember_course(
+            session, captured[4], captured[6], proposal)
+    payload["session_id"] = session.id
+    return payload
+
+
+def get_proposals(session_id: str, handle: int, action: int | None = None,
+                  option: str | None = None, alternatives: int = 3, via: str | None = None,
+                  start: str | None = None):
+    """Synchronous service entry for callers that already own the live state."""
+    session = session_manager.get(session_id)
+    if session is None:
+        raise HTTPException(404, f"Session {session_id} not found")
+    captured = _capture_proposal_source(session, handle, action, option, alternatives, via, start)
+    return _publish_proposals(session, captured, _evaluate_proposals(captured))
+
+
+@router.get("/{session_id}/proposals")
+async def get_proposals_endpoint(session_id: str, handle: int, action: int | None = None,
+                                 option: str | None = None, alternatives: int = 3,
+                                 via: str | None = None, start: str | None = None):
+    session = session_manager.get(session_id)
+    if session is None:
+        raise HTTPException(404, f"Session {session_id} not found")
+    async with command_lock(session):
+        if session_manager.get(session_id) is not session:
+            raise HTTPException(404, f"Session {session_id} not found")
+        captured = _capture_proposal_source(session, handle, action, option, alternatives, via, start)
+    evaluated = await proposal_preview.run_preview_work(lambda: _evaluate_proposals(captured))
+    if session_manager.get(session_id) is not session:
+        raise HTTPException(409, "This proposal preview's session no longer exists")
+    return _publish_proposals(session, captured, evaluated)
+
+
+@router.post("/{session_id}/proposals/apply")
+async def apply_proposal_endpoint(session_id: str, req: ProposalApplyRequest):
+    session = session_manager.get(session_id)
+    if session is None:
+        return apply_proposal(session_id, req)
+    # Middleware leaves this endpoint's single transaction to us. Validation
+    # and installation are synchronous on ASGI, without an intervening await.
+    async with command_lock(session):
+        return apply_proposal(session_id, req)
 
 
 @router.delete("/{session_id}/agent/{handle}/override")

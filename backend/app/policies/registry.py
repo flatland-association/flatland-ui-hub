@@ -10,6 +10,7 @@ from __future__ import annotations
 import importlib.util
 from dataclasses import dataclass
 from pathlib import Path
+import importlib.util
 from typing import Callable
 
 from flatland.envs.rail_env import RailEnv
@@ -23,6 +24,7 @@ from app.policies.forward_only_policy import ForwardOnlyPolicy
 from app.policies.do_nothing_policy import DoNothingPolicy
 from app.policies.plan_policy import PlanPolicy, trainruns_from_env
 from app.policies.random_policy import RandomPolicy
+from app.policies.learned import pf_ch_bundle, uc2_bundle, uc2_roam_bundle
 
 
 PolicyFactory = Callable[[RailEnv], Policy]
@@ -173,7 +175,7 @@ _REGISTRY: dict[str, PolicySpec] = {
     "uc2_rl": PolicySpec(
         id="uc2_rl",
         label="UC2 RL (trained demos)",
-        description="Trained neural drivers with joint movement checks for the native Tutorial and UC2-1 to UC2-4 scenarios.",
+        description="One trained neural driver per infrastructure (Tutorial track, UC2 track) with joint movement checks for the native Tutorial and UC2-1 to UC2-4 scenarios.",
         is_default=False,
         show_in_ui=uc2_roam_bundle.available() and importlib.util.find_spec("torch") is not None,
         supports_scenarios=False,
@@ -184,9 +186,9 @@ _REGISTRY: dict[str, PolicySpec] = {
         role="operational",
         observation="UC2ObservationBuilder (313 current-state features + 5 action masks)",
         at_conflict="Selects neural actions from current train and mission state, then checks the joint movement with ROAM before human overrides.",
-        provenance="Verified native planner demonstrations, declared safe corrections and frozen neural-prior distillation; joint ROAM adapted from the MIT ECML starter kit.",
+        provenance="Verified native planner demonstrations, declared safe corrections, user-command recovery and distillation of the UC2 scenario specialists into one scenario-blind UC2-track model; joint ROAM adapted from the MIT ECML starter kit.",
         licence="MIT (ECML starter-kit network/observation code); bundled trained weights.",
-        grounding="Map specialist with native faults and fractional speeds; independent variation results are reported separately.",
+        grounding="One model per infrastructure, blind to the scenario identity, with native faults and fractional speeds; independent variation results are reported separately.",
     ),
     "pf_ch_rl": PolicySpec(
         id="pf_ch_rl",
@@ -542,6 +544,40 @@ def create_runtime_policy(policy_id: str, env: RailEnv) -> Policy:
     policy = spec.runtime_factory(env)
     policy.reset(env)
     return policy
+
+
+def driving_policy_id(policy_id: str, env: RailEnv) -> str:
+    """What actually drives a live step or play requested with `policy_id`.
+
+    After the operator accepted an AI plan (`plan_policy.accept_trainrun_plan`),
+    a request for an ordinary dispatching policy keeps following that plan: the
+    client may pin its policy on every request (the study conditions do), and the
+    accepted course must not be dropped by the next step. RL drivers are left
+    alone; they never follow trainruns.
+    """
+    from app.core.pf_ch_control import is_specialist_policy
+    from app.policies.plan_policy import plan_accepted
+
+    if policy_id != PLAN_POLICY_ID and not is_specialist_policy(policy_id) and plan_accepted(env):
+        return PLAN_POLICY_ID
+    return policy_id
+
+
+def create_driving_policy(policy_id: str, env: RailEnv, factory=None) -> tuple[str, Policy]:
+    """`(effective id, policy)` for a live step or play; see `driving_policy_id`.
+
+    Following an accepted plan, the requested policy drives the trains that are
+    not on it (overridden by the operator, or not covered). `factory` builds the
+    requested policy (default `create_runtime_policy`; callers pass their own seam).
+    """
+    factory = factory or create_runtime_policy
+    effective = driving_policy_id(policy_id, env)
+    if effective == policy_id:
+        return policy_id, factory(policy_id, env)
+    fallback = factory(policy_id, env)
+    policy = PlanPolicy(env, trainruns_from_env(env), fallback=fallback)
+    policy.reset(env)
+    return effective, policy
 
 
 def scenario_policy_factories() -> dict[str, PolicyBranchFactory]:

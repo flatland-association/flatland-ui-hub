@@ -886,6 +886,31 @@
   vector-effect: non-scaling-stroke;
 }
 
+// The route drawn after «Umleiten» (set-route-on-map): solid once released.
+.flatland-svg.route-mode {
+  cursor: crosshair;
+}
+
+.route-draw-casing {
+  stroke: light-dark(var(--sbb-color-white), var(--sbb-color-black));
+  stroke-width: 10px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.9;
+  vector-effect: non-scaling-stroke;
+}
+
+.route-draw-line {
+  stroke-width: 6px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+
+  &.is-drawing {
+    stroke-dasharray: 10 6;
+  }
+}
+
 .director-plan-line {
   stroke-width: 4px;
   stroke-linecap: round;
@@ -1632,6 +1657,30 @@
     border-color: var(--app-kind-prediction);
     font-weight: 600;
   }
+}
+
+/* The train's option strip closes like the station pop-up, from its top right
+   corner (docs/plans/plan-b-small-changes.md, item 6). */
+.map-train-options {
+  padding-right: 22px;
+}
+
+.map-train-options__close {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  padding: 0 4px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--app-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.map-train-options__close:hover {
+  color: var(--app-text);
 }
 
 .map-route-popover__close {

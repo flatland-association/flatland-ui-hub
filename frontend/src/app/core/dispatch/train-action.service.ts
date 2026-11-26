@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SessionStore } from '../session.store';
 import { DecisionOwner } from '../decision-log';
+import type { DrawnRoute } from '../routing/route-drawing';
 
 /**
  * Which surface the operator acted from.
@@ -59,9 +60,10 @@ export class TrainActionService {
     }
   }
 
-  /** Set an override without toggle semantics (the caller already decided). */
-  set(handle: number, action: number, origin: ActionOrigin, owner: DecisionOwner = 'human'): void {
-    this.store.setOverride(handle, action, owner, origin);
+  /** Set an override without toggle semantics (the caller already decided).
+   *  `route`: for a reroute (5), the route the operator drew on the map. */
+  set(handle: number, action: number, origin: ActionOrigin, owner: DecisionOwner = 'human', route?: DrawnRoute): void {
+    this.store.setOverride(handle, action, owner, origin, route);
   }
 
   /** Release the standing override on this train. */

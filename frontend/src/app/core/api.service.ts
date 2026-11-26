@@ -27,6 +27,7 @@ import {
   OnlineLearningSettings,
 } from './models';
 import { SandboxCheckpoint, SandboxOption, SandboxRunResult, SandboxState } from './demo/sandbox-replay';
+import type { DrawnRoute } from './routing/route-drawing';
 import { AppNotification, ContentionGroup, ContentionsResponse, ImpactItem, KpiPriorities, ProposalOption, ProposalsResult, Recommendation, ScenarioOption, WhatIfResult } from './events/event-types';
 
 /** Build the KPI query params for the scenario/recommendation endpoints. */
@@ -412,16 +413,19 @@ export class ApiService {
   }
 
   /** `context` feeds the MARL lab's intervention log (backend
-   *  app/core/intervention_log.py): the mode the HMI is in and who decided. */
+   *  app/core/intervention_log.py): the mode the HMI is in and who decided.
+   *  `route`: for a reroute (5), the drawn route (via cells and where the drawing began). */
   setOverride(
     id: string,
     handle: number,
     action: ActionInt,
     context: { mode?: string; owner?: string } = {},
+    route?: DrawnRoute,
   ): Observable<any> {
     return this.http.post(`${API_BASE}/session/${id}/agent/${handle}/override`, {
       action,
       ...context,
+      ...(route?.via.length ? { via: route.via, start: route.start } : {}),
     });
   }
 
@@ -670,7 +674,10 @@ export class ApiService {
    *  replan, or apply the operator's option. Unlike the what-if, this writes. */
   applyProposal(
     id: string,
-    body: { variant: 'plan' | 'ai' | 'human'; handle: number; option?: ProposalOption; priority?: number[] },
+    body: {
+      variant: 'plan' | 'ai' | 'human'; handle: number; option?: ProposalOption; priority?: number[];
+      candidate_id?: string | null; preview_token?: string; source_step?: number;
+    },
   ) {
     return this.http.post<{ applied: string; label: string; step: number; policy: string }>(
       `${API_BASE}/session/${id}/proposals/apply`,
@@ -678,9 +685,15 @@ export class ApiService {
     );
   }
 
-  getProposals(id: string, handle: number, option?: ProposalOption) {
-    let params = new HttpParams().set('handle', handle);
+  /** `route`: for `option` reroute, the drawn route (via cells and where the drawing began). */
+  getProposals(id: string, handle: number, option?: ProposalOption, route?: DrawnRoute) {
+    let params = new HttpParams().set('handle', handle).set('alternatives', 8);
     if (option) params = params.set('option', option);
+    if (route?.via.length) {
+      params = params
+        .set('via', route.via.map(([r, c]) => `${r},${c}`).join(';'))
+        .set('start', route.start.join(','));
+    }
     return this.http.get<ProposalsResult>(`${API_BASE}/session/${id}/proposals`, { params });
   }
 

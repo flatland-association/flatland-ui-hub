@@ -1,0 +1,363 @@
+{
+  "schema": "uc2-rl-adviser-paired-summary-v1",
+  "evaluation_role": "reused_development_diagnostics_not_holdout",
+  "source_commit": "9a0af324c1bea5933507b0edc68f4540fd803249",
+  "cases_sha256": "7646f339cbb35e07ed01381cf832b29e7774f193580e1badd63d9d1202d16028",
+  "cases": 46,
+  "source_runtime_and_models_identical": true,
+  "greedy_exact_course_parity_cases": 46,
+  "all_recorded_source_files_match_current_worktree": true,
+  "improved": 8,
+  "unchanged": 38,
+  "regressed": 0,
+  "both_solved_cases": 44,
+  "native_lateness_both_solved_before": 1954,
+  "native_lateness_both_solved_after": 1652,
+  "before_summary": {
+    "all": {
+      "cases": 46,
+      "solved": 44,
+      "completed": 126,
+      "native_completed_lateness": 1966,
+      "api_lateness": 1914,
+      "generation_seconds": 3.103176,
+      "candidate_counts": {
+        "1": 46
+      }
+    },
+    "tutorial": {
+      "cases": 10,
+      "solved": 8,
+      "completed": 18,
+      "native_completed_lateness": 140,
+      "api_lateness": 134,
+      "generation_seconds": 0.287277,
+      "candidate_counts": {
+        "1": 10
+      }
+    },
+    "uc2-1": {
+      "cases": 9,
+      "solved": 9,
+      "completed": 27,
+      "native_completed_lateness": 543,
+      "api_lateness": 538,
+      "generation_seconds": 0.773021,
+      "candidate_counts": {
+        "1": 9
+      }
+    },
+    "uc2-2": {
+      "cases": 9,
+      "solved": 9,
+      "completed": 27,
+      "native_completed_lateness": 240,
+      "api_lateness": 217,
+      "generation_seconds": 0.459374,
+      "candidate_counts": {
+        "1": 9
+      }
+    },
+    "uc2-3": {
+      "cases": 9,
+      "solved": 9,
+      "completed": 27,
+      "native_completed_lateness": 236,
+      "api_lateness": 218,
+      "generation_seconds": 0.751687,
+      "candidate_counts": {
+        "1": 9
+      }
+    },
+    "uc2-4": {
+      "cases": 9,
+      "solved": 9,
+      "completed": 27,
+      "native_completed_lateness": 807,
+      "api_lateness": 807,
+      "generation_seconds": 0.831817,
+      "candidate_counts": {
+        "1": 9
+      }
+    }
+  },
+  "after_summary": {
+    "all": {
+      "cases": 46,
+      "solved": 44,
+      "completed": 126,
+      "native_completed_lateness": 1664,
+      "api_lateness": 1612,
+      "generation_seconds": 18.239363,
+      "candidate_counts": {
+        "4": 5,
+        "5": 10,
+        "3": 1,
+        "2": 5,
+        "6": 25
+      }
+    },
+    "tutorial": {
+      "cases": 10,
+      "solved": 8,
+      "completed": 18,
+      "native_completed_lateness": 138,
+      "api_lateness": 132,
+      "generation_seconds": 1.280448,
+      "candidate_counts": {
+        "4": 4,
+        "5": 4,
+        "3": 1,
+        "2": 1
+      }
+    },
+    "uc2-1": {
+      "cases": 9,
+      "solved": 9,
+      "completed": 27,
+      "native_completed_lateness": 372,
+      "api_lateness": 367,
+      "generation_seconds": 4.69274,
+      "candidate_counts": {
+        "6": 6,
+        "4": 1,
+        "5": 2
+      }
+    },
+    "uc2-2": {
+      "cases": 9,
+      "solved": 9,
+      "completed": 27,
+      "native_completed_lateness": 231,
+      "api_lateness": 208,
+      "generation_seconds": 2.7099,
+      "candidate_counts": {
+        "6": 4,
+        "2": 2,
+        "5": 3
+      }
+    },
+    "uc2-3": {
+      "cases": 9,
+      "solved": 9,
+      "completed": 27,
+      "native_completed_lateness": 226,
+      "api_lateness": 208,
+      "generation_seconds": 4.296502,
+      "candidate_counts": {
+        "6": 7,
+        "2": 1,
+        "5": 1
+      }
+    },
+    "uc2-4": {
+      "cases": 9,
+      "solved": 9,
+      "completed": 27,
+      "native_completed_lateness": 697,
+      "api_lateness": 697,
+      "generation_seconds": 5.259773,
+      "candidate_counts": {
+        "6": 8,
+        "2": 1
+      }
+    }
+  },
+  "before_latency": {
+    "generation_median_seconds": 0.060464500000000004,
+    "generation_p95_nearest_rank_seconds": 0.112168,
+    "generation_max_seconds": 0.115372,
+    "generation_plus_all_candidate_replays_max_seconds": 0.244979
+  },
+  "after_latency": {
+    "generation_median_seconds": 0.37861049999999996,
+    "generation_p95_nearest_rank_seconds": 0.686264,
+    "generation_max_seconds": 0.806585,
+    "generation_plus_all_candidate_replays_max_seconds": 1.571737
+  },
+  "changed_cases": [
+    {
+      "id": "tutorial-dla-012-h0",
+      "change": "improved",
+      "before_rank": [
+        0,
+        23,
+        37
+      ],
+      "after_rank": [
+        0,
+        21,
+        35
+      ],
+      "selected_candidate_id": "uc2-rl:branch:0:13:1:0",
+      "intervention": {
+        "kind": "branch",
+        "handle": 0,
+        "step": 13,
+        "action": 1,
+        "wait_steps": 0
+      }
+    },
+    {
+      "id": "uc2-1-dla-016-h2",
+      "change": "improved",
+      "before_rank": [
+        0,
+        72,
+        259
+      ],
+      "after_rank": [
+        0,
+        19,
+        206
+      ],
+      "selected_candidate_id": "uc2-rl:branch:2:30:1:0",
+      "intervention": {
+        "kind": "branch",
+        "handle": 2,
+        "step": 30,
+        "action": 1,
+        "wait_steps": 0
+      }
+    },
+    {
+      "id": "uc2-1-dla-040-h2",
+      "change": "improved",
+      "before_rank": [
+        0,
+        143,
+        258
+      ],
+      "after_rank": [
+        0,
+        25,
+        140
+      ],
+      "selected_candidate_id": "uc2-rl:branch:2:49:1:0",
+      "intervention": {
+        "kind": "branch",
+        "handle": 2,
+        "step": 49,
+        "action": 1,
+        "wait_steps": 0
+      }
+    },
+    {
+      "id": "uc2-2-dla-025-h2",
+      "change": "improved",
+      "before_rank": [
+        0,
+        36,
+        80
+      ],
+      "after_rank": [
+        0,
+        31,
+        75
+      ],
+      "selected_candidate_id": "uc2-rl:wait:2:29:0:1",
+      "intervention": {
+        "kind": "wait",
+        "handle": 2,
+        "step": 29,
+        "action": 0,
+        "wait_steps": 1
+      }
+    },
+    {
+      "id": "uc2-2-dla-030-h0",
+      "change": "improved",
+      "before_rank": [
+        0,
+        36,
+        65
+      ],
+      "after_rank": [
+        0,
+        32,
+        61
+      ],
+      "selected_candidate_id": "uc2-rl:wait:0:35:4:3",
+      "intervention": {
+        "kind": "wait",
+        "handle": 0,
+        "step": 35,
+        "action": 4,
+        "wait_steps": 3
+      }
+    },
+    {
+      "id": "uc2-3-dla-096-h1",
+      "change": "improved",
+      "before_rank": [
+        0,
+        32,
+        65
+      ],
+      "after_rank": [
+        0,
+        22,
+        55
+      ],
+      "selected_candidate_id": "uc2-rl:branch:1:98:3:0",
+      "intervention": {
+        "kind": "branch",
+        "handle": 1,
+        "step": 98,
+        "action": 3,
+        "wait_steps": 0
+      }
+    },
+    {
+      "id": "uc2-4-dla-027-h0",
+      "change": "improved",
+      "before_rank": [
+        0,
+        145,
+        308
+      ],
+      "after_rank": [
+        0,
+        142,
+        305
+      ],
+      "selected_candidate_id": "uc2-rl:branch:0:46:3:0",
+      "intervention": {
+        "kind": "branch",
+        "handle": 0,
+        "step": 46,
+        "action": 3,
+        "wait_steps": 0
+      }
+    },
+    {
+      "id": "uc2-4-dla-045-h2",
+      "change": "improved",
+      "before_rank": [
+        0,
+        145,
+        254
+      ],
+      "after_rank": [
+        0,
+        38,
+        147
+      ],
+      "selected_candidate_id": "uc2-rl:branch:2:47:1:0",
+      "intervention": {
+        "kind": "branch",
+        "handle": 2,
+        "step": 47,
+        "action": 1,
+        "wait_steps": 0
+      }
+    }
+  ],
+  "still_incomplete": [
+    "tutorial-dla-020-h0",
+    "tutorial-dla-026-h1"
+  ],
+  "source_unchanged_all_cases": true,
+  "native_lru_entries_after_cleanup_max": 0,
+  "temporary_override_sessions_after_cleanup_max": 0
+}

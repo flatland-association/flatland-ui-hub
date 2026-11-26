@@ -3,14 +3,20 @@
     @if (replayStep(); as step) {
       <span class="intro-step">{{ step }}</span>
     } @else if (run.active()) {
-      <!-- A guided condition counts scenarios, by name (docs/plans/experiment-workflow.md §5.4). -->
+      <!-- A guided condition counts scenarios, by name (docs/plans/experiment-workflow.md §5.4),
+           or by number where the condition hides the names
+           (docs/plans/hide-scenario-bar.md §4.3). -->
       <span class="intro-step">{{ run.currentLegLabel() }}</span>
     } @else {
       <span class="intro-step">{{ labels().stepPrefix }} {{ store.demoStepIndex() + 1 }} {{ labels().stepOf }} {{ totalModes() }}</span>
     }
 
     @if (scenarioCard(); as card) {
-      <sbb-title level="2" visual-level="3" class="intro-title">{{ card.title }}</sbb-title>
+      <!-- The scenario's title is its name: none where the condition hides the names
+           (docs/plans/hide-scenario-bar.md §4.3); the step above still counts it. -->
+      @if (!tour.legNamesHidden()) {
+        <sbb-title level="2" visual-level="3" class="intro-title">{{ card.title }}</sbb-title>
+      }
       <div class="intro-scenario">
         <div class="intro-scenario__text">
           @for (paragraph of card.paragraphs; track $index) {
@@ -18,9 +24,14 @@
           }
         </div>
         @if (card.imageUrl) {
-          <img class="intro-scenario__image" [src]="card.imageUrl" [alt]="card.title" />
+          <img class="intro-scenario__image" [src]="card.imageUrl" [alt]="tour.legNamesHidden() ? (replayStep() ?? run.currentLegLabel()) : card.title" />
         }
       </div>
+      @if (card.videoUrl) {
+        <!-- Below the text, the card's full width. The player's own controls
+             carry play, seek and full screen. -->
+        <video class="intro-scenario__video" [src]="card.videoUrl" controls preload="metadata" playsinline></video>
+      }
     } @else {
       <span class="intro-wp">{{ intro().wp }}</span>
       <sbb-title level="2" visual-level="3" class="intro-title">{{ intro().title }}</sbb-title>

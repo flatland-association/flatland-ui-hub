@@ -15,6 +15,11 @@ For each environment step:
    with that oncoming agent's path and are *not* currently occupied.
 4. If yes: take the shortest-path action. If no: STOP_MOVING.
 
+Committed reroutes (override-aware, `set_committed_overrides`): a rerouted
+train is walked along its committed route instead of its shortest path, for
+itself and when the others look for oncoming trains; so it waits where its
+route would meet an oncoming train, and the others wait for it.
+
 Guarantees
 ----------
 - Pairwise deadlock-free (under sparse_rail / no dead-ends).
@@ -25,7 +30,7 @@ Reference
 flatland_baselines/deadlock_avoidance_heuristic/policy/deadlock_avoidance_policy.py
 adapted to Flatland 4.2.6 + our hybrid Policy interface (R1); runs on the pinned 4.3.0.
 """
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 from flatland.core.env_observation_builder import ObservationBuilder
@@ -51,6 +56,7 @@ class DeadLockAvoidancePolicy(Policy):
         self._agent_can_move: Dict[int, tuple] = {}
         self._agent_positions: Optional[np.ndarray] = None
         self._agent_occupancy: Optional[np.ndarray] = None
+        self._routes: Dict[int, List[Tuple[int, int, int]]] = {}
 
     # ── observation bundle ───────────────────────────────────────────
     def build_observation_builder(self) -> ObservationBuilder:
@@ -63,9 +69,24 @@ class DeadLockAvoidancePolicy(Policy):
     def reset(self, env: RailEnv) -> None:
         self._env = env
         self._walker = DeadlockAvoidanceShortestDistanceWalker(env)
+        self._walker.routes = self._routes
         self._agent_can_move = {}
         self._agent_positions = None
         self._agent_occupancy = None
+
+    def set_committed_overrides(
+        self,
+        holds: Set[int],
+        routes: Dict[int, List[Tuple[int, int, int]]],
+    ) -> bool:
+        """Walk the committed reroutes; holds need nothing, a held train occupies its cell."""
+        routes = {int(h): [tuple(int(v) for v in node) for node in r] for h, r in routes.items()}
+        if routes != self._routes:
+            self._routes = routes
+            if self._walker is not None:
+                self._walker.routes = routes
+            self._agent_can_move = {}  # recompute with the new routes
+        return True
 
     def start_step(self, train: bool = False) -> None:
         """Recompute shortest-path maps and conflict info for all agents."""

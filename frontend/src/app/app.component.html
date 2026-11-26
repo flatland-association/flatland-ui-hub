@@ -1269,7 +1269,19 @@
     <!-- Recorded screens the replay draws itself, read-only (plan §9.3, A1). -->
     @if (replay.survey(); as recorded) {
       <div class="replay-screen">
-        <app-survey [replayAnswers]="recorded.answers" [parts]="replay.surveyParts()" [embedded]="true" [afterLeg]="!!recorded.afterLegId"></app-survey>
+        <app-survey [replayAnswers]="recorded.answers" [surveyId]="recorded.surveyId" [embedded]="true" [afterLeg]="!!recorded.afterLegId"></app-survey>
+      </div>
+    } @else if (replay.screen() === 'finishConfirm') {
+      <!-- The recorded finish dialog (#180), read-only. Not the sbb-dialog: that one
+           opens in the browser's top layer, over the replay's cursor and controls. -->
+      <div class="replay-screen replay-screen--dialog">
+        <div class="replay-finish-confirm" inert>
+          <sbb-title level="4" class="replay-finish-confirm__title">{{ 'experimentRun.finishConfirm.title' | transloco }}</sbb-title>
+          <div class="replay-finish-confirm__actions">
+            <sbb-secondary-button size="m" data-log="experimentRun.finishConfirm.back">{{ 'experimentRun.finishConfirm.back' | transloco }}</sbb-secondary-button>
+            <sbb-button size="m" data-log="experimentRun.finishConfirm.yes">{{ 'experimentRun.finishConfirm.yes' | transloco }}</sbb-button>
+          </div>
+        </div>
       </div>
     } @else if (replay.screen() === 'shiftSummary') {
       <div class="replay-screen">
@@ -1283,5 +1295,13 @@
     <app-replay-controls></app-replay-controls>
     }
   }
-  
+
+  <!-- Confirms a hand-made finish (#180, docs/plans/confirm-finish-scenario.md §4.3). -->
+  <sbb-dialog #finishConfirm backdrop="translucent" (close)="onFinishConfirmClose($event)">
+    <sbb-dialog-title>{{ 'experimentRun.finishConfirm.title' | transloco }}</sbb-dialog-title>
+    <sbb-dialog-actions>
+      <sbb-secondary-button sbb-dialog-close data-log="experimentRun.finishConfirm.back">{{ 'experimentRun.finishConfirm.back' | transloco }}</sbb-secondary-button>
+      <sbb-button sbb-dialog-close="confirm" data-log="experimentRun.finishConfirm.yes">{{ 'experimentRun.finishConfirm.yes' | transloco }}</sbb-button>
+    </sbb-dialog-actions>
+  </sbb-dialog>
 }

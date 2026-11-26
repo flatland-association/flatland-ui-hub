@@ -9,6 +9,7 @@ import { ExperimentRunRecord } from '../interaction-log/experiment-run-record';
 import { EXPERIMENT_RUN_STORAGE_KEY, ExperimentRunService, newExperimentRunId } from './experiment-run.service';
 import { StudyCondition, WAL_FOLLOWER, WAL_SINGLE_TRACK } from './study-conditions';
 import { TourContextService } from './tour-context.service';
+import { UiConfigService } from '../config/ui-config.service';
 
 const TWO_LEGS: StudyCondition = {
   id: 'spec-2x',
@@ -30,7 +31,7 @@ const NO_REVIEW: StudyCondition = {
   ...TWO_LEGS, id: 'spec-no-review', legSurveyParts: undefined, shiftSummary: false, legs: [SCENARIO_LEG_A, SCENARIO_LEG_B],
 };
 const PRESETS = [
-  { id: 'scenario-a', name: 'A', title: 'Störung am Einspurabschnitt', description: 'Erster Absatz.\n\n  Zweiter Absatz. \n', image_url: '/session/scenario-presets/scenario-a/image', width: 30, height: 30, agents: 2, experiment_only: true },
+  { id: 'scenario-a', name: 'A', title: 'Störung am Einspurabschnitt', description: 'Erster Absatz.\n\n  Zweiter Absatz. \n', image_url: '/session/scenario-presets/scenario-a/image', video_url: '/session/scenario-presets/scenario-a/video', width: 30, height: 30, agents: 2, experiment_only: true },
   { id: 'scenario-b', name: 'B', title: 'Zweite Lage', description: 'Nur einer.', width: 30, height: 30, agents: 2, experiment_only: true },
 ];
 
@@ -180,6 +181,21 @@ describe('ExperimentRunService', () => {
     expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
   });
 
+  // docs/plans/hide-scenario-bar.md §4.3: Plan B names the next scenario by number only.
+  it('names the next scenario by number where the condition hides the names', () => {
+    const c = { ...TWO_LEGS, legSurveyParts: undefined };
+    begin(run, store, c);
+    expect(run.finishLabel()).toBe(`Finish scenario → ${run.legLabel(1)}`);
+    expect(run.finishLabel()).not.toContain('Scenario 2/2');
+
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.legNames'] });
+    expect(run.finishLabel()).toBe('Finish scenario → Scenario 2/2');
+    // The footer and the intro card count the scenario the same way.
+    expect(run.currentLegLabel()).toBe('Scenario 1/2');
+    run.setPhase('legSurvey');
+    expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
+  });
+
   it('has the Schichtbilanz unless the condition leaves it out (#174)', () => {
     begin(run, store, ONE_LEG);
     expect(run.hasShiftSummary()).toBeTrue();
@@ -195,6 +211,35 @@ describe('ExperimentRunService', () => {
     begin(run, store, ONE_LEG);
     run.setPhase('finalSurvey');
     expect(run.finishLabel()).toBeNull();
+  });
+
+  // docs/plans/confirm-finish-scenario.md §4.5 (#180).
+  it('records the finish dialog on the leg: confirmed with "Ja", the "Zurück"s, nothing when it is off', () => {
+    const noteLeg = spyOn(log, 'noteLegFinished');
+    begin(run, store, TWO_LEGS);
+    expect(run.hasFinishConfirm()).toBeTrue();
+    store.session.set({ id: 's1' } as SessionInfo);
+    run.finishConfirmBack();
+    run.finishConfirmBack();
+    run.finishConfirmYes();
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory()[0].finishConfirm).toEqual({ confirmed: true, backs: 2 });
+    expect(noteLeg.calls.mostRecent().args[0]['finishConfirm']).toEqual({ confirmed: true, backs: 2 });
+
+    // The next leg starts from scratch; an end without "Ja" is not confirmed,
+    // also when it counts as a click (a resume into a questionnaire).
+    store.advanceDemo();
+    store.session.set({ id: 's2' } as SessionInfo);
+    run.legStarted();
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory()[1].finishConfirm).toEqual({ confirmed: false, backs: 0 });
+
+    begin(run, store, { ...ONE_LEG, finishConfirm: false });
+    expect(run.hasFinishConfirm()).toBeFalse();
+    store.session.set({ id: 's3' } as SessionInfo);
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory().at(-1)!.finishConfirm).toBeUndefined();
+    expect(noteLeg.calls.mostRecent().args[0]['finishConfirm']).toBeUndefined();
   });
 
   it('records a leg ended by its episode as such', () => {
@@ -217,7 +262,9 @@ describe('ExperimentRunService', () => {
     expect(card.title).toBe('Störung am Einspurabschnitt');
     expect(card.paragraphs).toEqual(['Erster Absatz.', 'Zweiter Absatz.']);
     expect(card.imageUrl).toMatch(/\/session\/scenario-presets\/scenario-a\/image$/);
+    expect(card.videoUrl).toMatch(/\/session\/scenario-presets\/scenario-a\/video$/);
     expect(tour.scenarioCardFor(SCENARIO_LEG_B)!.imageUrl).toBeNull();
+    expect(tour.scenarioCardFor(SCENARIO_LEG_B)!.videoUrl).toBeNull();
     // A leg with its own intro, or a scenario without a title, keeps the mode card.
     expect(tour.scenarioCardFor({ ...SCENARIO_LEG_A, intro: { en: WAL_FOLLOWER.intro!.de! } })).toBeNull();
     expect(tour.scenarioCardFor(WAL_SINGLE_TRACK)).toBeNull();
@@ -289,7 +336,7 @@ describe('ExperimentRunService', () => {
   it('hands the record its run fields, the Schichtbilanz flag included', () => {
     begin(run, store, { ...TWO_LEGS, shiftSummary: false });
     store.advanceDemo();
-    expect(run.runContext()).toEqual({ experimentRunId: run.experimentRunId(), legId: 'wal-follower', legIndex: 1, shiftSummary: false });
+    expect(run.runContext()).toEqual({ experimentRunId: run.experimentRunId(), legId: 'wal-follower', legIndex: 1, shiftSummary: false, finishConfirm: true });
     begin(run, store, TWO_LEGS);
     expect(run.runContext().shiftSummary).toBeTrue();
   });

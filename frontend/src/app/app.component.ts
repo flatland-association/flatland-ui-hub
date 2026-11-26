@@ -3,7 +3,8 @@ import { DispatcherConfigComponent } from './features/dispatcher-config/dispatch
 import { DispatcherActivityOverlayComponent } from './features/dispatcher-activity-overlay/dispatcher-activity-overlay.component';
 import { DispatcherConfig, DispatcherDemo, DispatcherOperatorType, PreparedDispatcherDemoKey } from './core/dispatcher';
 import '@sbb-esta/lyne-elements/toggle-check.js';
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
+import '@sbb-esta/lyne-elements/dialog.js';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { PLAY_SPEED_DEFAULT_LEVEL } from './core/play-speed';
 import { ToolbarComponent } from './features/toolbar/toolbar.component';
@@ -59,7 +60,7 @@ import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algori
 import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
 import { TOURS, TOUR_GROUPS, tourLegPolicy, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
-import { ExperimentLeg, STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition, isWorkshopCondition } from './core/demo/study-conditions';
+import { ExperimentLeg, STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasFinishConfirm, hasShiftSummary, isGuidedCondition, isWorkshopCondition } from './core/demo/study-conditions';
 import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire, newExperimentRunId } from './core/demo/experiment-run.service';
 import { ExperimentProgressComponent } from './features/experiment-progress/experiment-progress.component';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -264,6 +265,7 @@ export class AppComponent implements OnInit {
       shiftScreenOpen: this.shiftScreenOpen,
       debrief: this.tourContext.hasDebrief,
       surveyActive: this.surveyActive,
+      finishConfirmOpen: this.finishConfirmOpen,
       helpActive: this.helpActive,
       settingsMode: this.settingsMode,
       settingsTab: this.settingsTab,
@@ -755,9 +757,12 @@ export class AppComponent implements OnInit {
   readonly tourContext = inject(TourContextService);
   readonly tourGuide = inject(TourGuideService);
   /** The guide strip is on the working screen; the toolbar then sits under it
-   *  (#167, docs/plans/toolbar-under-guide.md §4.1). */
+   *  (#167, docs/plans/toolbar-under-guide.md §4.1). A condition can hide the
+   *  strip; the guide still ticks and logs, and the toolbar stays at the top
+   *  (docs/plans/hide-scenario-bar.md §4.4). */
   readonly guideShown = computed(() =>
-    this.tourGuide.active() && (this.replay.active() ? this.replay.guideVisible() : this.experimentRun.guideVisible()),
+    this.tourGuide.stripShown() &&
+    (this.replay.active() ? this.replay.guideVisible() : this.experimentRun.guideVisible()),
   );
   /** The toolbar's slot under the guide only exists with a session; until then
    *  (e.g. between legs) it stays at the top with its loading indicator. */
@@ -1277,6 +1282,8 @@ export class AppComponent implements OnInit {
       ...(policy && controls?.length && !controls.includes(policy) ? { policyControlIds: [policy, ...controls] } : {}),
       // A scenario with a premade plan would switch to it; the pin wins.
       ...(policy ? { pinnedPolicy: policy } : {}),
+      // The condition's AI behind the KI column (docs/plans/uc2-rl-proposal-agent.md).
+      ...(this.activeExperiment()?.proposalAgent ? { proposalAgent: this.activeExperiment()!.proposalAgent } : {}),
       seed: leg.seed,
       ...(leg.openAtStep != null ? { openAtStep: leg.openAtStep } : {}),
       // Every leg starts at a known tempo, not at whatever an earlier session
@@ -1540,6 +1547,77 @@ export class AppComponent implements OnInit {
   finishDemoMode() {
     // Every decision needs its reflection first, in a tour that asks for reasons.
     if (this.tourContext.refuseFinish()) return;
+    const dialog = this.finishConfirmDialog()?.nativeElement;
+    if (dialog && this.finishConfirmAsked()) {
+      // Asking costs no simulated time (docs/plans/confirm-finish-scenario.md §4.3).
+      this._resumeAfterFinishConfirm = this.store.playing();
+      if (this._resumeAfterFinishConfirm) this.store.pause();
+      this._finishConfirmSession = this.store.session()?.id ?? null;
+      this.finishConfirmOpen.set(true);
+      dialog.open();
+      return;
+    }
+    this.finishDemoModeConfirmed();
+  }
+
+  /** The finish dialog (#180): asked before a hand-made finish ends a scenario. */
+  private readonly finishConfirmDialog = viewChild<ElementRef<HTMLElement & { open(): void; close(): void }>>('finishConfirm');
+  private _resumeAfterFinishConfirm = false;
+  private _finishConfirmJustClosed = false;
+  /** The session the dialog was opened on. */
+  private _finishConfirmSession: string | null = null;
+  /** The dialog never outlives its leg: the pause is a round trip, so a step
+   *  under way can still end the episode and move the run on. It closes then
+   *  without an answer, so a late "Ja" can't finish the next leg (§4.3). */
+  private readonly _finishConfirmFollowsLeg = effect(() => {
+    if (!this.finishConfirmOpen()) return;
+    const run = this.experimentRun;
+    const legOver = (run.active() && run.phase() !== 'running')
+      || this.shiftScreenOpen()
+      || (this.store.session()?.id ?? null) !== this._finishConfirmSession;
+    untracked(() => {
+      if (!legOver) return;
+      this._resumeAfterFinishConfirm = false;
+      this.finishConfirmOpen.set(false);
+      this.finishConfirmDialog()?.nativeElement.close();
+    });
+  });
+  /** Logged as the overlay view `finish_confirm`, so the replay can draw it;
+   *  in the store, so the impact panel's countdown waits behind it. */
+  readonly finishConfirmOpen = this.store.finishConfirmOpen;
+  /** A run's leg in phase `running`, or a tour's mode, unless the condition or
+   *  tour turns the dialog off. "Weiter zum Fragebogen" ends nothing and doesn't ask,
+   *  nor does the Schichtabschluss screen (a tour's debrief): its shift is over. */
+  private finishConfirmAsked(): boolean {
+    if (this.shiftScreenOpen()) return false;
+    const run = this.experimentRun;
+    if (run.active()) return run.phase() === 'running' && run.hasFinishConfirm();
+    return hasFinishConfirm(this.selectedTour());
+  }
+
+  /** "Ja" (result `confirm`) finishes; Zurück, Escape and the backdrop close without a result. */
+  onFinishConfirmClose(event: Event): void {
+    // Already closed with its leg (`_finishConfirmFollowsLeg`): no answer.
+    if (!this.finishConfirmOpen()) return;
+    this.finishConfirmOpen.set(false);
+    // Until the keydown that closed it has reached every listener (`onEscapeDeselectAgent`).
+    this._finishConfirmJustClosed = true;
+    setTimeout(() => (this._finishConfirmJustClosed = false));
+    const confirmed = (event as Event & { result?: unknown }).result === 'confirm';
+    const resume = this._resumeAfterFinishConfirm;
+    this._resumeAfterFinishConfirm = false;
+    if (this.experimentRun.active()) {
+      if (confirmed) this.experimentRun.finishConfirmYes();
+      else this.experimentRun.finishConfirmBack();
+    }
+    // A run's leg stops anyway; a tour goes on as it did before the dialog.
+    if (resume && !(confirmed && this.experimentRun.active())) {
+      this.store.play(this.store.activePolicy() || this.store.defaultPolicy(), this.store.playSpeed());
+    }
+    if (confirmed) this.finishDemoModeConfirmed();
+  }
+
+  private finishDemoModeConfirmed(): void {
     if (this.experimentRun.active()) {
       this.advanceExperiment();
       return;
@@ -1787,15 +1865,25 @@ export class AppComponent implements OnInit {
     inject(UiStateRegistry).register('selection', this.store.selectedHandle);
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).
     effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()?.closing));
-    // A replay shows the recorded layout; leaving it restores the one chosen before.
+    // A replay shows the recorded layout with the UI restrictions it was recorded
+    // with, not the layout's block of today (docs/plans/hide-scenario-bar.md §4.5);
+    // leaving it restores the layout chosen before, and that layout's restrictions.
     let layoutBeforeReplay: string | null = null;
     effect(() => {
       const layoutId = this.replay.layoutId();
       const active = this.replay.active();
+      const recorded = this.replay.uiRestrictions();
       untracked(() => {
         if (active) {
           layoutBeforeReplay ??= this.selectedRuntimeLayoutId();
           this.setRuntimeLayout(layoutId ?? this.systemRuntimeLayoutId);
+          if (recorded) {
+            this.uiConfig.apply({
+              hidden: recorded.hidden,
+              collapsedByDefault: recorded.collapsedByDefault,
+              policyAllowlist: recorded.policyAllowlist ?? undefined,
+            });
+          }
         } else if (!active && layoutBeforeReplay !== null) {
           this.setRuntimeLayout(layoutBeforeReplay);
           layoutBeforeReplay = null;
@@ -2006,7 +2094,7 @@ export class AppComponent implements OnInit {
       conditionLabel: experiment?.label ?? null,
       ...(run.active()
         ? run.runContext()
-        : { experimentRunId: tour?.runId ?? null, legId: null, legIndex: tour?.legIndex ?? null, shiftSummary: null }),
+        : { experimentRunId: tour?.runId ?? null, legId: null, legIndex: tour?.legIndex ?? null, shiftSummary: null, finishConfirm: null }),
       layoutId: this.selectedRuntimeLayoutId(),
       tourId: tour?.tourId ?? null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,
@@ -2208,6 +2296,11 @@ export class AppComponent implements OnInit {
     // ESC priority:
     // 1) close open settings dialogs/panels
     // 2) only if no dialog/panel was open, deselect selected agent
+
+    // The finish dialog closes itself on Escape, as "Zurück" (Lyne's own
+    // window listener, which prevents the default of every Escape, so that
+    // can't tell). Without an animation it may have closed already.
+    if (this.finishConfirmOpen() || this._finishConfirmJustClosed) return;
 
     if (this.helpActive()) {
       this.closeHelp();

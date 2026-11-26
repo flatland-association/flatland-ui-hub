@@ -38,6 +38,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
+import numpy as np
 from flatland.envs.persistence import RailEnvPersister
 
 from app.core.env_guard import env_lock, raise_if_cancelled
@@ -234,6 +235,7 @@ class TrajectoryBranchRunner:
         blocked_threshold: int = 3,
         detect_deadlocks: bool = True,
         release_at: Optional[Dict[int, int]] = None,
+        routes: Optional[Dict[int, list]] = None,
     ) -> BranchResult:
         """Fork the env, apply overrides, run forward, collect KPIs.
 
@@ -251,6 +253,9 @@ class TrajectoryBranchRunner:
         ``release_at`` maps a handle to the absolute step at which its
         override is cleared — a hold with a known end ("hold until the
         block clears"), which a sticky STOP alone cannot express.
+
+        ``routes`` maps a handle to a drawn route (`route_through`) that the
+        fork keeps as drawn, for a reroute the operator has not committed yet.
         """
         from flatland.envs.step_utils.states import TrainState
 
@@ -268,6 +273,10 @@ class TrajectoryBranchRunner:
             if int(a.value if hasattr(a, "value") else a) == STOP_MOVING_ACTION_VALUE
         }
         env = self._fork_env()
+        for handle, route in (routes or {}).items():
+            from app.core.route_overrides import _drawn, _routes
+            _routes(env)[int(handle)] = [tuple(int(v) for v in node) for node in route]
+            _drawn(env).add(int(handle))
 
         policy, session_id = self._make_override_policy(env, overrides)
         detector = ConflictDetectionCallbacks(
@@ -379,6 +388,16 @@ class TrajectoryBranchRunner:
         # continues from where the main simulation currently is.
         if hasattr(self._base_env, "_elapsed_steps"):
             forked._elapsed_steps = self._base_env._elapsed_steps
+
+        # Flatland's persister leaves `agent_positions` empty ("initialized in
+        # reset() only"), and `step()` writes back only trains that moved, so on
+        # the fork a standing train never shows up in the grid. Observations that
+        # read it (the UC2 driver's "oncoming train ahead") then miss every
+        # stopped train. Rebuild it from the trains' cells.
+        forked.agent_positions = np.zeros((forked.height, forked.width), dtype=int) - 1
+        for agent in forked.agents:
+            if agent.current_configuration is not None:
+                forked.agent_positions[agent.current_configuration[0]] = agent.handle
 
         # A committed reroute is a route fixed on the live env; the fork follows
         # the same one (app.core.route_overrides).

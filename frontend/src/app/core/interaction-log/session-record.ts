@@ -38,6 +38,8 @@ export interface RunContext {
   legIndex: number | null;
   /** A guided condition's run ends with the Schichtbilanz (#174); null outside one. */
   shiftSummary: boolean | null;
+  /** A guided condition asks before a hand-made finish (#180); null outside one. */
+  finishConfirm: boolean | null;
   /** The run's definition enforces "Study logging" on or off; null = it doesn't. */
   studyLogging: boolean | null;
 }
@@ -52,6 +54,7 @@ export const EMPTY_RUN_CONTEXT: RunContext = {
   legId: null,
   legIndex: null,
   shiftSummary: null,
+  finishConfirm: null,
   studyLogging: null,
 };
 
@@ -83,6 +86,9 @@ export interface SessionHeader {
   /** A guided condition's sessions: whether its run ends with the Schichtbilanz
    *  (#174). Absent in records made before it existed, which all had it. */
   shiftSummary?: boolean;
+  /** A guided condition's sessions: whether a hand-made finish asks first
+   *  (#180). Absent in records made before it existed, which never asked. */
+  finishConfirm?: boolean;
   disturbanceIds: string[];
   liveSeed: number | null;
   grid: { width: number; height: number; numAgents: number };
@@ -99,6 +105,15 @@ export interface SessionHeader {
    *  (#146's `UiConfigService`), so a missing click on a hidden control reads
    *  as "not there", not "not used"; changes are `ui_state {key: 'uiRestrictions'}` (Q29). */
   uiRestrictions?: UiRestrictions;
+  /** The order the reflection prompt after a decision asks its guided
+   *  questions in (`reflectionPrompt.q.*`), from the deployment's
+   *  `ui-config.json` or the default. Unrelated to the Co-Learning
+   *  reflection, which has questions of its own. Written for every session,
+   *  whether or not the prompt appears (e.g. Director), so it does not say
+   *  that a prompt was shown: the decisions' rationale does. Absent in records made
+   *  before it existed, whose order was drawn per decision
+   *  (docs/plans/reflection-question-order.md, docs/experiment-logging.md). */
+  reflectionPromptQuestionOrder?: string[];
   /** Play tempo level (1-5) at session start; changes are `speed_change`
    *  context events. Absent in records made before it existed
    *  (docs/plans/toolbar-under-guide.md D13). */

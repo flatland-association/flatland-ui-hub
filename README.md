@@ -225,7 +225,7 @@ next to the layout it runs, in `frontend/src/app/core/layout/layout-presets.ts`:
 
 ```ts
 ui: {
-  hidden: ['control.mapNavigation', 'control.endShift', 'control.modeTabs'],
+  hidden: ['control.mapPan', 'control.endShift', 'control.modeTabs'],
   collapsedByDefault: ['widget.decision-log'],
   policyAllowlist: ['deadlock_avoidance', 'plan'],
 }
@@ -252,8 +252,10 @@ The **Plan B** study condition
 ([issue #145](https://github.com/flatland-association/flatland-ui-hub/issues/145))
 is the worked example: it hides the contrast setting, the map pan/zoom overlay,
 the end-shift button, the comparison section's "time in network" figure, the
-mode tabs, the scenario status line and the Menü's "Bereiche" links, starts the
-Decision Log collapsed, and limits the policy dropdown. Design and rationale:
+mode tabs, the scenario status line, the Menü's "Bereiche" links and the guide
+strip, numbers its scenarios without their names (stepper, finish button
+«Szenario abschliessen → Szenario 2/5», footer, intro card), and limits the
+policy dropdown. Design and rationale:
 [`docs/plans/configurable-ui-plan.md`](docs/plans/configurable-ui-plan.md).
 
 ---

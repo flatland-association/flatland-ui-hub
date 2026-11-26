@@ -222,7 +222,7 @@
     },
     "colearning-advanced": {
       "name": "Co-Learning advanced: play the sandbox",
-      "description": "The Walensee single-track section with a train broken down in it and a counter-train approaching, in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey.",
+      "description": "The Walensee single-track section with a train broken down in it and a counter-train approaching, in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, change route), each simulated to the end and compared with your run. No survey.",
       "short": "Advanced: play the sandbox"
     },
     "colearning-experiment": {
@@ -510,7 +510,7 @@
       "left": "LEFT",
       "forward": "FORWARD",
       "right": "RIGHT",
-      "reroute": "REROUTE",
+      "reroute": "CHANGE ROUTE",
       "stop": "STOP"
     },
     "cell": {
@@ -743,7 +743,7 @@
   "train": {
     "name": "Train {{n}}",
     "slackLeft": "{{n}} left",
-    "late": "+{{n}} late",
+    "late": "+{{n}} steps late",
     "now": "now",
     "inSteps": "in {{n}}",
     "arr": "Arr.",
@@ -876,7 +876,7 @@
     },
     "status": {
       "arrived": "arrived",
-      "depIn": "dep in {{n}}",
+      "depIn": "dep in {{n}} steps",
       "ready": "ready"
     }
   },
@@ -1016,7 +1016,7 @@
     "preview": {
       "pinned": "Preview pinned",
       "pin": "Pin preview",
-      "hintPinned": "The reroute stays visible on the track diagram & time-distance diagram",
+      "hintPinned": "The changed route stays visible on the track diagram & time-distance diagram",
       "hintHover": "Hovering shows the changed route on the track diagram & time-distance diagram"
     },
     "accept": "Accept",
@@ -1054,7 +1054,7 @@
     "action": {
       "hold": "Hold",
       "proceed": "Proceed",
-      "reroute": "Reroute"
+      "reroute": "Change route"
     },
     "verb": {
       "accepted": "Accepted",
@@ -1121,7 +1121,7 @@
     "impact": {
       "eta": "Reaches the spot in",
       "clears": "Spot clears in",
-      "reroute": "Reroute possible",
+      "reroute": "Another route possible",
       "steps": "{{n}} steps",
       "yes": "yes",
       "no": "no"
@@ -1148,7 +1148,7 @@
     "bufferTight": "just enough",
     "measures": "Possible measures",
     "measureHold": "Hold",
-    "measureHoldOrReroute": "Hold or reroute",
+    "measureHoldOrReroute": "Hold or change route",
     "handoff": "Decide under “Action options”.",
     "autonomous": "AI handling autonomously",
     "recommendedTag": "Recommended",
@@ -1173,7 +1173,7 @@
       "fits": "Fits here as well. It speaks for: {{measure}}. The options stay equal; the decision is yours.",
       "measure": {
         "hold": "Hold",
-        "reroute": "Reroute",
+        "reroute": "Change route",
         "proceed": "Proceed",
         "ai": "the AI proposal"
       }
@@ -1418,7 +1418,7 @@
     "active": "Active",
     "preferred": "Fits the preference you taught me — {{why}}. A suggestion, not a preselection.",
     "unchanged": "Runs every train like the current plan.",
-    "reroutes": "Reroutes {{n}} train(s).",
+    "reroutes": "Changes the route of {{n}} train(s).",
     "holds": "{{n}} wait instead of taking another route.",
     "stabilityHint": "Stability {{hint}}.",
     "fellBackTo": "The planner takes {{plan}} here — the search found nothing better.",
@@ -1430,7 +1430,7 @@
     "simDelay": "Delay {{delta}}",
     "simArrivals": "Arrivals {{delta}} ({{arrived}}/{{trains}})",
     "simConnections": "Connections {{delta}} ({{kept}}/{{keptOf}})",
-    "contradicts": "Careful: the simulation contradicts the assessment above. The models judge rerouted paths too optimistically — when in doubt, the replay counts.",
+    "contradicts": "Careful: the simulation contradicts the assessment above. The models judge changed routes too optimistically — when in doubt, the replay counts.",
     "applying": "Committing …",
     "applied": "Applied",
     "apply": "Commit",
@@ -1445,8 +1445,8 @@
     "identicalToRunning": "identical to the running plan",
     "simFailed": "The simulation failed — the model values above stand.",
     "planFailed": "The strategies could not be planned.",
-    "previewComputing": "The reroute is being computed.",
-    "previewPause": "Pause the run — then the reroute is computed and can be clicked here.",
+    "previewComputing": "The changed route is being computed.",
+    "previewPause": "Pause the run — then the changed route is computed and can be clicked here.",
     "previewNoPlan": "First “Compute options” — without a plan there is no route to show.",
     "previewNoRoute": "No route is available for this goal.",
     "limitedBy": "limited by {{factor}} ({{value}})",
@@ -1707,7 +1707,7 @@
       "steeredGroup": "Steered",
       "sideEffects": "Not steered, but affected",
       "untouched": "Untouched: {{trains}}",
-      "planDetail": "The reroute in detail",
+      "planDetail": "The changed route in detail",
       "inOrder": "{{n}} trains in the order",
       "goesFirst": "goes through the section first",
       "holdsUntil": "holds until {{train}} is clear",
@@ -1735,7 +1735,7 @@
     "note": "Three courses for the chosen train: the plan without intervention, the AI’s proposal and your choice. None of it is carried out until you take one of the three.",
     "empty": "Choose a train — on the map, in the timetable or in the impact panel.",
     "optionAria": "Your option",
-    "noReroute": "There is no reroute for this train here.",
+    "noReroute": "There is no other route for this train here.",
     "loading": "Computing the courses…",
     "plan": "Plan",
     "ai": "AI",
@@ -1752,13 +1752,13 @@
     "order": "Order: {{order}}",
     "placeholder": "Choose an option above, then we compute your course.",
     "compare": "Comparison",
-    "lessIsBetter": "less is better",
     "notAvailable": "n/a",
-    "aiMatchesPlan": "The AI would stay with the plan here: its best order changes no arrival.",
-    "hideAlternatives": "Hide further AI orders",
-    "showAlternatives": "Further AI orders ({{n}})",
+    "aiMatchesPlan": "This AI course changes no arrival compared with the plan.",
+    "hideAlternatives": "Hide further AI courses",
+    "showAlternatives": "Further AI courses ({{n}})",
     "holdCaveat": "In the prototype the train stops with this; you give the release yourself once the spot is clear.",
     "aiTakenCaveat": "The trains now run by the AI’s plan. “vs. plan” still measures against the original timetable.",
+    "aiTakenCaveatKept": "The trains now run by the AI’s plan; trains with your decision (stop, turn, reroute) keep it. “vs. plan” still measures against the original timetable.",
     "option": {
       "hold": "Hold",
       "holdHint": "The train stays put until you release it again.",
@@ -1766,8 +1766,8 @@
       "holdUntilClearHint": "The train waits until the spot is clear again, then carries on.",
       "proceed": "Proceed",
       "proceedHint": "The train carries on without intervention.",
-      "reroute": "Reroute",
-      "rerouteHint": "The train takes a route around the blocked spot and still calls at its stops."
+      "reroute": "Change route",
+      "rerouteHint": "Draw the train's route on the map, over the switches you choose."
     },
     "computeFailed": "The courses could not be computed.",
     "applyFailed": "The course could not be taken.",
@@ -1787,7 +1787,22 @@
     "and": "and",
     "quoted": "“{{name}}”",
     "computing": "Working out “{{option}}” …",
-    "compareNote": "Totals over all trains, in simulation steps."
+    "compareNote": "Totals over all trains, in simulation steps.",
+    "previewExpired": "The simulation or plan has changed. Refresh the courses before taking one.",
+    "refreshCourses": "Refresh courses",
+    "inspectCourse": "Show this course",
+    "course": {
+      "rl": "The model’s own course",
+      "branch": "Take the {{direction}} branch at step {{step}}",
+      "wait": "Wait {{n}} steps from step {{step}}",
+      "left": "left",
+      "forward": "straight",
+      "right": "right",
+      "waitOne": "Wait one step from step {{step}}"
+    },
+    "drawRoute": "Press on the train on the map and drag its route over the switches. Release to see the course; Esc cancels.",
+    "noDrawnRoute": "There is no route through the cells you drew.",
+    "drawnRouteLeft": "The train has already left the route you drew. Draw it again from where the train is now."
   },
   "zwl": {
     "empty": "Select a train to see its time-distance trajectory.",
@@ -1807,10 +1822,11 @@
     "holdMark": "Train {{train}} waits here {{n}} step(s) instead of taking another route",
     "agentTitle": "{{name}} (train {{train}}): {{problems}}",
     "released": "{{name}} — released {{rank}}. in the action",
-    "predicted": " · {{delta}} min predicted",
+    "predicted": " · {{delta}} steps predicted",
     "clickToPin": "Click the cell to pin",
     "optionsAria": "Options for {{name}}",
     "compareInPanel": "{{name}} · compare in the panel",
+    "closeTrainOptions": "Close the options",
     "panUp": "Pan up",
     "panLeft": "Pan left",
     "panRight": "Pan right",
@@ -1825,7 +1841,7 @@
       "blockedBy": "blocked by train {{train}} at ({{row}}, {{col}}) — reaches it in {{eta}}, clear in {{clears}}",
       "blocking": "blocking train {{trains}}"
     },
-    "noReroute": "No reroute for this train here.",
+    "noReroute": "No other route for this train here.",
     "compareTitle": "Work it out under “Action options”",
     "selectTrain": "Select {{name}}",
     "zugWeg": {
@@ -1942,14 +1958,14 @@
       "template": "When {{block}} and {{reroute}}, you choose {{strategy}}.",
       "blockLong": "the section is blocked for another {{n}} steps",
       "blockShort": "the section clears within {{n}} steps",
-      "reroute": "a reroute exists",
-      "noReroute": "there is no reroute"
+      "reroute": "another route exists",
+      "noReroute": "there is no other route"
     }
   },
   "reflectionPrompt": {
     "title": "Why this decision?",
     "optional": "optional, a few words",
-    "ruleHint": "As a rule: the AI takes this into account in similar situations. Just this once: it keeps your reason but learns nothing from it.",
+    "ruleHint": "As a rule: the AI takes this into account in similar situations.",
     "q": {
       "factors": "Which factors mattered?",
       "gut": "Did a gut feeling play a part?",
@@ -1975,6 +1991,9 @@
     "wholeLine": "Whole line",
     "fitTraffic": "Fit to traffic",
     "singleTrack": "single track",
+    "timeUnit": "Step",
+    "toNow": "Back to now",
+    "delaySteps": "{{n}} steps",
     "kind": {
       "blocked": "Blocking",
       "swap_attempt": "Head-on",
@@ -1983,7 +2002,7 @@
     "conflicts": {
       "label": "Forecast conflicts",
       "none": "No conflicts forecast",
-      "inMin": "in {{min}} min",
+      "inMin": "in {{min}} steps",
       "now": "now",
       "unnamed": "Unnamed section",
       "offView": "outside this view",
@@ -2112,7 +2131,7 @@
       "action": {
         "hold": "Hold",
         "proceed": "Proceed",
-        "reroute": "Reroute",
+        "reroute": "Change route",
         "accept": "Accepted",
         "override": "Overridden",
         "dismiss": "Dismissed",
@@ -2164,7 +2183,7 @@
               "description": "{T2} runs up to the entry and waits there."
             },
             "reroute": {
-              "label": "Reroute {T2}",
+              "label": "Change the route of {T2}",
               "description": "{T2} takes the bypass offered by the AI."
             }
           }
@@ -2241,7 +2260,7 @@
         "hold_until": "Hold, then release",
         "hold": "Hold without release",
         "proceed": "Proceed",
-        "reroute": "Reroute"
+        "reroute": "Change route"
       },
       "releaseLabel": "Release at step",
       "releaseHint": "section clear from about step {{n}}",
@@ -2255,7 +2274,7 @@
         "hold_until": "Hold {{train}}, release at step {{release}}",
         "hold": "Hold {{train}}, no release",
         "proceed": "Let {{train}} proceed",
-        "reroute": "Reroute {{train}}"
+        "reroute": "Change the route of {{train}}"
       },
       "vsPlayed": {
         "better": "{{n}} steps less delay than your run",
@@ -2283,28 +2302,28 @@
       "blockLabel": "The section is blocked for at least",
       "blockSteps": "Steps",
       "blockUnit": "more steps",
-      "rerouteAria": "Reroute condition",
+      "rerouteAria": "Other-route condition",
       "reroute": {
-        "yes": "a reroute is possible",
-        "no": "no reroute is possible",
-        "any": "reroute does not matter"
+        "yes": "another route is possible",
+        "no": "no other route is possible",
+        "any": "route does not matter"
       },
       "measureAria": "Measure",
       "thenLabel": "then:",
       "measure": {
         "proceed": "Proceed",
         "hold_until": "Hold until clear",
-        "reroute": "Reroute"
+        "reroute": "Change route"
       },
       "then": {
         "proceed": "let the train proceed",
         "hold_until": "hold the train until the section is clear",
-        "reroute": "reroute the train"
+        "reroute": "change the train's route"
       },
       "cond": {
         "block": "the section is blocked for at least {{n}} more steps",
-        "reroute": "a reroute is possible",
-        "noReroute": "no reroute is possible"
+        "reroute": "another route is possible",
+        "noReroute": "no other route is possible"
       },
       "and": " and ",
       "sentence": "When {{cond}}, {{measure}}.",
@@ -2314,8 +2333,8 @@
       "summary": "Your rule applies in {{applied}} of {{total}} cases. There it was the best choice {{best}}×, made no difference {{tie}}×, and was worse {{worse}}×.",
       "caseShift": "Shift {{n}}, step {{step}}: {{train}}",
       "caseTest": "Step {{step}}: {{train}}",
-      "factsReroute": "blocked for {{n}} steps, reroute possible",
-      "factsNoReroute": "blocked for {{n}} steps, no reroute",
+      "factsReroute": "blocked for {{n}} steps, another route possible",
+      "factsNoReroute": "blocked for {{n}} steps, no other route",
       "notApplies": "rule does not apply",
       "verdict": {
         "best": "best choice here",
@@ -3089,6 +3108,7 @@
   },
   "experimentRun": {
     "legLabel": "{{name}} ({{k}}/{{n}})",
+    "legUnnamed": "Scenario {{k}}/{{n}}",
     "summaryOne": "{{name}}: one scenario in {{mode}} mode, then the shift summary and a questionnaire.",
     "summary": "{{name}}: {{n}} scenarios in {{mode}} mode, then the shift summary and a questionnaire.",
     "meta": "Scenarios: {{n}} · then the shift summary and a questionnaire",
@@ -3100,6 +3120,11 @@
       "toLeg": "Finish scenario → {{next}}",
       "toReview": "Finish scenario → shift summary",
       "toFinalSurvey": "On to the questionnaire"
+    },
+    "finishConfirm": {
+      "title": "Finish the current scenario?",
+      "yes": "Yes",
+      "back": "Back"
     },
     "done": {
       "title": "Thank you",

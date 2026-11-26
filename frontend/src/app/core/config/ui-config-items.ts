@@ -22,12 +22,16 @@ const WIDGET_IDS: UiConfigItem[] = WIDGET_CATALOG.filter((w) => w.type).map((w) 
 }));
 
 /** Chrome elements that are not panels, so nothing registers them today.
- *  One id per region, not per element inside it: `control.mapNavigation`
- *  already covers two overlays, and the same grain applies to the mode tab
- *  strip and the menu's area links. */
+ *  One id per region, not per element inside it: the same grain applies to
+ *  the mode tab strip and the menu's area links. The map's overlay controls
+ *  are three regions, pan arrows, zoom buttons and rail-opacity slider, one id
+ *  each, because Plan B shows zoom without pan arrows and drops the slider
+ *  (docs/plans/plan-b-small-changes.md, item 2). */
 const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.contrast', label: 'Colours / high-contrast setting (Session Settings)', supports: ['hidden'] },
-  { id: 'control.mapNavigation', label: 'Map pan + zoom control overlay', supports: ['hidden'] },
+  { id: 'control.mapPan', label: 'Map pan control overlay (arrows, reset)', supports: ['hidden'] },
+  { id: 'control.mapZoom', label: 'Map zoom buttons (+ / − / %)', supports: ['hidden'] },
+  { id: 'control.mapOpacity', label: 'Map rail-tile opacity slider', supports: ['hidden'] },
   { id: 'control.endShift', label: 'End shift button', supports: ['hidden'] },
   // Only with briefings that set `autoStart`: without Play nothing else starts
   // the run (docs/plans/toolbar-under-guide.md §1.1; checked for conditions in
@@ -37,6 +41,17 @@ const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.sessionInfo', label: 'Session status line ("Loaded scenario preset: …")', supports: ['hidden'] },
   { id: 'control.studyLogging', label: '"Study logging" switch (Session Settings)', supports: ['hidden'] },
   { id: 'control.menuAreas', label: 'Menu "Bereiche" links (Layout Designer, galleries, Contribute)', supports: ['hidden'] },
+  // The guide strip of a running leg; the toolbar then stays at the top
+  // (docs/plans/hide-scenario-bar.md §4.4). The guide still ticks and logs.
+  // Only where nothing needs the strip's buttons: no Schichtbilanz («Schicht
+  // beenden») and a decision log («Reflexion nachtragen» for «Reflexion
+  // öffnen») — checked for conditions in study-conditions.spec.ts, not for a
+  // deployment ui-config.json.
+  { id: 'control.guide', label: 'Guide strip: steps and hints of the running scenario', supports: ['hidden'] },
+  // Not an element but its text: the scenarios stay, numbered "Szenario k/N",
+  // wherever a leg is shown, and the intro card leaves out the scenario's title
+  // (docs/plans/hide-scenario-bar.md §4.3).
+  { id: 'control.legNames', label: 'Scenario names of an experiment: stepper, finish button, footer, intro card (numbered only)', supports: ['hidden'] },
 ];
 
 /** The two figures inside the `proposal-compare` ("Plan / KI / Mensch")
@@ -61,3 +76,17 @@ const DECISION_LOG_IDS: UiConfigItem[] = [
 
 /** Every id a deployment config (§4.2) may target. */
 export const UI_CONFIG_ITEMS: UiConfigItem[] = [...WIDGET_IDS, ...CONTROL_IDS, ...AXIS_IDS, ...TITLE_IDS, ...DECISION_LOG_IDS];
+
+/**
+ * Ids that no longer name one control but still work, so saved designs,
+ * `ui-config.json` files and deep links keep their meaning (stored ids are
+ * never removed, AGENTS.md). Each stands for the ids it lists, with the same
+ * verb. Not offered in the registry; the schema still accepts them.
+ *
+ * - `control.mapNavigation`: the map's pan arrows and zoom buttons together,
+ *   its meaning before they got ids of their own (plan-b-small-changes.md,
+ *   item 2).
+ */
+export const UI_CONFIG_ALIASES: Readonly<Record<string, readonly string[]>> = {
+  'control.mapNavigation': ['control.mapPan', 'control.mapZoom'],
+};

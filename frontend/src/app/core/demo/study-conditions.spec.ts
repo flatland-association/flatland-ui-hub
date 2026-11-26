@@ -1,5 +1,5 @@
 import en from '../../../../public/i18n/en.json';
-import { PLAN_B_ORDERS, PLAN_B_TUTORIAL, STUDY_CONDITIONS, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition, isWorkshopCondition } from './study-conditions';
+import { PLAN_B_ORDERS, PLAN_B_TUTORIAL, STUDY_CONDITIONS, conditionId, conditionScenarioId, hasFinishConfirm, hasShiftSummary, isGuidedCondition, isWorkshopCondition } from './study-conditions';
 import { tourBriefingId } from './tours';
 import { briefingById } from './tour-briefings';
 import { LAYOUT_PRESETS } from '../layout/layout-presets';
@@ -30,6 +30,20 @@ describe('study conditions', () => {
       const ids = Object.values(c.briefingIds ?? {});
       expect(ids.length).withContext(conditionId(c)).toBeGreaterThan(0);
       for (const id of ids) expect(briefingById(id)?.autoStart).withContext(`${conditionId(c)} ${id}`).toBeTrue();
+    }
+  });
+
+  // The guide strip carries «Schicht beenden» and «Reflexion öffnen»; without
+  // it, the run must need neither (docs/plans/hide-scenario-bar.md §4.5).
+  it('hides the guide strip only where the run has no Schichtbilanz and keeps the decision log', () => {
+    const hidesGuide = STUDY_CONDITIONS.filter((c) =>
+      LAYOUT_PRESETS.find((p) => p.id === c.layoutId)?.ui?.hidden?.includes('control.guide'),
+    );
+    expect(hidesGuide.length).toBeGreaterThan(0);
+    for (const c of hidesGuide) {
+      const hidden = LAYOUT_PRESETS.find((p) => p.id === c.layoutId)!.ui!.hidden!;
+      expect(hasShiftSummary(c)).withContext(conditionId(c)).toBeFalse();
+      expect(hidden).withContext(conditionId(c)).not.toContain('widget.decision-log');
     }
   });
 
@@ -66,6 +80,13 @@ describe('study conditions', () => {
     // Position 1 is the Weesen incident, position 2 the single-track one, for both groups.
     expect(ws.map((c) => c.legs![0].id)).toEqual(['ws-weesen', 'ws-single-track', 'ws-weesen', 'ws-single-track']);
     expect(ws.map((c) => c.mode)).toEqual(['recommendation', 'co-learning', 'co-learning', 'recommendation']);
+  });
+
+  it('asks before a hand-made finish unless the condition or tour turns it off (#180)', () => {
+    expect(hasFinishConfirm(null)).toBeTrue();
+    expect(hasFinishConfirm({})).toBeTrue();
+    expect(hasFinishConfirm({ finishConfirm: true })).toBeTrue();
+    expect(hasFinishConfirm({ finishConfirm: false })).toBeFalse();
   });
 
   it('a briefing has no Schichtbilanz step where its condition has no Schichtbilanz (#174)', () => {

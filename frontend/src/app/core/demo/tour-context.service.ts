@@ -10,6 +10,7 @@ import { ShiftKpis } from '../shift-review';
 import type { ExperimentLeg } from './study-conditions';
 import { ScenarioPreset } from '../models';
 import { backendHttpBase } from '../backend-origin';
+import { UiConfigService } from '../config/ui-config.service';
 
 /** An experiment scenario's intro card, from its `scenario.json`
  *  (docs/plans/experiment-scenario-import.md §3.3). */
@@ -18,6 +19,8 @@ export interface ScenarioCard {
   /** The description, split at blank lines. */
   paragraphs: string[];
   imageUrl: string | null;
+  /** Shown below the text, the card's full width. */
+  videoUrl: string | null;
 }
 
 /** How a guided condition's leg ended: the finish button, the guide's "Schicht
@@ -56,6 +59,16 @@ export interface ShiftRecord {
   /** The run stopped on a run error in this leg; absent when it did not
    *  (docs/plans/toolbar-under-guide.md D12). */
   runError?: { message: string; simStep: number; at: number };
+  /** The leg's finish confirmation (#180): `confirmed` when it ended with "Ja",
+   *  `backs` how often the dialog was closed without it. Absent when the
+   *  condition turned the dialog off. */
+  finishConfirm?: FinishConfirmRecord;
+}
+
+/** What a leg's record says about the finish dialog (docs/plans/confirm-finish-scenario.md §4.5). */
+export interface FinishConfirmRecord {
+  confirmed: boolean;
+  backs: number;
 }
 
 /**
@@ -122,6 +135,7 @@ export class TourContextService {
   private readonly operatorModel = inject(OperatorModelService);
   private operatorIdBeforeTour: string | null = null;
   private readonly language = inject(LanguageService);
+  private readonly uiConfig = inject(UiConfigService);
   private langBeforeTour: Lang | null = null;
 
   /**
@@ -265,6 +279,7 @@ export class TourContextService {
       title: preset.title,
       paragraphs: (preset.description ?? '').split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean),
       imageUrl: preset.image_url ? `${backendHttpBase()}${preset.image_url}` : null,
+      videoUrl: preset.video_url ? `${backendHttpBase()}${preset.video_url}` : null,
     };
   }
 
@@ -275,6 +290,20 @@ export class TourContextService {
   legName(leg: ExperimentLeg): string {
     if (leg.nameKey) return this.language.t(leg.nameKey, undefined, leg.id);
     return this.presetById(leg.scenarioId)?.title ?? leg.id;
+  }
+
+  /** Whether the condition hides the scenarios' names (`control.legNames`). */
+  readonly legNamesHidden = computed(() => this.uiConfig.isHidden('control.legNames'));
+
+  /**
+   * "⟨name⟩ (k/N)" for a leg at `index` of `count`, wherever a leg is shown
+   * (stepper, finish button, footer, intro card, Schichtbilanz), live and in a
+   * replay. Where the condition hides the names (`control.legNames`), "Szenario
+   * k/N" (docs/plans/hide-scenario-bar.md §4.3).
+   */
+  legLabel(leg: ExperimentLeg, index: number, count: number): string {
+    if (this.legNamesHidden()) return this.language.t('experimentRun.legUnnamed', { k: index + 1, n: count });
+    return this.language.t('experimentRun.legLabel', { name: this.legName(leg), k: index + 1, n: count });
   }
 
   setLeg(leg: ExperimentLeg | null): void {

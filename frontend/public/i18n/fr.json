@@ -222,7 +222,7 @@
     },
     "colearning-advanced": {
       "name": "Co-Learning approfondi : jouer le bac à sable",
-      "description": "Le tronçon à voie unique du Walensee : un train y tombe en panne, un train arrive en sens inverse. En mode Co-Learning avec les modules signalés ; après le service, tu rejoues le moment de décision dans le bac à sable avec d’autres options (retenir jusqu’à un pas choisi, continuer, dévier), chacune simulée jusqu’à la fin et comparée à ta partie. Sans questionnaire.",
+      "description": "Le tronçon à voie unique du Walensee : un train y tombe en panne, un train arrive en sens inverse. En mode Co-Learning avec les modules signalés ; après le service, tu rejoues le moment de décision dans le bac à sable avec d’autres options (retenir jusqu’à un pas choisi, continuer, changer d’itinéraire), chacune simulée jusqu’à la fin et comparée à ta partie. Sans questionnaire.",
       "short": "Approfondi : jouer le bac à sable"
     },
     "colearning-experiment": {
@@ -510,7 +510,7 @@
       "left": "GAUCHE",
       "forward": "TOUT DROIT",
       "right": "DROITE",
-      "reroute": "DÉVIER",
+      "reroute": "CHANGER D’ITINÉRAIRE",
       "stop": "ARRÊT"
     },
     "cell": {
@@ -743,7 +743,7 @@
   "train": {
     "name": "Train {{n}}",
     "slackLeft": "reste {{n}}",
-    "late": "+{{n}} retard",
+    "late": "+{{n}} pas de retard",
     "now": "maintenant",
     "inSteps": "dans {{n}}",
     "arr": "Arr.",
@@ -876,7 +876,7 @@
     },
     "status": {
       "arrived": "arrivé",
-      "depIn": "départ dans {{n}}",
+      "depIn": "départ dans {{n}} pas",
       "ready": "prêt"
     }
   },
@@ -1016,7 +1016,7 @@
     "preview": {
       "pinned": "Aperçu épinglé",
       "pin": "Épingler l’aperçu",
-      "hintPinned": "Le détournement reste visible sur la carte et le graphique espace-temps",
+      "hintPinned": "L’itinéraire modifié reste visible sur la carte et le graphique espace-temps",
       "hintHover": "Le survol montre l’itinéraire modifié sur la carte et le graphique espace-temps"
     },
     "accept": "Accepter",
@@ -1054,7 +1054,7 @@
     "action": {
       "hold": "Maintenir",
       "proceed": "Poursuivre",
-      "reroute": "Détourner"
+      "reroute": "Changer d’itinéraire"
     },
     "verb": {
       "accepted": "Acceptée",
@@ -1121,7 +1121,7 @@
     "impact": {
       "eta": "Atteint le point dans",
       "clears": "Point libre dans",
-      "reroute": "Déviation possible",
+      "reroute": "Autre itinéraire possible",
       "steps": "{{n}} pas",
       "yes": "oui",
       "no": "non"
@@ -1148,7 +1148,7 @@
     "bufferTight": "tout juste suffisante",
     "measures": "Mesures possibles",
     "measureHold": "Maintenir",
-    "measureHoldOrReroute": "Maintenir ou détourner",
+    "measureHoldOrReroute": "Maintenir ou changer d’itinéraire",
     "handoff": "Décidez sous « Options d'action ».",
     "autonomous": "L’IA s’en charge de façon autonome",
     "recommendedTag": "Recommandé",
@@ -1173,7 +1173,7 @@
       "fits": "S’applique aussi ici. Elle plaide pour : {{measure}}. Les options restent équivalentes ; c’est à toi de décider.",
       "measure": {
         "hold": "Retenir",
-        "reroute": "Dévier",
+        "reroute": "Changer d’itinéraire",
         "proceed": "Continuer",
         "ai": "la proposition de l’IA"
       }
@@ -1418,7 +1418,7 @@
     "active": "Actif",
     "preferred": "Correspond à la préférence apprise — {{why}}. Une suggestion, pas une présélection.",
     "unchanged": "Fait circuler chaque train comme le plan actuel.",
-    "reroutes": "Détourne {{n}} train(s).",
+    "reroutes": "Change l’itinéraire de {{n}} train(s).",
     "holds": "{{n}} attendent au lieu d’être détournés.",
     "stabilityHint": "Stabilité {{hint}}.",
     "fellBackTo": "Le planificateur prend ici {{plan}} — la recherche n’a rien trouvé de mieux.",
@@ -1445,8 +1445,8 @@
     "identicalToRunning": "identique au plan en cours",
     "simFailed": "La simulation a échoué — les valeurs du modèle ci-dessus restent.",
     "planFailed": "Les stratégies n’ont pas pu être planifiées.",
-    "previewComputing": "Le détournement est en cours de calcul.",
-    "previewPause": "Mettez la conduite en pause — le détournement sera alors calculé et cliquable ici.",
+    "previewComputing": "L’itinéraire modifié est en cours de calcul.",
+    "previewPause": "Mettez la conduite en pause — l’itinéraire modifié sera alors calculé et cliquable ici.",
     "previewNoPlan": "D’abord « Calculer les options » — sans plan, aucune route à montrer.",
     "previewNoRoute": "Aucune route disponible pour cet objectif.",
     "limitedBy": "limitée par {{factor}} ({{value}})",
@@ -1707,7 +1707,7 @@
       "steeredGroup": "Pilotés",
       "sideEffects": "Non pilotés, mais concernés",
       "untouched": "Non concernés : {{trains}}",
-      "planDetail": "Le détournement en détail",
+      "planDetail": "L’itinéraire modifié en détail",
       "inOrder": "{{n}} trains dans l’ordre",
       "goesFirst": "passe en premier dans le tronçon",
       "holdsUntil": "attend que {{train}} soit passé",
@@ -1735,7 +1735,7 @@
     "note": "Trois déroulements pour le train choisi : le plan sans intervention, la proposition de l’IA et votre choix. Rien n’est appliqué tant que vous n’en adoptez pas un.",
     "empty": "Choisissez un train — sur la carte, dans l’horaire ou dans le panneau d’impact.",
     "optionAria": "Votre option",
-    "noReroute": "Aucun détournement possible pour ce train ici.",
+    "noReroute": "Aucun autre itinéraire pour ce train ici.",
     "loading": "Calcul des déroulements…",
     "plan": "Plan",
     "ai": "IA",
@@ -1752,13 +1752,13 @@
     "order": "Ordre : {{order}}",
     "placeholder": "Choisissez une option ci-dessus, nous calculerons alors votre déroulement.",
     "compare": "Comparaison",
-    "lessIsBetter": "moins, c’est mieux",
     "notAvailable": "n/d",
-    "aiMatchesPlan": "L’IA garderait ici le plan : son meilleur ordre ne change aucune arrivée.",
-    "hideAlternatives": "Masquer les autres ordres de l’IA",
-    "showAlternatives": "Autres ordres de l’IA ({{n}})",
+    "aiMatchesPlan": "Ce déroulement de l’IA ne change aucune arrivée par rapport au plan.",
+    "hideAlternatives": "Masquer les autres déroulements de l’IA",
+    "showAlternatives": "Autres déroulements de l’IA ({{n}})",
     "holdCaveat": "Dans le prototype, le train s’arrête ainsi ; vous le libérez vous-même dès que l’endroit est dégagé.",
     "aiTakenCaveat": "Les trains suivent désormais le plan de l’IA. « Par rapport au plan » se mesure toujours à l’horaire d’origine.",
+    "aiTakenCaveatKept": "Les trains suivent maintenant le plan de l’IA ; les trains avec votre décision (arrêter, bifurquer, détourner) la gardent. « Par rapport au plan » se mesure toujours à l’horaire d’origine.",
     "option": {
       "hold": "Maintenir",
       "holdHint": "Le train reste à l’arrêt jusqu’à ce que vous le libériez.",
@@ -1766,8 +1766,8 @@
       "holdUntilClearHint": "Le train attend que l’endroit soit libre, puis repart.",
       "proceed": "Poursuivre",
       "proceedHint": "Le train continue sans intervention.",
-      "reroute": "Détourner",
-      "rerouteHint": "Le train contourne l’endroit bloqué par un autre itinéraire et dessert quand même ses arrêts."
+      "reroute": "Changer d’itinéraire",
+      "rerouteHint": "Tracez l’itinéraire du train sur la carte, par les aiguillages de votre choix."
     },
     "computeFailed": "Les déroulements n’ont pas pu être calculés.",
     "applyFailed": "Le déroulement n’a pas pu être adopté.",
@@ -1787,7 +1787,22 @@
     "and": "et",
     "quoted": "« {{name}} »",
     "computing": "Calcul de « {{option}} » …",
-    "compareNote": "Totaux sur tous les trains, en pas de simulation."
+    "compareNote": "Totaux sur tous les trains, en pas de simulation.",
+    "previewExpired": "La simulation ou le plan a changé. Recalculez les déroulements avant d’en adopter un.",
+    "refreshCourses": "Recalculer les déroulements",
+    "inspectCourse": "Afficher ce déroulement",
+    "course": {
+      "rl": "Déroulement propre au modèle",
+      "branch": "Prendre la branche {{direction}} au pas {{step}}",
+      "wait": "Attendre {{n}} pas à partir du pas {{step}}",
+      "left": "à gauche",
+      "forward": "tout droit",
+      "right": "à droite",
+      "waitOne": "Attendre un pas à partir du pas {{step}}"
+    },
+    "drawRoute": "Appuyez sur le train sur la carte et tracez son itinéraire sur les aiguillages. Relâchez pour voir le déroulement ; Échap annule.",
+    "noDrawnRoute": "Aucun itinéraire ne passe par les cases tracées.",
+    "drawnRouteLeft": "Le train a déjà quitté l’itinéraire tracé. Trace-le à nouveau depuis sa position actuelle."
   },
   "zwl": {
     "empty": "Sélectionnez un train pour voir sa trajectoire espace-temps.",
@@ -1807,10 +1822,11 @@
     "holdMark": "Le train {{train}} attend ici {{n}} pas au lieu d’être détourné",
     "agentTitle": "{{name}} (train {{train}}) : {{problems}}",
     "released": "{{name}} — libéré en position {{rank}} de l’action",
-    "predicted": " · {{delta}} min prévues",
+    "predicted": " · {{delta}} pas prévus",
     "clickToPin": "Cliquez sur la cellule pour l’épingler",
     "optionsAria": "Options pour {{name}}",
     "compareInPanel": "{{name}} · comparer dans le panneau",
+    "closeTrainOptions": "Fermer les options",
     "panUp": "Déplacer vers le haut",
     "panLeft": "Déplacer vers la gauche",
     "panRight": "Déplacer vers la droite",
@@ -1825,7 +1841,7 @@
       "blockedBy": "bloqué par le train {{train}} en ({{row}}, {{col}}) — y arrive dans {{eta}}, libre dans {{clears}}",
       "blocking": "bloque le train {{trains}}"
     },
-    "noReroute": "Pas de détournement possible pour ce train ici.",
+    "noReroute": "Pas d’autre itinéraire pour ce train ici.",
     "compareTitle": "Calculer sous « Options d'action »",
     "selectTrain": "Sélectionner {{name}}",
     "zugWeg": {
@@ -1942,14 +1958,14 @@
       "template": "Quand {{block}} et {{reroute}}, tu choisis {{strategy}}.",
       "blockLong": "le tronçon reste bloqué encore {{n}} pas",
       "blockShort": "le tronçon se libère d’ici {{n}} pas",
-      "reroute": "une déviation existe",
-      "noReroute": "aucune déviation n’existe"
+      "reroute": "un autre itinéraire existe",
+      "noReroute": "aucun autre itinéraire n’existe"
     }
   },
   "reflectionPrompt": {
     "title": "Pourquoi cette décision ?",
     "optional": "facultatif, quelques mots",
-    "ruleHint": "Comme règle : l’IA en tiendra compte dans des situations semblables. Seulement cette fois : elle garde votre raison mais n’en tire rien.",
+    "ruleHint": "Comme règle : l’IA en tiendra compte dans des situations semblables.",
     "q": {
       "factors": "Quels facteurs ont compté ?",
       "gut": "Une intuition a-t-elle joué un rôle ?",
@@ -1975,6 +1991,9 @@
     "wholeLine": "Ligne entière",
     "fitTraffic": "Ajuster au trafic",
     "singleTrack": "voie unique",
+    "timeUnit": "Pas",
+    "toNow": "Revenir à maintenant",
+    "delaySteps": "{{n}} pas",
     "kind": {
       "blocked": "Blocage",
       "swap_attempt": "Face-à-face",
@@ -1983,7 +2002,7 @@
     "conflicts": {
       "label": "Conflits prévus",
       "none": "Aucun conflit prévu",
-      "inMin": "dans {{min}} min",
+      "inMin": "dans {{min}} pas",
       "now": "maintenant",
       "unnamed": "Section sans nom",
       "offView": "hors de cette vue",
@@ -2112,7 +2131,7 @@
       "action": {
         "hold": "Retenir",
         "proceed": "Continuer",
-        "reroute": "Dévier",
+        "reroute": "Changer d’itinéraire",
         "accept": "Accepté",
         "override": "Outrepassé",
         "dismiss": "Écarté",
@@ -2164,7 +2183,7 @@
               "description": "{T2} avance jusqu’à l’entrée et y attend."
             },
             "reroute": {
-              "label": "Dévier {T2}",
+              "label": "Changer l’itinéraire de {T2}",
               "description": "{T2} prend le contournement proposé par l’IA."
             }
           }
@@ -2241,7 +2260,7 @@
         "hold_until": "Retenir, puis libérer",
         "hold": "Retenir sans libérer",
         "proceed": "Continuer",
-        "reroute": "Dévier"
+        "reroute": "Changer d’itinéraire"
       },
       "releaseLabel": "Libération au pas",
       "releaseHint": "tronçon libre à partir du pas {{n}} environ",
@@ -2255,7 +2274,7 @@
         "hold_until": "Retenir {{train}}, libération au pas {{release}}",
         "hold": "Retenir {{train}}, sans libération",
         "proceed": "Laisser continuer {{train}}",
-        "reroute": "Dévier {{train}}"
+        "reroute": "Changer l’itinéraire de {{train}}"
       },
       "vsPlayed": {
         "better": "{{n}} pas de retard en moins que ta partie",
@@ -2283,28 +2302,28 @@
       "blockLabel": "Le tronçon reste bloqué encore au moins",
       "blockSteps": "Pas",
       "blockUnit": "pas",
-      "rerouteAria": "Condition de déviation",
+      "rerouteAria": "Condition d’autre itinéraire",
       "reroute": {
-        "yes": "une déviation est possible",
-        "no": "aucune déviation possible",
-        "any": "déviation indifférente"
+        "yes": "un autre itinéraire est possible",
+        "no": "aucun autre itinéraire possible",
+        "any": "itinéraire indifférent"
       },
       "measureAria": "Mesure",
       "thenLabel": "alors :",
       "measure": {
         "proceed": "Continuer",
         "hold_until": "Retenir jusqu’à libération",
-        "reroute": "Dévier"
+        "reroute": "Changer d’itinéraire"
       },
       "then": {
         "proceed": "tu laisses le train continuer",
         "hold_until": "tu retiens le train jusqu’à ce que le tronçon soit libre",
-        "reroute": "tu dévies le train"
+        "reroute": "tu changes l’itinéraire du train"
       },
       "cond": {
         "block": "le tronçon reste bloqué encore au moins {{n}} pas",
-        "reroute": "une déviation est possible",
-        "noReroute": "aucune déviation n’est possible"
+        "reroute": "un autre itinéraire est possible",
+        "noReroute": "aucun autre itinéraire n’est possible"
       },
       "and": " et ",
       "sentence": "Quand {{cond}}, {{measure}}.",
@@ -2314,8 +2333,8 @@
       "summary": "Ta règle s’applique dans {{applied}} cas sur {{total}}. Elle y a été le meilleur choix {{best}}×, sans gain {{tie}}× et moins bonne {{worse}}×.",
       "caseShift": "Service {{n}}, pas {{step}} : {{train}}",
       "caseTest": "Pas {{step}} : {{train}}",
-      "factsReroute": "bloqué {{n}} pas, déviation possible",
-      "factsNoReroute": "bloqué {{n}} pas, sans déviation",
+      "factsReroute": "bloqué {{n}} pas, autre itinéraire possible",
+      "factsNoReroute": "bloqué {{n}} pas, sans autre itinéraire",
       "notApplies": "la règle ne s’applique pas",
       "verdict": {
         "best": "meilleur choix ici",
@@ -3089,6 +3108,7 @@
   },
   "experimentRun": {
     "legLabel": "{{name}} ({{k}}/{{n}})",
+    "legUnnamed": "Scénario {{k}}/{{n}}",
     "summaryOne": "{{name}} : un scénario en mode {{mode}}, puis le bilan de service et un questionnaire.",
     "summary": "{{name}} : {{n}} scénarios en mode {{mode}}, puis le bilan de service et un questionnaire.",
     "meta": "Scénarios : {{n}} · puis bilan de service et questionnaire",
@@ -3100,6 +3120,11 @@
       "toLeg": "Terminer le scénario → {{next}}",
       "toReview": "Terminer le scénario → bilan de service",
       "toFinalSurvey": "Vers le questionnaire"
+    },
+    "finishConfirm": {
+      "title": "Terminer le scénario en cours ?",
+      "yes": "Oui",
+      "back": "Retour"
     },
     "done": {
       "title": "Merci",

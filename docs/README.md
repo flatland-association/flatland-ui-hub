@@ -69,11 +69,14 @@ Designs and roadmaps not yet (fully) built. Each carries its own status line.
 - [scenario-infrastructure-gallery.md](plans/scenario-infrastructure-gallery.md) — the entity model: Network · Traffic · Scenario · Layout · Mode · Setup · Tour · Experiment, what each must describe, a `/scenarios` gallery over them, and the start screen as its front door
 - [experiment-workflow.md](plans/experiment-workflow.md) — #131: the experiment as a guided `StudyCondition` with `ExperimentLeg`s, shown as "⟨name⟩ (k/N)" (global briefing → per leg: intro, run, optional questionnaire → Schichtbilanz over all legs (optional) → final questionnaire → auto-saved record); lands after #146
 - [remove-shift-summary.md](plans/remove-shift-summary.md) — #174: Plan B without the Schichtbilanz; `StudyCondition.shiftSummary` lets a guided condition go from the last leg straight to the final questionnaire
+- [confirm-finish-scenario.md](plans/confirm-finish-scenario.md) — #180: the finish button asks "Aktuelles Szenario abschliessen?" and pauses meanwhile; `finishConfirm: false` on a condition or tour turns it off; each leg records `finishConfirm: {confirmed, backs}`
 - [scripted-events-plan.md](plans/scripted-events-plan.md) — deterministic scenario events for User Study 2
 - [recommendation-reliability.md](plans/recommendation-reliability.md) — guaranteeing a decision moment (variants A–D)
 - [ecml2026-flatland-env.md](plans/ecml2026-flatland-env.md) — reuse the ECML 2026 challenge topology & scenarios (to be discussed)
 
 **Modes, agents & interaction**
+- [flash-ahead-set-path.md](plans/flash-ahead-set-path.md) — #199: a look-ahead slider that flashes each train's set path ("eingestellter Fahrweg") on the Streckenspiegel; the forecasts it can draw from
+- [set-route-on-map.md](plans/set-route-on-map.md) — #199: drawing a train's route on the Streckenspiegel ("Fahrweg einstellen"), override-aware DLA, validated on the Plan B tutorial (built)
 - [agentic-delegation.md](plans/agentic-delegation.md) — handing the Director planner a bounded assignment (scope + constraints + report + release) instead of configuring it up front
 - [control-room-patterns.md](plans/control-room-patterns.md) — control-room patterns (alarm ACK, advice weight, control handover, focus bar) adopted as patterns in Lyne; what could flow back into Lyne
 - [co-learning-direction.md](plans/co-learning-direction.md) — Level A (task) vs Level B (AI learns to work with the human)
