@@ -83,23 +83,28 @@ def test_same_step_and_episode_source_changes_reject_without_mutation(session, c
         overrides.apply_proposal(session.id, overrides.ProposalApplyRequest(
             variant="ai", handle=0, preview_token=token, candidate_id="greedy", source_step=0))
     assert rejected.value.status_code == 409
+    # The 409 says which check failed (docs/plans/plan-b-log-findings.md §4.4).
+    reason = {"step": "computed at step 0, now step 1", "reset": "before the session was reset",
+              "env": "before the session was reset"}.get(change, "trains, overrides or plan changed since step 0")
+    assert reason in rejected.value.detail
     assert proposal_preview.source_state(session) == before
     assert trainruns_from_env(session.env) is None
 
 
-@pytest.mark.parametrize("fields", [
-    {"handle": 1}, {"candidate_id": "other"}, {"source_step": 1},
-    {"source_step": None}, {"priority": [1]}, {"preview_token": "unknown"},
-    {"variant": "plan"},
+@pytest.mark.parametrize("fields, reason", [
+    ({"handle": 1}, "computed for train 0, not train 1"), ({"candidate_id": "other"}, "candidate 'other'"),
+    ({"source_step": 1}, "the request names step 1"), ({"source_step": None}, "the request names step None"),
+    ({"priority": [1]}, "another priority"), ({"preview_token": "unknown"}, "unknown or expired token"),
+    ({"variant": "plan"}, "only accept its AI course"),
 ])
-def test_token_selection_mismatches_fail_closed(session, fields):
+def test_token_selection_mismatches_fail_closed(session, fields, reason):
     token = proposal_preview.remember_course(session, proposal_preview.source_state(session), 0, proposal({0: ["never-install"]}))
     values = dict(variant="ai", handle=0, candidate_id="greedy", source_step=0, preview_token=token)
     values.update(fields)
     source = proposal_preview.source_state(session)
     with pytest.raises(HTTPException) as rejected:
         overrides.apply_proposal(session.id, overrides.ProposalApplyRequest(**values))
-    assert rejected.value.status_code == 409
+    assert rejected.value.status_code == 409 and reason in rejected.value.detail
     assert proposal_preview.source_state(session) == source
 
 

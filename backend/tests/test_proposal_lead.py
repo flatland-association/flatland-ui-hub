@@ -184,7 +184,8 @@ def test_a_lead_token_from_before_a_reset_is_refused(client):
     body, ai = _ai(client, sid, lead=3)
     client.post(f"/session/{sid}/reset")
     _step(client, sid, body["source_step"])  # same step number, other episode
-    assert _accept(client, sid, body, ai).status_code == 409
+    refused = _accept(client, sid, body, ai)
+    assert refused.status_code == 409 and "unknown or expired token" in refused.json()["detail"]  # the reset dropped it
     assert proposal_preview.pending_course(session_manager.get(sid)) is None
 
 
@@ -216,6 +217,8 @@ def test_a_late_accept_is_rechecked_from_the_live_state(client, monkeypatch, sti
     monkeypatch.setattr(overrides, "_course_still_works", lambda *a: still_works)
     reply = _accept(client, sid, body, ai)
     assert reply.status_code == status
+    if status == 409:
+        assert "step 26 is past its step 24, and the re-check from the live state failed" in reply.json()["detail"]
     if status == 200:
         assert reply.json()["pending"] is False
         assert session_manager.get(sid).policy == "plan"

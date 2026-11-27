@@ -742,7 +742,9 @@ def _accept_lead_course(session, agent, course) -> dict:
         return {**reply, "label": "KI-Plan vorgemerkt", "pending": True,
                 "policy": getattr(session, "policy", None) or ""}
     if not (step == course.activation_step and on_forecast) and not _course_still_works(session, agent, course):
-        raise HTTPException(409, "This proposal preview is stale or no longer matches; load proposals again")
+        where = (f"step {step} is past its step {course.activation_step}" if step > course.activation_step
+                 else f"at step {step} the run left the forecast")
+        raise proposal_preview.stale(f"{where}, and the re-check from the live state failed")
     _install_ai_course(session, agent, course.handle, copy.deepcopy(course.trainruns))
     _finish_apply(session)
     return {**reply, "label": "KI-Plan übernommen", "pending": False,

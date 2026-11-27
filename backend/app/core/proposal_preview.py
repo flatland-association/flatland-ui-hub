@@ -117,15 +117,43 @@ def remember_course(session, source: PreviewSource, handle: int, proposal, lead:
     return token
 
 
+def stale(reason: str) -> HTTPException:
+    """409 for an AI course that can't be taken: the shared text the panel
+    knows (it reads only the status), with why in parentheses for the log."""
+    return HTTPException(409, f"This proposal preview is stale or no longer matches ({reason}); load proposals again")
+
+
+def _mismatch(session, course: PreviewCourse | None, *, handle: int, candidate_id: str | None,
+              source_step: int | None, priority: list[int] | None) -> str | None:
+    """Why the request does not ask for `course`, or None when it does."""
+    if course is None:
+        return "unknown or expired token"
+    if handle != course.handle:
+        return f"computed for train {course.handle}, not train {handle}"
+    if source_step != course.source.step:
+        return f"computed at step {course.source.step}, the request names step {source_step}"
+    if candidate_id != course.candidate_id:
+        return f"candidate {candidate_id!r} is not the token's {course.candidate_id!r}"
+    if tuple(priority or ()) != course.priority:
+        return "another priority than the token's"
+    if not same_episode(session, course.source):
+        return f"computed at step {course.source.step} before the session was reset"
+    return None
+
+
 def exact_course(session, token: str, *, handle: int, candidate_id: str | None,
                  source_step: int | None, priority: list[int] | None) -> dict:
-    cache = getattr(session, "_proposal_previews", {})
-    course = cache.get(token)
-    if (course is None or source_step != course.source.step or handle != course.handle
-            or candidate_id != course.candidate_id
-            or tuple(priority or ()) != course.priority
-            or source_state(session) != course.source):
-        raise HTTPException(409, "This proposal preview is stale or no longer matches; load proposals again")
+    course = getattr(session, "_proposal_previews", {}).get(token)
+    reason = _mismatch(session, course, handle=handle, candidate_id=candidate_id,
+                       source_step=source_step, priority=priority)
+    if reason is None:
+        now = source_state(session)
+        if now.step != course.source.step:
+            reason = f"computed at step {course.source.step}, now step {now.step}"
+        elif now != course.source:
+            reason = f"trains, overrides or plan changed since step {course.source.step}"
+    if reason is not None:
+        raise stale(reason)
     return copy.deepcopy(course.trainruns)
 
 
@@ -136,11 +164,10 @@ def lead_course(session, token: str, *, handle: int, candidate_id: str | None,
     course = getattr(session, "_proposal_previews", {}).get(token)
     if course is None or course.activation_step is None:
         return None
-    if (source_step != course.source.step or handle != course.handle
-            or candidate_id != course.candidate_id
-            or tuple(priority or ()) != course.priority
-            or not same_episode(session, course.source)):
-        raise HTTPException(409, "This proposal preview is stale or no longer matches; load proposals again")
+    reason = _mismatch(session, course, handle=handle, candidate_id=candidate_id,
+                       source_step=source_step, priority=priority)
+    if reason is not None:
+        raise stale(reason)
     return course
 
 
