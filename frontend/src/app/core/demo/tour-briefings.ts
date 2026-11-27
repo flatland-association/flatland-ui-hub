@@ -565,10 +565,6 @@ const PLAN_B_GUIDE_HINTS: Record<string, string> = {
   reflect: 'Nach deiner Entscheidung fragt das «Entscheidungsprotokoll» rechts nach deinem Grund, während die Simulation weiterläuft. Offene Reflexionen sind dort markiert; beantworte alle, bevor das Szenario endet.',
 };
 
-/** What `plan-b`'s opening says comes next: the tutorial. */
-const PLAN_B_NEXT_TUTORIAL =
-  'Wenn du nun auf «Weiter» klickst, beginnt die technische Einführung, bevor du anschliessend mit der Aufgabe startest.';
-
 /**
  * Plan B (`plan-b-p01` … `plan-b-p10`, docs/plans/experiment-scenario-import.md §4):
  * the flags and the six steps of `colearning-experiment-2x` (no Schichtbilanz,
@@ -596,26 +592,13 @@ const PLAN_B_DE: TourBriefing = {
           '**Dein Ziel**: Halte die __entstehenden Verspätungen möglichst gering__. Die Verspätung ist die einzige Zielgrösse in diesem Experiment. Kriterien wie Anschlüsse oder andere Kriterien existieren hier nicht.',
         goal: true,
       },
-      { body: PLAN_B_NEXT_TUTORIAL },
+      {
+        body:
+          'Wenn du nun auf «Weiter» klickst, beginnt die technische Einführung, bevor du anschliessend mit der Aufgabe startest.',
+      },
       { body: 'Falls du Fragen hast, kannst du dich jederzeit bei der Versuchsleitung melden.' },
     ],
     proceedLabel: 'Weiter',
-  },
-};
-
-/**
- * The summative Plan B experiments (`plan-b-summative-colearning-pNN`,
- * docs/plans/plan-b-control-group.md §4.2): `plan-b` without the tutorial, so
- * the opening announces the first of two scenarios instead (D-20).
- */
-const PLAN_B_SUMMATIVE_DE: TourBriefing = {
-  ...PLAN_B_DE,
-  id: 'plan-b-summative',
-  opening: {
-    ...PLAN_B_DE.opening!,
-    sections: PLAN_B_DE.opening!.sections!.map((s) =>
-      s.body === PLAN_B_NEXT_TUTORIAL ? { ...s, body: 'Wenn du nun auf «Weiter» klickst, beginnt das erste von zwei Szenarien.' } : s,
-    ),
   },
 };
 
@@ -1519,7 +1502,6 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_EXPERIMENT_DE,
   CO_LEARNING_EXPERIMENT_2X_DE,
   PLAN_B_DE,
-  PLAN_B_SUMMATIVE_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_EN,
   CO_LEARNING_ADVANCED_DE,

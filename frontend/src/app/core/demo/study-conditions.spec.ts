@@ -36,7 +36,7 @@ describe('study conditions', () => {
   // The guide strip carries «Schicht beenden» and «Reflexion öffnen»; without
   // it, the run must need neither (docs/plans/hide-scenario-bar.md §4.5). The
   // toolbar's finish button leads to the Schichtbilanz where a run has one
-  // (the summative experiments, docs/plans/plan-b-control-group.md §4.2), and
+  // (the Plan B experiments of round 2, docs/plans/plan-b-control-group.md §4.2), and
   // the decision log offers the reflections.
   it('hides the guide strip only where the decision log stays', () => {
     const hidesGuide = STUDY_CONDITIONS.filter((c) =>
@@ -198,40 +198,6 @@ describe('study conditions', () => {
         expect(c.surveyParts).withContext(at).toEqual(['plan-b-final']);
         expect(c.briefingIds).withContext(at).toEqual({ de: 'plan-b', en: 'plan-b' });
       }
-    });
-  });
-
-  describe('summative Plan B (docs/plans/plan-b-control-group.md §4.2)', () => {
-    const c = STUDY_CONDITIONS.find((x) => conditionId(x) === 'plan-b-summative-colearning-p01')!;
-
-    it('runs the two drawn scenarios, no tutorial, in Co-Learning with the study setup', () => {
-      expect(c).toBeDefined();
-      expect(c.legs!.map((l) => l.scenarioId)).toEqual(['uc2-1', 'uc2-2']);
-      expect(c.legs).not.toContain(PLAN_B_TUTORIAL);
-      expect(c.layoutId).toBe('preset-plan-b');
-      expect(c.mode).toBe('co-learning');
-      expect(c.policy).toBe('deadlock_avoidance');
-      expect(c.proposalAgent).toBe('uc2_rl');
-      expect(c.studyLogging).toBeTrue();
-      expect(c.legSurveyParts).toBeUndefined();
-      expect(c.surveyParts).toEqual(['plan-b-final']);
-    });
-
-    it('ends in the Schichtbilanz, then the questionnaire', () => {
-      expect(hasShiftSummary(c)).toBeTrue();
-    });
-
-    it('reads plan-b, with an opening that announces the first of two scenarios instead of the tutorial', () => {
-      expect(c.briefingIds).toEqual({ de: 'plan-b-summative', en: 'plan-b-summative' });
-      const summative = briefingById('plan-b-summative')!;
-      const formative = briefingById('plan-b')!;
-      const bodies = (b: typeof formative) => b.opening!.sections!.map((s) => s.body ?? '');
-      expect(bodies(summative)).toContain('Wenn du nun auf «Weiter» klickst, beginnt das erste von zwei Szenarien.');
-      expect(bodies(summative).join(' ')).not.toContain('technische Einführung');
-      expect(bodies(formative).join(' ')).toContain('technische Einführung');
-      const { id: _a, opening: _b, ...rest } = summative;
-      const { id: _c, opening: _d, ...restFormative } = formative;
-      expect(rest).toEqual(restFormative);
     });
   });
 });

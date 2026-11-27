@@ -27,6 +27,16 @@
 > usually branch off `explore_db`), PR
 > [#201](https://github.com/flatland-association/flatland-ui-hub/pull/201).
 >
+> **Taken over for round 2, 2026-11-27** (agreed with @chenkins): Plan B
+> round 2 (`docs/plans/plan-b-round2.md` and its PR plans) supersedes the
+> summative template and the Recommendation design of this plan. This PR
+> now keeps the reflection summary, the leg record and the trimmed
+> Schichtbilanz, and adds what round 2 needs from them (§9). The template
+> `plan-b-summative-colearning-p01` and its briefing `plan-b-summative` are
+> removed again (S-14): nobody ran them, and round 2's experiments
+> `plan-b-r2-*` replace them. §4.2, §4.3 and §6.1 stay as the record of
+> what was designed and shown.
+>
 > **Why:** the user study (FHNW & SBB; formative round on 2026-11-23 with
 > `plan-b-p01` … `p10`, summative experiments on 2026-12-03/04) compares
 > Co-Learning with a recommendation-based AI. Each participant of the
@@ -395,6 +405,9 @@ stays (D-14, now in S-4).
 
 ### 4.2 The summative template `plan-b-summative-colearning-p01` (requirements 1, 7, 8; D-16, D-17, D-19)
 
+> Removed 2026-11-27 (S-14): round 2's experiments `plan-b-r2-*` replace
+> it (`docs/plans/plan-b-round2-experiments.md`).
+
 - `study-conditions.ts`: one condition, after `...PLAN_B_CONDITIONS` in
   `STUDY_CONDITIONS`; the formative ones and `PLAN_B_ORDERS` untouched
   (D-19):
@@ -434,6 +447,11 @@ stays (D-14, now in S-4).
   `uiConfig.isHidden('control.modeTabs')`.
 
 ### 4.3 The Recommendation setting (requirements 2–6; D-3–D-7, D-12; later PR)
+
+> Superseded 2026-11-27 by `docs/plans/plan-b-round2-recommendation.md`:
+> D-7 is taken as is, D-12 and D-22 too; the Mensch course and the map
+> buttons are hidden per layout (UiConfig ids) instead of per mode, the KI
+> course has no "Empfehlung" tag, and the "Vergleich" stays.
 
 Designed here, built in the later PR with
 `plan-b-summative-recommendation-p01` … `p08` (§1.4). Its experiments are
@@ -525,7 +543,6 @@ stays).
 
 | File | What it adds |
 |---|---|
-| `scripts/docshots-plan-b-summative.mjs` | The after screenshots of the summative template (§6.1, S-5) |
 | `frontend/src/app/features/reflection-overview/reflection-overview.component.ts` / `.scss` | The overview Szenario \| Ereignisse \| Entscheidungen \| Reflexion, shared by the live and the replay Schichtbilanz (S-7) |
 | `frontend/src/app/features/tour-debrief/tour-debrief.component.spec.ts` | The first spec of the debrief: the trimmed Schichtbilanz in an experiment, the overview (S-11, S-7) |
 | `scripts/docshots-plan-b-control.mjs` | Screenshots of both settings for the PR, as `scripts/docshots-zwl-default.mjs` (added with S-0; on 2026-11-23 moved to the first UC2 scenario, the inline reflection, the intro card and the progress bar, without the guide picture, and naming the plan instead of #134 in its header, F-4) |
@@ -547,6 +564,15 @@ stays).
 | `frontend/public/i18n/{en,de,fr}.json` | `tours.plan-b-summative-colearning-p01.name`/`.description`, `experimentRun.review.overviewTitle`, `.events`, `.decisions`, `.reflection`, `.noDecisions`; the wording of `tourUi.debrief.kpi.malfunctions` (S-9) |
 | `docs/plans/experiment-scenario-import.md` | the summative template next to `plan-b-p01` … `p10` |
 | `docs/experiment-logging.md` | the new fields of a leg's decisions in the record |
+
+Round 2 takeover (§9): `study-conditions.ts`, `tour-briefings.ts`, their
+labels and `experiment-scenario-import.md` are back as on `main`;
+`scripts/docshots-plan-b-summative.mjs` removed (S-14). `shift-review.ts`
+(`shiftDecisionsFrom`, `ShiftDecision`, `proposal`), `decision-log.ts`
+(`proposal?`), `session.store.ts` (`recordProposalChoice` sets it),
+`reflection-overview.component.ts` (`showReflection`, the course's label),
+`replay-shift-summary.component.ts` (`showReflection`),
+`experimentRun.review.overviewTitleNoReflection` (S-13, S-15, S-16).
 
 Unchanged on purpose: `ExperimentLeg`, `TourContextService.set()`, the
 progress bar, `PLAN_B_ORDERS`, the formative conditions, and everything of
@@ -612,7 +638,10 @@ this PR.
 | ✅ S-9 | - | Rename the Schichtbilanz column "Störung(en) am Ende" to "bei Abschluss noch gestört" (en "still disrupted at the finish", fr "encore perturbé(s) à la clôture"): wording only, key `tourUi.debrief.kpi.malfunctions` kept; it counts the trains still disrupted when the scenario ends, not the disturbances during it (D-13, Q-9) | correctness | low | fix(debrief): name the Schichtbilanz column after what it counts, the trains still disrupted when the scenario ends. | 3efa0a54 | - | - |
 | ✅ S-11 | - | Schichtbilanz in an experiment (`run.active()`): no "Darunter das letzte Szenario im Detail." and no KPI chips under the table (with several scenarios), no concept note, no "← Zurück zur laufenden Schicht"; the last button leads to the questionnaire with the label of Q-14; tours unchanged; specs (requirements 11–14, D-15) | — | low | fix(debrief): trim the Schichtbilanz of an experiment to its overview and lead its button to the questionnaire. | 16ae5e60 | - | - |
 | ✅ S-5 | - | After screenshots of `plan-b-summative-colearning-p01` and their script `scripts/docshots-plan-b-summative.mjs` (§6.1): the opening, the progress bar, the footer, the Schichtbilanz with the reflection overview; plan status | — | — | docs(plans): after screenshots of the summative Co-Learning template and its Schichtbilanz. | 20050677 | S-4, S-7, S-11 | - |
-| 💡 S-13 | F-17 | Refactoring: one `shiftDecisionsFrom(decisionLog)` in `shift-review.ts` (a `seq → entry` map built once) for `ExperimentRunService.finishLeg()` and `TourDebriefComponent.currentShift`; specs | design | low | refactor(experiment-run): build a leg's decisions in one place for the run and the debrief. |  | - | - |
+| ✅ S-13 | F-17 | Refactoring: one `shiftDecisionsFrom(decisionLog)` in `shift-review.ts` (a `seq → entry` map built once) for `ExperimentRunService.finishLeg()` and `TourDebriefComponent.currentShift`; specs | design | low | refactor(experiment-run): build a leg's decisions in one place for the run and the debrief. | (this round) | - | - |
+| ✅ S-14 | - | Remove `plan-b-summative-colearning-p01`, the briefing `plan-b-summative`, their labels, spec and doc paragraph, and `scripts/docshots-plan-b-summative.mjs` (§9) | — | — | refactor(study): remove the summative template, which round 2's experiments replace. | (this round) | - | - |
+| ✅ S-15 | - | `DecisionLogEntry.proposal` (`plan` / `ai`) for a course taken in the Handlungsoptionen; the overview words it as its button ("Plan behalten", not "Weiterfahren") (§9) | correctness | low | feat(debrief): name a course taken in the Handlungsoptionen as its button does in the overview. | (this round) | S-13 | - |
+| ✅ S-16 | - | D-22: no column "Reflexion" in the overview where the briefing has no `reasonDialog`, live and in the replay (§9) | — | — | feat(debrief): leave the reflection column out where the run asks for no reflection. | (this round) | - | - |
 
 Each step passes the CI checks on its own.
 
@@ -826,3 +855,19 @@ three are on `main` 85e36e5c as d88be0ef, b62ffec1, b87130ab, pushed.
     Szenarien."
   - b) Leave the sentence out.
   - *Proposal:* a): it says what comes, as the sentence does today.
+
+## 9. Round 2 takeover (2026-11-27)
+
+Plan B round 2 builds on this PR (`docs/plans/plan-b-round2.md`, "Where
+round 2 differs from #201"). Changed here so the PR matches it:
+
+| Step | Change | Why |
+| --- | --- | --- |
+| S-14 | The template `plan-b-summative-colearning-p01` and the briefing `plan-b-summative` removed, with their labels, spec, doc paragraph and screenshot script | Round 2's `plan-b-r2-*` experiments replace them (three scenarios, no opening page); nobody ran the template |
+| S-13 | `shiftDecisionsFrom()` builds a leg's decisions for the record and the debrief (F-17) | The next change touches both places |
+| S-15 | `DecisionLogEntry.proposal`: `plan` / `ai` when a course of the Handlungsoptionen is taken; the overview names it as its button | "Plan behalten" logs as `proceed`, like the panel's own "Weiterfahren", so the overview read "Weiterfahren" for both; the control group decides only with these two buttons |
+| S-16 | D-22 built: the overview's column "Reflexion" only where the briefing has `reasonDialog`; title "Deine Entscheidungen" without it | The Recommendation group of round 2 has no reflection |
+
+Left to round 2's experiments PR: the Schichtbilanz in minutes, and an
+experiment without a questionnaire ("Abschliessen" instead of "Weiter zum
+Fragebogen").
