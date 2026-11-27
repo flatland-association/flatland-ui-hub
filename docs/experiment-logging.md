@@ -324,8 +324,9 @@ differently, because the visible area follows the screen's proportions
 
 **What is logged:** every call the app makes to the backend, as the browser
 saw it, in the record's `calls` stream (only while "Study logging" is on).
-A response identical to the previous one of the same call (polling) is
-stored as a reference, `response_same_as`, instead of again. WebSocket
+A GET response identical to the previous one of the same call (polling) is
+stored as a reference, `response_same_as`, instead of again; commands
+(POST, PUT, DELETE) always keep their own response. WebSocket
 connect, close, episode end and errors are entries with `method: "WS"`;
 the state messages themselves are in the `states` stream.
 
@@ -362,8 +363,8 @@ browser side was lost (a closed tab, a crashed browser).
  "response": {"ok": true}, "client": {"seq": 412, "t": 1761725040000, "participant": "P07"}}
 ```
 
-A repeated identical response of the same call is written as
-`"response_same_as": <seq>`. WebSocket events are lines with
+A repeated identical GET response of the same call is written as
+`"response_same_as": <seq>`; commands always keep their response. WebSocket events are lines with
 `"method": "WS"` and `"event"` (`connect`, `disconnect`, `episode_done`,
 `error`).
 

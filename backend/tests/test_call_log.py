@@ -97,6 +97,14 @@ def test_repeated_get_is_a_reference(client, caplog):
     assert "response" in first and second["response_same_as"] == first["seq"]
 
 
+def test_a_repeated_post_keeps_its_response(client, caplog):
+    caplog.set_level(logging.INFO, logger=call_log.CALLS_LOGGER)
+    client.post("/session/s1/step", json={"n": 3})
+    client.post("/session/s1/step", json={"n": 3})
+    first, second = _lines(caplog)
+    assert first["response"] == second["response"] and "response_same_as" not in second
+
+
 def test_study_routes_and_excluded_routes_are_not_logged(client, caplog, monkeypatch):
     caplog.set_level(logging.INFO, logger=call_log.CALLS_LOGGER)
     monkeypatch.setattr(settings, "study_call_log_exclude", "/policies")

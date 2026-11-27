@@ -266,7 +266,10 @@ class CallLogMiddleware:
             "status": response["status"],
             "ms": round((time.perf_counter() - started) * 1000, 1),
         }
-        same = _dedup.check(f"{sid} {method} {path}?{scope.get('query_string', b'').decode('latin-1')}", seq, resp)
+        # Only polled GET answers repeat; a command keeps its own response,
+        # also when it answers as the previous one did.
+        same = None if method != "GET" else _dedup.check(
+            f"{sid} {method} {path}?{scope.get('query_string', b'').decode('latin-1')}", seq, resp)
         if same is not None:
             entry["response_same_as"] = same
         else:
