@@ -196,6 +196,15 @@ describe('ExperimentRunService', () => {
     expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
   });
 
+  // docs/plans/plan-b-round2-experiments.md item 5: a tutorial ends with its Schichtbilanz.
+  it('leads to "Finish" where the run has no questionnaire', () => {
+    begin(run, store, { ...ONE_LEG, surveyParts: [] });
+    expect(run.hasFinalSurvey()).toBeFalse();
+    expect(run.finishLabel()).toBe('Finish scenario → shift summary');
+    run.setPhase('review');
+    expect(run.finishLabel()).toBe('Finish');
+  });
+
   // docs/plans/hide-scenario-bar.md §4.3: Plan B names the next scenario by number only.
   it('names the next scenario by number where the condition hides the names', () => {
     const c = { ...TWO_LEGS, legSurveyParts: undefined };

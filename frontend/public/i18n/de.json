@@ -2508,12 +2508,16 @@
     "meta": "Szenarien: {{n}} · danach Schichtbilanz und Fragebogen",
     "summaryNoShiftSummary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach ein Fragebogen.",
     "summaryOneNoShiftSummary": "{{name}}: ein Szenario im Modus {{mode}}, danach ein Fragebogen.",
+    "summaryNoSurvey": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach die Schichtbilanz, ohne Fragebogen.",
+    "summaryOneNoSurvey": "{{name}}: ein Szenario im Modus {{mode}}, danach die Schichtbilanz, ohne Fragebogen.",
     "metaNoShiftSummary": "Szenarien: {{n}} · danach Fragebogen",
+    "metaNoSurvey": "Szenarien: {{n}} · danach Schichtbilanz, ohne Fragebogen",
     "finish": {
       "toQuestionnaire": "Szenario abschliessen → Fragebogen",
       "toLeg": "Szenario abschliessen → {{next}}",
       "toReview": "Szenario abschliessen → Schichtbilanz",
-      "toFinalSurvey": "Weiter zum Fragebogen"
+      "toFinalSurvey": "Weiter zum Fragebogen",
+      "complete": "Abschliessen"
     },
     "finishConfirm": {
       "title": "Aktuelles Szenario abschliessen?",

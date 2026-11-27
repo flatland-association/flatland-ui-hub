@@ -332,7 +332,7 @@
       } @else if (!store.demoIsLast()) {
         {{ 'tourUi.debrief.toNextShift' | transloco }}
       } @else if (inExperiment()) {
-        {{ 'experimentRun.finish.toFinalSurvey' | transloco }}
+        {{ (hasFinalSurvey() ? 'experimentRun.finish.toFinalSurvey' : 'experimentRun.finish.complete') | transloco }}
       } @else if (store.demoSurveyEnabled()) {
         {{ 'tourUi.debrief.toSurvey' | transloco }}
       } @else {

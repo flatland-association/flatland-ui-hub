@@ -100,6 +100,8 @@ export class TourDebriefComponent {
    *  is cut to the overview and leads on to the questionnaire
    *  (docs/plans/plan-b-control-group.md D-15, D-18). */
   readonly inExperiment = computed(() => this.run.active());
+  /** An experiment without a questionnaire (a tutorial) ends here. */
+  readonly hasFinalSurvey = computed(() => this.run.hasFinalSurvey());
 
   /** The overview's column "Reflexion", only where the run asks for
    *  reflections (docs/plans/plan-b-control-group.md D-22). */

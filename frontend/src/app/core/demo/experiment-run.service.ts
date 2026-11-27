@@ -10,7 +10,7 @@ import {
 import { shiftDecisionsFrom, shiftKpis } from '../shift-review';
 import { LegFinishReason, ShiftRecord, TourContextService } from './tour-context.service';
 import { TourGuideService } from './tour-guide.service';
-import { ExperimentLeg, StudyCondition, conditionId, hasFinishConfirm, hasShiftSummary } from './study-conditions';
+import { ExperimentLeg, StudyCondition, conditionId, hasFinishConfirm, hasShiftSummary, hasFinalSurvey } from './study-conditions';
 
 /**
  * Where a guided condition's run stands (docs/plans/experiment-workflow.md §5).
@@ -87,6 +87,8 @@ export class ExperimentRunService {
   readonly hasLegSurvey = computed(() => (this.condition()?.legSurveyParts?.length ?? 0) > 0);
   /** The Schichtbilanz comes after the last leg; a condition can leave it out (#174). */
   readonly hasShiftSummary = computed(() => hasShiftSummary(this.condition()));
+  /** A final questionnaire follows; a tutorial has none (`surveyParts: []`). */
+  readonly hasFinalSurvey = computed(() => hasFinalSurvey(this.condition()));
   /** A hand-made finish asks "Aktuelles Szenario abschliessen?" first (#180). */
   readonly hasFinishConfirm = computed(() => hasFinishConfirm(this.condition()));
   /** How often the finish dialog was closed without "Ja" in the current leg.
@@ -133,13 +135,14 @@ export class ExperimentRunService {
       case 'running':
         if (this.hasLegSurvey()) return this.i18n.t('experimentRun.finish.toQuestionnaire');
         if (this.isLast()) {
-          return this.i18n.t(this.hasShiftSummary() ? 'experimentRun.finish.toReview' : 'experimentRun.finish.toQuestionnaire');
+          if (this.hasShiftSummary()) return this.i18n.t('experimentRun.finish.toReview');
+          return this.i18n.t(this.hasFinalSurvey() ? 'experimentRun.finish.toQuestionnaire' : 'experimentRun.finish.complete');
         }
         return this.i18n.t('experimentRun.finish.toLeg', { next: this.legLabel(this.legIndex() + 1) });
       case 'legSurvey':
         return this.i18n.t('experimentRun.finish.toQuestionnaire');
       case 'review':
-        return this.i18n.t('experimentRun.finish.toFinalSurvey');
+        return this.i18n.t(this.hasFinalSurvey() ? 'experimentRun.finish.toFinalSurvey' : 'experimentRun.finish.complete');
       case 'finalSurvey':
         // Without the Schichtbilanz the way back to a closed questionnaire is
         // this button (#174); with it, the Schichtbilanz's own button.

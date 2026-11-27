@@ -2508,12 +2508,16 @@
     "meta": "Scenarios: {{n}} · then the shift summary and a questionnaire",
     "summaryNoShiftSummary": "{{name}}: {{n}} scenarios in {{mode}} mode, then a questionnaire.",
     "summaryOneNoShiftSummary": "{{name}}: one scenario in {{mode}} mode, then a questionnaire.",
+    "summaryNoSurvey": "{{name}}: {{n}} scenarios in {{mode}} mode, then the shift summary, no questionnaire.",
+    "summaryOneNoSurvey": "{{name}}: one scenario in {{mode}} mode, then the shift summary, no questionnaire.",
     "metaNoShiftSummary": "Scenarios: {{n}} · then a questionnaire",
+    "metaNoSurvey": "Scenarios: {{n}} · then the shift summary, no questionnaire",
     "finish": {
       "toQuestionnaire": "Finish scenario → questionnaire",
       "toLeg": "Finish scenario → {{next}}",
       "toReview": "Finish scenario → shift summary",
-      "toFinalSurvey": "On to the questionnaire"
+      "toFinalSurvey": "On to the questionnaire",
+      "complete": "Finish"
     },
     "finishConfirm": {
       "title": "Finish the current scenario?",

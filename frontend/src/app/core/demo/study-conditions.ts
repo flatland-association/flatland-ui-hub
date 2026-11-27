@@ -106,6 +106,12 @@ export function hasFinishConfirm(c: { finishConfirm?: boolean } | null | undefin
   return c?.finishConfirm !== false;
 }
 
+/** The final questionnaire follows, unless the condition has none (`surveyParts: []`,
+ *  a tutorial; docs/plans/plan-b-round2-experiments.md item 5). */
+export function hasFinalSurvey(c: StudyCondition | null | undefined): boolean {
+  return (c?.surveyParts.length ?? 0) > 0;
+}
+
 /** The preset a condition starts on: its fixed scenario, or its first leg's. */
 export function conditionScenarioId(c: StudyCondition): string | undefined {
   return c.legs?.[0]?.scenarioId ?? c.scenarioId;

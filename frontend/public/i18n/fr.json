@@ -2508,12 +2508,16 @@
     "meta": "Scénarios : {{n}} · puis bilan de service et questionnaire",
     "summaryNoShiftSummary": "{{name}} : {{n}} scénarios en mode {{mode}}, puis un questionnaire.",
     "summaryOneNoShiftSummary": "{{name}} : un scénario en mode {{mode}}, puis un questionnaire.",
+    "summaryNoSurvey": "{{name}} : {{n}} scénarios en mode {{mode}}, puis le bilan de service, sans questionnaire.",
+    "summaryOneNoSurvey": "{{name}} : un scénario en mode {{mode}}, puis le bilan de service, sans questionnaire.",
     "metaNoShiftSummary": "Scénarios : {{n}} · puis questionnaire",
+    "metaNoSurvey": "Scénarios : {{n}} · puis bilan de service, sans questionnaire",
     "finish": {
       "toQuestionnaire": "Terminer le scénario → questionnaire",
       "toLeg": "Terminer le scénario → {{next}}",
       "toReview": "Terminer le scénario → bilan de service",
-      "toFinalSurvey": "Vers le questionnaire"
+      "toFinalSurvey": "Vers le questionnaire",
+      "complete": "Terminer"
     },
     "finishConfirm": {
       "title": "Terminer le scénario en cours ?",
