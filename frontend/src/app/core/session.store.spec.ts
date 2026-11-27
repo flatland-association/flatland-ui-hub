@@ -7,6 +7,64 @@ import { SessionStore } from './session.store';
 import { WebSocketService } from './websocket.service';
 import { proposalSnapshot } from '../testing/proposal-snapshot';
 import { DECISION_LOG_CAP } from './decision-log';
+import { Subject } from 'rxjs';
+import { ApiService } from './api.service';
+import type { ContentionGroup, ContentionsResponse } from './events/event-types';
+
+describe('SessionStore — selected forecast contention', () => {
+  let store: SessionStore;
+  let responses: Subject<ContentionsResponse>[];
+  let getContentions: jasmine.Spy;
+  const group: ContentionGroup = { kind: 'blocked', step: 10, position: [1, 2], handles: [1, 2] };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    responses = [];
+    getContentions = spyOn(TestBed.inject(ApiService), 'getContentions').and.callFake(() => {
+      const response = new Subject<ContentionsResponse>();
+      responses.push(response);
+      return response;
+    });
+    store.contentions.set([group]);
+    store.selectedContention.set(group);
+  });
+
+  it('updates the selection from a unique matching forecast and clears ambiguous or missing matches', () => {
+    store.refreshContentions();
+    const updated = { ...group, step: 12, handles: [2, 1] };
+    responses[0].next({ groups: [updated], horizonSteps: 50 });
+    expect(store.selectedContention()).toBe(updated);
+    store.refreshContentions();
+    responses[1].next({ groups: [updated, { ...updated, step: 13 }], horizonSteps: 50 });
+    expect(store.selectedContention()).toBeNull();
+    store.selectedContention.set(updated);
+    store.refreshContentions();
+    responses[2].next({ groups: [], horizonSteps: 50 });
+    expect(store.selectedContention()).toBeNull();
+  });
+
+  it('deduplicates refreshes from ZWL instances and ignores out-of-order results', () => {
+    store.refreshContentionsForZwl('sess-1', 0);
+    store.refreshContentionsForZwl('sess-1', 0);
+    expect(getContentions).toHaveBeenCalledTimes(1);
+    store.refreshContentionsForZwl('sess-1', 3);
+    responses[1].next({ groups: [], horizonSteps: 50 });
+    responses[0].next({ groups: [group], horizonSteps: 50 });
+    expect(store.contentions()).toEqual([]);
+    expect(store.selectedContention()).toBeNull();
+  });
+
+  it('reports a failed refresh without pretending the last result is fresh', () => {
+    store.refreshContentions();
+    responses[0].error(new Error('offline'));
+    expect(store.contentionRefreshFailed()).toBeTrue();
+    expect(store.selectedContention()).toBe(group);
+  });
+});
 
 /** A run error: the server's play loop raised and sent a WebSocket `error`
  *  (docs/plans/toolbar-under-guide.md D7, D12). */

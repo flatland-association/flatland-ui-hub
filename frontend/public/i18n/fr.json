@@ -1873,6 +1873,43 @@
     }
   },
   "zwd": {
+    "extended": {
+      "title": "Détails du conflit prévu",
+      "snapshot": "Prévision des conflits demandée au pas de simulation {{step}}.",
+      "refreshFailed": "Échec de l'actualisation des conflits ; le dernier résultat peut être obsolète.",
+      "select": "Sélectionne un conflit prévu pour ses détails et sa position sur la carte.",
+      "step": "Attendu dès le pas {{step}}",
+      "location": "Lieu : {{name}}",
+      "cell": "Cellule représentative : ligne {{row}}, colonne {{col}}",
+      "noLocation": "Lieu indisponible",
+      "mapHint": "Affiché sur la carte séparée si une cellule cartographiée est disponible.",
+      "mapSelection": "Conflit prévu sélectionné",
+      "entry": "Première entrée (pas)",
+      "headway": "Occupation (pas)",
+      "delay": "Retard actuel (pas)",
+      "slack": "Temps avant l'arrivée limite (pas)",
+      "unavailable": "Indisponible"
+    },
+    "origin": {
+      "explanation": "Horaire : référence · Réel : observé · Prévision : futur possible. Temps en pas de simulation.",
+      "selected": "Sélection : {{name}}",
+      "select": "Sélectionne une ligne de train pour les détails.",
+      "delay": "Retard : {{delay}} pas",
+      "status": {
+        "malfunction": "Panne",
+        "moving": "En circulation",
+        "stopped": "À l'arrêt",
+        "done": "Arrivé",
+        "waiting": "En attente du départ",
+        "ready": "Prêt au départ",
+        "unknown": "Statut indisponible"
+      },
+      "noPlan": "Aucun horaire disponible pour le moment.",
+      "noForecast": "Aucune prévision de train disponible pour le moment.",
+      "noConflictForecast": "Prévision des conflits indisponible.",
+      "corridor": "Tronçon (schématique)",
+      "conflict": "Conflit prévu"
+    },
     "title": "Graphique espace-temps – les trains le long de la ligne dans le temps",
     "noAxis": "Ce scénario n’a pas de ligne nommée – le graphique espace-temps a besoin d’une scène avec des gares (p. ex. Walensee).",
     "wholeLine": "Ligne entière",

@@ -1319,6 +1319,14 @@
   stroke: none;
 }
 
+.selected-contention__cell {
+  fill: none;
+  stroke: var(--app-zwd-conflict);
+  stroke-width: 3px;
+  stroke-dasharray: 4 2;
+  vector-effect: non-scaling-stroke;
+}
+
 /* The bracket over the contended stretch. Grid units for the span so it keeps its
    relation to the cells, screen pixels for the stroke so it does not thin out to
    nothing at the corridor's full extent — the same reason the disruption ring is

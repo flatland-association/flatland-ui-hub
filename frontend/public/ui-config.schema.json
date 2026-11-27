@@ -32,6 +32,8 @@
           "widget.whatif-compare",
           "widget.proposal-compare",
           "widget.zug-weg-diagramm",
+          "widget.zwl-origin",
+          "widget.zwl-origin-extended",
           "widget.director-divergence",
           "widget.scenario",
           "widget.combined-actions",

@@ -826,6 +826,16 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     return contentionWindowCells(this.store.contentions(), railCells, this.cellSize);
   });
 
+  readonly selectedContentionCells = computed(() => {
+    const group = this.store.selectedContention();
+    if (!group) return [];
+    const cells = group.window?.length ? group.window : (group.location?.cell ?? group.position)
+      ? [group.location?.cell ?? group.position!]
+      : [];
+    const railCells = new Set(this.tiles().map((t) => `${t.r}_${t.c}`));
+    return contentionWindowCells([{ ...group, window: cells }], railCells, this.cellSize);
+  });
+
   /**
    * The contended stretch as a bracket over the track.
    *

@@ -1621,6 +1621,30 @@ export class SessionStore {
    *  runs to plan — the panel keeps its empty state rather than synthesising a
    *  package. Refreshed alongside the other HMI forecasts. */
   readonly contentions = signal<ContentionGroup[]>([]);
+  readonly selectedContention = signal<ContentionGroup | null>(null);
+  readonly contentionSnapshotStep = signal<number | null>(null);
+  readonly contentionRefreshFailed = signal(false);
+  private contentionRequest = 0;
+
+  private contentionIdentity(group: ContentionGroup): string {
+    return JSON.stringify([group.kind, [...group.handles].sort((a, b) => a - b), group.position]);
+  }
+
+  private reconcileSelectedContention(groups: ContentionGroup[]): void {
+    const selected = this.selectedContention();
+    if (!selected) return;
+    const matches = groups.filter((group) => this.contentionIdentity(group) === this.contentionIdentity(selected));
+    this.selectedContention.set(matches.length === 1 ? matches[0] : null);
+  }
+
+  private lastZwlContentionRefresh: { sessionId: string; step: number } | null = null;
+
+  refreshContentionsForZwl(sessionId: string, step: number): void {
+    const last = this.lastZwlContentionRefresh;
+    if (last?.sessionId === sessionId && step >= last.step && step - last.step < 3) return;
+    this.lastZwlContentionRefresh = { sessionId, step };
+    this.refreshContentions(true);
+  }
 
   /** The forecast budget the contentions endpoint ran with, in simulation steps
    *  — how far it looked ahead. A **compute budget**, not a reliability statement
@@ -1969,6 +1993,11 @@ export class SessionStore {
     this.pendingStrategyReflection.set(null);
     this.impact.set([]);
     this.contentions.set([]);
+    this.selectedContention.set(null);
+    this.lastZwlContentionRefresh = null;
+    this.contentionSnapshotStep.set(null);
+    this.contentionRefreshFailed.set(false);
+    this.contentionRequest++;
     this.contentionForecast.set(null);
     this.contentionHorizonSteps.set(0);
     this.clearDecisionLog();
@@ -2259,6 +2288,11 @@ export class SessionStore {
     this._resetTrajectories();
     this.impact.set([]);
     this.contentions.set([]);
+    this.selectedContention.set(null);
+    this.lastZwlContentionRefresh = null;
+    this.contentionSnapshotStep.set(null);
+    this.contentionRefreshFailed.set(false);
+    this.contentionRequest++;
     this.contentionForecast.set(null);
     this.contentionHorizonSteps.set(0);
     this.clearDecisionLog();
@@ -2298,6 +2332,11 @@ export class SessionStore {
     this.pendingStrategyReflection.set(null);
     this.impact.set([]);
     this.contentions.set([]);
+    this.selectedContention.set(null);
+    this.lastZwlContentionRefresh = null;
+    this.contentionSnapshotStep.set(null);
+    this.contentionRefreshFailed.set(false);
+    this.contentionRequest++;
     this.contentionForecast.set(null);
     this.contentionHorizonSteps.set(0);
     this.clearDecisionLog();
@@ -2606,16 +2645,23 @@ export class SessionStore {
   refreshContentions(withTrajectories = false): void {
     const s = this.session();
     if (!s) return;
+    const request = ++this.contentionRequest;
+    const step = this.state()?.elapsed_steps ?? 0;
     this.api.getContentions(s.id, withTrajectories).subscribe({
       next: (resp) => {
-        if (this.session()?.id !== s.id) return;
+        if (this.session()?.id !== s.id || request !== this.contentionRequest) return;
+        this.reconcileSelectedContention(resp.groups);
         this.contentions.set(resp.groups);
+        this.contentionSnapshotStep.set(step);
+        this.contentionRefreshFailed.set(false);
         this.contentionHorizonSteps.set(resp.horizonSteps);
         if (resp.trajectories) {
-          this.contentionForecast.set({ step: this.state()?.elapsed_steps ?? 0, trajectories: resp.trajectories });
+          this.contentionForecast.set({ step, trajectories: resp.trajectories });
         }
       },
-      error: () => {},
+      error: () => {
+        if (this.session()?.id === s.id && request === this.contentionRequest) this.contentionRefreshFailed.set(true);
+      },
     });
   }
 

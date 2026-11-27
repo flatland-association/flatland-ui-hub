@@ -1873,6 +1873,43 @@
     }
   },
   "zwd": {
+    "extended": {
+      "title": "Forecast conflict details",
+      "snapshot": "Conflict forecast requested at simulation step {{step}}.",
+      "refreshFailed": "Conflict forecast refresh failed; the last result may be outdated.",
+      "select": "Select a forecast conflict for details and its location on the map.",
+      "step": "First expected at step {{step}}",
+      "location": "Location: {{name}}",
+      "cell": "Representative cell: row {{row}}, column {{col}}",
+      "noLocation": "Location unavailable",
+      "mapHint": "Shown on the separate map when a mapped cell is available.",
+      "mapSelection": "Selected forecast conflict",
+      "entry": "First entry (step)",
+      "headway": "Occupancy (steps)",
+      "delay": "Current overdue time (steps)",
+      "slack": "Time to latest arrival (steps)",
+      "unavailable": "Unavailable"
+    },
+    "origin": {
+      "explanation": "Timetable: reference · Actual: observed · Forecast: possible future. Time is in simulation steps.",
+      "selected": "Selected: {{name}}",
+      "select": "Select a train line for details.",
+      "delay": "Delay: {{delay}} steps",
+      "status": {
+        "malfunction": "Malfunction",
+        "moving": "Moving",
+        "stopped": "Stopped",
+        "done": "Arrived",
+        "waiting": "Waiting to depart",
+        "ready": "Ready to depart",
+        "unknown": "Status unavailable"
+      },
+      "noPlan": "No timetable available yet.",
+      "noForecast": "No train forecast available yet.",
+      "noConflictForecast": "Conflict forecast unavailable.",
+      "corridor": "Corridor (schematic)",
+      "conflict": "Forecast conflict"
+    },
     "title": "Time-distance diagram — trains along the corridor over time",
     "noAxis": "This scenario has no named corridor — the time-distance diagram needs a scene with stations (e.g. Walensee).",
     "wholeLine": "Whole line",

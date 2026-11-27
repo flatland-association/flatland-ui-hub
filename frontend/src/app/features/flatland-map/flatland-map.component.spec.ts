@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { SessionStore } from '../../core/session.store';
+import type { ContentionGroup } from '../../core/events/event-types';
 import { CurrentDelayService } from '../../core/timetable/current-delay.service';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { FlatlandMapComponent } from './flatland-map.component';
@@ -54,6 +55,20 @@ describe('FlatlandMapComponent — closing a train\'s option strip', () => {
     TestBed.tick();
     expect(c.trainOptionsClosedFor()).toBeNull();
     expect(store.selectedHandle()).toBe(5);
+  });
+
+  it('marks only mapped cells of the selected conflict, even with the layer hidden', () => {
+    store.state.set({ rail_tiles: [{ r: 1, c: 2 }, { r: 1, c: 3 }] } as never);
+    const conflict: ContentionGroup = {
+      kind: 'blocked', step: 10, handles: [1, 2], position: [1, 2],
+      window: [[1, 2], [1, 3], [9, 9]],
+    };
+    store.selectedContention.set(conflict);
+    expect(c.selectedContentionCells().length).toBe(2);
+    store.selectedContention.set({ ...conflict, window: [] });
+    expect(c.selectedContentionCells().length).toBe(1);
+    store.selectedContention.set({ ...conflict, window: [], position: null });
+    expect(c.selectedContentionCells()).toEqual([]);
   });
 });
 

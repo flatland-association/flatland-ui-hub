@@ -117,6 +117,16 @@ our session + overrides + what-if APIs — mostly there.
   the "convenience endpoint" above should wrap/mirror this rather than diverge
   from its restore/simulate/action-space vocabulary.
 
+### ZWL origin — first-cut variant
+
+`zwl-origin-extended` adds selectable forecast conflict details and a link to
+the separately configured map. Variant comparison remains deferred.
+
+The separately selectable `zwl-origin` variant reuses B4's data and interaction
+logic, with a schematic corridor, explicitly labelled forecast conflicts and
+additional timetable/actual/forecast guidance. It does not claim to implement
+signalling or additional forecast models. See `widget-b4-zwl.md`.
+
 ### B2. Conflict-aware Marey (ribbons + predicted lines) — [UIX 6/6]
 > **Absorbed into B4 "ZWL" (2026-09-23, first-cut).** Conflict
 > ribbons ship there, on the station axis; this entry is kept for history and no

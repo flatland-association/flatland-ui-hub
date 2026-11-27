@@ -1,8 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { WritableSignal, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SessionStore } from '../../core/session.store';
+import type { ContentionGroup } from '../../core/events/event-types';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { ZwlComponent } from './zwl.component';
 
@@ -14,6 +15,7 @@ import { ZwlComponent } from './zwl.component';
  */
 describe('ZwlComponent — following the now-line', () => {
   let c: ZwlComponent;
+  let fixture: ComponentFixture<ZwlComponent>;
   let store: SessionStore;
   let el: { scrollTop: number; scrollHeight: number; clientHeight: number };
   let domain: WritableSignal<[number, number]>;
@@ -34,7 +36,7 @@ describe('ZwlComponent — following the now-line', () => {
     });
     store = TestBed.inject(SessionStore);
     store.session.set({ id: 's1' } as never);
-    const fixture = TestBed.createComponent(ZwlComponent);
+    fixture = TestBed.createComponent(ZwlComponent);
     c = fixture.componentInstance;
     el = { scrollTop: 0, scrollHeight: 5000, clientHeight: 300 };
     domain = signal<[number, number]>([0, 200]);
@@ -136,5 +138,95 @@ describe('ZwlComponent — following the now-line', () => {
   it('writes the time unit in the sticky header, where it does not scroll away (F-2)', () => {
     expect(c.timeUnitLabel().y).toBeGreaterThan(0);
     expect(c.timeUnitLabel().y).toBeLessThan(c.headerH);
+  });
+
+  it('keeps origin vertical even when the ordinary diagram is horizontal', () => {
+    c.orientation.set('time-horizontal');
+    expect(c.timeVertical()).toBeFalse();
+    fixture.componentRef.setInput('origin', true);
+    fixture.detectChanges();
+    expect(c.timeVertical()).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.zwd--origin')).not.toBeNull();
+  });
+
+  it('reports an unavailable conflict forecast instead of a clear forecast', () => {
+    fixture.componentRef.setInput('origin', true);
+    fixture.detectChanges();
+    expect(c.conflictForecastAvailable()).toBeFalse();
+    expect(fixture.nativeElement.querySelector('.zwd__none').textContent)
+      .toContain('Conflict forecast unavailable.');
+    store.contentionHorizonSteps.set(50);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.zwd__none').textContent)
+      .toContain('No conflicts forecast');
+  });
+
+  it('keeps origin train actions mode-aware', () => {
+    fixture.componentRef.setInput('origin', true);
+    fixture.componentRef.setInput('decisionPills', true);
+    store.interactionMode.set('recommendation');
+    expect(c.pillBehavior()).toEqual({ show: true, markRecommended: true });
+    store.interactionMode.set('co-learning');
+    expect(c.pillBehavior()).toEqual({ show: true, markRecommended: false });
+    store.interactionMode.set('director');
+    expect(c.pillBehavior()).toEqual({ show: false, markRecommended: false });
+  });
+
+  it('shows the selected train status without guessing the reason for a stop', () => {
+    fixture.componentRef.setInput('origin', true);
+    store.state.set({
+      elapsed_steps: 0,
+      agents: [{ handle: 1, state: 'STOPPED', is_malfunctioning: false, malfunction_remaining: 0 }],
+    } as never);
+    store.selectedHandle.set(1);
+    fixture.detectChanges();
+    expect(c.selectedTrain()?.status).toBe('stopped');
+    expect(fixture.nativeElement.querySelector('.zwd__origin-context').textContent).toContain('Stopped');
+  });
+
+  it('selects a conflict, shows missing measures distinctly from zero, and selects a train', () => {
+    fixture.componentRef.setInput('origin', true);
+    fixture.componentRef.setInput('extended', true);
+    store.geography.set({
+      layout: 'corridor', stations: [{ code: 'A', name: 'A', cell: [1, 1] }],
+      locations: [], single_track: [],
+    } as never);
+    const group: ContentionGroup = {
+      kind: 'blocked', step: 12, position: [1, 1], handles: [1, 2],
+      perHandle: [{
+        agentHandle: 1,
+        baselineOrder: { value: 12, unavailable_reason: null },
+        headway: { value: null, unavailable_reason: 'no_window' },
+        entryDelay: { value: 0, unavailable_reason: null },
+        slack: { value: null, unavailable_reason: 'no_waypoints' },
+      }],
+    };
+    store.contentions.set([group]);
+    fixture.detectChanges();
+    const chip = fixture.nativeElement.querySelector('.zwd__chip') as HTMLButtonElement;
+    chip.click();
+    fixture.detectChanges();
+    expect(store.selectedContention()).toBe(group);
+    expect(chip.getAttribute('aria-pressed')).toBe('true');
+    const detail = fixture.nativeElement.querySelector('.zwd__detail') as HTMLElement;
+    expect(detail.textContent).toContain('First entry (step): 12');
+    expect(detail.textContent).toContain('Occupancy (steps): Unavailable');
+    expect(detail.textContent).toContain('Current overdue time (steps): 0');
+    (detail.querySelector('button') as HTMLButtonElement).click();
+    expect(store.selectedHandle()).toBe(1);
+    chip.click();
+    expect(store.selectedContention()).toBeNull();
+  });
+
+  it('still offers conflict details when no diagram axis is available', () => {
+    fixture.componentRef.setInput('origin', true);
+    fixture.componentRef.setInput('extended', true);
+    store.contentions.set([{ kind: 'blocked', step: 12, position: null, handles: [1, 2] }]);
+    fixture.detectChanges();
+    const chip = fixture.nativeElement.querySelector('.zwd__chip') as HTMLButtonElement;
+    expect(chip).not.toBeNull();
+    chip.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.zwd__detail').textContent).toContain('Location unavailable');
   });
 });

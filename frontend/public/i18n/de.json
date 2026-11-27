@@ -1873,6 +1873,43 @@
     }
   },
   "zwd": {
+    "extended": {
+      "title": "Details zum prognostizierten Konflikt",
+      "snapshot": "Konfliktprognose angefordert bei Simulationsschritt {{step}}.",
+      "refreshFailed": "Aktualisierung der Konfliktprognose fehlgeschlagen; das letzte Ergebnis kann veraltet sein.",
+      "select": "Wähle einen prognostizierten Konflikt für Details und seinen Ort auf der Karte.",
+      "step": "Erstmals erwartet bei Schritt {{step}}",
+      "location": "Ort: {{name}}",
+      "cell": "Repräsentative Zelle: Zeile {{row}}, Spalte {{col}}",
+      "noLocation": "Ort nicht verfügbar",
+      "mapHint": "Auf der separaten Karte markiert, sofern eine darstellbare Zelle vorliegt.",
+      "mapSelection": "Ausgewählter prognostizierter Konflikt",
+      "entry": "Erste Einfahrt (Schritt)",
+      "headway": "Belegung (Schritte)",
+      "delay": "Aktuelle Überfälligkeit (Schritte)",
+      "slack": "Zeit bis späteste Ankunft (Schritte)",
+      "unavailable": "Nicht verfügbar"
+    },
+    "origin": {
+      "explanation": "Soll: Referenz · Ist: beobachtet · Prognose: mögliche Zukunft. Zeit in Simulationsschritten.",
+      "selected": "Ausgewählt: {{name}}",
+      "select": "Wähle eine Zuglinie für Details.",
+      "delay": "Verspätung: {{delay}} Schritte",
+      "status": {
+        "malfunction": "Störung",
+        "moving": "Unterwegs",
+        "stopped": "Angehalten",
+        "done": "Angekommen",
+        "waiting": "Wartet auf Abfahrt",
+        "ready": "Abfahrbereit",
+        "unknown": "Status nicht verfügbar"
+      },
+      "noPlan": "Noch kein Sollfahrplan verfügbar.",
+      "noForecast": "Noch keine Zugprognose verfügbar.",
+      "noConflictForecast": "Konfliktprognose nicht verfügbar.",
+      "corridor": "Streckenverlauf (schematisch)",
+      "conflict": "Prognostizierter Konflikt"
+    },
     "title": "Zeit-Weg-Liniendiagramm – Züge entlang der Strecke über die Zeit",
     "noAxis": "Dieses Szenario hat keine benannte Strecke – das Zeit-Weg-Liniendiagramm braucht eine Szene mit Bahnhöfen (z. B. Walensee).",
     "wholeLine": "Ganze Strecke",

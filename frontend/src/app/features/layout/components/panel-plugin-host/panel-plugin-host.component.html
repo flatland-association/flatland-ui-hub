@@ -213,6 +213,18 @@
       </div>
     }
 
+    @case ('zwl-origin') {
+      <div class="panel-plugin-host__timetable">
+        <app-zwl [embedded]="true" [origin]="true" [decisionPills]="!!$any(panel)?.settings?.decisionPills"></app-zwl>
+      </div>
+    }
+
+    @case ('zwl-origin-extended') {
+      <div class="panel-plugin-host__timetable">
+        <app-zwl [embedded]="true" [origin]="true" [extended]="true" [decisionPills]="!!$any(panel)?.settings?.decisionPills"></app-zwl>
+      </div>
+    }
+
     @case ('graphic-timetable') {
       <div class="panel-plugin-host__timetable">
         <app-zwl [embedded]="true"></app-zwl>

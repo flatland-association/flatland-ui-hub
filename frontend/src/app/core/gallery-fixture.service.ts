@@ -58,6 +58,10 @@ export class GalleryFixtureService {
    *  clear() so a real session (which we did not seed) is never wiped. */
   private _seeded = false;
 
+  get seeded(): boolean {
+    return this._seeded;
+  }
+
   /** Wall-clock base for fixture timestamps (set at seed time so entries are
    *  ordered consistently within one gallery visit). */
   private _t0 = 0;
@@ -75,6 +79,9 @@ export class GalleryFixtureService {
     this.store.notifications.set(this._notifications);
     this.store.impact.set(this._impact);
     this.store.contentions.set(this._contentions);
+    this.store.selectedContention.set(null);
+    this.store.contentionSnapshotStep.set(this._sessionState.elapsed_steps);
+    this.store.contentionRefreshFailed.set(false);
     this.store.contentionHorizonSteps.set(this._contentionHorizonSteps);
     this.store.decisionLog.set(this._decisionLog);
     this.store.coLearningFeedback.set(this._coLearningFeedback);
@@ -100,6 +107,9 @@ export class GalleryFixtureService {
     this.store.notifications.set([]);
     this.store.impact.set([]);
     this.store.contentions.set([]);
+    this.store.selectedContention.set(null);
+    this.store.contentionSnapshotStep.set(null);
+    this.store.contentionRefreshFailed.set(false);
     this.store.contentionHorizonSteps.set(0);
     this.store.decisionLog.set([]);
     this.store.coLearningFeedback.set([]);

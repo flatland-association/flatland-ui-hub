@@ -179,6 +179,17 @@
         </g>
       }
 
+      @if (selectedContentionCells().length > 0) {
+        <g class="selected-contention" pointer-events="none">
+          <title>{{ 'zwd.extended.mapSelection' | transloco }}</title>
+          @for (cell of selectedContentionCells(); track cell.id) {
+            <rect class="selected-contention__cell"
+              [attr.x]="cell.x" [attr.y]="cell.y"
+              [attr.width]="cellSize" [attr.height]="cellSize" />
+          }
+        </g>
+      }
+
       <!-- Segment-exact future trajectory overlay.
            Rendered above rail tiles so switch branches can be highlighted
            without tinting the whole switch tile. -->

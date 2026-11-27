@@ -32,6 +32,8 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 | `flatland-map` | ● | ● | ● |
 | `graphic-timetable` (`marey`) | ● | ● | ● |
 | `zug-weg-diagramm` (B4, first-cut) | ● pills (if enabled) mark the policy's choice | ● pills (if enabled) neutral | ● read-only — no pills whatever the setting |
+| `zwl-origin` (first-cut) | ● optional pills mark the policy's choice | ● optional pills neutral | ● read-only — no pills |
+| `zwl-origin-extended` (first-cut) | ● conflict details and linked map; optional pills mark the policy's choice | ● conflict details and linked map; optional pills neutral | ● conflict details and linked map; read-only — no pills |
 | `agent-inspector` | ● | ● | ● |
 | `impact` | ● | ● | ◐ overview only |
 | `whatif-compare` | ● | ● | ● read-only (no Commit) |

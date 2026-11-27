@@ -12,6 +12,8 @@ import { CurrentDelayService } from '../../core/timetable/current-delay.service'
 import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { SmoothClockService } from '../../core/motion/smooth-clock.service';
 import { LanguageService } from '../../core/i18n/language.service';
+import { GalleryFixtureService } from '../../core/gallery-fixture.service';
+import type { ContentionGroup } from '../../core/events/event-types';
 import {
   columnAxis, contentionBand, delayMarks, onAxis, routeAxis, sectionName,
   type AxisModel, type CellPoint, type ContentionBand, type DelayMark, type LinePoint,
@@ -80,9 +82,6 @@ const BIG_GROUP_NEAR_STEPS = 12;
 /** Names listed on a ribbon or chip before "+N". */
 const MAX_NAMES = 3;
 
-/** While the simulation plays, re-ask the contentions forecast every this
- *  many steps (the store only refreshes it on discrete actions). */
-const CONTENTION_REFRESH_STEPS = 3;
 /** Minimum vertical distance between two station labels, px. */
 const LABEL_MIN_GAP = 12;
 
@@ -139,6 +138,7 @@ interface DecisionGlyph {
 }
 
 interface PlacedBand extends ContentionBand {
+  group: ContentionGroup;
   x: number;
   y: number;
   w: number;
@@ -184,12 +184,15 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
    * Actions.
    */
   readonly decisionPills = input(false);
+  readonly origin = input(false);
+  readonly extended = input(false);
 
   private readonly store = inject(SessionStore);
   private readonly colors = inject(AgentColorService);
   private readonly identity = inject(TrainIdentityService);
   private readonly api = inject(ApiService);
   private readonly i18n = inject(LanguageService);
+  private readonly galleryFixture = inject(GalleryFixtureService);
   /** Acting goes through the dispatch seam, never straight to the store. */
   private readonly trainActions = inject(TrainActionService);
 
@@ -410,17 +413,11 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
    *  after discrete actions (step buttons, policy change), so a playing session
    *  would otherwise show a stale, usually empty, forecast. Throttled; the
    *  backend memoises per step. */
-  private lastContentionStep = -Infinity;
   private readonly contentionRefresh = effect(() => {
     const now = this.now();
     const sid = this.store.session()?.id;
-    if (!sid) return;
-    untracked(() => {
-      if (now < this.lastContentionStep || now - this.lastContentionStep >= CONTENTION_REFRESH_STEPS) {
-        this.lastContentionStep = now;
-        this.store.refreshContentions(true);
-      }
-    });
+    if (!sid || this.galleryFixture.seeded) return;
+    untracked(() => this.store.refreshContentionsForZwl(sid, now));
   });
 
   private readonly baselineForecast = computed(() => {
@@ -482,12 +479,26 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
     return out;
   });
 
-  readonly bands = computed<ContentionBand[]>(() => {
+  readonly bands = computed<(ContentionBand & { group: ContentionGroup })[]>(() => {
     const axis = this.axis();
-    if (!axis) return [];
+    if (!axis) {
+      return this.store.contentions().map((group, index) => ({
+        key: `off-axis:${index}`,
+        group,
+        handles: group.handles,
+        kind: group.kind,
+        fromPos: null,
+        toPos: null,
+        fromStep: group.step,
+        toStep: group.step + 1,
+        section: group.location?.name ?? null,
+        near: group.location?.kind === 'near',
+      }));
+    }
     const now = this.now();
-    return this.store.contentions().map((g) => {
-      const band = contentionBand(g, axis);
+    return this.store.contentions().map((g, index) => {
+      const base = contentionBand(g, axis);
+      const band = { ...base, group: g, key: `${base.key}:${index}` };
       // The backend merges every overlapping conflict into one group, so a busy
       // corridor yields a single ribbon over the whole line and the whole
       // horizon. For such a group show only where it starts: the first stretch
@@ -562,7 +573,7 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   // `marey` widget. Remembered per viewer; presentation only.
 
   readonly orientation = signal<Orientation>(readOrientation());
-  readonly timeVertical = computed(() => this.orientation() === 'time-vertical');
+  readonly timeVertical = computed(() => this.origin() || this.orientation() === 'time-vertical');
 
   toggleOrientation(): void {
     const next: Orientation = this.timeVertical() ? 'time-horizontal' : 'time-vertical';
@@ -986,6 +997,29 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   }
 
   readonly hasAxis = computed(() => !!this.axis());
+  readonly forecastAvailable = computed(() =>
+    [...this.cellPoints().values()].some((points) => points.forecast.length > 0),
+  );
+  readonly conflictForecastAvailable = computed(() => this.store.contentionHorizonSteps() > 0);
+  readonly selectedTrain = computed(() => {
+    const handle = this.store.selectedHandle();
+    if (handle == null) return null;
+    const agent = this.store.agents().find((a) => a.handle === handle);
+    if (!agent) return null;
+    const state = String(agent.state).toUpperCase();
+    const status = this.store.isMalfunctioning(agent) ? 'malfunction'
+      : state === 'MOVING' ? 'moving'
+      : state === 'STOPPED' ? 'stopped'
+      : state === 'DONE' ? 'done'
+      : state === 'WAITING' ? 'waiting'
+      : state === 'READY_TO_DEPART' ? 'ready'
+      : 'unknown';
+    return {
+      name: this.identity.nameFor(handle),
+      delay: this.delaysNow.label(handle),
+      status,
+    };
+  });
   /** Named, but a network rather than one line (Olten): a route must be chosen. */
   readonly isNetwork = computed(() => this.store.geography()?.layout === 'network');
   /** The route pickers are offered wherever places are named. */
@@ -994,6 +1028,34 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   // ── interaction (presentation only, writes: view) ─────────────
 
   readonly hoveredBand = signal<string | null>(null);
+  readonly selectedContention = this.store.selectedContention;
+  readonly contentionSnapshotStep = this.store.contentionSnapshotStep;
+  readonly contentionRefreshFailed = this.store.contentionRefreshFailed;
+  readonly selectedMeasures = computed(() => {
+    const group = this.selectedContention();
+    return (group?.handles ?? []).map((handle) => {
+      const measures = group?.perHandle?.find((item) => item.agentHandle === handle);
+      return {
+        handle,
+        entry: measures?.baselineOrder?.value ?? null,
+        headway: measures?.headway?.value ?? null,
+        delay: measures?.entryDelay?.value ?? null,
+        slack: measures?.slack?.value ?? null,
+      };
+    });
+  });
+
+  selectContention(band: PlacedBand): void {
+    this.store.selectedContention.set(this.store.selectedContention() === band.group ? null : band.group);
+  }
+
+  trainName(handle: number): string {
+    return this.identity.nameFor(handle);
+  }
+
+  selectTrain(handle: number): void {
+    this.store.selectedHandle.set(handle);
+  }
 
   isHighlighted(handle: number): boolean {
     return this.store.notificationHoverHandles().has(handle) || this.store.selectedHandle() === handle;
