@@ -520,9 +520,10 @@ async def reset_session(session_id: str):
     # The episode starts over on the session's own plan, not an accepted AI plan,
     # and without a KI course waiting for a step of the old run.
     revert_accepted_plan(session.env)
+    # A course still waiting is reported as cancelled (`course_activation`),
+    # so the panel stops waiting for it; the middleware may have done so already.
     from app.core.proposal_preview import clear_previews
     clear_previews(session)
-    session._course_activation = None
     if session.seed is not None:
         obs, info = session.env.reset(
             regenerate_rail=False, regenerate_schedule=False, random_seed=session.seed

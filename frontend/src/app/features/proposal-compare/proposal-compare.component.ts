@@ -212,7 +212,8 @@ export class ProposalCompareComponent implements OnDestroy {
 
     // A taken AI course waiting for its step: when the backend has dealt with
     // it, close the frame as for any course taken, or say that it no longer
-    // fitted and ask for a new one.
+    // fitted and ask for a new one. Cancelled by another decision or a reset:
+    // ask again, without a message (the participant made that decision).
     effect(() => {
       const state = this.store.state();
       untracked(() => {
@@ -220,9 +221,9 @@ export class ProposalCompareComponent implements OnDestroy {
         const outcome = state?.course_activation;
         if (at == null || !state || state.pending_course || outcome?.activation_step !== at) return;
         this.pendingActivation.set(null);
-        if (outcome.outcome === 'rejected') {
+        if (outcome.outcome === 'rejected' || outcome.outcome === 'cancelled') {
           this.appliedVariant.set(null);
-          this.courseRejected.set(true);
+          this.courseRejected.set(outcome.outcome === 'rejected');
           this.load(this.chosenOption());
         } else {
           this.closeFrame();

@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideTourContextStub } from '../../testing/tour-context-stub';
-import { SessionInfo } from '../../core/models';
+import { SessionInfo, SessionState } from '../../core/models';
 import { SessionStore } from '../../core/session.store';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { ProposalCompareComponent } from './proposal-compare.component';
@@ -182,6 +182,30 @@ describe('ProposalCompareComponent — future AI courses', () => {
     });
     request.flush({ applied: 'ai', label: '', step: 7, policy: 'plan' });
     expect(store.proposalSnapshots().get(store.decisionLog().at(-1)!.seq)?.result.variants[1].candidate_id).toBe('wait-13-3');
+  });
+
+  /** A course taken for a step ahead (docs/plans/plan-b-log-findings.md §4.3, §4.5). */
+  function takePending(component: ProposalCompareComponent, http: HttpTestingController, store: SessionStore) {
+    store.state.set({ elapsed_steps: 7 } as SessionState);
+    http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));
+    component.take('ai');
+    http.expectOne((r) => r.url.endsWith('/proposals/apply'))
+      .flush({ applied: 'ai', label: '', step: 7, policy: '', pending: true, activation_step: 9 });
+    store.state.set({ elapsed_steps: 7, pending_course: { handle: 0, activation_step: 9 } } as SessionState);
+  }
+
+  it('stops waiting and asks again, without a message, when the pending course is cancelled', () => {
+    const { fixture, component, http, store } = create();
+    takePending(component, http, store);
+    fixture.detectChanges();
+    http.match((r) => r.url.endsWith('/proposals'));  // the refresh after the accept
+    store.state.set({ elapsed_steps: 8, pending_course: null,
+      course_activation: { handle: 0, step: 8, activation_step: 9, outcome: 'cancelled' } } as SessionState);
+    fixture.detectChanges();
+    expect(component.pendingActivation()).toBeNull();
+    expect(component.appliedVariant()).toBeNull();
+    expect(component.courseRejected()).toBeFalse();
+    expect(http.match((r) => r.url.endsWith('/proposals')).length).toBe(1);
   });
 
   /** docs/plans/uc2-rl-keep-human-decisions.md: uc2_rl keeps the other trains' stops. */

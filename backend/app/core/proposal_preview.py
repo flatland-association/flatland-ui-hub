@@ -162,10 +162,16 @@ def set_pending(session, course: PreviewCourse) -> None:
 
 
 def clear_pending(session, handle: int | None = None) -> None:
-    """Drop the pending course (only if it is for `handle`, when given)."""
+    """Drop the pending course (only if it is for `handle`, when given).
+
+    Reported as `cancelled` in `course_activation`, so the HMI stops waiting
+    for it; `activate_pending_course` overwrites that with its own outcome."""
     course = pending_course(session)
     if course is not None and (handle is None or course.handle == int(handle)):
         session._pending_course = None
+        session._course_activation = {
+            "handle": course.handle, "step": int(getattr(session.env, "_elapsed_steps", 0) or 0),
+            "activation_step": course.activation_step, "outcome": "cancelled"}
 
 
 def course_state(session) -> dict:

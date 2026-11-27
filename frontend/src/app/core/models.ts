@@ -138,7 +138,7 @@ export interface SessionState {
   /** A KI course accepted for a step ahead, still waiting for that step. */
   pending_course?: { handle: number; activation_step: number } | null;
   /** How the last such course went when its step came. */
-  course_activation?: { handle: number; step: number; activation_step: number; outcome: 'installed' | 'rechecked' | 'rejected' } | null;
+  course_activation?: { handle: number; step: number; activation_step: number; outcome: 'installed' | 'rechecked' | 'rejected' | 'cancelled' } | null;
 }
 
 export interface InfrastructureSceneDiagnostics {

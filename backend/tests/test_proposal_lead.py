@@ -122,9 +122,12 @@ def test_a_new_decision_for_the_train_drops_the_pending_course(client):
     body, ai = _ai(client, sid, lead=5)
     assert _accept(client, sid, body, ai).json()["pending"] is True
     client.delete(f"/session/{sid}/agent/{HELD}/override")
-    assert client.get(f"/session/{sid}/state").json()["pending_course"] is None
+    state = client.get(f"/session/{sid}/state").json()
+    assert state["pending_course"] is None
+    # Reported, so the panel stops waiting for it.
+    assert state["course_activation"] == {"handle": HELD, "step": 21, "activation_step": 26, "outcome": "cancelled"}
     _step(client, sid, 6)
-    assert client.get(f"/session/{sid}/state").json()["course_activation"] is None
+    assert client.get(f"/session/{sid}/state").json()["course_activation"]["outcome"] == "cancelled"
 
 
 def test_a_refused_reroute_leaves_the_pending_course(client):
@@ -153,7 +156,10 @@ def test_reset_drops_the_pending_course(client):
     body, ai = _ai(client, sid, lead=5)
     assert _accept(client, sid, body, ai).json()["pending"] is True
     client.post(f"/session/{sid}/reset")
-    assert client.get(f"/session/{sid}/state").json()["pending_course"] is None
+    state = client.get(f"/session/{sid}/state").json()
+    assert state["pending_course"] is None
+    assert state["course_activation"]["outcome"] == "cancelled"
+
 
 
 def test_a_lead_token_from_before_a_reset_is_refused(client):
