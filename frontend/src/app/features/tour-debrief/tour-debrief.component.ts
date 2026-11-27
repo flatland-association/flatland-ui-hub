@@ -4,7 +4,7 @@ import { DecisionAction } from '../../core/decision-log';
 import { OperatorModelService } from '../../core/operator-model.service';
 import { REFLECTION_CASE_LABELS, ReflectionCaseType } from '../../core/reflection-moments';
 import { SessionStore } from '../../core/session.store';
-import { OverviewLeg, ShiftIntervention, ShiftKpis, buildShiftReview, interventionsFrom, reflectionLines, shiftKpis } from '../../core/shift-review';
+import { OverviewLeg, ShiftIntervention, ShiftKpis, buildShiftReview, interventionsFrom, reflectionLines, shiftDecisionsFrom, shiftKpis } from '../../core/shift-review';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ShiftRecord, TourContextService } from '../../core/demo/tour-context.service';
 import { ApiService } from '../../core/api.service';
@@ -170,12 +170,7 @@ export class TourDebriefComponent {
 
   /** This shift, as it will go into the tour's shift history. */
   readonly currentShift = computed<ShiftRecord>(() => {
-    const decisions = this.interventions().map((i) => ({
-      handle: i.handle,
-      action: i.action,
-      simStep: i.step,
-      decisionTimeMs: this.store.decisionLog().find((e) => e.seq === i.seq)?.decisionTimeMs ?? null,
-    }));
+    const decisions = shiftDecisionsFrom(this.store.decisionLog());
     const since = this.tourContext.shiftStartedAt();
     const rules = [
       ...this.store

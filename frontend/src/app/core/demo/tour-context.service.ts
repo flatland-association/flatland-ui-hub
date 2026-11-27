@@ -6,8 +6,7 @@ import { InteractionMode } from '../events/event-types';
 import { ModeIntro } from './mode-intro-configs';
 import { TourBriefing } from './tour-briefings';
 import { SandboxOutcome } from './sandbox-replay';
-import { ShiftKpis } from '../shift-review';
-import type { DecisionEvent } from '../decision-log';
+import { ShiftDecision, ShiftKpis } from '../shift-review';
 import type { ExperimentLeg } from './study-conditions';
 import { ScenarioPreset } from '../models';
 import { backendHttpBase } from '../backend-origin';
@@ -42,15 +41,7 @@ export interface ShiftRecord {
    *  leg also keeps each one's stated reason, reflection answers and the
    *  disturbance messages open at it, for the Schichtbilanz's overview
    *  (docs/plans/plan-b-control-group.md §4.5); absent in older records. */
-  decisions: {
-    handle: number;
-    action: string;
-    simStep: number;
-    decisionTimeMs: number | null;
-    reason?: string | null;
-    reflection?: Record<string, string> | null;
-    events?: DecisionEvent[];
-  }[];
+  decisions: ShiftDecision[];
   /** Hypotheses confirmed as rules in this shift. */
   rules: string[];
   /** A rule from an earlier shift that fitted this shift's situation, and

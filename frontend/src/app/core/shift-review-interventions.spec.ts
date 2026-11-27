@@ -1,6 +1,6 @@
 import { DecisionLogEntry, disturbanceEventsAt } from './decision-log';
 import { AppNotification } from './events/event-types';
-import { interventionsFrom, reflectionLines } from './shift-review';
+import { interventionsFrom, reflectionLines, shiftDecisionsFrom } from './shift-review';
 
 function entry(partial: Partial<DecisionLogEntry>): DecisionLogEntry {
   return {
@@ -87,6 +87,22 @@ describe('interventionsFrom events and reflectionLines', () => {
       'tourUi.debrief.reflection.gut{"v":"reflectionPrompt.gut.fit"}',
       'tourUi.debrief.reflection.missing{"v":"reflectionPrompt.missing.duration, reflectionPrompt.missing.other"}',
       'tourUi.debrief.reflection.tradeoff{"v":"G4 later"}',
+    ]);
+  });
+});
+
+// docs/plans/plan-b-control-group.md S-13: one helper for the leg record and the debrief.
+describe('shiftDecisionsFrom', () => {
+  it('keeps the human decisions with their time, reason, reflection and events', () => {
+    const events = [{ code: 'train.malfunction', title: 'Malfunction', message: 'Train 2 …', params: { train: 2 } }];
+    const log = [
+      entry({ seq: 1, simStep: 4, handle: 1, decisionTimeMs: 700, rationale: 'Schützt Anschluss', reflection: { gut: 'fit' }, events }),
+      entry({ seq: 2, simStep: 6, handle: 2, accountableOwner: 'system', decisionTimeMs: null }),
+      entry({ seq: 3, simStep: 9, handle: 0, action: 'proceed', decisionTimeMs: 1200 }),
+    ];
+    expect(shiftDecisionsFrom(log)).toEqual([
+      { handle: 1, action: 'hold', simStep: 4, decisionTimeMs: 700, reason: 'Schützt Anschluss', reflection: { gut: 'fit' }, events },
+      { handle: 0, action: 'proceed', simStep: 9, decisionTimeMs: 1200, reason: null, reflection: null, events: [] },
     ]);
   });
 });

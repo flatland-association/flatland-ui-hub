@@ -214,6 +214,38 @@ export function interventionsFrom(decisionLog: DecisionLogEntry[]): ShiftInterve
     }));
 }
 
+/** A decision on a single train as a leg's record keeps it
+ *  (`ShiftRecord.decisions`). `reason`, `reflection` and `events` are absent in
+ *  records made before 2026-11-25. */
+export interface ShiftDecision {
+  handle: number;
+  action: string;
+  simStep: number;
+  decisionTimeMs: number | null;
+  reason?: string | null;
+  reflection?: Record<string, string> | null;
+  events?: DecisionEvent[];
+}
+
+/**
+ * A shift's decisions as its record keeps them: the interventions with their
+ * decision time, reason, reflection and events. One place for the finished
+ * leg (`ExperimentRunService.finishLeg`) and the debrief's current shift
+ * (docs/plans/plan-b-control-group.md S-13, F-17).
+ */
+export function shiftDecisionsFrom(decisionLog: DecisionLogEntry[]): ShiftDecision[] {
+  const bySeq = new Map(decisionLog.map((e) => [e.seq, e]));
+  return interventionsFrom(decisionLog).map((i) => ({
+    handle: i.handle,
+    action: i.action,
+    simStep: i.step,
+    decisionTimeMs: bySeq.get(i.seq)?.decisionTimeMs ?? null,
+    reason: i.reason,
+    reflection: i.reflection,
+    events: i.events,
+  }));
+}
+
 export function buildShiftReview(input: {
   kpis: ShiftKpis;
   ai: AiWorkload | null;
