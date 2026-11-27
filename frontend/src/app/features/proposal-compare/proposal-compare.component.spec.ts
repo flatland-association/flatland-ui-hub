@@ -194,6 +194,20 @@ describe('ProposalCompareComponent — future AI courses', () => {
     store.state.set({ elapsed_steps: 7, pending_course: { handle: 0, activation_step: 9 } } as SessionState);
   }
 
+  it('says the trains run by the AI course only once it has taken over', () => {
+    const { fixture, component, http, store } = create();
+    takePending(component, http, store);
+    fixture.detectChanges();
+    const caveat = 'The trains now run by the AI’s plan.';
+    expect(fixture.nativeElement.textContent).toContain('Until then the trains run as they do now.');
+    expect(fixture.nativeElement.textContent).not.toContain(caveat);
+    store.state.set({ elapsed_steps: 9, pending_course: null,
+      course_activation: { handle: 0, step: 9, activation_step: 9, outcome: 'installed' } } as SessionState);
+    fixture.detectChanges();
+    expect(component.pendingActivation()).toBeNull();
+    expect(component.appliedVariant()).toBe('ai');
+  });
+
   it('stops waiting and asks again, without a message, when the pending course is cancelled', () => {
     const { fixture, component, http, store } = create();
     takePending(component, http, store);

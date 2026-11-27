@@ -210,7 +210,7 @@
       @if (chosenOption() === 'hold_until_clear' && shownApplied() !== 'human' && !decided()) {
         <p class="pc-caveat">{{ 'proposals.holdCaveat' | transloco }}</p>
       }
-      @if (shownApplied() === 'ai' && !decided()) {
+      @if (shownApplied() === 'ai' && pendingActivation() === null && !decided()) {
         <p class="pc-caveat">{{ (r.ai_keeps_overrides ? 'proposals.aiTakenCaveatKept' : 'proposals.aiTakenCaveat') | transloco }}</p>
       }
     }
