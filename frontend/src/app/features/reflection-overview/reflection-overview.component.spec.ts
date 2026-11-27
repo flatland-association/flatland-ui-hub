@@ -65,7 +65,8 @@ describe('ReflectionOverviewComponent', () => {
         decision,
       ],
     }]);
-    expect(rows[0][2]).toBe('A-0 · Keep the plan');
+    // "Plan behalten" reads "Nicht eingreifen" since round 2 (plan-b-round2-general.md).
+    expect(rows[0][2]).toBe('A-0 · Don’t intervene');
     expect(rows[1][1]).toBe('A-0 · Take the AI plan');
     expect(rows[2][1]).toBe('A-0 · Proceed');
   });
