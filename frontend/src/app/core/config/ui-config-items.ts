@@ -32,6 +32,9 @@ const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.mapPan', label: 'Map pan control overlay (arrows, reset)', supports: ['hidden'] },
   { id: 'control.mapZoom', label: 'Map zoom buttons (+ / − / %)', supports: ['hidden'] },
   { id: 'control.mapOpacity', label: 'Map rail-tile opacity slider', supports: ['hidden'] },
+  // Actions at the trains: the option strip and the decision pills (Plan B
+  // round 2's Recommendation screen, docs/plans/plan-b-round2-recommendation.md).
+  { id: 'control.mapTrainActions', label: 'Map action buttons at the trains (option strip, decision pills)', supports: ['hidden'] },
   { id: 'control.endShift', label: 'End shift button', supports: ['hidden'] },
   // Only with briefings that set `autoStart`: without Play nothing else starts
   // the run (docs/plans/toolbar-under-guide.md §1.1; checked for conditions in

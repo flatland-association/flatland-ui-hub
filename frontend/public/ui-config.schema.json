@@ -58,6 +58,7 @@
           "control.mapPan",
           "control.mapZoom",
           "control.mapOpacity",
+          "control.mapTrainActions",
           "control.endShift",
           "control.playback",
           "control.modeTabs",

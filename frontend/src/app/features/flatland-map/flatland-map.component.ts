@@ -238,6 +238,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
    */
   readonly trainOptions = computed(() => {
     if (!this.tourContext.assessmentOnly()) return null;
+    if (!this.trainActionsShown()) return null;
     const handle = this.store.selectedHandle();
     if (handle == null || handle === this.trainOptionsClosedFor()) return null;
     const agent = this.agents().find((a) => a.handle === handle);
@@ -249,6 +250,12 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     if (left < 0 || left > 100 || top < 0 || top > 100) return null;
     return { handle, name: this.identity.nameFor(handle), left, top };
   });
+
+  /** Whether the map offers actions at the trains: the option strip and the
+   *  decision pills. Plan B round 2's Recommendation screen hides both
+   *  (`control.mapTrainActions`, docs/plans/plan-b-round2-recommendation.md,
+   *  item 3); the decision line and marker stay, as information. */
+  readonly trainActionsShown = computed(() => !this.uiConfig.isHidden('control.mapTrainActions'));
 
   /** The train whose option strip the operator closed with its "×". The train
    *  stays selected (the Handlungsoptionen keep showing it); the strip comes

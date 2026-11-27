@@ -394,37 +394,39 @@
         </g>
       }
 
-      @for (layer of decisionLayers(); track trackByLayer($index, layer)) {
-        <g class="decision-pills" opacity="0.9">
-          @for (pill of layer.options; track trackByPill($index, pill); let i = $index) {
-            <g
-              class="pill"
-              [class.override]="pill.isOverride"
-              (click)="onPillClick(layer.handle, pill.action, pill.isOverride)">
-              <rect
-                [attr.x]="layer.pillsX"
-                [attr.y]="layer.pillsY + i * 16"
-                width="56"
-                height="14"
-                rx="8"
-                ry="8"
-                [style.fill]="pill.isOverride ? 'var(--app-severity-error)' : 'var(--app-surface)'"
-                [attr.stroke]="layer.color"
-                stroke-width="1.5"
-                class="pill-bg" />
-              <text
-                [attr.x]="layer.pillsX + 28"
-                [attr.y]="layer.pillsY + i * 16 + 10"
-                text-anchor="middle"
-                font-size="9"
-                font-weight="600"
-                [style.fill]="pill.isOverride ? 'var(--app-on-fill)' : 'var(--app-text)'"
-                class="pill-text">
-                {{ pill.label }}
-              </text>
-            </g>
-          }
-        </g>
+      @if (trainActionsShown()) {
+        @for (layer of decisionLayers(); track trackByLayer($index, layer)) {
+          <g class="decision-pills" opacity="0.9">
+            @for (pill of layer.options; track trackByPill($index, pill); let i = $index) {
+              <g
+                class="pill"
+                [class.override]="pill.isOverride"
+                (click)="onPillClick(layer.handle, pill.action, pill.isOverride)">
+                <rect
+                  [attr.x]="layer.pillsX"
+                  [attr.y]="layer.pillsY + i * 16"
+                  width="56"
+                  height="14"
+                  rx="8"
+                  ry="8"
+                  [style.fill]="pill.isOverride ? 'var(--app-severity-error)' : 'var(--app-surface)'"
+                  [attr.stroke]="layer.color"
+                  stroke-width="1.5"
+                  class="pill-bg" />
+                <text
+                  [attr.x]="layer.pillsX + 28"
+                  [attr.y]="layer.pillsY + i * 16 + 10"
+                  text-anchor="middle"
+                  font-size="9"
+                  font-weight="600"
+                  [style.fill]="pill.isOverride ? 'var(--app-on-fill)' : 'var(--app-text)'"
+                  class="pill-text">
+                  {{ pill.label }}
+                </text>
+              </g>
+            }
+          </g>
+        }
       }
     }
 

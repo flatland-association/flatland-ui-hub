@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { SessionStore } from '../../core/session.store';
 import { CurrentDelayService } from '../../core/timetable/current-delay.service';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
@@ -80,3 +81,19 @@ describe('FlatlandMapComponent — delay on a train plate', () => {
   });
 });
 
+/** docs/plans/plan-b-round2-recommendation.md, item 3. */
+describe('FlatlandMapComponent — actions at the trains', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('offers them unless the layout hides control.mapTrainActions', () => {
+    TestBed.configureTestingModule({
+      imports: [FlatlandMapComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const c = TestBed.createComponent(FlatlandMapComponent).componentInstance;
+    expect(c.trainActionsShown()).toBeTrue();
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.mapTrainActions'] });
+    expect(c.trainActionsShown()).toBeFalse();
+    expect(c.trainOptions()).toBeNull();
+  });
+});
