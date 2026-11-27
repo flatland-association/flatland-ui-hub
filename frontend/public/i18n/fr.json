@@ -1657,7 +1657,7 @@
     "takeAi": "Adopter le plan de l’IA",
     "takeHuman": "Adopter « {{label}} »",
     "order": "Ordre : {{order}}",
-    "placeholder": "Choisissez une option ci-dessus, nous calculerons alors votre déroulement.",
+    "placeholder": "Choisissez une option, nous calculerons alors votre déroulement.",
     "compare": "Comparaison",
     "notAvailable": "n/d",
     "aiMatchesPlan": "Ce déroulement de l’IA ne change aucune arrivée par rapport à « Aucune intervention ».",

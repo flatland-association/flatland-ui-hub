@@ -1657,7 +1657,7 @@
     "takeAi": "Take the AI plan",
     "takeHuman": "Take “{{label}}”",
     "order": "Order: {{order}}",
-    "placeholder": "Choose an option above, then we compute your course.",
+    "placeholder": "Choose an option, then we compute your course.",
     "compare": "Comparison",
     "notAvailable": "n/a",
     "aiMatchesPlan": "This AI course changes no arrival compared with no intervention.",

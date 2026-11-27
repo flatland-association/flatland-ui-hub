@@ -1657,7 +1657,7 @@
     "takeAi": "KI-Plan übernehmen",
     "takeHuman": "{{label}} übernehmen",
     "order": "Reihenfolge: {{order}}",
-    "placeholder": "Wähle oben eine Option, dann rechnen wir deinen Verlauf.",
+    "placeholder": "Wähle eine Option, dann rechnen wir deinen Verlauf.",
     "compare": "Vergleich",
     "notAvailable": "n. v.",
     "aiMatchesPlan": "Dieser KI-Verlauf ändert gegenüber «Kein Eingriff» keine Ankunft.",

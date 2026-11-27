@@ -184,6 +184,17 @@ describe('ProposalCompareComponent — future AI courses', () => {
     expect(store.proposalSnapshots().get(store.decisionLog().at(-1)!.seq)?.result.variants[1].candidate_id).toBe('wait-13-3');
   });
 
+  /** docs/plans/plan-b-round2-colearning.md, item 3; plan-b-round2-general.md, item 7. */
+  it('offers the human\'s options inside the Mensch box, without «Halten bis frei»', () => {
+    const { fixture, http } = create();
+    http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));
+    fixture.detectChanges();
+    const groups = fixture.nativeElement.querySelectorAll('.pc-options') as NodeListOf<HTMLElement>;
+    expect(groups.length).toBe(1);
+    expect(groups[0].closest('.pc-course--human')).not.toBeNull();
+    expect([...groups[0].querySelectorAll('button')].map((b) => b.textContent!.trim())).toEqual(['Hold', 'Proceed', 'Change route']);
+  });
+
   /** docs/plans/uc2-rl-keep-human-decisions.md: uc2_rl keeps the other trains' stops. */
   for (const [keeps, text] of [
     [true, 'trains with your decision (stop, turn, reroute) keep it'],
