@@ -44,6 +44,9 @@
                 @for (label of section.scale; track $index) {
                   <th scope="col">{{ label }}</th>
                 }
+                @if (section.unknownOption) {
+                  <th scope="col" class="q-matrix__unknown">{{ section.unknownOption }}</th>
+                }
               </tr>
             </thead>
             <tbody>
@@ -59,6 +62,17 @@
                              [attr.aria-describedby]="'q-' + q.id"
                              (change)="setAnswer(q.id, v)" />
                       <span class="q-matrix__label" aria-hidden="true">{{ section.scale[i] }}</span>
+                    </td>
+                  }
+                  @if (section.unknownOption) {
+                    <td class="q-matrix__unknown">
+                      <input type="radio" [name]="q.id" [value]="unknownValue"
+                             [checked]="answers()[q.id] === unknownValue"
+                             [disabled]="!!replayAnswers()"
+                             [attr.aria-label]="section.unknownOption"
+                             [attr.aria-describedby]="'q-' + q.id"
+                             (change)="setAnswer(q.id, unknownValue)" />
+                      <span class="q-matrix__label" aria-hidden="true">{{ section.unknownOption }}</span>
                     </td>
                   }
                 </tr>

@@ -29,11 +29,11 @@
     }
   },
   "native_fixture_sha256": {
-    "tutorial": "ad8deceb1da98e12a5ce0ebc66eccfdb6c982cd9e606988545039dafc3fbcf58",
-    "uc2-1": "15434f37c7795938c8c1891e53671f2491842323ce234713c83a666f6e677d82",
-    "uc2-2": "2fe6aa6e03ab8bee624d2ab5a186405393d3088aa0ff740028c423c664f88fe1",
+    "tutorial": "abc8dfb8e4f6cc26866cc31ef50ed438c6e6ed83463f8c6ccf71c2704cac7f71",
+    "uc2-1": "1c563eda2f91823cdf305a2d878ef911f034ea9d8356671ac067b8f606acd573",
+    "uc2-2": "8cca7bb7bc5e0744a508092142770f0e575c451079f414e54eda7e670acb7507",
     "uc2-3": "efab2527d51b6dd5f1e7c72065c5d82ddf63df1f0e96ec8c6c9ac440bb23b4b0",
-    "uc2-4": "6ab123602911dd37c28919af430b81cfdea89a453f1ba9dedb7254c93b124743"
+    "uc2-4": "7a85ddf8f4abc3cca6c3aa3da3e593f053fc60f2d7bd64e070225242e0d148d2"
   },
   "training_source_sha256": {
     "lab/marl/train_bc.py": "a81874e0de6b05ff2ca6a4cdf443483461d66ba7e770a48d4ae8a80e29217b5e",

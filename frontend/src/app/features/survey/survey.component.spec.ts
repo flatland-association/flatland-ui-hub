@@ -47,7 +47,8 @@ describe('SurveyComponent — paged and required', () => {
     c.next();
     fixture.detectChanges();
     expect(c.pageIndex()).toBe(0);
-    expect([...c.missing()]).toEqual(['pb_2', 'pb_3', 'pb_4', 'pb_5']);
+    // pb_3 is retired: no longer asked, so never missing.
+    expect([...c.missing()]).toEqual(['pb_2', 'pb_4', 'pb_5']);
     expect(el('.survey-missing')).not.toBeNull();
     c.setAnswer('pb_2', 2);
     expect(c.missing().has('pb_2')).toBeFalse();
@@ -115,10 +116,18 @@ describe('SurveyComponent — paged and required', () => {
     expect(submitted).toBe(1);
   });
 
-  it('renders the agreement items as a matrix of radio inputs', () => {
+  it('renders the agreement items as a matrix of radio inputs, without the retired pb_3', () => {
     const rows = fixture.nativeElement.querySelectorAll('.q-matrix tbody tr');
-    expect(rows.length).toBe(4);
-    expect(rows[0].querySelectorAll('input[type=radio]').length).toBe(7);
+    expect([...rows].map((r: Element) => r.getAttribute('data-q'))).toEqual(['pb_1', 'pb_2', 'pb_4']);
+    // Seven scale points, then "Weiss nicht".
+    expect(rows[0].querySelectorAll('input[type=radio]').length).toBe(8);
+  });
+
+  it('stores "Weiss nicht" as "unknown", and counts it as an answer', () => {
+    const unknown = fixture.nativeElement.querySelector('.q-matrix tbody tr td.q-matrix__unknown input') as HTMLInputElement;
+    unknown.click();
+    expect(c.answers()['pb_1']).toBe('unknown');
+    expect(c.isAnswered(c.config().sections[0].questions[0])).toBeTrue();
   });
 });
 
@@ -143,6 +152,13 @@ describe('SurveyComponent — replay by surveyId', () => {
     expect(c.config().id).toBe('plan-b-final');
     expect(c.config().sections.length).toBe(1);
     expect(c.config().sections[0].questions.some((q) => q.id === 'pb_1')).toBeTrue();
+  });
+
+  it('shows the retired pb_3 where a round 1 participant answered it, and only there', () => {
+    const ids = (c: SurveyComponent) => c.config().sections[0].questions.map((q) => q.id);
+    expect(ids(create('plan-b-final', { pb_1: 4, pb_3: 5 }))).toEqual(['pb_1', 'pb_2', 'pb_3', 'pb_4']);
+    TestBed.resetTestingModule();
+    expect(ids(create('plan-b-final', { pb_1: 'unknown' }))).toEqual(['pb_1', 'pb_2', 'pb_4']);
   });
 
   it('falls back to the current mode\'s building blocks for an unknown id', () => {

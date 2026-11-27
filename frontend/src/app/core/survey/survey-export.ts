@@ -2,7 +2,7 @@ import type { ExperimentRunRecord } from '../interaction-log/experiment-run-reco
 import type { SessionRecord, SurveySubmission } from '../interaction-log/session-record';
 import { allSurveys } from './survey-configs';
 import { scoreSurvey } from './survey-scoring';
-import type { SurveyAnswers, SurveyConfig, SurveyQuestion } from './survey.types';
+import { SURVEY_UNKNOWN, type SurveyAnswers, type SurveyConfig, type SurveyQuestion, type SurveySection } from './survey.types';
 
 /**
  * Questionnaire answers as tables (docs/plans/experiment-logging-frontend-and-replay.md
@@ -26,7 +26,7 @@ export const ID_COLUMNS = [
 
 export const CODEBOOK_COLUMNS = [
   'survey_id', 'survey_part', 'page', 'item_id', 'question', 'type', 'min', 'max', 'step', 'unit', 'options',
-  'reverse', 'subscale', 'instrument', 'source',
+  'reverse', 'subscale', 'instrument', 'source', 'retired',
 ] as const;
 export type CodebookRow = Record<(typeof CODEBOOK_COLUMNS)[number], string | number | boolean | null>;
 
@@ -49,12 +49,16 @@ function configs(): Map<string, SurveyConfig> {
 }
 
 /** The answers an item offers, as one cell: a radio's options, or a matrix's
- *  scale labels with the value each is stored as ("1=…; 2=…"). */
-function optionsOf(q: SurveyQuestion, scale: string[] | undefined): string | null {
+ *  scale labels with the value each is stored as ("1=…; 2=…"), and its "don't
+ *  know" column with the id it is stored as ("…; unknown=Weiss nicht"). */
+function optionsOf(q: SurveyQuestion, section: SurveySection): string | null {
+  const scale = section.scale;
   if (q.options?.length) return q.options.join(' | ');
   if (scale?.length && q.type === 'likert') {
     const first = q.min ?? 1;
-    return scale.map((label, i) => `${first + i}=${label}`).join('; ');
+    const points = scale.map((label, i) => `${first + i}=${label}`);
+    if (section.unknownOption) points.push(`${SURVEY_UNKNOWN}=${section.unknownOption}`);
+    return points.join('; ');
   }
   if (q.minLabel || q.maxLabel) return `${q.min ?? 1}=${q.minLabel ?? ''}; ${q.max ?? 7}=${q.maxLabel ?? ''}`;
   return null;
@@ -203,11 +207,12 @@ export function codebook(): CodebookRow[] {
           max: q.max ?? (q.type === 'likert' ? 7 : null),
           step: q.step ?? null,
           unit: q.unit ?? null,
-          options: optionsOf(q, section.scale),
+          options: optionsOf(q, section),
           reverse: !!q.reverse,
           subscale: q.subscale ?? null,
           instrument: section.instrument ?? null,
           source: HMIS_FILES[section.id] ? `${HMIS_FILES[section.id]} #${i + 1}` : null,
+          retired: !!q.retired,
         });
       });
     }

@@ -711,18 +711,24 @@ runs"):
   text left out) and the scores as `<part>.<score>`, e.g. `nasa-tlx.raw`,
   `trust.trust`, `trust.distrust`, `ueq-s.pragmatic`, `understanding.perceived`.
   Scores are computed when exporting, with the app's own scoring. Plan B's
-  questionnaire has item columns (`pb_1` … `pb_37`, `pb_ai_use`, `pb_age`,
-  `pb_gender`, `pb_years`) but no scores: none are defined for it.
+  questionnaire has item columns (`pb_1` … `pb_38`, `pb_ai_use`, `pb_age`,
+  `pb_gender`, `pb_years`) but no scores: none are defined for it. Its
+  agreement items can also hold `unknown` ("Weiss nicht", round 2 on);
+  `pb_3` is only asked in round 1, so its column is empty from round 2 on.
 - **codebook**: every item of every questionnaire the app can show, once:
   `survey_id, survey_part, page, item_id, question, type, min, max, step,
-  unit, options, reverse, subscale, instrument, source`.
+  unit, options, reverse, subscale, instrument, source, retired`.
   - `survey_id` names every questionnaire that asks the item, e.g.
     `post-session-recommendation, post-session-co-learning,
     post-session-director` for a shared building block, `plan-b-final` for
     Plan B's.
   - `options` lists a choice's answers (`nie | seltener als einmal pro
     Monat | …`) or a scale's labels with the value each is stored as
-    (`1=stimme überhaupt nicht zu; …; 7=stimme voll und ganz zu`).
+    (`1=stimme überhaupt nicht zu; …; 7=stimme voll und ganz zu`), and a
+    matrix's "don't know" answer with its stored id (`…; unknown=Weiss
+    nicht`). "Weiss nicht" is a string, so `scored_value` stays empty.
+  - `retired` marks an item no longer asked but kept for answers recorded
+    before it was dropped (`pb_3`, dropped for round 2).
   - `page` is the page of a paged questionnaire (Plan B's), `unit` and
     `step` belong to number fields.
   - `source` is the item's file and position in AI4REALNET `hmisurveys`,
