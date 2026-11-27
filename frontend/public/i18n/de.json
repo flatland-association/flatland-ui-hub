@@ -1640,6 +1640,7 @@
   "proposals": {
     "titleTooltip": "Kein Eingriff, KI-Vorschlag und deine Wahl für den ausgewählten Zug, alle gleich weit vorausgerechnet.",
     "note": "Drei Verläufe für den gewählten Zug: kein Eingriff, der Vorschlag der KI und deine Wahl. Nichts davon wird umgesetzt, bis du eine der drei Varianten übernimmst.",
+    "noteNoHuman": "Zwei Verläufe für den gewählten Zug: kein Eingriff und der Vorschlag der KI. Nichts davon wird umgesetzt, bis du einen übernimmst.",
     "empty": "Wähle einen Zug — auf der Karte, im Fahrplan oder im Lage-Panel.",
     "optionAria": "Deine Option",
     "noReroute": "Für diesen Zug gibt es hier keinen anderen Fahrweg.",

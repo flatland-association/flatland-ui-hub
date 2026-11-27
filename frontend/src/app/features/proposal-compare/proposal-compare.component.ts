@@ -467,6 +467,11 @@ export class ProposalCompareComponent implements OnDestroy {
    *
    * Lower is better on both, and the bars are scaled per axis.
    */
+  /** Whether the layout offers the human's own option (the Mensch box and its
+   *  options); Plan B round 2's Recommendation screen does not
+   *  (docs/plans/plan-b-round2-recommendation.md, item 2). */
+  readonly humanShown = computed(() => !this.uiConfig.isHidden('widget.proposal-compare.human'));
+
   readonly comparison = computed<ComparisonAxis[] | null>(() => {
     const courses = [this.plan(), this.ai(), this.human()].filter(
       (v): v is ProposalVariant => !!v?.metrics,

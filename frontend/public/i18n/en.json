@@ -1640,6 +1640,7 @@
   "proposals": {
     "titleTooltip": "No intervention, AI proposal and your choice for the selected train, all computed equally far ahead.",
     "note": "Three courses for the chosen train: no intervention, the AI’s proposal and your choice. None of it is carried out until you take one of the three.",
+    "noteNoHuman": "Two courses for the chosen train: no intervention and the AI’s proposal. Neither is carried out until you take one.",
     "empty": "Choose a train — on the map, in the timetable or in the impact panel.",
     "optionAria": "Your option",
     "noReroute": "There is no other route for this train here.",

@@ -18,7 +18,7 @@
 <ng-template #pcContent>
   @if (!decided()) {
     <p class="pc-note">
-      {{ 'proposals.note' | transloco }}
+      {{ (humanShown() ? 'proposals.note' : 'proposals.noteNoHuman') | transloco }}
     </p>
   }
 
@@ -86,7 +86,10 @@
           </section>
         }
 
-        @if (human(); as v) {
+        @if (!humanShown()) {
+          <!-- No Mensch box: the layout leaves the human's own option out
+               (widget.proposal-compare.human, plan-b-round2-recommendation.md, item 2). -->
+        } @else if (human(); as v) {
           <section class="pc-course pc-course--human">
             <header class="pc-course-head">
               <span class="pc-course-name">{{ 'proposals.human' | transloco }}</span>

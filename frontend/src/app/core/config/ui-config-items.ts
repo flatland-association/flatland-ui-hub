@@ -61,6 +61,10 @@ const CONTROL_IDS: UiConfigItem[] = [
 const AXIS_IDS: UiConfigItem[] = [
   { id: 'widget.proposal-compare.axis.lateness', label: 'Comparison: delay vs. timetable (Plan/KI/Mensch)', supports: ['hidden'] },
   { id: 'widget.proposal-compare.axis.time', label: 'Comparison: time in network (Plan/KI/Mensch)', supports: ['hidden'] },
+  // The human's own option: the Mensch box, its option buttons and its bar in
+  // the comparison. Plan B round 2's Recommendation screen hides it
+  // (docs/plans/plan-b-round2-recommendation.md, item 2).
+  { id: 'widget.proposal-compare.human', label: 'Plan/KI/Mensch: the human\'s own option (Mensch box and options)', supports: ['hidden'] },
 ];
 
 /** Panel titles a layout can hide. Only the centre view container's so far:

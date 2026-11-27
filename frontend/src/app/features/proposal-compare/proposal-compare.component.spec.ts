@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { TestBed } from '@angular/core/testing';
 import { provideTourContextStub } from '../../testing/tour-context-stub';
 import { SessionInfo } from '../../core/models';
@@ -193,6 +194,20 @@ describe('ProposalCompareComponent — future AI courses', () => {
     expect(groups.length).toBe(1);
     expect(groups[0].closest('.pc-course--human')).not.toBeNull();
     expect([...groups[0].querySelectorAll('button')].map((b) => b.textContent!.trim())).toEqual(['Hold', 'Proceed', 'Change route']);
+  });
+
+  /** docs/plans/plan-b-round2-recommendation.md, item 2. */
+  it('leaves the Mensch box, its options and its bar out where the layout hides the human\'s option', () => {
+    const { fixture, component, http } = create();
+    TestBed.inject(UiConfigService).apply({ hidden: ['widget.proposal-compare.human'] });
+    http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.pc-course--human')).toBeNull();
+    expect(el.querySelector('.pc-options')).toBeNull();
+    expect(el.querySelectorAll('.pc-course').length).toBe(2);
+    expect(el.textContent).toContain('Two courses for the chosen train');
+    expect(component.comparison()![0].bars.map((b) => b.id)).toEqual(['plan', 'ai']);
   });
 
   /** docs/plans/uc2-rl-keep-human-decisions.md: uc2_rl keeps the other trains' stops. */
