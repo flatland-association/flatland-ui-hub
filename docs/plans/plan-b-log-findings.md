@@ -3,7 +3,7 @@
 > **Status:** plan of 2026-11-27, written after the code (built by 2026-11-25). Based on `main` 85e36e5c. Issue
 > [#230](https://github.com/flatland-association/flatland-ui-hub/issues/230) ("Findings Logging", chenkins). Branch
 > `gereon/fix-230` at 56a971a8 (code at dab7403c, then this plan), PR [#231](https://github.com/flatland-association/flatland-ui-hub/pull/231)
-> (umbra99). Steps S-1 and S-2 are done; the review findings F-1–F-15 are open and planned in S-3–S-13 and S-18; S-14–S-17 complete the call log (Q-2). Open questions:
+> (umbra99). Steps S-1–S-8 are done; F-1–F-7 are fixed (1751b5f0, 757675c5, 3a780e8b, 12473dee, 301b06aa, 608cc97e), F-8–F-15 are open and planned in S-9–S-13 and S-18; S-14–S-17 complete the call log (Q-2). Open questions:
 > none (Q-1–Q-5 decided on 2026-11-27).
 >
 > **Why:** in the Plan B study runs, «KI-Plan übernehmen» failed 18 times out of 20 with 409 ("proposal preview is
@@ -258,10 +258,16 @@ decision or a finding:
 | [5](plan-b-log-findings/5-f11-timetable-mockup.png) | F-11: the timetable's ⚠ with its unit (mockup) | §4.5 |
 | [6](plan-b-log-findings/6-req6-system-hold.png) | REQ-6: system hold worded as the system's, kept in the decision list | §4.4 |
 | [7](plan-b-log-findings/7-q5-countdown.png) | Q-5: the countdown per second, today and ticking (mockup) | Q-5 |
+| [8a](plan-b-log-findings/8a-s5-refused-route-drops-course.png), [8b](plan-b-log-findings/8b-s5-nothing-takes-over.png) | F-4 before S-5: a refused route drops the pending course, and at its step nothing takes over (reproduced at dab7403c) | §4.3 |
+| [9](plan-b-log-findings/9-s7-scheduled-disturbance-mockup.png) | F-6 before S-7: a scheduled disturbance missing from the forecast (mockup: Plan B schedules none) | §4.3 |
+| [10](plan-b-log-findings/10-s8-held-next-to-target-mockup.png) | F-7 before S-8: a train held next to its target stays there (mockup: Plan B holds no train there) | §4.3 |
+
+F-2 (S-4) and F-3 (S-6) don't show on screen: the sequence diagrams in §6.3 and §6.4 show them, before and after the
+fix.
 
 | ID | Requirement | Test or check | Result | Screenshots |
 |---|---|---|---|---|
-| REQ-1 | AI course taken while playing | `test_proposal_lead.py::test_a_course_accepted_before_its_step_takes_over_exactly_at_it`, `test_a_late_accept_is_rechecked_from_the_live_state`; `proposal-compare.component.spec.ts` (409 reloads) | ✅ CI green at dab7403c (the fingerprint weakness is NFR-1's, F-1) | [1](plan-b-log-findings/1-q1a-deadline.png), [2](plan-b-log-findings/2-q1a-pending.png), [3](plan-b-log-findings/3-q1a-takeover.png) |
+| REQ-1 | AI course taken while playing | `test_proposal_lead.py::test_a_course_accepted_before_its_step_takes_over_exactly_at_it`, `test_a_late_accept_is_rechecked_from_the_live_state`; `proposal-compare.component.spec.ts` (409 reloads) | ✅ CI green at dab7403c; fingerprints with real positions since 1751b5f0 (NFR-1) | [1](plan-b-log-findings/1-q1a-deadline.png), [2](plan-b-log-findings/2-q1a-pending.png), [3](plan-b-log-findings/3-q1a-takeover.png) |
 | REQ-2 | Slow loading doesn't break REQ-1 | The lead includes the last computing time (`leadSteps()`) | ✅ by design, not measured | - |
 | REQ-3 | `decisionTimeMs` per leg | `session.store.spec.ts` "decision time across legs" | ✅ | - |
 | REQ-4 | KPI `malfunctions` | `experiment-run.service.spec.ts` (counting across a leg, no carry-over) | ✅ | - |
@@ -269,7 +275,7 @@ decision or a finding:
 | REQ-6 | System hold worded apart | `test_system_hold_notification.py::test_system_and_operator_holds_are_worded_apart` | ✅ | [6](plan-b-log-findings/6-req6-system-hold.png) |
 | REQ-7 | Last state frame not empty | `state-log.service.spec.ts` (duplicates skipped, distinct steps kept) | ✅ | - |
 | REQ-8 | Responses logged | `test_call_log.py` and `call-log.interceptor.spec.ts` (a repeated command keeps its response); `test_proposal_lead.py` (a test per 409 reason); `test_override_answer.py` (override echo); `session.store.spec.ts` (one pause at a leg end) | open: S-14–S-17 | - |
-| NFR-1 | Course does what the preview showed | `test_forecast_fingerprints_match_the_live_run_through_a_breakdown`, `test_a_pending_course_that_fails_its_recheck_is_rejected_not_installed` | open: the fingerprint test passes without positions (F-1) | - |
+| NFR-1 | Course does what the preview showed | `test_fingerprints_tell_trains_on_different_cells_apart`, `test_forecast_fingerprints_match_the_live_run_through_a_breakdown`, `test_a_pending_course_that_fails_its_recheck_is_rejected_not_installed` | ✅ since 1751b5f0 (S-3): fingerprints compare real positions | - |
 | NFR-2 | Paused unchanged | `test_without_a_lead_the_exact_same_step_rule_is_unchanged` | ✅ | - |
 | NFR-3 | Step loop survives | `activate_pending_course`'s `except` | ✅ by inspection | - |
 
@@ -298,15 +304,26 @@ The review fixes S-12 and S-13 have no requirement of their own: their specs (`t
   `aiPendingPaused`) and closes when `course_activation` arrives; a `rejected` outcome shows
   `proposals.courseRejected` and reloads. A 409 on accept reloads and shows `proposals.aiRefreshed`.
 - **Cancel.** `set_override`, `clear_override` for the same train, any `apply_proposal` and a reset drop the
-  pending course (DP-5; F-4, F-5 and F-8 refine when).
+  pending course (DP-5), since S-5 only once the replacing decision is accepted (F-4, F-5); F-8 is open (S-9).
 - **Released hold at the end of a run.** `PlanPolicy._drop_exhausted_course` hands every train to the fallback once
   a free train stands at the end of a run cut short by a hold (measured on uc2-4: all three trains arrive instead of
-  one). `test_plan_policy_released_hold.py` (F-7 refines it).
+  one). Since S-8 also for a train held next to its target (F-7). `test_plan_policy_released_hold.py`.
 - **Review fixes** (Phase 2): the fingerprint reads positions through `agent_compat` (S-3, F-1); lead courses and
   previews carry the episode generation and are refused after a reset (S-4, F-2); the switch policy forwards
   overrides to the active policy only and resets the plan state at the switch (S-6, F-3); the forecast ticks a
   private copy of the disturbance scheduler (S-7, F-6); every `sessions.py` broadcast carries the course state
   (S-11, F-10).
+
+Before S-5 (F-4), a refused route dropped the pending course, and at its step nothing took over; reproduced at
+dab7403c:
+
+<img src="plan-b-log-findings/8a-s5-refused-route-drops-course.png" alt="F-4: a refused route drops the pending AI course" width="640"> <img src="plan-b-log-findings/8b-s5-nothing-takes-over.png" alt="F-4: at the activation step nothing takes over" width="640">
+
+Before S-7 (F-6), a disturbance scheduled inside the lead was missing from the forecast, so the course failed its
+check at the activation step; before S-8 (F-7), a train held next to its target stayed there after the release.
+Mockups, since Plan B schedules no disturbances and holds no train next to its target:
+
+<img src="plan-b-log-findings/9-s7-scheduled-disturbance-mockup.png" alt="F-6: a scheduled disturbance missing from the forecast (mockup)" width="640"> <img src="plan-b-log-findings/10-s8-held-next-to-target-mockup.png" alt="F-7: a train held next to its target stays there (mockup)" width="640">
 
 ### 4.4 Logging fixes (REQ-3, REQ-4, REQ-6, REQ-7, REQ-8)
 
@@ -542,6 +559,71 @@ stateDiagram-v2
 
 Notation: [state diagram in Mermaid](https://mermaid.js.org/syntax/stateDiagram.html).
 
+### 6.3 A course from before a reset (F-2, S-4)
+
+The participant loads AI courses, the session is reset (or the next scenario starts on the same env), and the old
+token is used in the new episode. `id(env)` stays the same and the step count starts over, so before S-4 the token
+looked current.
+
+```mermaid
+sequenceDiagram
+    participant PC as proposal-compare
+    participant OV as overrides.py (proposals and apply)
+    participant PP as proposal_preview
+    participant SE as sessions.py (reset)
+    PC->>OV: proposals with lead steps at step 28
+    OV->>OV: evaluate off the lock (seconds)
+    SE->>PP: reset clears the previews, num_resets goes up
+    alt before S-4
+        OV->>PP: remember courses of the old episode
+        PC->>OV: apply old token at step 28 of the new episode
+        OV-->>PC: accepted, a course of the old episode runs
+    else since S-4
+        OV-->>PC: 409, the session was reset
+        PC->>OV: apply old token
+        OV->>PP: lead course checks env id and generation
+        OV-->>PC: 409, panel reloads
+    end
+```
+
+Notation: [sequence diagram in Mermaid](https://mermaid.js.org/syntax/sequenceDiagram.html). Not visible in a
+screenshot: the panel looks the same; only which course runs differs.
+
+### 6.4 Scoring a course with a switch (F-3, S-6)
+
+How the preview drives a course taken over at step `at`: the session's driver until then, the course from then on.
+Both policies can share the env's plan state (`_plan_off_plan`).
+
+```mermaid
+sequenceDiagram
+    participant BR as _branch_run (preview)
+    participant OP as OverridePolicy
+    participant SW as SwitchAtStepPolicy
+    participant B as before (session driver)
+    participant A as after (PlanPolicy of the course)
+    loop each step before at
+        BR->>OP: start step
+        OP->>SW: committed holds and routes
+        alt before S-6
+            SW->>B: holds and routes
+            SW->>A: holds and routes, takes rerouted trains off plan
+        else since S-6
+            SW->>B: holds and routes (active only)
+        end
+    end
+    BR->>OP: start step at
+    OP->>SW: committed holds and routes
+    opt since S-6
+        SW->>SW: switch, plan state reset as the install does, holds noted
+    end
+    SW->>A: holds and routes
+    A-->>BR: actions of the course
+```
+
+Notation: [sequence diagram in Mermaid](https://mermaid.js.org/syntax/sequenceDiagram.html). Before S-6 the course
+could start with trains already off plan, so the preview ranked fallback driving instead of the course; only the KI
+column's numbers showed it.
+
 ## 8. Crosscutting concepts
 
 *What the change introduces that other code will follow, and what it changes for existing callers.*
@@ -715,13 +797,13 @@ code, but the PR comment is not resolved on GitHub yet. "resolved" in Source: th
 
 | Fixed | ID | Source | Category | Severity | Finding | Commit message |
 |---|---|---|---|---|---|---|
-|  | F-1 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945461) | bug | high | `backend/app/core/proposal_preview.py:59`: `fingerprint` reads `agent.position`/`agent.direction`, which flatland-rl 4.3 removed (C-1), so both are always `None`. Trains on different cells or headings get the same fingerprint, and `matches_forecast` can install a diverged course as exact without the re-check. `test_forecast_fingerprints_match_the_live_run_through_a_breakdown` passes for the same reason. Read them through `agent_position`/`agent_direction`. Open: planned in S-3. | fix(proposals): read train position and direction through agent_compat in the forecast fingerprint. |
-|  | F-2 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945505) | bug | high | `backend/app/core/proposal_preview.py:130`: `lead_course` checks only the env's identity and the step, not the digest `exact_course` uses. A reset reuses the env object, so a lead token of the old episode passes, and a preview worker that started before the reset publishes into the cleared cache afterwards. Check an episode generation (e.g. `num_resets`) before publishing and on accept. Open: planned in S-4. | fix(proposals): reject lead courses and previews from before a session reset. |
-|  | F-3 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945549) | correctness | high | `backend/app/policies/switch_policy.py:63`: `set_committed_overrides` goes to both policies, which share `env._plan_off_plan`; the inactive policy can change the active one's plan state, and it survives the switch. The preview also skips the plan-state reset and route registration that `_install_ai_course` does, so it may rank fallback driving instead of the course. Forward only to the active policy and repeat the install's reset at the switch. Open: planned in S-6. | fix(proposals): forward committed overrides only to the active policy when previewing a switch. |
-|  | F-4 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945639) | bug | medium | `backend/app/api/overrides.py:292`: `set_override` drops the train's pending course before `_parse_via`, `_parse_start` and `_commit_override`; a rejected reroute still cancels the accepted course. Clear it after `_commit_override` succeeds. Open: planned in S-5. | fix(proposals): cancel a pending AI course only after the replacing decision is accepted. |
-|  | F-5 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945690) | bug | medium | `backend/app/api/overrides.py:622`: `apply_proposal` drops the pending course before `lead_course`/`exact_course` validate the token; an expired token's 409 still cancels the accepted course. Drop the early clear; `_finish_apply` and the pending path already replace it after validation. Open: planned in S-5. | fix(proposals): cancel a pending AI course only after the replacing decision is accepted. |
-|  | F-6 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945734) | correctness | medium | `backend/app/api/overrides.py:833`: `_roll_forward` steps the copy with `future.step()`, which does not tick `session.disturbance_scheduler` as `step_env` does; a scheduled delay or area closure inside the lead is missing from the forecast, so the course goes through the re-check or is rejected. Tick a private copy of the scheduler per forecast step, without live notifications. Open: planned in S-7. | fix(proposals): tick a private disturbance scheduler during the lead forecast. |
-|  | F-7 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945779) | bug | medium | `backend/app/policies/plan_policy.py:216`: `_drop_exhausted_course` takes a run ending next to the target as complete. A one-waypoint run of a train held next to its target passes too; once released, `_plan_action` keeps returning `DO_NOTHING` and the train stands. Tell complete runs from runs cut short by a hold from the run itself, not by adjacency. Open: planned in S-8. | fix(plan-policy): tell completed runs from runs cut short at a hold. |
+| ✅ ❌ | F-1 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945461) | bug | high | `backend/app/core/proposal_preview.py:59`: `fingerprint` reads `agent.position`/`agent.direction`, which flatland-rl 4.3 removed (C-1), so both are always `None`. Trains on different cells or headings get the same fingerprint, and `matches_forecast` can install a diverged course as exact without the re-check. `test_forecast_fingerprints_match_the_live_run_through_a_breakdown` passes for the same reason. Fixed in 1751b5f0 (S-3): read through `agent_position`/`agent_direction`; `test_fingerprints_tell_trains_on_different_cells_apart` fails on the old code, and the breakdown test now matches with real positions. | fix(proposals): read train position and direction through agent_compat in the forecast fingerprint. |
+| ✅ ❌ | F-2 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945505) | bug | high | `backend/app/core/proposal_preview.py:130`: `lead_course` checks only the env's identity and the step, not the digest `exact_course` uses. A reset reuses the env object, so a lead token of the old episode passes, and a preview worker that started before the reset publishes into the cleared cache afterwards. Fixed in 757675c5 (S-4): `PreviewSource.generation` (`num_resets`), checked by `lead_course` and before `_publish_proposals` remembers courses computed across a reset. | fix(proposals): reject lead courses and previews from before a session reset. |
+| ✅ ❌ | F-3 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945549) | correctness | high | `backend/app/policies/switch_policy.py:63`: `set_committed_overrides` goes to both policies, which share `env._plan_off_plan`; the inactive policy can change the active one's plan state, and it survives the switch. The preview also skips the plan-state reset and route registration that `_install_ai_course` does, so it may rank fallback driving instead of the course. Fixed in 12473dee (S-6): only the active policy hears the overrides; the switch resets the plan state as `_install_ai_course` does. | fix(proposals): forward committed overrides only to the active policy when previewing a switch. |
+| ✅ ❌ | F-4 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945639) | bug | medium | `backend/app/api/overrides.py:292`: `set_override` drops the train's pending course before `_parse_via`, `_parse_start` and `_commit_override`; a rejected reroute still cancels the accepted course. Fixed in 3a780e8b (S-5): cleared after `_commit_override` succeeds. | fix(proposals): cancel a pending AI course only after the replacing decision is accepted. |
+| ✅ ❌ | F-5 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945690) | bug | medium | `backend/app/api/overrides.py:622`: `apply_proposal` drops the pending course before `lead_course`/`exact_course` validate the token; an expired token's 409 still cancels the accepted course. Fixed in 3a780e8b (S-5): the early clear is gone; `_finish_apply` and the pending path replace it after validation. | fix(proposals): cancel a pending AI course only after the replacing decision is accepted. |
+| ✅ ❌ | F-6 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945734) | correctness | medium | `backend/app/api/overrides.py:833`: `_roll_forward` steps the copy with `future.step()`, which does not tick `session.disturbance_scheduler` as `step_env` does; a scheduled delay or area closure inside the lead is missing from the forecast, so the course goes through the re-check or is rejected. Fixed in 301b06aa (S-7): `_roll_forward` ticks a private copy of the scheduler captured with the proposal, without notifications. | fix(proposals): tick a private disturbance scheduler during the lead forecast. |
+| ✅ ❌ | F-7 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945779) | bug | medium | `backend/app/policies/plan_policy.py:216`: `_drop_exhausted_course` takes a run ending next to the target as complete. A one-waypoint run of a train held next to its target passes too; once released, `_plan_action` keeps returning `DO_NOTHING` and the train stands. Fixed in 608cc97e (S-8): the trains held at takeover are recorded (`note_course_holds`); their runs count as cut short wherever they end. | fix(plan-policy): tell completed runs from runs cut short at a hold. |
 |  | F-8 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945849) | bug | medium | `frontend/src/app/features/proposal-compare/proposal-compare.component.ts:221`: an override from outside the panel or a reset in the same session drops `pending_course` without a `course_activation`; the panel stays "taken, waiting" and doesn't reload. Report the cancellation in the state (with an id of the course) and clear the panel's waiting state on it. Open: planned in S-9. | fix(proposal-compare): clear the waiting state when a pending AI course is cancelled. |
 |  | F-9 | code review | bug | medium | `frontend/src/app/features/proposal-compare/proposal-compare.component.html:214`: while an AI course is pending, the comparison still shows `proposals.aiTakenCaveat` ("Die Züge fahren ab jetzt nach dem Plan der KI."), next to `proposals.aiPending` ("Bis dahin fahren die Züge wie jetzt."). The two texts contradict each other until the activation step. Show the caveat only once the course is installed. Open: planned in S-10. | fix(proposal-compare): show the AI-taken caveat only once the course has taken over. |
 |  | F-10 | code review | robustness | low | `backend/app/api/sessions.py:138`: `/step`, `/reset` and the other endpoints of `sessions.py` broadcast the state through their own `_build_state_payload`, which lacks `course_state`; only `/state` and the WebSocket play loop carry it. A pending course activated by a manual step (paused after accepting, then «Schritt») leaves the panel at "übernimmt in etwa 0 s" until the next play-loop broadcast. Add `course_state` there too, or share one payload builder. Open: planned in S-11. | fix(sessions): send the pending course state with every state broadcast. |
@@ -805,12 +887,12 @@ so a new override for the train cancels it (F-4). Picture 3 in Q-1 shows the tak
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
-| 💡 S-3 | F-1 | Fingerprint through `agent_position`/`agent_direction`; a test that two trains on different cells differ. | bug | high | fix(proposals): read train position and direction through agent_compat in the forecast fingerprint. |  | S-1 | - |
-| 💡 S-4 | F-2 | Episode generation in the lead course and before publishing; test: a token from before a reset gets 409. | bug | high | fix(proposals): reject lead courses and previews from before a session reset. |  | S-1 | - |
-| 💡 S-5 | F-4, F-5 | Clear the pending course only after `_commit_override` succeeds and after the token is validated; tests for a rejected reroute and an expired token. | bug | medium | fix(proposals): cancel a pending AI course only after the replacing decision is accepted. |  | S-1 | - |
-| 💡 S-6 | F-3 | `SwitchAtStepPolicy` forwards overrides to the active policy only and repeats the install's plan-state reset at the switch; test that the inactive policy leaves the plan state alone. | correctness | high | fix(proposals): forward committed overrides only to the active policy when previewing a switch. |  | S-1 | - |
-| 💡 S-7 | F-6 | Tick a private copy of the disturbance scheduler in `_roll_forward`, without notifications; test with a delay scheduled inside the lead. | correctness | medium | fix(proposals): tick a private disturbance scheduler during the lead forecast. |  | S-3 | - |
-| 💡 S-8 | F-7 | Tell complete runs from runs cut short by a hold in `_drop_exhausted_course`; test for a train held next to its target. | bug | medium | fix(plan-policy): tell completed runs from runs cut short at a hold. |  | S-2 | - |
+| ✅ S-3 | F-1 | Fingerprint through `agent_position`/`agent_direction`; a test that two trains on different cells differ. | bug | high | fix(proposals): read train position and direction through agent_compat in the forecast fingerprint. | 1751b5f0 | S-1 | - |
+| ✅ S-4 | F-2 | Episode generation in the lead course and before publishing; test: a token from before a reset gets 409. | bug | high | fix(proposals): reject lead courses and previews from before a session reset. | 757675c5 | S-1 | - |
+| ✅ S-5 | F-4, F-5 | Clear the pending course only after `_commit_override` succeeds and after the token is validated; tests for a rejected reroute and an expired token. | bug | medium | fix(proposals): cancel a pending AI course only after the replacing decision is accepted. | 3a780e8b | S-1 | - |
+| ✅ S-6 | F-3 | `SwitchAtStepPolicy` forwards overrides to the active policy only and repeats the install's plan-state reset at the switch; test that the inactive policy leaves the plan state alone. | correctness | high | fix(proposals): forward committed overrides only to the active policy when previewing a switch. | 12473dee | S-1 | - |
+| ✅ S-7 | F-6 | Tick a private copy of the disturbance scheduler in `_roll_forward`, without notifications; test with a delay scheduled inside the lead. | correctness | medium | fix(proposals): tick a private disturbance scheduler during the lead forecast. | 301b06aa | S-3 | - |
+| ✅ S-8 | F-7 | Tell complete runs from runs cut short by a hold in `_drop_exhausted_course`; test for a train held next to its target. | bug | medium | fix(plan-policy): tell completed runs from runs cut short at a hold. | 608cc97e | S-2 | - |
 | 💡 S-9 | F-8 | Report a cancelled pending course in the state (`outcome: "cancelled"`); the panel clears its waiting state and reloads, no new text; backend test and spec. | bug | medium | fix(proposal-compare): clear the waiting state when a pending AI course is cancelled. |  | S-5, S-11 | - |
 | 💡 S-10 | F-9 | Show `proposals.aiTakenCaveat` only when no course is pending; spec. | bug | medium | fix(proposal-compare): show the AI-taken caveat only once the course has taken over. |  | S-1 | - |
 | 💡 S-11 | F-10 | `course_state` in `sessions.py`'s state broadcast (or one shared builder with `websockets.py`); test that `/step` sends `course_activation`. | robustness | low | fix(sessions): send the pending course state with every state broadcast. |  | S-1 | - |
@@ -842,6 +924,7 @@ so a new override for the train cancels it (F-4). Picture 3 in Q-1 shows the tak
 | `backend/tests/test_plan_policy_released_hold.py` | Released train at the end of a run cut short; held train keeps the course |
 | `backend/tests/test_system_hold_notification.py` | System and operator holds worded apart |
 | `frontend/src/app/features/timetable/timetable.component.spec.ts` | Breakdown status with unit, singular for one step (S-12) |
+| `backend/tests/test_switch_policy.py` | Only the active policy hears the overrides; plan state reset once at the switch (S-6) |
 | `backend/tests/test_override_answer.py` | The override answer echoes `via`, `start` and the step (S-16) |
 | `docs/plans/plan-b-log-findings.md` | This plan |
 | `docs/plans/plan-b-log-findings/*.png` | Annotated screenshots and mockups (§4.2) |
