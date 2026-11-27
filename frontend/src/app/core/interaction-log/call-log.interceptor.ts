@@ -101,7 +101,8 @@ export class CallLog {
       const scope = this.synchronizeScope();
       if (!scope.enabled || (requestScope !== undefined && requestScope !== scope.generation)) return;
       const full: CallEntry = { ...entry, simStep: this.store.elapsedSteps(), mode: this.store.interactionMode() };
-      if (entry.response !== undefined) {
+      // Only polled GET answers repeat; a command keeps its own response.
+      if (entry.response !== undefined && entry.method === 'GET') {
         const key = `${scope.sid} ${entry.method} ${entry.url}`;
         const json = JSON.stringify(entry.response);
         const last = this._last.get(key);

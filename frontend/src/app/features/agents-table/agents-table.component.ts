@@ -261,7 +261,8 @@ export class AgentsTableComponent {
     }
     const t = a.time_to_deadline;
     if (t == null) return '–';
-    return t >= 0 ? this.i18n.t('train.slackLeft', { n: t }) : this.i18n.t('train.late', { n: -t });
+    if (t >= 0) return this.i18n.t('train.slackLeft', { n: t });
+    return t === -1 ? this.i18n.t('train.lateOne') : this.i18n.t('train.late', { n: -t });
   }
 
   private _groupOf(a: AgentDTO): RowGroup {

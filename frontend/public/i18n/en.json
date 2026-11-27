@@ -407,12 +407,19 @@
       "malfunction": {
         "title": "Malfunction",
         "message": "{{train}} is malfunctioning ({{steps}} steps remaining).",
-        "short": "Malfunction, {{steps}} steps remaining."
+        "messageOne": "{{train}} is malfunctioning (1 step remaining).",
+        "short": "Malfunction, {{steps}} steps remaining.",
+        "shortOne": "Malfunction, 1 step remaining."
       },
       "overridePending": {
         "title": "Override active",
         "message": "{{train}}: operator override {{direction}} pending.",
         "short": "Override {{direction}} pending."
+      },
+      "systemHold": {
+        "title": "Held by the system",
+        "message": "{{train}}: held by the system until a decision is taken.",
+        "short": "Held by the system until a decision."
       },
       "decisionPending": {
         "title": "Decision pending",
@@ -640,6 +647,7 @@
     "name": "Train {{n}}",
     "slackLeft": "{{n}} left",
     "late": "+{{n}} steps late",
+    "lateOne": "+1 step late",
     "now": "now",
     "inSteps": "in {{n}}",
     "arr": "Arr.",
@@ -772,6 +780,9 @@
     "status": {
       "arrived": "arrived",
       "depIn": "dep in {{n}} steps",
+      "depInOne": "dep in 1 step",
+      "disruption": "⚠ disruption, {{n}} steps left",
+      "disruptionOne": "⚠ disruption, 1 step left",
       "ready": "ready"
     }
   },
@@ -1693,7 +1704,13 @@
     },
     "drawRoute": "Press on the train on the map and drag its route over the switches. Release to see the course; Esc cancels.",
     "noDrawnRoute": "There is no route through the cells you drew.",
-    "drawnRouteLeft": "The train has already left the route you drew. Draw it again from where the train is now."
+    "drawnRouteLeft": "The train has already left the route you drew. Draw it again from where the train is now.",
+    "aiValidFor": "Can be taken for another {{seconds}} s; after that it is recomputed.",
+    "aiRecomputing": "Computing a new AI course…",
+    "aiPending": "The AI course takes over in about {{seconds}} s. Until then the trains run as they do now.",
+    "aiPendingPaused": "The AI course takes over once the simulation runs on. Until then the trains run as they do now.",
+    "aiRefreshed": "The earlier AI course no longer fitted the situation. This one is new.",
+    "courseRejected": "The AI course no longer fitted the situation when it was due, so it was not carried out. Choose a course again."
   },
   "zwl": {
     "empty": "Select a train to see its time-distance trajectory.",

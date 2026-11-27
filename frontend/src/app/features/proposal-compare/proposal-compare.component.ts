@@ -125,10 +125,63 @@ export class ProposalCompareComponent implements OnDestroy {
   readonly showAlternatives = signal(false);
   /** Ignore a previous train/option/session's slower forecast response. */
   private loadGeneration = 0;
+  /** Seconds the last request took: part of the next one's lead (3 before the first). */
+  private lastComputeSeconds = 3;
+  /** A KI course taken for a step ahead and waiting for it: that step. */
+  readonly pendingActivation = signal<number | null>(null);
+  /** The AI course shown replaced one that no longer fit when it was taken. */
+  readonly aiRefreshed = signal(false);
+  /** A KI course taken for a step ahead no longer fit when the step came. */
+  readonly courseRejected = signal(false);
+
+  /**
+   * While the run plays, the AI courses are computed for the step the
+   * participant can still take them at: now plus the computing time plus the
+   * reaction allowance (plan-b-log-findings.md §4.3). Paused: for now.
+   */
+  private leadSteps(): number {
+    if (!this.store.playing() || this.replay.active()) return 0;
+    return Math.ceil((this.lastComputeSeconds + this.store.proposalReactionSeconds()) * this.store.playSpeed());
+  }
+
+  /** Whole seconds since the last step while the run plays: a 1 s clock,
+   *  restarted on each step and stopped while paused (Q-5). */
+  private readonly secondsSinceStep = signal(0);
+
+  /** Seconds until step `at` while the run plays, counted down every second
+   *  but never ahead of the step the run is on; null when paused. */
+  private secondsUntil(at: number): number | null {
+    const speed = this.store.playing() ? this.store.playSpeed() : 0;
+    if (speed <= 0) return null;
+    const steps = at - this.store.elapsedSteps();
+    const counted = Math.round(steps / speed - this.secondsSinceStep());
+    return Math.max(0, counted, Math.round((steps - 1) / speed));
+  }
+
+  /** Seconds the shown AI course can still be taken in; null without a lead. */
+  readonly aiSecondsLeft = computed(() => {
+    const at = this.result()?.ai_activation_step;
+    if (at == null || this.decided()) return null;
+    return this.secondsUntil(at);
+  });
+
+  /** Seconds until a taken AI course takes over; null when none is waiting. */
+  readonly pendingSecondsLeft = computed(() => {
+    const at = this.pendingActivation();
+    return at == null ? null : this.secondsUntil(at);
+  });
 
   readonly targetHandle = computed(() => (this.decided() ? this.decided()!.handle : this.store.selectedHandle()));
 
   constructor() {
+    effect((onCleanup) => {
+      this.store.elapsedSteps();
+      if (!this.store.playing()) return;
+      untracked(() => this.secondsSinceStep.set(0));
+      const timer = setInterval(() => this.secondsSinceStep.update((n) => n + 1), 1000);
+      onCleanup(() => clearInterval(timer));
+    });
+
     // One effect for both ways in: a different train (from anywhere) or a
     // different option (from this panel or the map). A different train is a
     // different question, so the old answer goes; a different option only asks
@@ -150,6 +203,9 @@ export class ProposalCompareComponent implements OnDestroy {
           this.liveResult.set(null);
           this.store.whatIfPreview.set(null);
           this.appliedVariant.set(null);
+          this.pendingActivation.set(null);
+          this.aiRefreshed.set(false);
+          this.courseRejected.set(false);
         } else if (this.appliedVariant() === 'human') {
           // The confirmation belonged to the option that was taken, not this one.
           this.appliedVariant.set(null);
@@ -157,6 +213,41 @@ export class ProposalCompareComponent implements OnDestroy {
         this.applying.set(null);
         this.committed.set(false);
         if (handle != null) this.load(option);
+      });
+    });
+
+    // An AI course computed with a lead can be taken exactly until its step.
+    // Once that has passed, ask again by itself instead of offering a course
+    // that has run out (plan-b-log-findings.md §4.3).
+    effect(() => {
+      const at = this.liveResult()?.ai_activation_step;
+      const now = this.store.elapsedSteps();
+      if (at == null || now <= at) return;
+      untracked(() => {
+        if (this.decided() || this.loading() || this.applying() !== null
+          || this.appliedVariant() === 'ai' || this.pendingActivation() !== null) return;
+        if (this.targetHandle() != null) this.load(this.chosenOption());
+      });
+    });
+
+    // A taken AI course waiting for its step: when the backend has dealt with
+    // it, close the frame as for any course taken, or say that it no longer
+    // fitted and ask for a new one. Cancelled by another decision or a reset:
+    // ask again, without a message (the participant made that decision).
+    effect(() => {
+      const state = this.store.state();
+      untracked(() => {
+        const at = this.pendingActivation();
+        const outcome = state?.course_activation;
+        if (at == null || !state || state.pending_course || outcome?.activation_step !== at) return;
+        this.pendingActivation.set(null);
+        if (outcome.outcome === 'rejected' || outcome.outcome === 'cancelled') {
+          this.appliedVariant.set(null);
+          this.courseRejected.set(outcome.outcome === 'rejected');
+          this.load(this.chosenOption());
+        } else {
+          this.closeFrame();
+        }
       });
     });
   }
@@ -196,8 +287,10 @@ export class ProposalCompareComponent implements OnDestroy {
     // «Umleiten» is drawn on the map: until the drag ended, plan and AI only.
     const route = option === 'reroute' ? this.choice.drawnRoute() : null;
     const asked = option === 'reroute' && !route ? undefined : (option ?? undefined);
-    this.api.getProposals(sess.id, handle, asked, route ?? undefined).subscribe({
+    const started = Date.now();
+    this.api.getProposals(sess.id, handle, asked, route ?? undefined, this.leadSteps()).subscribe({
       next: (r) => {
+        this.lastComputeSeconds = Math.max(1, (Date.now() - started) / 1000);
         if (generation !== this.loadGeneration || this.store.session()?.id !== sess.id || this.targetHandle() !== handle) return;
         this.liveResult.set(r);
         this.loading.set(false);
@@ -294,6 +387,8 @@ export class ProposalCompareComponent implements OnDestroy {
     // another train was selected (finding 29).
     const shown = this.shownOptions();
     this.applying.set(variant);
+    this.pendingActivation.set(null);
+    this.courseRejected.set(false);
     this.api.applyProposal(sess.id, {
       variant, handle, priority,
       ...(course?.preview_token ? {
@@ -312,17 +407,22 @@ export class ProposalCompareComponent implements OnDestroy {
         if (this.targetHandle() === handle) {
           this.applying.set(null);
           this.appliedVariant.set(variant);
+          this.aiRefreshed.set(false);
           this.store.whatIfPreview.set(null);
-          this.closeFrame();
+          // Taken for a step ahead: the frame stays open and says when it takes
+          // over; it closes then (the effect on `course_activation`).
+          if (variant === 'ai' && r.pending && r.activation_step != null) this.pendingActivation.set(r.activation_step);
+          else this.closeFrame();
         }
       },
       error: (err) => {
         if (this.store.session()?.id !== sess.id || this.targetHandle() !== handle) return;
         this.applying.set(null);
         if (variant === 'ai' && err?.status === 409) {
-          this.failed.set(this.i18n.t('proposals.previewExpired'));
-          this.liveResult.set(null);
-          this.store.whatIfPreview.set(null);
+          // The course no longer fits where the trains are: compute a new one
+          // right away and say so, rather than leave the participant an error.
+          this.aiRefreshed.set(true);
+          this.load(this.chosenOption());
         } else {
           this.failed.set(err?.error?.detail ?? this.i18n.t('proposals.applyFailed'));
         }

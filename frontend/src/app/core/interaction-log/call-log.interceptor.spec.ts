@@ -67,6 +67,17 @@ describe('callLogInterceptor', () => {
     expect(second.response_same_as).toBe(first.seq);
   });
 
+  it('a repeated command keeps its response', () => {
+    for (let i = 0; i < 2; i++) {
+      http.post('/session/s1/pause', {}).subscribe();
+      backend.expectOne('/session/s1/pause').flush({ ok: true });
+    }
+    const [first, second] = entries();
+    expect(first.response).toEqual({ ok: true });
+    expect(second.response).toEqual({ ok: true });
+    expect(second.response_same_as).toBeUndefined();
+  });
+
   it('logs failed calls with their status', () => {
     http.get('/session/s1/state').subscribe({ error: () => undefined });
     backend.expectOne('/session/s1/state').flush({ detail: 'gone' }, { status: 404, statusText: 'Not Found' });

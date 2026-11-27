@@ -407,12 +407,19 @@
       "malfunction": {
         "title": "Panne",
         "message": "{{train}} est en panne (encore {{steps}} pas).",
-        "short": "Panne, encore {{steps}} pas."
+        "messageOne": "{{train}} est en panne (encore 1 pas).",
+        "short": "Panne, encore {{steps}} pas.",
+        "shortOne": "Panne, encore 1 pas."
       },
       "overridePending": {
         "title": "Intervention active",
         "message": "{{train}} : intervention {{direction}} en attente.",
         "short": "Intervention {{direction}} en attente."
+      },
+      "systemHold": {
+        "title": "Retenu par le système",
+        "message": "{{train}} : retenu par le système jusqu’à une décision.",
+        "short": "Retenu par le système jusqu’à une décision."
       },
       "decisionPending": {
         "title": "Décision en attente",
@@ -640,6 +647,7 @@
     "name": "Train {{n}}",
     "slackLeft": "reste {{n}}",
     "late": "+{{n}} pas de retard",
+    "lateOne": "+1 pas de retard",
     "now": "maintenant",
     "inSteps": "dans {{n}}",
     "arr": "Arr.",
@@ -772,6 +780,9 @@
     "status": {
       "arrived": "arrivé",
       "depIn": "départ dans {{n}} pas",
+      "depInOne": "départ dans 1 pas",
+      "disruption": "⚠ perturbation, encore {{n}} pas",
+      "disruptionOne": "⚠ perturbation, encore 1 pas",
       "ready": "prêt"
     }
   },
@@ -1693,7 +1704,13 @@
     },
     "drawRoute": "Appuyez sur le train sur la carte et tracez son itinéraire sur les aiguillages. Relâchez pour voir le déroulement ; Échap annule.",
     "noDrawnRoute": "Aucun itinéraire ne passe par les cases tracées.",
-    "drawnRouteLeft": "Le train a déjà quitté l’itinéraire tracé. Trace-le à nouveau depuis sa position actuelle."
+    "drawnRouteLeft": "Le train a déjà quitté l’itinéraire tracé. Trace-le à nouveau depuis sa position actuelle.",
+    "aiValidFor": "Peut encore être adopté pendant {{seconds}} s ; ensuite, il est recalculé.",
+    "aiRecomputing": "Nouveau parcours IA en cours de calcul…",
+    "aiPending": "Le déroulement de l’IA prend le relais dans environ {{seconds}} s. D’ici là, les trains circulent comme maintenant.",
+    "aiPendingPaused": "Le déroulement de l’IA prend le relais dès que la simulation reprend. D’ici là, les trains circulent comme maintenant.",
+    "aiRefreshed": "Le déroulement précédent de l’IA ne correspondait plus à la situation. Celui-ci est nouveau.",
+    "courseRejected": "Le déroulement de l’IA ne correspondait plus à la situation au moment prévu ; il n’a pas été appliqué. Choisissez à nouveau un déroulement."
   },
   "zwl": {
     "empty": "Sélectionnez un train pour voir sa trajectoire espace-temps.",

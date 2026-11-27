@@ -18,6 +18,7 @@ from typing import Optional, Any
 
 from app.core.call_log import log_ws
 from app.core.session_manager import session_manager
+from app.core.proposal_preview import course_state
 from app.core.env_step import step_env
 from app.core.marey_history import capture_marey_history_snapshot
 from app.core.serializer import serialize_env
@@ -74,6 +75,9 @@ def _build_state_payload(session_id: str, env) -> dict:
     overrides = override_manager.get_all(session_id)
     state = serialize_env(env, overrides=overrides)
     state["episode_done"] = _is_done(env)
+    session = session_manager.get(session_id)
+    if session is not None:
+        state.update(course_state(session))
     return {"type": "state", "session_id": session_id, "state": state}
 
 

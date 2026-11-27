@@ -1,5 +1,6 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { SessionStore } from '../session.store';
+import { AgentDTO } from '../models';
 import { LanguageService } from '../i18n/language.service';
 import { InteractionLogService } from '../interaction-log/interaction-log.service';
 import {
@@ -73,6 +74,16 @@ export class ExperimentRunService {
     return this.startedAt;
   }
   private legStartedAt = 0;
+  /** The trains seen broken down in the current session: the leg's KPI
+   *  `malfunctions` counts these, not the trains broken down at the end of the
+   *  leg, which was almost always 0 (plan-b-log-findings.md §4.4). */
+  private brokeDown: { sessionId: string | null; handles: Set<number> } = { sessionId: null, handles: new Set() };
+  private readonly _watchBreakdowns = effect(() => {
+    const sessionId = this.store.session()?.id ?? null;
+    const agents = this.store.agents();
+    if (sessionId !== this.brokeDown.sessionId) this.brokeDown = { sessionId, handles: new Set() };
+    for (const a of agents) if (a.is_malfunctioning || (a.malfunction_remaining ?? 0) > 0) this.brokeDown.handles.add(a.handle);
+  });
   private questionnaires: ExperimentQuestionnaire[] = [];
   private resumedAt: number[] = [];
 
@@ -205,6 +216,13 @@ export class ExperimentRunService {
     this.persist();
   }
 
+  /** Trains that broke down during the leg's session, the ones broken down now included. */
+  private malfunctionsThisLeg(sessionId: string | null | undefined, agents: readonly AgentDTO[]): number {
+    const handles = new Set(this.brokeDown.sessionId === (sessionId ?? null) ? this.brokeDown.handles : []);
+    for (const a of agents) if (a.is_malfunctioning || (a.malfunction_remaining ?? 0) > 0) handles.add(a.handle);
+    return handles.size;
+  }
+
   /** A leg's session was started. */
   legStarted(): void {
     this.legStartedAt = Date.now();
@@ -260,7 +278,7 @@ export class ExperimentRunService {
         .map((e) => e.preferenceHypothesis as string),
       ruleApplied: null,
       legId: leg.id,
-      kpis: shiftKpis(agents),
+      kpis: { ...shiftKpis(agents), malfunctions: this.malfunctionsThisLeg(sessionId, agents) },
       interventions: decisions.length,
       finishReason: reason,
       startedAt: this.legStartedAt,

@@ -301,3 +301,36 @@ describe('SessionStore — unsent reflections', () => {
     expect(store.pendingRationale()?.decisionSeq).toBe(first);
   });
 });
+
+/** plan-b-log-findings.md §4.4: a decision window left open in one leg must not time the next leg's
+ *  decision for the same train number. */
+describe('SessionStore — decision time across legs', () => {
+  let store: SessionStore;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date(1_000_000));
+  });
+
+  afterEach(() => jasmine.clock().uninstall());
+
+  it('times a decision from its own window', () => {
+    store.openDecisionWindow(1);
+    jasmine.clock().tick(5_000);
+    store.clearOverride(1);
+    expect(store.decisionLog().at(-1)?.decisionTimeMs).toBe(5_000);
+  });
+
+  it('starts the next leg without the previous leg\'s open windows', () => {
+    store.openDecisionWindow(1);
+    jasmine.clock().tick(600_000);
+    store.clearDecisionLog(); // a new leg
+    store.clearOverride(1);
+    expect(store.decisionLog().at(-1)?.decisionTimeMs).toBeNull();
+  });
+});

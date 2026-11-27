@@ -38,6 +38,13 @@ describe('SessionStore — leaving a playing session', () => {
     expect(pauses().length).toBe(1);
   });
 
+  it('sends one pause at the end of a leg, also when the next leg starts before it answers', () => {
+    store.playing.set(true);
+    store.pause();
+    store.newSession({ width: 30, height: 30 });
+    expect(pauses().length).toBe(1);
+  });
+
   it('sends no pause for a session that was not playing', () => {
     store.newSession({ width: 30, height: 30 });
     expect(pauses().length).toBe(0);

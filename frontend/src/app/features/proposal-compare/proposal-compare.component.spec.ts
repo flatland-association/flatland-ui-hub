@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideTourContextStub } from '../../testing/tour-context-stub';
-import { SessionInfo } from '../../core/models';
+import { SessionInfo, SessionState } from '../../core/models';
 import { SessionStore } from '../../core/session.store';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { ProposalCompareComponent } from './proposal-compare.component';
@@ -184,6 +184,80 @@ describe('ProposalCompareComponent — future AI courses', () => {
     expect(store.proposalSnapshots().get(store.decisionLog().at(-1)!.seq)?.result.variants[1].candidate_id).toBe('wait-13-3');
   });
 
+  /** A course taken for a step ahead (docs/plans/plan-b-log-findings.md §4.3, §4.5). */
+  function takePending(component: ProposalCompareComponent, http: HttpTestingController, store: SessionStore) {
+    store.state.set({ elapsed_steps: 7 } as SessionState);
+    http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));
+    component.take('ai');
+    http.expectOne((r) => r.url.endsWith('/proposals/apply'))
+      .flush({ applied: 'ai', label: '', step: 7, policy: '', pending: true, activation_step: 9 });
+    store.state.set({ elapsed_steps: 7, pending_course: { handle: 0, activation_step: 9 } } as SessionState);
+  }
+
+  it('says the trains run by the AI course only once it has taken over', () => {
+    const { fixture, component, http, store } = create();
+    takePending(component, http, store);
+    fixture.detectChanges();
+    const caveat = 'The trains now run by the AI’s plan.';
+    expect(fixture.nativeElement.textContent).toContain('Until then the trains run as they do now.');
+    expect(fixture.nativeElement.textContent).not.toContain(caveat);
+    store.state.set({ elapsed_steps: 9, pending_course: null,
+      course_activation: { handle: 0, step: 9, activation_step: 9, outcome: 'installed' } } as SessionState);
+    fixture.detectChanges();
+    expect(component.pendingActivation()).toBeNull();
+    expect(component.appliedVariant()).toBe('ai');
+  });
+
+  it('stops waiting and asks again, without a message, when the pending course is cancelled', () => {
+    const { fixture, component, http, store } = create();
+    takePending(component, http, store);
+    fixture.detectChanges();
+    http.match((r) => r.url.endsWith('/proposals'));  // the refresh after the accept
+    store.state.set({ elapsed_steps: 8, pending_course: null,
+      course_activation: { handle: 0, step: 8, activation_step: 9, outcome: 'cancelled' } } as SessionState);
+    fixture.detectChanges();
+    expect(component.pendingActivation()).toBeNull();
+    expect(component.appliedVariant()).toBeNull();
+    expect(component.courseRejected()).toBeFalse();
+    expect(http.match((r) => r.url.endsWith('/proposals')).length).toBe(1);
+  });
+
+  it('counts the AI deadline down every second, never ahead of the run, and stops offering it at 0 s (Q-5)', () => {
+    jasmine.clock().install();
+    try {
+      const { fixture, component, http, store } = create();
+      store.playSpeedBase.set(1 / 3);  // 3 s per step, as in Plan B
+      store.playing.set(true);
+      store.state.set({ elapsed_steps: 7 } as SessionState);
+      http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush({ ...courses(), ai_activation_step: 9 }));
+      fixture.detectChanges();
+      const seen = [component.aiSecondsLeft()];
+      for (let i = 0; i < 4; i++) { jasmine.clock().tick(1000); fixture.detectChanges(); seen.push(component.aiSecondsLeft()); }
+      expect(seen).toEqual([6, 5, 4, 3, 3]);  // waits at 3 s for step 8
+      store.state.set({ elapsed_steps: 8 } as SessionState);
+      fixture.detectChanges();
+      for (let i = 0; i < 3; i++) { jasmine.clock().tick(1000); fixture.detectChanges(); }
+      expect(component.aiSecondsLeft()).toBe(0);
+      const take = fixture.nativeElement.querySelector('.pc-take--ai') as HTMLButtonElement;
+      expect(take.disabled).toBeTrue();
+      store.playing.set(false);
+      fixture.detectChanges();
+      expect(component.aiSecondsLeft()).toBeNull();
+    } finally {
+      jasmine.clock().uninstall();
+    }
+  });
+
+  it('greys out the AI course that ran out while a new one is computed', () => {
+    const { fixture, component, http } = create();
+    http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));
+    fixture.detectChanges();
+    component.load(component.chosenOption());
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.pc-course--ai').classList).toContain('is-stale');
+    expect(fixture.nativeElement.textContent).toContain('Computing a new AI course…');
+  });
+
   /** docs/plans/uc2-rl-keep-human-decisions.md: uc2_rl keeps the other trains' stops. */
   for (const [keeps, text] of [
     [true, 'trains with your decision (stop, turn, reroute) keep it'],
@@ -200,7 +274,9 @@ describe('ProposalCompareComponent — future AI courses', () => {
     });
   }
 
-  it('discards a stale preview on conflict without recording an accepted decision', () => {
+  it('replaces a stale preview on conflict with a new one, without recording an accepted decision', () => {
+    // A 409 asks again by itself and says so,
+    // instead of leaving the participant an error and a refresh button.
     const { fixture, component, http, store } = create();
     http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));
     fixture.detectChanges();
@@ -210,10 +286,14 @@ describe('ProposalCompareComponent — future AI courses', () => {
       { detail: 'stale forecast' }, { status: 409, statusText: 'Conflict' },
     );
     fixture.detectChanges();
-    expect(component.result()).toBeNull();
     expect(store.decisionLog().length).toBe(before);
-    expect(fixture.nativeElement.textContent).toContain('Refresh the courses');
-    expect(fixture.nativeElement.querySelector('[data-log="proposals.refreshCourses"]')).toBeTruthy();
+    expect(fixture.nativeElement.textContent).toContain('no longer fitted the situation');
+    const again = http.match((r) => r.url.endsWith('/proposals'));
+    expect(again.length).toBe(1);
+    again[0].flush({ ...courses(), step: 9 });
+    fixture.detectChanges();
+    expect(component.result()?.step).toBe(9);
+    expect(store.decisionLog().length).toBe(before);
   });
 
   it('keeps the newer train forecast when an earlier response arrives last', () => {

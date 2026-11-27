@@ -8,6 +8,7 @@ import time
 from typing import Any, List
 
 from app.core.session_manager import session_manager
+from app.core.proposal_preview import course_state
 from app.core.infrastructure_scene_adapter import build_scene_diagnostics, count_routable_agents
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
@@ -138,6 +139,9 @@ def _build_state_payload(session_id: str, env) -> dict:
     overrides = override_manager.get_all(session_id)
     state = serialize_env(env, overrides=overrides)
     state["episode_done"] = _is_done(env)
+    session = session_manager.get(session_id)
+    if session is not None:  # as the play loop's broadcast (websockets.py)
+        state.update(course_state(session))
     return {"type": "state", "session_id": session_id, "state": state}
 
 
@@ -397,6 +401,7 @@ def get_state(session_id: str):
     overrides = override_manager.get_all(session_id)
     state = serialize_env(session.env, overrides=overrides)
     state["episode_done"] = _is_done(session.env)
+    state.update(course_state(session))
     state["infrastructure_scene_id"] = getattr(session, "infrastructure_scene_id", None)
     state["infrastructure_scene_diagnostics"] = build_scene_diagnostics(
         getattr(session, "infrastructure_scene", None),
@@ -460,6 +465,7 @@ async def _step_session(session_id: str, session, req: StepRequest):
         observations: dict[int, Any] = session.last_observations or {}
         policy.start_step()
         actions = policy.act_many(handles, observations)
+        plan_before = getattr(env, "_trainrun_plan", None)
         try:
             next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy)
         except Exception as e:
@@ -469,6 +475,13 @@ async def _step_session(session_id: str, session, req: StepRequest):
                 break
             raise
         policy.end_step()
+        if getattr(env, "_trainrun_plan", None) is not plan_before:
+            # A pending KI course took over during this step: drive the
+            # remaining steps with it, as the play loop does.
+            effective, driver = create_driving_policy(req.policy, env)
+            policy = OverridePolicy(driver, session_id)
+            policy.reset(env)
+            session.policy = effective
         # Capture exact executed state for Marey history.
         _capture_marey_history_snapshot(session)
         n_done_steps += 1
@@ -507,8 +520,13 @@ async def reset_session(session_id: str):
     # Replay the IDENTICAL scenario (same rail, schedule, malfunctions) so a
     # Reset — and each guided-demo mode switch — restarts the same situation,
     # instead of env.reset() rolling a fresh random episode.
-    # The episode starts over on the session's own plan, not an accepted AI plan.
+    # The episode starts over on the session's own plan, not an accepted AI plan,
+    # and without a KI course waiting for a step of the old run.
     revert_accepted_plan(session.env)
+    # A course still waiting is reported as cancelled (`course_activation`),
+    # so the panel stops waiting for it; the middleware may have done so already.
+    from app.core.proposal_preview import clear_previews
+    clear_previews(session)
     if session.seed is not None:
         obs, info = session.env.reset(
             regenerate_rail=False, regenerate_schedule=False, random_seed=session.seed

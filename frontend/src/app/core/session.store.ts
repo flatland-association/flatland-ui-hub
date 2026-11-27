@@ -754,6 +754,10 @@ export class SessionStore {
   /** Clear the log (e.g. on session reset). */
   clearDecisionLog(): void {
     this.decisionLog.set([]);
+    // A decision window still open from the previous leg would otherwise time
+    // the next leg's decision for the same train number from back then
+    // (plan-b-log-findings.md §4.4).
+    this._decisionWindowStart.set({});
     // A reflection patches its decision: with the decisions gone, nothing is
     // left to ask (docs/plans/reflection-inline.md §4.1). Every reset clears
     // the log, so this also starts a new leg without open reflections.
@@ -891,6 +895,16 @@ export class SessionStore {
 
   setDecisionCountdownSeconds(n: number): void {
     this.decisionCountdownSeconds.set(Math.max(3, Math.min(60, Math.floor(n || 10))));
+  }
+
+  /** How long a participant may take to read and take a KI course while the
+   *  run plays. The course is computed for the step reached after this (plus
+   *  the computing time), so taking it in time is exact
+   *  (plan-b-log-findings.md Q-1). A default, not yet a study decision. */
+  readonly proposalReactionSeconds = signal<number>(10);
+
+  setProposalReactionSeconds(n: number): void {
+    this.proposalReactionSeconds.set(Math.max(0, Math.min(60, Math.floor(n || 0))));
   }
 
   /** How long an AI recommendation shows a countdown before it reads as
@@ -2232,9 +2246,13 @@ export class SessionStore {
    *  experiment-scenario-import.md §8), and the pause writes its trajectory
    *  to disk. Fire and forget, so a late answer cannot touch the next
    *  session's `playing`. */
+  /** The session whose pause request has not answered yet: leaving it sends
+   *  no second pause (a leg end pauses, then starts the next leg). */
+  private _pauseInFlight: string | null = null;
+
   private _stopPlayingOnServer(): void {
     const s = this.session();
-    if (s && this.playing()) this.api.pause(s.id).subscribe({ error: () => undefined });
+    if (s && this.playing() && this._pauseInFlight !== s.id) this.api.pause(s.id).subscribe({ error: () => undefined });
   }
 
   /** End the current session and return to the welcome screen — without a full
@@ -2347,7 +2365,10 @@ export class SessionStore {
   pause() {
     const s = this.session();
     if (!s) return;
-    this.api.pause(s.id).subscribe({
+    this._pauseInFlight = s.id;
+    this.api.pause(s.id).pipe(finalize(() => {
+      if (this._pauseInFlight === s.id) this._pauseInFlight = null;
+    })).subscribe({
       next: () => this.playing.set(false),
       error: (e) => this.error.set(`Pause failed: ${e.message}`),
     });
@@ -2558,7 +2579,7 @@ export class SessionStore {
       aiSuggestion: null,
       decisionTimeMs: null,
     });
-    this.api.setOverride(s.id, handle, 4 as any).subscribe({
+    this.api.setOverride(s.id, handle, 4 as any, undefined, 'system').subscribe({
       next: () => this.refreshState(),
       error: () => {},
     });
