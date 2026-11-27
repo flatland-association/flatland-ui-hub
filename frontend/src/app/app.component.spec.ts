@@ -539,4 +539,39 @@ describe('AppComponent', () => {
       expect(app.missingExperimentScenario()).toBeNull();
     });
   });
+
+  // docs/plans/plan-b-round2-experiments.md items 1, 2, 5.
+  describe('Plan B round 2 in the picker and without a questionnaire', () => {
+    it('offers round 2 and round 1\'s example, not round 1\'s other participants, who still open by id', () => {
+      const app: any = TestBed.createComponent(AppComponent).componentInstance;
+      const offered = app.guidedConditions.map((c: StudyCondition) => c.id);
+      expect(offered).toContain('plan-b-r2-colearning-p01');
+      expect(offered).toContain('plan-b-r2-tutorial-recommendation');
+      expect(offered).toContain('plan-b-p01');
+      expect(offered).not.toContain('plan-b-p02');
+      app.setStudyCondition('plan-b-p02');
+      expect(app.selectedStudyCondition().id).toBe('plan-b-p02');
+    });
+
+    it('ends a tutorial after its Schichtbilanz, without a questionnaire', () => {
+      const app: any = TestBed.createComponent(AppComponent).componentInstance;
+      const store = TestBed.inject(SessionStore);
+      const tutorial: StudyCondition = {
+        id: 'spec-tutorial', layoutId: 'preset-plan-b-colearning', mode: 'co-learning', label: 'Spec tutorial',
+        briefingIds: { en: 'plan-b-r2-colearning' }, surveyParts: [],
+        legs: [{ id: 'tutorial', scenarioId: 'tutorial', disturbanceIds: [], seed: 42 }],
+      };
+      spyOn(app, 'createSession');
+      spyOn(app, 'resolveWelcomeSessionOpts').and.returnValue({ scenarioPresetId: 'x', policyControlIds: ['plan'] });
+      const finish = spyOn(app.experimentRun, 'finish');
+      app.activeExperiment.set(tutorial);
+      app.experimentRun.start(tutorial, false);
+      store.startDemo(['co-learning'], false);
+      app.advanceExperiment('clicked');
+      expect(app.experimentRun.phase()).toBe('review');
+      app.advanceExperiment('clicked');
+      expect(app.surveyActive()).toBeFalse();
+      expect(finish).toHaveBeenCalledWith('completed');
+    });
+  });
 });

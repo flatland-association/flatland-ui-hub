@@ -60,6 +60,10 @@ export interface StudyCondition {
    *  `false` = finish at once (#180, docs/plans/confirm-finish-scenario.md).
    *  Absent = ask. */
   finishConfirm?: boolean;
+  /** Not offered in the picker, but still found by id: deep links, resume,
+   *  replay and records (Plan B round 1's participants, kept for replay;
+   *  docs/plans/plan-b-round2-experiments.md item 1). Absent = offered. */
+  unlisted?: boolean;
 }
 
 /** One leg of a guided condition: one "Szenario" the participant works through.
@@ -176,7 +180,7 @@ function scenarioLeg(scenarioId: string): ExperimentLeg {
 
 /** The practice scenario every Plan B participant starts with. */
 export const PLAN_B_TUTORIAL: ExperimentLeg = scenarioLeg('tutorial');
-const UC2_LEGS: Record<string, ExperimentLeg> = Object.fromEntries(
+export const UC2_LEGS: Record<string, ExperimentLeg> = Object.fromEntries(
   ['uc2-1', 'uc2-2', 'uc2-3', 'uc2-4'].map((id) => [id, scenarioLeg(id)]),
 );
 
@@ -214,10 +218,87 @@ const PLAN_B_CONDITIONS: StudyCondition[] = PLAN_B_ORDERS.map((order, i) => {
     // The study's own final questionnaire (plan §3.10), once, after the last scenario.
     surveyParts: [PLAN_B_FINAL_PART],
     legs: [PLAN_B_TUTORIAL, ...order.map((id) => UC2_LEGS[id])],
+    // Round 1 is over: p01 stays offered as its example, the others only for
+    // replay and deep links (docs/plans/plan-b-round2-experiments.md item 1).
+    ...(i > 0 ? { unlisted: true } : {}),
   };
 });
 
+// ── Plan B round 2 (docs/plans/plan-b-round2.md) ────────────────────────────
+// Two groups on the same three UC2 scenarios: Co-Learning and Recommendation
+// (the control group), each on its own layout. No tutorial and no opening
+// page: the first scenario's card opens directly; the tutorial is its own
+// experiment per group. After the three scenarios the Schichtbilanz with the
+// reflection overview (#201), then the study's questionnaire.
+
+/** The scenario orders of round 2, participant n = row n, the same in both
+ *  groups: the six orders of uc2-1, uc2-2, uc2-4 once, plus two repeats
+ *  drawn with `random.Random(42).sample(perms, 2)` (07 = 06, 08 = 01). */
+export const PLAN_B_R2_ORDERS: readonly (readonly string[])[] = [
+  ['uc2-1', 'uc2-2', 'uc2-4'], // p01
+  ['uc2-1', 'uc2-4', 'uc2-2'], // p02
+  ['uc2-2', 'uc2-1', 'uc2-4'], // p03
+  ['uc2-2', 'uc2-4', 'uc2-1'], // p04
+  ['uc2-4', 'uc2-1', 'uc2-2'], // p05
+  ['uc2-4', 'uc2-2', 'uc2-1'], // p06
+  ['uc2-4', 'uc2-2', 'uc2-1'], // p07 (repeat of p06)
+  ['uc2-1', 'uc2-2', 'uc2-4'], // p08 (repeat of p01)
+];
+
+/** One round 2 group: its layout, mode and briefing. */
+interface PlanBR2Group {
+  key: 'colearning' | 'recommendation';
+  mode: InteractionMode;
+  label: string;
+}
+
+const PLAN_B_R2_GROUPS: readonly PlanBR2Group[] = [
+  { key: 'colearning', mode: 'co-learning', label: 'Co-Learning' },
+  { key: 'recommendation', mode: 'recommendation', label: 'Recommendation' },
+];
+
+/** What every round 2 experiment of a group shares, the tutorial included. */
+function planBR2Base(g: PlanBR2Group): Omit<StudyCondition, 'id' | 'label' | 'labelKey' | 'surveyParts' | 'legs'> {
+  return {
+    layoutId: `preset-plan-b-${g.key}`,
+    mode: g.mode,
+    studyLogging: true,
+    briefingIds: { de: `plan-b-r2-${g.key}`, en: `plan-b-r2-${g.key}` },
+    policy: 'deadlock_avoidance',
+    proposalAgent: 'uc2_rl',
+  };
+}
+
+/** `plan-b-r2-tutorial-colearning` / `-recommendation`: the tutorial
+ *  scenario alone, then the Schichtbilanz, no questionnaire. */
+const PLAN_B_R2_TUTORIALS: StudyCondition[] = PLAN_B_R2_GROUPS.map((g) => ({
+  ...planBR2Base(g),
+  id: `plan-b-r2-tutorial-${g.key}`,
+  label: `Plan B round 2 · Tutorial ${g.label}`,
+  labelKey: `tours.plan-b-r2-tutorial-${g.key}.name`,
+  surveyParts: [],
+  legs: [PLAN_B_TUTORIAL],
+}));
+
+/** `plan-b-r2-colearning-p01` … `p08`, then `plan-b-r2-recommendation-p01` … `p08`. */
+const PLAN_B_R2_CONDITIONS: StudyCondition[] = PLAN_B_R2_GROUPS.flatMap((g) =>
+  PLAN_B_R2_ORDERS.map((order, i) => {
+    const n = String(i + 1).padStart(2, '0');
+    return {
+      ...planBR2Base(g),
+      id: `plan-b-r2-${g.key}-p${n}`,
+      label: `Plan B round 2 · ${g.label} · participant ${n}`,
+      labelKey: `tours.plan-b-r2-${g.key}-p${n}.name`,
+      surveyParts: [PLAN_B_FINAL_PART],
+      legs: order.map((id) => UC2_LEGS[id]),
+    };
+  }),
+);
+
+/** The picker's order is this list's (it never sorts): round 2 first, round 1's example last. */
 export const STUDY_CONDITIONS: readonly StudyCondition[] = [
+  ...PLAN_B_R2_TUTORIALS,
+  ...PLAN_B_R2_CONDITIONS,
   { layoutId: 'preset-recommendation-study2', mode: 'recommendation', label: 'Recommendation · User Study 2', surveyParts: STUDY_SURVEY },
   { layoutId: 'preset-colearning-study2', mode: 'co-learning', label: 'Co-Learning · User Study 2', surveyParts: STUDY_SURVEY },
   { layoutId: 'preset-recommendation-study3', mode: 'recommendation', label: 'Recommendation · User Study 3', ...WALENSEE, surveyParts: STUDY_SURVEY },
@@ -237,7 +318,7 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     surveyParts: DEFAULT_SURVEY_PARTS,
     legs: [WAL_SINGLE_TRACK],
   },
-  ...PLAN_B_CONDITIONS,
+  ...PLAN_B_CONDITIONS.slice(1),
   {
     // A test run, not a participant condition: one drawn scenario (uc2-1)
     // and the two Walensee legs, with the NASA-TLX after each leg, so a
@@ -258,4 +339,5 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     surveyParts: DEFAULT_SURVEY_PARTS,
     legs: [UC2_LEGS['uc2-1'], WAL_SINGLE_TRACK, WAL_FOLLOWER],
   },
+  PLAN_B_CONDITIONS[0],
 ];

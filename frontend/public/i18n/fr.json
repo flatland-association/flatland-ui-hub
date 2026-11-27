@@ -219,7 +219,7 @@
       "description": "Mode Director sur le corridor Pfäffikon SZ–Coire avec seize trains qui s’arrêtent en route : l’IA régule tous les trains et replanifie d’elle-même ; tu choisis l’objectif, le prévisualises et l’appliques. La planification prend environ une minute. Sans questionnaire."
     },
     "plan-b-p01": {
-      "name": "Plan B · participant·e 01",
+      "name": "Plan B manche 1 exemple",
       "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
     },
     "plan-b-p02": {
@@ -257,6 +257,78 @@
     "plan-b-p10": {
       "name": "Plan B · participant·e 10",
       "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-r2-tutorial-colearning": {
+      "name": "Tutoriel Co-Learning",
+      "description": "Le scénario tutoriel en mode Co-Learning avec l’interface d’étude de la manche 2, puis le bilan de service. Sans questionnaire."
+    },
+    "plan-b-r2-tutorial-recommendation": {
+      "name": "Tutoriel Recommendations",
+      "description": "Le scénario tutoriel en mode Recommendation avec l’interface d’étude de la manche 2, puis le bilan de service. Sans questionnaire."
+    },
+    "plan-b-r2-colearning-p01": {
+      "name": "Manche 2 · Co-Learning · participant·e 01",
+      "description": "Trois scénarios en mode Co-Learning avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-colearning-p02": {
+      "name": "Manche 2 · Co-Learning · participant·e 02",
+      "description": "Trois scénarios en mode Co-Learning avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-colearning-p03": {
+      "name": "Manche 2 · Co-Learning · participant·e 03",
+      "description": "Trois scénarios en mode Co-Learning avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-colearning-p04": {
+      "name": "Manche 2 · Co-Learning · participant·e 04",
+      "description": "Trois scénarios en mode Co-Learning avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-colearning-p05": {
+      "name": "Manche 2 · Co-Learning · participant·e 05",
+      "description": "Trois scénarios en mode Co-Learning avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-colearning-p06": {
+      "name": "Manche 2 · Co-Learning · participant·e 06",
+      "description": "Trois scénarios en mode Co-Learning avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-colearning-p07": {
+      "name": "Manche 2 · Co-Learning · participant·e 07",
+      "description": "Trois scénarios en mode Co-Learning avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-colearning-p08": {
+      "name": "Manche 2 · Co-Learning · participant·e 08",
+      "description": "Trois scénarios en mode Co-Learning avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-recommendation-p01": {
+      "name": "Manche 2 · Recommendation · participant·e 01",
+      "description": "Trois scénarios en mode Recommendation (groupe de contrôle) avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-recommendation-p02": {
+      "name": "Manche 2 · Recommendation · participant·e 02",
+      "description": "Trois scénarios en mode Recommendation (groupe de contrôle) avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-recommendation-p03": {
+      "name": "Manche 2 · Recommendation · participant·e 03",
+      "description": "Trois scénarios en mode Recommendation (groupe de contrôle) avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-recommendation-p04": {
+      "name": "Manche 2 · Recommendation · participant·e 04",
+      "description": "Trois scénarios en mode Recommendation (groupe de contrôle) avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-recommendation-p05": {
+      "name": "Manche 2 · Recommendation · participant·e 05",
+      "description": "Trois scénarios en mode Recommendation (groupe de contrôle) avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-recommendation-p06": {
+      "name": "Manche 2 · Recommendation · participant·e 06",
+      "description": "Trois scénarios en mode Recommendation (groupe de contrôle) avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-recommendation-p07": {
+      "name": "Manche 2 · Recommendation · participant·e 07",
+      "description": "Trois scénarios en mode Recommendation (groupe de contrôle) avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
+    },
+    "plan-b-r2-recommendation-p08": {
+      "name": "Manche 2 · Recommendation · participant·e 08",
+      "description": "Trois scénarios en mode Recommendation (groupe de contrôle) avec l’interface d’étude de la manche 2, puis le bilan de service et le questionnaire."
     },
     "plan-b-uc2": {
       "name": "Plan B · UC2-01",

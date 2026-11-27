@@ -219,7 +219,7 @@
       "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage."
     },
     "plan-b-p01": {
-      "name": "Plan B · Teilnehmer:in 01",
+      "name": "Plan B Runde 1 Beispiel",
       "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
     },
     "plan-b-p02": {
@@ -257,6 +257,78 @@
     "plan-b-p10": {
       "name": "Plan B · Teilnehmer:in 10",
       "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-r2-tutorial-colearning": {
+      "name": "Tutorial Co-Learning",
+      "description": "Das Tutorial-Szenario im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz. Ohne Fragebogen."
+    },
+    "plan-b-r2-tutorial-recommendation": {
+      "name": "Tutorial Recommendations",
+      "description": "Das Tutorial-Szenario im Recommendation-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz. Ohne Fragebogen."
+    },
+    "plan-b-r2-colearning-p01": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 01",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p02": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 02",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p03": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 03",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p04": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 04",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p05": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 05",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p06": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 06",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p07": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 07",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p08": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 08",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p01": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 01",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p02": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 02",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p03": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 03",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p04": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 04",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p05": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 05",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p06": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 06",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p07": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 07",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p08": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 08",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
     },
     "plan-b-uc2": {
       "name": "Plan B · UC2-01",

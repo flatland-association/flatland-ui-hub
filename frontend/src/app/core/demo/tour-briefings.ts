@@ -611,6 +611,43 @@ const PLAN_B_DE: TourBriefing = {
   },
 };
 
+/**
+ * Plan B round 2, the Co-Learning group (`plan-b-r2-colearning-pNN` and its
+ * tutorial; docs/plans/plan-b-round2-experiments.md item 3): `plan-b` without
+ * the opening page, so the first scenario's card opens directly. The
+ * Schichtbilanz comes back (no `shiftSummary: false` on the conditions), with
+ * the reflection overview (#201).
+ */
+const { opening: _planBOpening, ...PLAN_B_WITHOUT_OPENING } = PLAN_B_DE;
+const PLAN_B_R2_COLEARNING_DE: TourBriefing = {
+  ...PLAN_B_WITHOUT_OPENING,
+  id: 'plan-b-r2-colearning',
+};
+
+/**
+ * Plan B round 2, the Recommendation group (the control group; #201 D-7,
+ * D-12, D-22; docs/plans/plan-b-round2-recommendation.md): the same, but no
+ * reflection after a decision, so no `reflect` step and no column
+ * "Reflexion" in the Schichtbilanz; the affected trains are held as in
+ * Co-Learning instead of the countdown; no Co-Learning module badges; and
+ * Plan B's card for the Recommendation mode too.
+ */
+const PLAN_B_R2_RECOMMENDATION_DE: TourBriefing = {
+  ...PLAN_B_R2_COLEARNING_DE,
+  id: 'plan-b-r2-recommendation',
+  reasonDialog: false,
+  decisionMoment: 'hold',
+  guide: PLAN_B_R2_COLEARNING_DE.guide?.filter((step) => step.id !== 'reflect'),
+  moduleBadges: undefined,
+  // Plan B's card; its step count follows the guide, which has no `reflect` step here.
+  modeIntros: {
+    recommendation: {
+      ...PLAN_B_DE.modeIntros!['co-learning']!,
+      watchFor: PLAN_B_DE.modeIntros!['co-learning']!.watchFor!.map((line) => line.replace('sechs Schritte', 'fünf Schritte')),
+    },
+  },
+};
+
 /** The goal line of the interview briefings points at the cost estimate;
  *  without the interview it points at the questionnaire instead. */
 function withoutInterview(b: TourBriefing, id: string, goal: string): TourBriefing {
@@ -1511,6 +1548,8 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_EXPERIMENT_DE,
   CO_LEARNING_EXPERIMENT_2X_DE,
   PLAN_B_DE,
+  PLAN_B_R2_COLEARNING_DE,
+  PLAN_B_R2_RECOMMENDATION_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_EN,
   CO_LEARNING_ADVANCED_DE,

@@ -799,9 +799,9 @@ export class AppComponent implements OnInit {
   };
 
   /** Experiment conditions (`core/demo/study-conditions.ts`): User Study 2 and 3. */
-  readonly studyConditions = STUDY_CONDITIONS.filter((c) => !isGuidedCondition(c));
+  readonly studyConditions = STUDY_CONDITIONS.filter((c) => !isGuidedCondition(c) && !c.unlisted);
   /** Guided conditions: the "Geführtes Experiment" of one participant each. */
-  readonly guidedConditions = STUDY_CONDITIONS.filter((c) => isGuidedCondition(c));
+  readonly guidedConditions = STUDY_CONDITIONS.filter((c) => isGuidedCondition(c) && !c.unlisted);
   readonly experimentRun = inject(ExperimentRunService);
   readonly conditionId = conditionId;
   readonly hasShiftSummary = hasShiftSummary;
