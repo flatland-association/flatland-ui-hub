@@ -2,7 +2,7 @@
 
 > **Status:** plan of 2026-11-27, written after the code (built by 2026-11-25). Based on `main` 85e36e5c. Issue
 > [#230](https://github.com/flatland-association/flatland-ui-hub/issues/230) ("Findings Logging", chenkins). Branch
-> `gereon/fix-230` at dab7403c, PR [#231](https://github.com/flatland-association/flatland-ui-hub/pull/231)
+> `gereon/fix-230` at 56a971a8 (code at dab7403c, then this plan), PR [#231](https://github.com/flatland-association/flatland-ui-hub/pull/231)
 > (umbra99). Steps S-1 and S-2 are done; the review findings F-1–F-15 are open and planned in S-3–S-13 and S-18; S-14–S-17 complete the call log (Q-2). Open questions:
 > none (Q-1–Q-5 decided on 2026-11-27).
 >
@@ -56,8 +56,8 @@ Requirements:
 - **REQ-7** The last state frame of a leg is not empty. State frames list only the trains that changed (deltas);
   the step answer and the WebSocket both deliver each state, so every step got a second, empty frame, the last one
   included.
-- **REQ-8** Every logged call has its server response. The 9 calls carry `response_same_as: <seq>`, a reference to
-  an earlier identical response. They are different requests with the same uninformative answer; the root causes are
+- **REQ-8** Every logged call has its server response. 16 calls (the issue's 9 plus 7 pauses) carry
+  `response_same_as: <seq>`, a reference to an earlier identical response. They are different requests with the same uninformative answer; the root causes are
   in Q-2. Commands are logged in full, their answers say what they did or why they failed, and a leg end sends one
   pause (Q-2 a).
 
@@ -92,7 +92,7 @@ Issue bullets checked against the raw exports of the five study runs (p01–p05,
 |---|---|---|
 | Issue author, maintainer | chenkins | The Plan B runs give usable AI acceptances and clean logs. |
 | PR author | umbra99 | The lead-time approach is reviewed and merged. |
-| Plan B study lead | - | Decides the reaction allowance (Q-1); reads the logs and KPIs. |
+| Plan B study lead | - | Reads the logs and KPIs; may ask for another reaction allowance (Q-1 c, §1.4). |
 | Participants | - | «KI-Plan übernehmen» works without errors; the panel says when the course takes over. |
 
 ### 1.4 Follow-ups (not in this PR)
@@ -102,8 +102,9 @@ Issue bullets checked against the raw exports of the five study runs (p01–p05,
 | Follow-up | Why not in this PR | From | Findings | Issue |
 |---|---|---|---|---|
 | Refuse interventions in the last step. | Dropped by decision in the issue: participants are instructed instead. | REQ-5 | - | untracked |
+| A reaction allowance per experiment (UI config) instead of the fixed 10 s. | 10 s works for Plan B (Q-1 a); only if the study wants other values. | Q-1 | - | untracked |
 | Compute proposals faster (17 % over 3 s, up to 8.3 s). | The lead absorbs the computing time; a speed-up is separate work (Q-3). | REQ-2 | - | [#236](https://github.com/flatland-association/flatland-ui-hub/issues/236) |
-| The lead forecast works with expected breakdown durations instead of exact ones, as the driver and the proposals should ("no divine mode"); `matches_forecast` then compares no malfunction counter. | Changes what the forecasts and the HMI know, across the HMI (the exact remaining duration shows in seven places, the timetable after S-12 among them; listed for #225); #237 (forecast the live run's random breakdowns exactly) went the opposite way and is closed in favour of it. | Limitations | - | [#225](https://github.com/flatland-association/flatland-ui-hub/issues/225) |
+| The lead forecast works with expected breakdown durations instead of exact ones, as the driver and the proposals should ("no divine mode"); `matches_forecast` then compares no malfunction counter. | Changes what the forecasts and the HMI know, across the HMI (the exact remaining duration shows in seven places, the timetable after S-12 among them; listed for #225); #237 (forecast the live run's random breakdowns exactly) went the opposite way and is closed in favour of it. | §2.1 | - | [#225](https://github.com/flatland-association/flatland-ui-hub/issues/225) |
 
 ## 2. Constraints
 
@@ -124,9 +125,10 @@ Issue bullets checked against the raw exports of the five study runs (p01–p05,
 
 The code keeps no list of its own; the PR adds no `TODO`.
 
-- Random breakdowns of live runs (`_live_seed`) are not forecast, while a running breakdown's remaining duration is
-  known exactly: a new breakdown inside the lead shows up as a divergence and goes through the re-check. Expected
-  durations instead of exact ones come with [#225](https://github.com/flatland-association/flatland-ui-hub/issues/225) (§1.4).
+- Random breakdowns of live runs (`_live_seed`) are not forecast, by decision: #237 asked for it and was closed in
+  favour of #225, which wants less knowledge in forecasts, not more. A new breakdown inside the lead shows up as a
+  divergence and goes through the re-check. A running breakdown's remaining duration is known exactly until
+  [#225](https://github.com/flatland-association/flatland-ui-hub/issues/225) brings expected durations (§1.4).
 - During the lead the course changes nothing: at 0.5 s per step and 10 s reaction allowance the lead is about 26
   steps (Q-1).
 - The lead uses the last request's computing time (3 s before the first). A slower request delivers the course
@@ -134,6 +136,9 @@ The code keeps no list of its own; the PR adds no `TODO`.
 - `course_activation` keeps only the last outcome. A client that misses the state broadcast between two activations
   misses the earlier one.
 - Proposals are still as slow as before (REQ-2, §1.4).
+- The countdowns (S-13) assume the nominal pace: a server that steps more slowly than planned makes the real wait
+  longer than shown (Q-5).
+- `kpis.malfunctions` counts trains, not breakdowns: a train that breaks down twice in a leg counts once (REQ-4).
 
 ### 2.2 Assumptions
 
@@ -144,7 +149,7 @@ Not checked in code; they hold by construction of the single-process backend and
 - One backend process holds the session: the pending course lives on the session object (`_pending_course`).
 - The forecast is deterministic: a deep copy of the env, stepped with the session's policy and the standing
   overrides, does what the live run does. True for `deadlock_avoidance` and the scenario file's scheduled
-  breakdowns; not for random live breakdowns (§2.1) or session-scheduled disturbances (F-6).
+  breakdowns; not for random live breakdowns (§2.1), nor for session-scheduled disturbances until S-7 (F-6).
 - `SessionStore.playSpeed()` is steps per second, so `lead = ceil((compute + reaction) × playSpeed)` is in steps.
 - A system hold is set only through `SessionStore.systemHold`, which sends `source: 'system'`.
 
@@ -175,8 +180,10 @@ Context:
   target.
 
 Scope: the change adds the lead to proposals and accepting, the pending course to the step loop and the state
-payload, the system flag to overrides, and fixes the three frontend logging bugs. It only reads the scenario
-runner (`TrajectoryBranchRunner`) and the proposal agents.
+payload, the system flag to overrides, fixes the frontend logging bugs, narrows the call log's deduplication (browser
+and backend), makes the 409 and override answers say what happened, and fixes the units and singulars in the
+timetable, agents table and train list. It only reads the scenario runner (`TrajectoryBranchRunner`) and the proposal
+agents.
 
 ## 4. Solution strategy
 
@@ -203,8 +210,16 @@ is not new on purpose.*
   as many trains home with no more deadlocks than the preview promised.
 - **DP-4 The backend decides, the frontend shows.** The step loop installs the course; the panel reads
   `pending_course` and `course_activation` from the state.
-- **DP-5 Any other decision for the train cancels a pending course.** A new override, another course or a reset.
-- **DP-6 Logging fixes stay in the frontend services that write the log**, with no new log format.
+- **DP-5 Any other accepted decision for the train cancels a pending course.** A new override, another course or a
+  reset, and only once that decision is accepted (S-5); the state reports the cancellation (S-9).
+- **DP-6 Logging fixes stay in the services that write the log** (browser and backend call log, state frames, leg
+  results), with no new log format.
+- **DP-7 Answers only gain fields and text that nothing in the app reads** (Q-2): the panel reacts to the status, the
+  log gets the detail.
+- **DP-8 Deadlines in seconds, durations in steps** (Q-5, S-12): the AI countdowns count real seconds; breakdowns,
+  delays and departures count steps, with their unit, the same in every panel until #225.
+- **DP-9 Every state broadcast carries the same course state** (S-11): one payload builder for `/state`, `/step`,
+  `/reset` and the WebSocket.
 
 Reused concepts:
 
@@ -216,6 +231,12 @@ Reused concepts:
 | Validate a token | `PreviewCourse` in `proposal_preview`, extended | A new token store |
 | Tell the client | The state payload (`/state`, WebSocket `state`) | A new event type or endpoint |
 | Override origin | `OverrideManager.set(..., system=True)` | A parallel store of system holds |
+| Train position in the fingerprint (S-3) | `agent_compat.agent_position`/`agent_direction` (C-1) | Reading `EnvAgent` fields directly |
+| Episode generation (S-4) | `env.num_resets` | A new session counter |
+| Disturbances in the forecast (S-7) | A copy of `session.disturbance_scheduler` | A second scheduler type |
+| Singular for one step (S-12) | The repo's `…One` key convention (`heldOne`, `summaryOne`) | ICU plural syntax |
+| Greying the old course (S-13) | App tokens in `styles.scss` | New colours |
+| Call log deduplication (S-14) | `call_log._Dedup` and `call-log.interceptor`, narrowed to GET | A new log format; `replay-timeline.ts` already reads both forms |
 
 Not new on purpose: no new endpoint (only the optional `lead_steps` query parameter and the optional `source` field),
 no new log frame type, no new interaction-mode flag, the `exact_course` path for lead 0.
@@ -232,25 +253,29 @@ decision or a finding:
 
 | Picture | Shows | In |
 |---|---|---|
-| [1](plan-b-log-findings/1-q1a-deadline.png), [2](plan-b-log-findings/2-q1a-pending.png), [3](plan-b-log-findings/3-q1a-takeover.png) | Q-1 a): deadline, pending course, takeover and the driver after it | Q-1, §10.1 |
-| [4a](plan-b-log-findings/4a-q1b-zero.png), [4b](plan-b-log-findings/4b-q1b-recompute-mockup.png) | Q-1 b): the course runs out under a slow reader; F-13 and its mockup | Q-1, §4.5 |
+| [1](plan-b-log-findings/1-q1a-deadline.png), [2](plan-b-log-findings/2-q1a-pending.png), [3](plan-b-log-findings/3-q1a-takeover.png) | Q-1 a): deadline, pending course, takeover and the driver after it (3 also in §10.1) | Q-1 |
+| [4a](plan-b-log-findings/4a-q1b-zero.png), [4b](plan-b-log-findings/4b-q1b-recompute-mockup.png) | Q-1 b): the course runs out under a slow reader; F-13 and its mockup (4b also in §4.5) | Q-1 |
 | [5](plan-b-log-findings/5-f11-timetable-mockup.png) | F-11: the timetable's ⚠ with its unit (mockup) | §4.5 |
 | [6](plan-b-log-findings/6-req6-system-hold.png) | REQ-6: system hold worded as the system's, kept in the decision list | §4.4 |
 | [7](plan-b-log-findings/7-q5-countdown.png) | Q-5: the countdown per second, today and ticking (mockup) | Q-5 |
 
 | ID | Requirement | Test or check | Result | Screenshots |
 |---|---|---|---|---|
-| REQ-1 | AI course taken while playing | `test_proposal_lead.py::test_a_course_accepted_before_its_step_takes_over_exactly_at_it`, `test_a_late_accept_is_rechecked_from_the_live_state`; `proposal-compare.component.spec.ts` (409 reloads) | ✅ CI green at dab7403c; the fingerprint check is weaker than it reads until F-1 is fixed | - |
+| REQ-1 | AI course taken while playing | `test_proposal_lead.py::test_a_course_accepted_before_its_step_takes_over_exactly_at_it`, `test_a_late_accept_is_rechecked_from_the_live_state`; `proposal-compare.component.spec.ts` (409 reloads) | ✅ CI green at dab7403c (the fingerprint weakness is NFR-1's, F-1) | [1](plan-b-log-findings/1-q1a-deadline.png), [2](plan-b-log-findings/2-q1a-pending.png), [3](plan-b-log-findings/3-q1a-takeover.png) |
 | REQ-2 | Slow loading doesn't break REQ-1 | The lead includes the last computing time (`leadSteps()`) | ✅ by design, not measured | - |
 | REQ-3 | `decisionTimeMs` per leg | `session.store.spec.ts` "decision time across legs" | ✅ | - |
 | REQ-4 | KPI `malfunctions` | `experiment-run.service.spec.ts` (counting across a leg, no carry-over) | ✅ | - |
 | REQ-5 | Last-step interventions | - | dropped by decision | - |
-| REQ-6 | System hold worded apart | `test_system_hold_notification.py::test_system_and_operator_holds_are_worded_apart` | ✅ | - |
+| REQ-6 | System hold worded apart | `test_system_hold_notification.py::test_system_and_operator_holds_are_worded_apart` | ✅ | [6](plan-b-log-findings/6-req6-system-hold.png) |
 | REQ-7 | Last state frame not empty | `state-log.service.spec.ts` (duplicates skipped, distinct steps kept) | ✅ | - |
-| REQ-8 | Responses logged | `test_call_log.py` and `call-log.interceptor.spec.ts` (a repeated command keeps its response); a test per 409 reason; override echo test; `session.store.spec.ts` (one pause at a leg end) | open: S-14–S-17 | - |
+| REQ-8 | Responses logged | `test_call_log.py` and `call-log.interceptor.spec.ts` (a repeated command keeps its response); `test_proposal_lead.py` (a test per 409 reason); `test_override_answer.py` (override echo); `session.store.spec.ts` (one pause at a leg end) | open: S-14–S-17 | - |
 | NFR-1 | Course does what the preview showed | `test_forecast_fingerprints_match_the_live_run_through_a_breakdown`, `test_a_pending_course_that_fails_its_recheck_is_rejected_not_installed` | open: the fingerprint test passes without positions (F-1) | - |
 | NFR-2 | Paused unchanged | `test_without_a_lead_the_exact_same_step_rule_is_unchanged` | ✅ | - |
 | NFR-3 | Step loop survives | `activate_pending_course`'s `except` | ✅ by inspection | - |
+
+The review fixes S-12 and S-13 have no requirement of their own: their specs (`timetable.component.spec.ts`,
+`proposal-compare.component.spec.ts`) and the mockups [4b](plan-b-log-findings/4b-q1b-recompute-mockup.png),
+[5](plan-b-log-findings/5-f11-timetable-mockup.png) and [7](plan-b-log-findings/7-q5-countdown.png) show them.
 
 ### 4.3 AI courses computed a step ahead (REQ-1, REQ-2)
 
@@ -277,6 +302,11 @@ decision or a finding:
 - **Released hold at the end of a run.** `PlanPolicy._drop_exhausted_course` hands every train to the fallback once
   a free train stands at the end of a run cut short by a hold (measured on uc2-4: all three trains arrive instead of
   one). `test_plan_policy_released_hold.py` (F-7 refines it).
+- **Review fixes** (Phase 2): the fingerprint reads positions through `agent_compat` (S-3, F-1); lead courses and
+  previews carry the episode generation and are refused after a reset (S-4, F-2); the switch policy forwards
+  overrides to the active policy only and resets the plan state at the switch (S-6, F-3); the forecast ticks a
+  private copy of the disturbance scheduler (S-7, F-6); every `sessions.py` broadcast carries the course state
+  (S-11, F-10).
 
 ### 4.4 Logging fixes (REQ-3, REQ-4, REQ-6, REQ-7, REQ-8)
 
@@ -296,7 +326,7 @@ decision or a finding:
 
 <img src="plan-b-log-findings/6-req6-system-hold.png" alt="REQ-6: system hold in the events and in the decision log" width="640">
 
-### 4.5 Panel and timetable fixes (S-10, S-12, S-13)
+### 4.5 Panel and timetable fixes (S-9, S-10, S-12, S-13)
 
 *The review fixes participants see, shown as mockups before they are built.*
 
@@ -307,6 +337,9 @@ decision or a finding:
   other `…One` keys do.
 - **S-13 (F-12, F-13)** The KI deadline and the pending text tick every second (Q-5). At 0 s «KI-Plan übernehmen» is
   disabled; while the panel recomputes, the course that ran out is greyed out and the text says a new one is computed.
+- **S-9 (F-8)** A course cancelled by another decision or a reset ends the panel's waiting state; the state reports
+  it as `course_activation.outcome = "cancelled"`, the panel reloads without a message of its own (the participant
+  made the other decision).
 - **S-10 (F-9)** "Die Züge fahren ab jetzt nach dem Plan der KI." only once the course has taken over (picture 2 in
   Q-1 shows the contradiction).
 
@@ -334,6 +367,8 @@ flowchart LR
     SS["SessionStore (🟨)"] -->|"override with source system"| OM["OverrideManager (🟨)"]
     OM --> HM["hmi_mock notifications (🟨)"]
     SW --> PL["PlanPolicy (🟨)"]
+    CL["call-log interceptor and call_log.py (🟨)"]
+    TT["timetable, agents-table, train list (🟨)"]
 ```
 
 Notation: [flowchart in Mermaid](https://mermaid.js.org/syntax/flowchart.html); 🟩 added, 🟨 modified, ⬜ unchanged.
@@ -346,19 +381,21 @@ of drivers is a policy, so the branch runner needs no change (§4.1 reused conce
 
 | Component | Responsibility | Change |
 |---|---|---|
-| `proposal-compare` | Shows plan, AI and human courses for the selected train and takes one. Not for deciding when a course runs. | 🟨 modified: the AI course can be taken while the run plays; the panel says how long it can be taken and when it takes over. |
-| `SessionStore` | Holds the session's client state, the decision log and the settings. Not for computing courses. | 🟨 modified: the reaction allowance; system holds are sent as such; decision windows end with the leg. |
+| `proposal-compare` | Shows plan, AI and human courses for the selected train and takes one. Not for deciding when a course runs. | 🟨 modified: the AI course can be taken while the run plays; the panel counts down every second how long it can be taken and when it takes over, stops offering a course that ran out, and notices a cancelled one. |
+| `SessionStore` | Holds the session's client state, the decision log and the settings. Not for computing courses. | 🟨 modified: the reaction allowance; system holds are sent as such; decision windows end with the leg; a leg end sends one pause. |
 | `ApiService` | Calls the backend. | 🟨 modified: sends the lead and the hold's source. |
 | `StateLogService` | Writes the state frames of the study log. | 🟨 modified: no empty duplicate frames, so the last frame has the trains. |
 | `ExperimentRunService` | Runs the experiment's legs and writes their results. | 🟨 modified: `malfunctions` counts the trains that broke down during the leg. |
-| `overrides.py` proposals and apply | Computes the courses and accepts one. Not for stepping the run. | 🟨 modified: courses are computed for a step ahead and can be accepted before it. |
-| `proposal_preview` | Remembers the courses shown and validates a token. Not for installing. | 🟨 modified: keeps the forecast of a course and the course waiting for its step. |
+| `overrides.py` proposals and apply | Computes the courses and accepts one. Not for stepping the run. | 🟨 modified: courses are computed for a step ahead and can be accepted before it; a refusal says why; the override answer says what was set. |
+| `proposal_preview` | Remembers the courses shown and validates a token. Not for installing. | 🟨 modified: keeps the forecast of a course and the course waiting for its step; forgets courses from before a reset. |
 | `SwitchAtStepPolicy` | Drives with one policy until a step and another from it, for previews. Not for the live run. | 🟩 added: a course is scored as it will run, from now. |
 | `PlanPolicy` | Drives the trains along an accepted course. | 🟨 modified: a released train at the end of a run cut short no longer stands for good. |
 | `step_env` | Steps the live env and fires disturbances. | 🟨 modified: installs a pending course at its step. |
-| `sessions.py` and `websockets.py` state | Send the live state to the client. | 🟨 modified: the state says which course waits and how the last one went. |
+| `sessions.py` and `websockets.py` state | Send the live state to the client. | 🟨 modified: every state message says which course waits and how the last one went. |
 | `OverrideManager` | Keeps each train's standing override. | 🟨 modified: knows which overrides the system set. |
 | `hmi_mock` notifications | Words the notifications. | 🟨 modified: a system hold reads as the system's. |
+| Call log (`call-log` interceptor, `call_log.py`) | Records every call and its answer for the study log. Not for replaying. | 🟨 modified: commands keep their answer; only repeated polled answers become references. |
+| `timetable`, `agents-table`, train list | Show each train's status. | 🟨 modified: the breakdown says what the number is; one step reads in the singular. |
 
 **Important interfaces:**
 
@@ -366,7 +403,8 @@ of drivers is a policy, so the branch runner needs no change (§4.1 reused conce
   and per AI variant `activation_step`.
 - `POST /session/{id}/proposals/apply`: reply adds `pending` and `activation_step`.
 - `POST /session/{id}/agent/{handle}/override`: body adds optional `source: "system"`.
-- State payload (`/state` and WebSocket `state`): adds `pending_course` and `course_activation`.
+- State payload (`/state`, `/step`, `/reset` and WebSocket `state`): adds `pending_course` and `course_activation`.
+- `POST /session/{id}/agent/{handle}/override`: reply adds `via`, `start` and `step` (S-16).
 
 #### Data model: planned
 
@@ -398,6 +436,7 @@ classDiagram
             «modified»
             source · handle · candidate_id · priority · trainruns
             +activation_step int
+            +generation int
             +expected tuple
             +committed tuple
             +arrived int
@@ -437,7 +476,8 @@ State payload, values illustrative:
  }
 ```
 
-Nothing is removed. `outcome` is `installed`, `rechecked` or `rejected`.
+Nothing is removed. `outcome` is `installed`, `rechecked`, `rejected` or, after S-9, `cancelled`. `generation`
+(S-4) is the env's `num_resets` when the course was computed.
 
 What changes, and why:
 
@@ -494,9 +534,10 @@ stateDiagram-v2
     None --> None : accept [otherwise] / install now or 409
     Pending --> None : step [activation step reached] / installed, rechecked or rejected
     Pending --> Pending : step [before its step]
-    Pending --> None : override or clear for its train / drop
-    Pending --> None : apply any course / drop, then as from None
-    Pending --> None : reset / drop
+    Pending --> None : override or clear for its train [accepted] / cancelled
+    Pending --> Pending : override or apply [refused] (ignored)
+    Pending --> None : apply any course [accepted] / cancelled, then as from None
+    Pending --> None : reset / cancelled
 ```
 
 Notation: [state diagram in Mermaid](https://mermaid.js.org/syntax/stateDiagram.html).
@@ -516,13 +557,19 @@ Compared with `main` 85e36e5c. What is reused, and what is not new on purpose, i
 | PAT-1 | Proposals computed for a step ahead and accepted as a pending course, installed by the step loop. | §4.3, §6.1 |
 | PAT-2 | `SwitchAtStepPolicy`: one policy until a step, another from it, for previews. | §4.3, §5.1 |
 | PAT-3 | Overrides with an origin (`system=True`) and the notification code `train.systemHold`. | §4.4 |
-| PAT-4 | The state payload carries the pending course and the last activation outcome. | §5.1 |
+| PAT-4 | The state payload carries the pending course and the last activation outcome, a cancellation included. | §5.1, §4.5 |
+| PAT-5 | Lead courses and previews carry the episode generation, checked before publishing and on accept. | §4.3 |
+| PAT-6 | Forecasts tick a private copy of the disturbance scheduler, without notifications. | §4.3 |
+| PAT-7 | The call log deduplicates only GET answers; commands are logged in full. | §4.4 |
+| PAT-8 | 409 texts name the failed check and the steps compared. | §4.4 |
+| PAT-9 | A countdown in a panel ticks every second, restarted on each step and stopped while paused. | §4.5, Q-5 |
 
 ### 8.2 Breaking changes
 
 *What breaks for whom, and the migration path.*
 
-None for callers: `lead_steps` defaults to 0, `source` to none, the new reply and state fields are optional.
+None for callers: `lead_steps` defaults to 0, `source` to none; the new reply and state fields, the `cancelled`
+outcome and the broadcasts of S-11 are optional additions.
 
 - **KPI `malfunctions` in leg results** (stored study data): before, the trains broken down at the end of the leg
   (almost always 0); now, the trains that broke down during the leg. Records written before the PR keep the old
@@ -532,6 +579,13 @@ None for callers: `lead_steps` defaults to 0, `source` to none, the new reply an
 - **409 texts of the AI course** name the reason (e.g. "(step: computed at 27, now 32)"); nothing in the app reads
   the text, only the status. **Override answer**: `via`, `start`, `step` added. **Call log**: commands keep their
   response instead of `response_same_as`; readers already handle both (`replay-timeline.ts`).
+- **`decisionTimeMs`** (stored study data): no longer carried across legs. Old records with a carried-over window
+  (p04, p05) are too long; don't mix them with new ones unreadjusted.
+- **State frames** (study log): no second, empty frame per step. Analyses that count frames, or read the
+  second-to-last frame as the final state, change.
+- **Notification code** of system holds: `train.systemHold` instead of `train.overridePending`. Filters on the old
+  code miss them.
+- **Behaviour**: a token from before a reset gets 409 (S-4); «KI-Plan übernehmen» is disabled at 0 s (S-13).
 - Private: `_capture_proposal_source` returns one more element (`lead_steps`); only `_evaluate_proposals_unchecked`
   reads it.
 
@@ -543,7 +597,7 @@ None for callers: `lead_steps` defaults to 0, `source` to none, the new reply an
 
 *Choices not made yet, each with its options and a proposal.*
 
-✅ **(Q-1) What reaction allowance should the lead use?** The study lead decides.
+✅ **(Q-1) What reaction allowance should the lead use?**
 - a) Keep 10 s (`proposalReactionSeconds`). At 0.5 s per step that is a lead of about 26 steps in which the course
   changes nothing.
 - b) Lower it, e.g. to 5 s: courses act sooner, but slow readers hit the deadline more often (the panel then reloads
@@ -558,7 +612,7 @@ the course appears at t = 3 s.
 |---|---|---|
 | a) 10 s (lead 5 steps) | click at t = 9 s, waits, takes over at t = 15 s | click at t = 15 s, at its step: taken at once, t = 15 s |
 | b) 5 s (lead 3 steps) | click at t = 9 s, at its step: taken at once, t = 9 s | deadline passes while reading, recomputed; click at t = 15 s, takes over at t = 21 s |
-| c) e.g. 2 s (lead 2 steps) | deadline passes while reading, recomputed; click at t = 12 s, takes over at t = 15 s | - |
+| c) per experiment, e.g. 2 s (lead 2 steps) | deadline passes while reading, recomputed; click at t = 12 s, takes over at t = 15 s | - |
 
 A lead that is too long costs the fast reader time; one that is too short makes the course change under the reader
 and costs a recomputation.
@@ -576,7 +630,7 @@ on the next step (4b, with the S-13 mockup).
 *Decision (2026-11-27):* a) for this PR; c) if the study later wants other values.
 
 ✅ **(Q-2) Missing server responses in the log (REQ-8): what to fix?** Checked in the study's raw exports on
-2026-11-27. All 9 calls carry `"response_same_as": <seq>`, and the referenced entry is in the same leg. Every entry
+2026-11-27. All 16 calls (the issue's 9 and 7 pauses) carry `"response_same_as": <seq>`, and the referenced entry is in the same leg. Every entry
 has its own client time (`t`) and `simStep`; only the response body is replaced. Three causes:
 1. **The responses carry no context.** The apply and override calls are not repeats: they are different requests
    (other train, token, drawn route), 16 s to 5 minutes apart, with byte-identical answers.
@@ -612,7 +666,7 @@ fields that nothing in the app reads.
 ✅ **(Q-4) Does the PR close #230, and where do the code comments point?** The PR says "should fix the problems
 for #230" without a closing keyword; the code refers to `#230` on 23 added lines in 18 files; the cleanup commit
 replaced the links to the removed plan with it in 11 of them.
-- a) The PR closes #230 ("Closes #230" in its body) once Q-2 and Q-3 are settled; the comments point to this plan
+- a) The PR closes #230 ("Closes #230" in its body); the comments point to this plan
   instead (`docs/plans/plan-b-log-findings.md`), as a PR that closes an issue leaves no reference to it in the code.
 - b) The PR doesn't close #230; the references stay.
 
@@ -642,6 +696,8 @@ the steps left at the nominal pace, `round((activation_step − elapsedSteps) / 
 | 2026-11-27 | ✅ The reaction allowance stays 10 s (Q-1 a). | Measured with the movies (Q-1 table): a longer allowance makes fast readers wait with the held train standing, and the forecast spans more steps, so an unforeseen breakdown sends the course through the re-check more often; a shorter one makes slow readers miss the step, so the course is recomputed under them and they wait longer (21 s instead of 15 s at 5 s). 10 s gets the 12 s reader through without a recomputation. Not taken: 5 s (b), a setting per experiment (c) for now. | No change to the code; c) if the study wants other values. At 0.5 s per step the lead is about 26 steps (§2.1). |
 | 2026-11-27 | ✅ The lead is enough for slow proposals; no speed-up in this PR (Q-3 a). | The lead adds the last computing time, so a slow computation no longer makes the click fail; it only moves the course's step further out (longer wait, more forecast steps). A speed-up lives in the proposal agents and is outside #230. Not taken: b) speed up in this PR. | Follow-up [#236](https://github.com/flatland-association/flatland-ui-hub/issues/236). |
 | 2026-11-27 | ✅ S-12 shows the exact remaining duration with its unit ("⚠ Störung, noch 6 Schritte"), not only "⚠ Störung". | Today the timetable is the only panel with a bare number; with the unit it reads like the events, the train list and the map. Not taken: anticipating #225 (no duration), which would set the timetable apart until #225 changes all panels. | S-12 as planned; the places that show the exact duration are listed for #225. |
+| 2026-11-27 | ✅ The timetable unit, the smooth countdown and the singulars are fixed in this PR (F-11, F-12, F-15), not as follow-ups. | They are small, in files the PR touches or next to them, and seen in the study screens. Not taken: follow-ups. | S-12, S-13. |
+| 2026-11-27 | ✅ #237 (forecast the live run's random breakdowns exactly) closed in favour of [#225](https://github.com/flatland-association/flatland-ui-hub/issues/225). | #225 wants forecasts with expected values, not more knowledge. | §2.1 limitation stays; the seven places that show the exact duration are listed on #225. |
 | 2026-11-27 | ✅ The PR closes #230; the code comments point to this plan (Q-4 a). | A merged PR that closes an issue should leave no references to it in the code; the reasoning lives in the plan. Not taken: b) keep the references and close #230 by hand, which leaves 23 comments pointing at a closed issue. | S-18 (F-14); "Closes #230" in the PR body; the plan is committed on the branch; #230's boxes ticked on merge. |
 | 2026-11-27 | ✅ The system hold stays in the decision list, tagged as the system's (REQ-6). | The list then shows everything that changed the trains, and `accountableOwner` tells human from system; for the study data it explains why the train stood before the participant decided. Not taken: removing it, which would make the list human-only but lose the moment the hold started. The issue's complaint, the "operator override" wording, is fixed by S-2. | No step; #230's REQ-6 box ticked as resolved by the wording and this decision. |
 | 2026-11-27 | ✅ Fix all three causes of the missing responses in this PR (Q-2, REQ-8). | Size about a day (four commits). Logging commands in full makes the log slightly bigger (16 responses in the five study runs); polled GETs stay deduplicated. The answers only gain text and fields that nothing in the app reads. Not taken: b) logging only, which leaves 409s without a reason and the double pause; c) all as a follow-up, which keeps the next study runs' logs incomplete. | S-14–S-17; 409 text and override answer change (§8.2). |
@@ -672,14 +728,14 @@ code, but the PR comment is not resolved on GitHub yet. "resolved" in Source: th
 |  | F-11 | code review | usability | low | `frontend/src/app/features/timetable/timetable.component.ts:74`: the status column of a broken-down train shows a bare `⚠ <malfunction_remaining>`, a count of steps without a unit. The other statuses of the column name their unit (`train.late` "+N Schritte spät", `timetable.status.depIn` "ab in N Schritten"), and the Lage panel and the Ereignisse count the breakdown in steps too. In the movies, "⚠ 4" of another train (S17u) stood next to "Noch 6 s übernehmbar" in Handlungsoptionen and read as the same countdown. Show it as "⚠ Störung, noch 4 Schritte" through a translation key, as the other statuses. Was a follow-up; taken into this PR by the user's decision (2026-11-27). Open: planned in S-12. | fix(timetable): name the breakdown and its unit, and say one step in the singular. |
 |  | F-12 | code review | usability | low | `frontend/src/app/features/proposal-compare/proposal-compare.component.ts:148`: `aiSecondsLeft` and `pendingSecondsLeft` change only when a step arrives; in Plan B "Noch 6 s übernehmbar" and "übernimmt in etwa 3 s" jump by 3 s and stand still in between, so the real time left is anywhere from 0 to 3 s more than shown. Make both texts tick every second (Q-5). Was offered as a follow-up; taken into this PR by the user's decision (2026-11-27). Open: planned in S-13. | fix(proposal-compare): count the AI deadline down every second and stop offering a course that has run out. |
 |  | F-13 | code review | usability | low | `frontend/src/app/features/proposal-compare/proposal-compare.component.html:104`: an AI course that has run out is still offered. From its activation step until the next step, «KI-Plan übernehmen» stays enabled under "Noch 0 s übernehmbar"; a click whose request arrives after the step goes through the re-check or a 409. While the panel recomputes (`load()` keeps the AI column), the old course's numbers stay visible under a disabled button, with only "Verläufe werden gerechnet…" above the columns and nothing saying the course ran out. Disable the button at 0 s, and while recomputing grey out the old course and say that a new one is computed. Open: planned in S-13. | fix(proposal-compare): count the AI deadline down every second and stop offering a course that has run out. |
-|  | F-14 | code review | docs | low | 23 added lines in 18 files refer to `#230` (see the note below the table), but the PR is to close #230 (Q-4 a), which leaves no reference to it in the code. Point them to `docs/plans/plan-b-log-findings.md` (the section where it helps) or drop them where the code says enough; test names lose the number. Open: planned in S-18. | docs: point the code comments to the plan instead of the closed issue. |
+|  | F-14 | code review | docs | low | 23 added lines in 18 files refer to `#230` (listed in the note below the table), but the PR is to close #230 (Q-4 a), which leaves no reference to it in the code. Point them to `docs/plans/plan-b-log-findings.md` (the section where it helps) or drop them where the code says enough; test names lose the number. Open: planned in S-18. | docs: point the code comments to the plan instead of the closed issue. |
 |  | F-15 | code review | i18n | low | `frontend/src/app/features/timetable/timetable.component.ts:81`: for one step the status column reads "ab in 1 Schritten" (`timetable.status.depIn`, seen in picture 4a); `train.late` gives "+1 Schritte spät" the same way (timetable line 85, also `agents-table.component.ts:264` and `left-sidebar.component.ts:244`). Already on `main`. The repo writes plurals as a second key with `One` (`heldOne`, `summaryOne`, `disturbanceOne`): add `timetable.status.depInOne` and `train.lateOne` in en, de and fr and pick them for 1 at the three call sites; the new `timetable.status.disruption` of S-12 gets `disruptionOne` from the start. Taken into this PR by the user's decision (2026-11-27). Open: planned in S-12. | fix(timetable): name the breakdown and its unit, and say one step in the singular. |
 
-Issue references: the PR does not close an issue by keyword (it "should fix the problems for #230"). The code
-refers to `#230` on 23 added lines in 18 files (comments, docstrings and test names in `overrides.py`,
-`proposal_preview.py`, `env_step.py`, `switch_policy.py`, `override_manager.py`, `hmi_mock.py`, two backend tests,
-`api.service.ts`, `event-types.ts`, `session.store.ts`, `experiment-run.service.ts`, `state-log.service.ts`,
-`proposal-compare.component.ts` and their specs). The PR is to close #230 (Q-4 a), so they are an open finding (F-14).
+Issue references: the PR closes #230 (Q-4 a; "Closes #230" in the PR body). The code refers to `#230` on 23 added
+lines in 18 files (comments, docstrings and test names in `overrides.py`, `proposal_preview.py`, `env_step.py`,
+`switch_policy.py`, `override_manager.py`, `hmi_mock.py`, two backend tests, `api.service.ts`, `event-types.ts`,
+`session.store.ts`, `experiment-run.service.ts`, `state-log.service.ts`, `proposal-compare.component.ts` and their
+specs): open finding F-14.
 
 ## 10. Glossary
 
@@ -693,8 +749,12 @@ refers to `#230` on 23 added lines in 18 files (comments, docstrings and test na
 | Fingerprint (`fingerprint`) | Per train: position, direction, state, malfunction counter at one step. |
 | Pending course (`_pending_course`, `pending_course`) | An AI course accepted before its activation step, waiting for the step loop. One per session. |
 | Re-check (`_course_still_works`) | Replaying a course from the live state; accepted if it brings at least as many trains home with no more deadlocks than the preview promised. |
-| Activation outcome (`course_activation.outcome`) | `installed` (exact), `rechecked` (passed the re-check), `rejected` (dropped). |
+| Activation outcome (`course_activation.outcome`) | `installed` (exact), `rechecked` (passed the re-check), `rejected` (dropped), `cancelled` (replaced by another decision or a reset, S-9). |
 | System hold (`systemHold`, `system=True`, `train.systemHold`) | The automatic hold of a train affected by a breakdown, set by the HMI. Not an operator override. |
+| Leg | One scenario of an experiment run, with its own session and leg result. |
+| Call log (`call-log.interceptor`, `call_log.py`, `response_same_as`) | The study log of every call and its answer, in the browser and the backend; a repeated answer is stored as a reference to the earlier entry. Not the state frames. |
+| Episode generation (`num_resets`) | Counts the env's resets; a course or preview of an older generation is refused (S-4). |
+| AI deadline (`aiSecondsLeft`, `pendingSecondsLeft`) | Seconds until the AI course can no longer be taken, or until a pending one takes over; counted from steps at the nominal pace. |
 | Reaction allowance (`proposalReactionSeconds`) | Seconds a participant gets to read and take an AI course; part of the lead. |
 | KI-Plan / AI course (`trainruns`, token) | A plan for all trains computed by the proposal agent for the selected train's question («KI-Plan übernehmen»), see §10.1. Not an override and not a policy that decides live. |
 | Override (`OverrideManager`, `OverridePolicy`) | One train's decision (action, hold, drawn route) on top of whatever drives the trains, see §10.1. |
@@ -748,14 +808,14 @@ so a new override for the train cancels it (F-4). Picture 3 in Q-1 shows the tak
 | 💡 S-3 | F-1 | Fingerprint through `agent_position`/`agent_direction`; a test that two trains on different cells differ. | bug | high | fix(proposals): read train position and direction through agent_compat in the forecast fingerprint. |  | S-1 | - |
 | 💡 S-4 | F-2 | Episode generation in the lead course and before publishing; test: a token from before a reset gets 409. | bug | high | fix(proposals): reject lead courses and previews from before a session reset. |  | S-1 | - |
 | 💡 S-5 | F-4, F-5 | Clear the pending course only after `_commit_override` succeeds and after the token is validated; tests for a rejected reroute and an expired token. | bug | medium | fix(proposals): cancel a pending AI course only after the replacing decision is accepted. |  | S-1 | - |
-| 💡 S-6 | F-3 | `SwitchAtStepPolicy` forwards overrides to the active policy only and repeats the install's plan-state reset at the switch. | correctness | high | fix(proposals): forward committed overrides only to the active policy when previewing a switch. |  | S-1 | - |
-| 💡 S-7 | F-6 | Tick a private copy of the disturbance scheduler in `_roll_forward`. | correctness | medium | fix(proposals): tick a private disturbance scheduler during the lead forecast. |  | S-3 | - |
+| 💡 S-6 | F-3 | `SwitchAtStepPolicy` forwards overrides to the active policy only and repeats the install's plan-state reset at the switch; test that the inactive policy leaves the plan state alone. | correctness | high | fix(proposals): forward committed overrides only to the active policy when previewing a switch. |  | S-1 | - |
+| 💡 S-7 | F-6 | Tick a private copy of the disturbance scheduler in `_roll_forward`, without notifications; test with a delay scheduled inside the lead. | correctness | medium | fix(proposals): tick a private disturbance scheduler during the lead forecast. |  | S-3 | - |
 | 💡 S-8 | F-7 | Tell complete runs from runs cut short by a hold in `_drop_exhausted_course`; test for a train held next to its target. | bug | medium | fix(plan-policy): tell completed runs from runs cut short at a hold. |  | S-2 | - |
-| 💡 S-9 | F-8 | Report a cancelled pending course in the state; the panel clears its waiting state and reloads; spec. | bug | medium | fix(proposal-compare): clear the waiting state when a pending AI course is cancelled. |  | S-5 | - |
+| 💡 S-9 | F-8 | Report a cancelled pending course in the state (`outcome: "cancelled"`); the panel clears its waiting state and reloads, no new text; backend test and spec. | bug | medium | fix(proposal-compare): clear the waiting state when a pending AI course is cancelled. |  | S-5, S-11 | - |
 | 💡 S-10 | F-9 | Show `proposals.aiTakenCaveat` only when no course is pending; spec. | bug | medium | fix(proposal-compare): show the AI-taken caveat only once the course has taken over. |  | S-1 | - |
 | 💡 S-11 | F-10 | `course_state` in `sessions.py`'s state broadcast (or one shared builder with `websockets.py`); test that `/step` sends `course_activation`. | robustness | low | fix(sessions): send the pending course state with every state broadcast. |  | S-1 | - |
-| 💡 S-12 | F-11, F-15 | `timetable.status.disruption` ("⚠ Störung, noch {{n}} Schritte" / "⚠ disruption, {{n}} steps left" / "⚠ perturbation, encore {{n}} pas") instead of the bare number, with `disruptionOne` ("noch 1 Schritt"); `timetable.status.depInOne` ("ab in 1 Schritt") and `train.lateOne` ("+1 Schritt spät") picked for 1 in the timetable, `agents-table` and `left-sidebar`; check in the running app that the column still fits. | usability | low | fix(timetable): name the breakdown and its unit, and say one step in the singular. |  | - | - |
-| 💡 S-13 | F-12, F-13 | Countdown of `aiSecondsLeft` and `pendingSecondsLeft` ticking every second (Q-5): a 1 s clock signal, restarted on each step, stopped while paused. «KI-Plan übernehmen» disabled at 0 s; while recomputing, the old AI course greyed out (app tokens) with `proposals.aiRecomputing` ("Neuer KI-Verlauf wird gerechnet…"). Spec with fake timers for both texts, the button at 0 s and the recomputing state. | usability | low | fix(proposal-compare): count the AI deadline down every second and stop offering a course that has run out. |  | S-10 | - |
+| 💡 S-12 | F-11, F-15 | `timetable.status.disruption` ("⚠ Störung, noch {{n}} Schritte" / "⚠ disruption, {{n}} steps left" / "⚠ perturbation, encore {{n}} pas") instead of the bare number, with `disruptionOne` ("⚠ Störung, noch 1 Schritt" / "⚠ disruption, 1 step left" / "⚠ perturbation, encore 1 pas"); `timetable.status.depInOne` ("ab in 1 Schritt" / "dep in 1 step" / "départ dans 1 pas") and `train.lateOne` ("+1 Schritt spät" / "+1 step late" / "+1 pas de retard") picked for 1 in the timetable, `agents-table` and `left-sidebar`; `timetable.component.spec.ts` for 1 and N; check in the running app that the column still fits. | usability | low | fix(timetable): name the breakdown and its unit, and say one step in the singular. |  | - | - |
+| 💡 S-13 | F-12, F-13 | Countdown of `aiSecondsLeft` and `pendingSecondsLeft` ticking every second (Q-5): a 1 s clock signal, restarted on each step, stopped while paused. «KI-Plan übernehmen» disabled at 0 s; while recomputing, the old AI course greyed out (app tokens) with `proposals.aiRecomputing` ("Neuer KI-Verlauf wird gerechnet…" / "Computing a new AI course…" / "Nouveau parcours IA en cours de calcul…"). Spec with fake timers for both texts, the button at 0 s and the recomputing state. | usability | low | fix(proposal-compare): count the AI deadline down every second and stop offering a course that has run out. |  | S-10 | - |
 
 #### Phase 3: Complete the call log (REQ-8) and close #230 💡
 
@@ -763,9 +823,9 @@ so a new override for the train cancels it (F-4). Picture 3 in Q-1 shows the tak
 |---|---|---|---|---|---|---|---|---|
 | 💡 S-14 | - | Deduplicate only GET in `call-log.interceptor.ts` and `call_log.py`; tests that a repeated POST keeps its response; `docs/experiment-logging.md`. | fix | medium | fix(call-log): log the response of every command, deduplicate only polled GET answers. |  | - | - |
 | 💡 S-15 | - | `exact_course` and the lead path name the failed check and the steps compared in the 409 text; a test per reason. | fix | medium | fix(proposals): say why an AI course is refused and which steps were compared. |  | S-4 | - |
-| 💡 S-16 | - | `set_override` answers with `via`, `start` and the step; test. | fix | low | fix(overrides): echo the route and step in the override answer. |  | - | - |
+| 💡 S-16 | - | `set_override` answers with `via`, `start` and the step; `test_override_answer.py`. | fix | low | fix(overrides): echo the route and step in the override answer. |  | - | - |
 | 💡 S-17 | - | `_stopPlayingOnServer` skips a pause in flight; spec for a leg end. | fix | low | fix(session-store): send one pause at the end of a leg. |  | - | - |
-| 💡 S-18 | F-14 | Replace the `#230` references in code, docstrings and test names by references to this plan or drop them; `git grep '#230'` finds none in the PR's diff. | docs | low | docs: point the code comments to the plan instead of the closed issue. |  | S-3–S-17 | - |
+| 💡 S-18 | F-14 | Replace the `#230` references in code, docstrings and test names by references to this plan or drop them; `git grep -n '#230' -- ':!docs/plans'` finds none of the PR's lines. | docs | low | docs: point the code comments to the plan instead of the closed issue. |  | S-3–S-17 | - |
 
 ## 12. Change inventory
 
@@ -781,6 +841,8 @@ so a new override for the train cancels it (F-4). Picture 3 in Q-1 shows the tak
 | `backend/tests/test_proposal_lead.py` | Lead forecast, pending activation, re-check, cancelling, reset, lead 0 unchanged |
 | `backend/tests/test_plan_policy_released_hold.py` | Released train at the end of a run cut short; held train keeps the course |
 | `backend/tests/test_system_hold_notification.py` | System and operator holds worded apart |
+| `frontend/src/app/features/timetable/timetable.component.spec.ts` | Breakdown status with unit, singular for one step (S-12) |
+| `backend/tests/test_override_answer.py` | The override answer echoes `via`, `start` and the step (S-16) |
 | `docs/plans/plan-b-log-findings.md` | This plan |
 | `docs/plans/plan-b-log-findings/*.png` | Annotated screenshots and mockups (§4.2) |
 
@@ -790,16 +852,18 @@ so a new override for the train cancels it (F-4). Picture 3 in Q-1 shows the tak
 
 | File | Changes |
 |---|---|
-| `backend/app/api/overrides.py` | `OverrideRequest.source`; `lead_steps` on `/proposals` (`MAX_LEAD_STEPS`); `_roll_forward`; scoring with `SwitchAtStepPolicy`; `_accept_lead_course`, `_course_still_works`, `activate_pending_course`; `_install_ai_course` and `_finish_apply` extracted; set/clear override and apply drop the pending course; 409 reasons on the lead path; override answer echoes `via`, `start`, step |
-| `backend/app/core/proposal_preview.py` | `PreviewCourse` forecast fields; `fingerprint`, `committed_snapshot`, `lead_course`, `matches_forecast`, `pending_course`/`set_pending`/`clear_pending`, `course_state`; `clear_previews` drops the pending course; `exact_course` names the failed check |
+| `backend/app/api/overrides.py` | `OverrideRequest.source`; `lead_steps` on `/proposals` (`MAX_LEAD_STEPS`); `_roll_forward`; scoring with `SwitchAtStepPolicy`; `_accept_lead_course`, `_course_still_works`, `activate_pending_course`; `_install_ai_course` and `_finish_apply` extracted; set/clear override and apply drop the pending course only once accepted (S-5); private scheduler copy in `_roll_forward` (S-7); generation check on accept (S-4); 409 reasons on the lead path (S-15); override answer echoes `via`, `start`, step (S-16) |
+| `backend/app/core/proposal_preview.py` | `PreviewCourse` forecast fields; `fingerprint`, `committed_snapshot`, `lead_course`, `matches_forecast`, `pending_course`/`set_pending`/`clear_pending`, `course_state`; `clear_previews` drops the pending course; `fingerprint` through `agent_compat` (S-3); `generation` on `PreviewCourse`, checked before publishing (S-4); `course_state` reports `cancelled` (S-9); `exact_course` names the failed check (S-15) |
 | `backend/app/core/env_step.py` | `step_env` calls `activate_pending_course` |
-| `backend/app/api/sessions.py` | `/state` adds `course_state`; `/step` rebuilds its driver after an activation; reset clears previews and `_course_activation` |
+| `backend/app/policies/switch_policy.py` | Overrides to the active policy only, plan-state reset at the switch (S-6) |
+| `backend/tests/test_proposal_lead.py` | Fingerprints, reset, cancel only once accepted, scheduler in the forecast, cancellation, 409 reasons (S-3–S-9, S-15) |
+| `backend/app/api/sessions.py` | `/state` adds `course_state`, and with S-11 every broadcast (`_build_state_payload`); `/step` rebuilds its driver after an activation; reset clears previews and `_course_activation` |
 | `backend/app/api/websockets.py` | State payload adds `course_state` |
 | `backend/app/core/override_manager.py` | `set(..., system=)`, `is_system`; clear drops the flag |
 | `backend/app/core/hmi_mock.py` | `train.systemHold` notification |
 | `backend/app/policies/plan_policy.py` | `_holds`, `_drop_exhausted_course` |
 | `frontend/src/app/core/api.service.ts` | `setOverride(..., source)`, `getProposals(..., leadSteps)`, apply reply fields |
-| `frontend/src/app/core/models.ts` | `SessionState.pending_course`, `course_activation` |
+| `frontend/src/app/core/models.ts` | `SessionState.pending_course`, `course_activation` (outcome `cancelled`, S-9) |
 | `frontend/src/app/core/events/event-types.ts` | `ProposalVariant.activation_step`, `ProposalsResult.ai_activation_step` |
 | `frontend/src/app/core/session.store.ts` | `proposalReactionSeconds`; `clearDecisionLog` clears decision windows; `systemHold` sends `'system'`; one pause at a leg end |
 | `frontend/src/app/core/interaction-log/call-log.interceptor.ts` (+ spec) | Deduplicate only GET |
@@ -812,6 +876,8 @@ so a new override for the train cancels it (F-4). Picture 3 in Q-1 shows the tak
 | `frontend/src/app/features/timetable/timetable.component.ts` | Breakdown status through `timetable.status.disruption`; singular keys for one step |
 | `frontend/src/app/features/agents-table/agents-table.component.ts`, `frontend/src/app/features/left-sidebar/left-sidebar.component.ts` | `train.lateOne` for one step |
 | `frontend/public/i18n/{en,de,fr}.json` | `notifications…systemHold.*`; `proposals.aiValidFor`, `aiPending`, `aiPendingPaused`, `aiRefreshed`, `courseRejected`, `aiRecomputing`; `timetable.status.disruption`, `disruptionOne`, `depInOne`; `train.lateOne` |
+
+S-18 also touches the comments, docstrings and test names that refer to `#230` in the files above and their specs.
 
 Unchanged on purpose: `TrajectoryBranchRunner`, the proposal agents, the `exact_course` path (lead 0), the
 `data-log` ids, `proposals.previewExpired` in the i18n files, the log frame format.
