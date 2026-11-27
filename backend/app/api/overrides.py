@@ -796,7 +796,9 @@ def _capture_proposal_source(session, handle, action, option, alternatives, via=
         replay = _policy_factory_for_session(session)()
     root = copy.deepcopy(session.env)
     snapshot = SimpleNamespace(env=root, policy=session.policy,
-                               proposal_agent_id=getattr(session, "proposal_agent_id", None))
+                               proposal_agent_id=getattr(session, "proposal_agent_id", None),
+                               # The scheduled disturbances as they stand now, for the forecast.
+                               disturbance_scheduler=copy.deepcopy(getattr(session, "disturbance_scheduler", None)))
     factory = ((lambda: copy.deepcopy(replay)) if replay is not None
                else _policy_factory_for_session(snapshot))
     return (root, factory, dict(override_manager.get_all(session.id)),
@@ -805,7 +807,7 @@ def _capture_proposal_source(session, handle, action, option, alternatives, via=
             max(0, min(int(lead_steps or 0), MAX_LEAD_STEPS)))
 
 
-def _roll_forward(env, policy_factory, committed: dict, steps: int):
+def _roll_forward(env, policy_factory, committed: dict, steps: int, scheduler=None):
     """Step a copy of `env` `steps` steps the way the session drives it now (its
     policy with the standing overrides, holds included) and return the copy with
     the fingerprint of every step from now to then.
@@ -813,12 +815,16 @@ def _roll_forward(env, policy_factory, committed: dict, steps: int):
     A deep copy rather than the branch runner's fork: it keeps everything the
     adviser reads off the env, and the breakdown generator's state with it, so a
     breakdown under way keeps its down-time and a scheduled one still comes.
+    A private copy of the session's disturbance `scheduler` is ticked after each
+    step, as `step_env` ticks the live one, so a delay or closure scheduled
+    inside the lead is in the forecast too; it notifies nobody.
     """
     from flatland.envs.step_utils.states import TrainState
 
     from app.core.scenario_runner import TrajectoryBranchRunner
 
     future = copy.deepcopy(env)
+    scheduler = copy.deepcopy(scheduler) if scheduler else None
     expected = [(int(future._elapsed_steps), proposal_preview.fingerprint(future))]
     runner = TrajectoryBranchRunner(future, policy_factory)
     policy, temp_id = runner._make_override_policy(future, committed)
@@ -838,6 +844,8 @@ def _roll_forward(env, policy_factory, committed: dict, steps: int):
                     break
                 raise
             policy.end_step()
+            if scheduler is not None:
+                scheduler.tick(future, int(future._elapsed_steps))
             expected.append((int(future._elapsed_steps), proposal_preview.fingerprint(future)))
     finally:
         override_manager.clear_all(temp_id)
@@ -892,7 +900,8 @@ def _evaluate_proposals_unchecked(captured):
     # the forecast state at the step the course can still be taken at, and each
     # course is simulated from now: the current driver until that step, then
     # the course, the overrides the acceptance drops released at that step.
-    future, expected = (_roll_forward(env, plan_factory, committed, lead_steps)
+    future, expected = (_roll_forward(env, plan_factory, committed, lead_steps,
+                                      getattr(snapshot, "disturbance_scheduler", None))
                         if lead_steps else (env, ()))
     activation = int(getattr(future, "_elapsed_steps", elapsed) or elapsed) if lead_steps else None
     if activation == elapsed:

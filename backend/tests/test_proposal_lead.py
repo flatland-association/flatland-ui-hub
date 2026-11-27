@@ -57,6 +57,33 @@ def test_fingerprints_tell_trains_on_different_cells_apart(client):
     assert len(set(placed)) == len(placed)
 
 
+TICKS = []  # (scheduler id, step), shared by every copy of _RecordingScheduler
+
+
+class _RecordingScheduler:
+    """Stands in for the session's disturbance scheduler: records who is ticked at which step."""
+
+    def __bool__(self):
+        return True
+
+    def tick(self, env, step):
+        TICKS.append((id(self), step))
+        return []
+
+
+def test_the_forecast_ticks_a_private_copy_of_the_disturbance_scheduler(client):
+    sid = _held_session(client)
+    session = session_manager.get(sid)
+    live = session.disturbance_scheduler = _RecordingScheduler()
+    captured = overrides._capture_proposal_source(session, HELD, None, None, 3, lead_steps=3)
+    root, factory, committed, snapshot = captured[0], captured[1], captured[2], captured[5]
+    TICKS.clear()
+    overrides._roll_forward(root, factory, committed, 3, snapshot.disturbance_scheduler)
+    start = int(root._elapsed_steps)
+    assert [step for _, step in TICKS] == [start + 1, start + 2, start + 3]
+    assert id(live) not in {who for who, _ in TICKS}  # the live scheduler is not ticked by a forecast
+
+
 def test_forecast_fingerprints_match_the_live_run_through_a_breakdown(client):
     sid = _held_session(client, at=10)  # the breakdown starts at step 20, inside the window
     session = session_manager.get(sid)
