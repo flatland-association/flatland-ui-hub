@@ -59,13 +59,10 @@
     <!-- Summary readout: override rate + mean decision time directly readable. -->
     <div class="dl-summary">
       <span class="dl-sum-cell">
-        <span class="dl-sum-num">{{ humanCount() }}</span><span class="dl-sum-lbl">{{ 'log.human' | transloco }}</span>
+        <span class="dl-sum-num">{{ summary().human }}</span><span class="dl-sum-lbl">{{ 'log.human' | transloco }}</span>
       </span>
       <span class="dl-sum-cell">
-        <span class="dl-sum-num">{{ aiCount() }}</span><span class="dl-sum-lbl">{{ 'log.ai' | transloco }}</span>
-      </span>
-      <span class="dl-sum-cell">
-        <span class="dl-sum-num">{{ systemCount() }}</span><span class="dl-sum-lbl">{{ 'log.system' | transloco }}</span>
+        <span class="dl-sum-num">{{ summary().ai }}</span><span class="dl-sum-lbl">{{ 'log.ai' | transloco }}</span>
       </span>
       <span class="dl-sum-cell">
         <span class="dl-sum-num">{{ overrideRate() === null ? '—' : overrideRate() + '%' }}</span>

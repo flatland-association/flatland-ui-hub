@@ -3,7 +3,9 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { UiConfigService } from '../../core/config/ui-config.service';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
-import { DecisionLogPanelComponent, scrollIntoPanel } from './decision-log-panel.component';
+import { DecisionLogPanelComponent, scrollIntoPanel, summaryCounts } from './decision-log-panel.component';
+import type { DecisionAction, DecisionLogEntry, DecisionOwner } from '../../core/decision-log';
+import type { ActionOrigin } from '../../core/dispatch/train-action.service';
 import { SessionStore } from '../../core/session.store';
 import { SessionInfo } from '../../core/models';
 import { provideTourContextStub } from '../../testing/tour-context-stub';
@@ -412,5 +414,25 @@ describe('scrollIntoPanel', () => {
     const body = column.querySelector<HTMLElement>('.layout-panel-shell__body--scroll')!;
     scrollIntoPanel(column.querySelector<HTMLElement>('.dl-reflection')!);
     expect(body.scrollTop).toBe(0);
+  });
+});
+
+/** docs/plans/plan-b-round2-general.md, item 8: the summary counts who chose
+ *  the course; a system hold counts for neither. */
+describe('DecisionLogPanelComponent — summary counts', () => {
+  const entry = (accountableOwner: DecisionOwner, action: DecisionAction, origin?: ActionOrigin): DecisionLogEntry => ({
+    seq: 1, t: 0, simStep: 0, mode: 'co-learning', handle: 0,
+    accountableOwner, action, origin, aiSuggestion: null, decisionTimeMs: null,
+  });
+
+  it('counts a taken KI plan as KI, "Kein Eingriff" and the human option as Mensch', () => {
+    expect(summaryCounts([
+      entry('human', 'accept', 'proposals'),   // KI-Plan übernommen
+      entry('human', 'proceed', 'proposals'),  // Nicht eingreifen
+      entry('human', 'hold', 'proposals'),     // the human's own option
+      entry('human', 'reroute', 'map'),
+      entry('ai', 'hold', 'impact'),           // countdown expired
+      entry('system', 'hold'),                 // safe-default hold
+    ])).toEqual({ human: 3, ai: 2 });
   });
 });

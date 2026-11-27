@@ -111,9 +111,10 @@ export class DecisionLogPanelComponent {
   readonly aiCount = computed(() =>
     this.store.decisionLog().filter((e) => e.accountableOwner === 'ai').length,
   );
-  readonly systemCount = computed(() =>
-    this.store.decisionLog().filter((e) => e.accountableOwner === 'system').length,
-  );
+  /** The summary's counts, which read who chose the course rather than who
+   *  clicked (plan-b-round2-general.md, item 8). The counts above stay by
+   *  `accountableOwner`, for the override rate and the Director note. */
+  readonly summary = computed(() => summaryCounts(this.store.decisionLog()));
 
   /** Override rate = human-owned decisions ÷ human+ai decisions (system excluded:
    *  a safe-default hold is neither an accept nor an override). */
@@ -306,4 +307,24 @@ export class DecisionLogPanelComponent {
   formatTime(t: number): string {
     return new Date(t).toLocaleTimeString();
   }
+}
+
+/**
+ * Mensch and KI as the decision log's summary shows them: a taken KI plan
+ * (`origin: 'proposals'`, `action: 'accept'`) and the KI's own decisions count
+ * as KI; every other human decision — "Kein Eingriff", the human's own option,
+ * a click on the map — as Mensch. A system hold is neither. Display only: the
+ * stored `accountableOwner` stays as recorded.
+ */
+export function summaryCounts(entries: readonly DecisionLogEntry[]): { human: number; ai: number } {
+  let human = 0;
+  let ai = 0;
+  for (const e of entries) {
+    if (e.accountableOwner === 'ai') ai++;
+    else if (e.accountableOwner === 'human') {
+      if (e.origin === 'proposals' && e.action === 'accept') ai++;
+      else human++;
+    }
+  }
+  return { human, ai };
 }
