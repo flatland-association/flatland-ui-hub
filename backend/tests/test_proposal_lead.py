@@ -100,6 +100,27 @@ def test_a_new_decision_for_the_train_drops_the_pending_course(client):
     assert client.get(f"/session/{sid}/state").json()["course_activation"] is None
 
 
+def test_a_refused_reroute_leaves_the_pending_course(client):
+    sid = _held_session(client)
+    body, ai = _ai(client, sid, lead=5)
+    assert _accept(client, sid, body, ai).json()["pending"] is True
+    refused = client.post(f"/session/{sid}/agent/{HELD}/override",
+                          json={"action": overrides.REROUTE_ACTION, "via": [[1, 2, 3]]})
+    assert refused.status_code == 400
+    assert client.get(f"/session/{sid}/state").json()["pending_course"] is not None
+
+
+def test_a_refused_token_leaves_the_pending_course(client):
+    sid = _held_session(client)
+    body, ai = _ai(client, sid, lead=5)
+    assert _accept(client, sid, body, ai).json()["pending"] is True
+    expired = client.post(f"/session/{sid}/proposals/apply", json={
+        "variant": "ai", "handle": HELD, "priority": ai["priority"], "preview_token": "expired",
+        "candidate_id": ai["candidate_id"], "source_step": body["source_step"]})
+    assert expired.status_code == 409
+    assert client.get(f"/session/{sid}/state").json()["pending_course"] is not None
+
+
 def test_reset_drops_the_pending_course(client):
     sid = _held_session(client)
     body, ai = _ai(client, sid, lead=5)

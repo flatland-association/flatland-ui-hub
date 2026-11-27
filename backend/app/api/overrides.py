@@ -282,9 +282,6 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
     if req.action not in _OVERRIDE_VALUES:
         raise HTTPException(400, f"Invalid action {req.action}")
 
-    # A new decision for this train replaces a KI course still waiting for its step.
-    proposal_preview.clear_pending(session, handle)
-
     # Keep current overrides for before/after impact estimate.
     before_overrides = dict(override_manager.get_all(session_id))
     via = _parse_via(req.via) if req.action == REROUTE_ACTION else []
@@ -292,6 +289,9 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
     _commit_override(session.env, session_id, handle, req.action, via, start)
     if req.source == "system":
         override_manager.set(session_id, handle, req.action, system=True)
+    # The new decision is in: it replaces a KI course still waiting for its step.
+    # A refused one (bad route, no reroute) leaves that course waiting.
+    proposal_preview.clear_pending(session, handle)
 
     # Estimate impact of the new override from the current env state.
     # If deadlocks increase or done-count drops, emit a warning notification.
@@ -618,8 +618,9 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
         raise HTTPException(409, "A proposal preview token can only accept its AI course")
 
     step = int(getattr(env, "_elapsed_steps", 0) or 0)
-    # Whatever is taken now replaces a KI course still waiting for its step.
-    proposal_preview.clear_pending(session)
+    # Whatever is taken replaces a KI course still waiting for its step, once
+    # it is accepted: `_finish_apply` and the pending path drop it after
+    # validation, so a refused token or option leaves the waiting course alone.
 
     if req.variant == "plan":
         override_manager.clear(session_id, handle)
