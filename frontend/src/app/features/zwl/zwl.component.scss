@@ -213,7 +213,8 @@
   rect {
     fill: var(--app-zwd-conflict-fill);
     stroke: var(--app-zwd-conflict);
-    stroke-width: 1;
+    stroke-width: 1.2;
+    stroke-dasharray: 2 3;
   }
 
   &--active rect {
@@ -304,7 +305,7 @@
   display: inline-block;
   width: 18px;
   height: 10px;
-  border: 1px solid var(--app-zwd-conflict);
+  border: 1px dotted var(--app-zwd-conflict);
   background: var(--app-zwd-conflict-fill);
   border-radius: 2px;
 }

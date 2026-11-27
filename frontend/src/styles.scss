@@ -80,12 +80,11 @@ body {
   --layer-color-switches:       light-dark(#762C8F, #b98ad0);  /* Intercity violet - clearly distinct */
   --layer-color-signals:        #DC8C00;  /* Signal orange */
   --layer-color-grid:           light-dark(#787878, #a8a8a8);  /* Neutral grey */
-  /* Forecast conflicts: the error red, the same as the ZWL's conflict band
-     (--app-zwd-conflict), so one conflict reads the same on the map and in the
-     diagram (docs/plans/plan-b-small-changes.md, item 3). It was the warn
-     orange, kept apart from the live disruption ring; the shapes (a shaded
-     stretch with a bracket against a ring on one train) still tell them apart. */
-  --layer-color-contentions:    var(--app-severity-error);
+  /* Forecast conflicts: the conflict-area grey, the same as the ZWL's conflict
+     band (--app-zwd-conflict), so one conflict reads the same on the map and in
+     the diagram (docs/plans/plan-b-small-changes.md, item 3). Red until
+     plan-b-round2-general.md, item 3: red is kept for what has gone wrong. */
+  --layer-color-contentions:    var(--app-conflict-area);
 }
 
 
@@ -268,13 +267,21 @@ body {
   --app-positive: var(--sbb-color-green, #00973b);
 }
 
-/* Time-distance diagram (ZWL, widget B4) — a forecast contention ribbon is a
-   severity-error concept (two trains will block each other), so it reuses that
-   hue at a translucent fill that keeps the train lines on top readable. The
-   single-track section is a neutral infrastructure fact, not an alarm. */
+/* A forecast conflict (two trains will block each other) is an area of
+   caution, not an alarm: a dark grey, drawn with a dotted outline, so it stays
+   apart from the light single-track bands and the rails, from red (what has
+   gone wrong) and from the KI's yellow-orange. One token for the ZWL and the
+   map (docs/plans/plan-b-round2-general.md, item 3). */
 :root {
-  --app-zwd-conflict: var(--app-severity-error);
-  --app-zwd-conflict-fill: color-mix(in srgb, var(--app-severity-error) 16%, transparent);
+  --app-conflict-area: light-dark(var(--sbb-color-iron), var(--sbb-color-cement));
+}
+
+/* Time-distance diagram (ZWL, widget B4) — the forecast contention ribbon in
+   the conflict-area grey, at a translucent fill that keeps the train lines on
+   top readable. The single-track section is a neutral infrastructure fact. */
+:root {
+  --app-zwd-conflict: var(--app-conflict-area);
+  --app-zwd-conflict-fill: color-mix(in srgb, var(--app-conflict-area) 12%, transparent);
   --app-zwd-single-track: color-mix(in srgb, var(--app-border) 55%, transparent);
   /* Delay localisation: where a delay arises (error), grows (warn) and is
      made up (positive) — the existing severity/positive hues, not new ones. */
