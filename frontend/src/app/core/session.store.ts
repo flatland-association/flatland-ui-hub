@@ -806,6 +806,9 @@ export class SessionStore {
       aiSuggestion: null,
       decisionTimeMs: this._closeDecisionWindow(handle),
       origin: 'proposals',
+      // Which course was taken: `proceed` alone reads like the human's own
+      // "Weiterfahren" (docs/plans/plan-b-control-group.md §4.5).
+      proposal: action === 'accept' ? 'ai' : 'plan',
     });
     if (this.interactionMode() === 'director') return;
     this._askReflection({

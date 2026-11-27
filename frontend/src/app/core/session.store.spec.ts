@@ -62,6 +62,14 @@ describe('SessionStore — open reflections', () => {
   const decide = (handle: number) => store.recordProposalChoice(handle, 'proceed');
   const seqs = () => store.openReflections().map((r) => r.handle);
 
+  // docs/plans/plan-b-control-group.md §4.5: "Plan behalten" and the human's
+  // own "Weiterfahren" both log as `proceed`.
+  it('records which Handlungsoptionen course was taken', () => {
+    store.recordProposalChoice(0, 'proceed');
+    store.recordProposalChoice(1, 'accept');
+    expect(store.decisionLog().map((e) => [e.action, e.proposal])).toEqual([['proceed', 'plan'], ['accept', 'ai']]);
+  });
+
   // docs/plans/plan-b-control-group.md D-21
   it('keeps the disturbance messages open at a decision with it', () => {
     store.notifications.set([

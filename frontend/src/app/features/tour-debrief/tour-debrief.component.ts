@@ -143,6 +143,7 @@ export class TourDebriefComponent {
           reason: d.reason ?? null,
           reflection: d.reflection ?? null,
           events: d.events ?? [],
+          proposal: d.proposal ?? null,
         })),
       };
     });

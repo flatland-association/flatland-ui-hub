@@ -149,6 +149,12 @@ export interface DecisionLogEntry {
    *  of an assertion (HMI review §3). Absent on entries written before the
    *  dispatch seam existed, and on system-owned holds. */
   origin?: ActionOrigin;
+  /** Which course of the Handlungsoptionen was taken (`proposal-compare`'s
+   *  "Plan behalten" or "KI-Plan übernehmen"): `plan` logs as `proceed` and
+   *  `ai` as `accept`, so this tells "Plan behalten" from the human's own
+   *  "Weiterfahren" there, which also logs as `proceed`. Absent on every other
+   *  decision, and on entries written before 2026-11-27. */
+  proposal?: 'plan' | 'ai';
   /** Active interaction mode when the decision was made. */
   mode: InteractionMode;
   /** Agent (train handle) the decision concerned. */

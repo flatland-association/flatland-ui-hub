@@ -105,4 +105,13 @@ describe('shiftDecisionsFrom', () => {
       { handle: 0, action: 'proceed', simStep: 9, decisionTimeMs: 1200, reason: null, reflection: null, events: [] },
     ]);
   });
+
+  it('keeps which Handlungsoptionen course was taken, only where one was', () => {
+    const [kept, own] = shiftDecisionsFrom([
+      entry({ seq: 1, action: 'proceed', origin: 'proposals', proposal: 'plan' }),
+      entry({ seq: 2, action: 'proceed', origin: 'proposals' }),
+    ]);
+    expect(kept.proposal).toBe('plan');
+    expect('proposal' in own).toBeFalse();
+  });
 });

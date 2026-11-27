@@ -284,6 +284,14 @@ answers, question id → answer) and `events`. The Schichtbilanz's overview
 Szenario | Ereignisse | Entscheidungen | Reflexion is built from these
 (#209, `docs/plans/plan-b-control-group.md` §4.5).
 
+**Course taken in the Handlungsoptionen.** A decision made with a course's
+button in `proposal-compare` carries `proposal`: `plan` ("Plan behalten",
+logged as `proceed`) or `ai` ("KI-Plan übernehmen", logged as `accept`). It
+tells "Plan behalten" from the panel's own option "Weiterfahren", which is
+also `proceed` with `origin: 'proposals'`. Absent on every other decision
+and in records made before 2026-11-27; a leg's `decisions[]` in the run
+record keeps it too.
+
 ### UI state: panels and viewports
 
 Clicks don't show what was visible: a panel collapsed by default, or a

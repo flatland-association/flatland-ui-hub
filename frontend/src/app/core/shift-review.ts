@@ -159,11 +159,13 @@ export interface ShiftIntervention {
   reflection: Record<string, string> | null;
   /** The disturbance messages open at the decision (DecisionLogEntry.events). */
   events: DecisionEvent[];
+  /** The Handlungsoptionen course taken, if any (DecisionLogEntry.proposal). */
+  proposal: 'plan' | 'ai' | null;
 }
 
 /** A decision as the reflection overview lists it: live from a leg's
  *  `ShiftRecord`, in a replay from the leg's recorded decision log. */
-export type OverviewDecision = Pick<ShiftIntervention, 'step' | 'handle' | 'action' | 'reason' | 'reflection' | 'events'>;
+export type OverviewDecision = Pick<ShiftIntervention, 'step' | 'handle' | 'action' | 'reason' | 'reflection' | 'events' | 'proposal'>;
 
 /** One scenario's row group in the overview. */
 export interface OverviewLeg {
@@ -211,6 +213,7 @@ export function interventionsFrom(decisionLog: DecisionLogEntry[]): ShiftInterve
       response: e.hypothesisResponse ?? null,
       reflection: e.reflection ?? null,
       events: e.events ?? [],
+      proposal: e.proposal ?? null,
     }));
 }
 
@@ -225,6 +228,8 @@ export interface ShiftDecision {
   reason?: string | null;
   reflection?: Record<string, string> | null;
   events?: DecisionEvent[];
+  /** The Handlungsoptionen course taken; absent for any other decision. */
+  proposal?: 'plan' | 'ai';
 }
 
 /**
@@ -243,6 +248,7 @@ export function shiftDecisionsFrom(decisionLog: DecisionLogEntry[]): ShiftDecisi
     reason: i.reason,
     reflection: i.reflection,
     events: i.events,
+    ...(i.proposal ? { proposal: i.proposal } : {}),
   }));
 }
 

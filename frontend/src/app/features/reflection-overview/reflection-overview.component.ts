@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { DecisionAction, DecisionEvent } from '../../core/decision-log';
+import { DecisionEvent } from '../../core/decision-log';
 import { LanguageService } from '../../core/i18n/language.service';
 import { NotificationWordingService } from '../../core/notification-wording.service';
-import { OverviewLeg, reflectionLines } from '../../core/shift-review';
+import { OverviewDecision, OverviewLeg, reflectionLines } from '../../core/shift-review';
 import { TrainIdentityService } from '../../core/train-identity.service';
 
 /**
@@ -52,7 +52,7 @@ import { TrainIdentityService } from '../../core/train-identity.service';
                       <span class="ro__line">–</span>
                     }
                   </td>
-                  <td><strong>{{ trainName(d.handle, leg.scenarioId) }}</strong> · {{ actionLabel(d.action) }}</td>
+                  <td><strong>{{ trainName(d.handle, leg.scenarioId) }}</strong> · {{ actionLabel(d) }}</td>
                   <td>
                     @let reflection = lines(d.reflection);
                     @if (d.reason) {
@@ -100,7 +100,12 @@ export class ReflectionOverviewComponent {
     return this.identity.nameIn(scenarioId, handle);
   }
 
-  actionLabel(action: DecisionAction): string {
-    return this.i18n.t(`tourUi.debrief.action.${action}`, undefined, action);
+  /** A course taken in the Handlungsoptionen as its button reads ("Plan
+   *  behalten" is logged as `proceed`, the same word as the human's own
+   *  "Weiterfahren"); any other decision by its action. */
+  actionLabel(d: OverviewDecision): string {
+    if (d.proposal === 'plan') return this.i18n.t('proposals.keepPlan');
+    if (d.proposal === 'ai') return this.i18n.t('proposals.takeAi');
+    return this.i18n.t(`tourUi.debrief.action.${d.action}`, undefined, d.action);
   }
 }

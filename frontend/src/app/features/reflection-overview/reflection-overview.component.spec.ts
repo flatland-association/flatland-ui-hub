@@ -30,7 +30,7 @@ describe('ReflectionOverviewComponent', () => {
   it('words each event as the TMS panel does, with the scenario\'s train names', () => {
     const [row] = render([{
       label: 'Scenario 1/2', scenarioId: 'leg-a',
-      decisions: [{ step: 31, handle: 1, action: 'hold', reason: 'Vermeide Deadlock', reflection: { gut: 'fit' },
+      decisions: [{ step: 31, handle: 1, action: 'hold', reason: 'Vermeide Deadlock', reflection: { gut: 'fit' }, proposal: null,
         events: [{ code: 'train.malfunction', title: 'Malfunction', message: 'Train 0 …', params: { train: 0, steps: 8 } }] }],
     }]);
     expect(row[0]).toBe('Scenario 1/2');
@@ -41,7 +41,7 @@ describe('ReflectionOverviewComponent', () => {
   });
 
   it('names the scenario once over its decisions, with "–" where nothing was open or said', () => {
-    const decision = { step: 5, handle: 0, action: 'proceed' as const, reason: null, reflection: null, events: [] };
+    const decision = { step: 5, handle: 0, action: 'proceed' as const, reason: null, reflection: null, events: [], proposal: null };
     const rows = render([
       { label: 'Scenario 1/2', scenarioId: 'leg-a', decisions: [decision, { ...decision, step: 9 }] },
       { label: 'Scenario 2/2', scenarioId: 'leg-a', decisions: [] },
@@ -52,5 +52,21 @@ describe('ReflectionOverviewComponent', () => {
     expect(rows[1][0]).toBe('Step 9–'); // two block spans: the step, then "–"
     expect(rows[1][2]).toBe('–');
     expect(rows[2]).toEqual(['Scenario 2/2', '–', 'No interventions', '–']);
+  });
+
+  // "Plan behalten" logs as `proceed`, like the human's own "Weiterfahren".
+  it('names a course taken in the Handlungsoptionen as its button does', () => {
+    const decision = { step: 5, handle: 0, action: 'proceed' as const, reason: null, reflection: null, events: [], proposal: null };
+    const rows = render([{
+      label: 'Scenario 1/1', scenarioId: 'leg-a',
+      decisions: [
+        { ...decision, proposal: 'plan' },
+        { ...decision, action: 'accept', proposal: 'ai' },
+        decision,
+      ],
+    }]);
+    expect(rows[0][2]).toBe('A-0 · Keep the plan');
+    expect(rows[1][1]).toBe('A-0 · Take the AI plan');
+    expect(rows[2][1]).toBe('A-0 · Proceed');
   });
 });
