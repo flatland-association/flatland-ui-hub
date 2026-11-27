@@ -401,6 +401,10 @@
       "finished": {
         "title": "Épisode terminé",
         "message": "Tous les trains ont atteint leur destination."
+      },
+      "timeUp": {
+        "title": "Épisode terminé",
+        "message": "Le temps est écoulé : {{notArrived}} trains sur {{total}} ne sont pas arrivés."
       }
     },
     "train": {

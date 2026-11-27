@@ -85,3 +85,26 @@ def test_stop_override_names_its_direction(monkeypatch):
     [ov] = [n for n in notes if n.code == "train.overridePending"]
     assert ov.params == {"train": 2, "direction": "stop"}
     assert ov.message == "Train 2: operator override STOP pending."
+
+
+def _ended_episode(states):
+    from flatland.envs.step_utils.states import TrainState
+    agents = [SimpleNamespace(handle=h, malfunction_handler=None, state=getattr(TrainState, st))
+              for h, st in enumerate(states)]
+    return SimpleNamespace(env=SimpleNamespace(dones={"__all__": True}, agents=agents))
+
+
+def test_episode_finished_only_when_every_train_arrived(monkeypatch):
+    from app.core import session_manager as sm_module
+    monkeypatch.setattr(sm_module.session_manager, "get", lambda sid: _ended_episode(["DONE", "DONE"]))
+    [n] = [n for n in hmi_mock.generate_notifications("fake-session", 40) if n.id == "n_40_done"]
+    assert n.code == "episode.finished" and n.params == {}
+
+
+def test_episode_time_up_counts_the_trains_not_arrived(monkeypatch):
+    from app.core import session_manager as sm_module
+    monkeypatch.setattr(sm_module.session_manager, "get",
+                        lambda sid: _ended_episode(["DONE", "MOVING", "READY_TO_DEPART"]))
+    [n] = [n for n in hmi_mock.generate_notifications("fake-session", 40) if n.id == "n_40_done"]
+    assert n.code == "episode.timeUp"
+    assert n.params == {"notArrived": 2, "total": 3}

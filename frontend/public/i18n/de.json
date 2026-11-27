@@ -401,6 +401,10 @@
       "finished": {
         "title": "Episode beendet",
         "message": "Alle Züge haben ihr Ziel erreicht."
+      },
+      "timeUp": {
+        "title": "Episode beendet",
+        "message": "Die Zeit ist abgelaufen: {{notArrived}} von {{total}} Zügen sind nicht angekommen."
       }
     },
     "train": {
