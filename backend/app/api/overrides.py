@@ -345,10 +345,14 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
         # Best-effort only; override setting must never fail due to alert logic.
         pass
 
+    # The answer echoes the decision as taken, so the call log has it whole.
     return {
         "session_id": session_id,
         "handle": handle,
         "action": req.action,
+        "via": [list(cell) for cell in via],
+        "start": None if start is None else list(start),
+        "step": int(getattr(session.env, "_elapsed_steps", 0) or 0),
     }
 
 
