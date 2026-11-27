@@ -874,6 +874,71 @@ const PLAN_B_COLEARNING: LayoutPreset = {
 };
 
 /**
+ * Plan B round 2 — the Recommendation group, the control
+ * (docs/plans/plan-b-round2-recommendation.md).
+ *
+ * The Co-Learning screen without the human's own option: the Handlungsoptionen
+ * show "Kein Eingriff" and the KI, and the map offers no actions at the
+ * trains. The rest is the same, so the two groups differ only there. Written
+ * out like `PLAN_B_COLEARNING`, ids `preset-pbr-*`. The mode (recommendation),
+ * the hold instead of the countdown and the absence of reflection come from
+ * the experiment and its briefing, not from the layout.
+ */
+const PLAN_B_RECOMMENDATION_UI: UiConfig = {
+  ...PLAN_B_COLEARNING_UI,
+  hidden: [...(PLAN_B_COLEARNING_UI.hidden ?? []), 'widget.proposal-compare.human', 'control.mapTrainActions'],
+};
+
+const PLAN_B_RECOMMENDATION: LayoutPreset = {
+  id: 'preset-plan-b-recommendation',
+  name: 'Plan B · Runde 2 · Recommendation',
+  nameKey: 'layouts.planBRecommendation.name',
+  purpose: 'Plan B, Runde 2, Recommendation-Gruppe: wie Co-Learning, aber ohne eigene Option des Menschen; die KI schlägt vor, der Mensch übernimmt oder greift nicht ein.',
+  purposeKey: 'layouts.planBRecommendation.purpose',
+  ui: PLAN_B_RECOMMENDATION_UI,
+  layout: {
+    columns: [
+      {
+        id: 'preset-pbr-left',
+        zone: 'left',
+        rowId: 'preset-pbr-row',
+        name: 'Lage',
+        width: 20,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-pbr-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 160 },
+          { id: 'preset-pbr-impact', type: 'impact', title: 'Lage: Risiko & Auswirkung', expanded: true, collapsible: true, minHeight: 180 },
+        ],
+      },
+      {
+        id: 'preset-pbr-center',
+        zone: 'center',
+        rowId: 'preset-pbr-row',
+        name: 'Netz',
+        width: 50,
+        role: 'main',
+        panels: [
+          { id: 'preset-pbr-zugweg', type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 380 },
+          { id: 'preset-pbr-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 340 },
+        ],
+      },
+      {
+        id: 'preset-pbr-right',
+        zone: 'right',
+        rowId: 'preset-pbr-row',
+        name: 'Recommendation',
+        width: 30,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-pbr-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 220 },
+          { id: 'preset-pbr-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
+        ],
+      },
+    ],
+  },
+};
+
+/**
  * Olten · ZWL — a Recommendation-mode layout for exploring the
  * ZWL on a real network (tour "Olten: explore the time-distance diagram").
  *
@@ -1222,6 +1287,7 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   COLEARNING_INTERVIEW,
   PLAN_B,
   PLAN_B_COLEARNING,
+  PLAN_B_RECOMMENDATION,
   RECOMMENDATION_STUDY2,
   RECOMMENDATION_STUDY3,
   COLEARNING_STUDY3,

@@ -2614,6 +2614,10 @@
     "planBColearning": {
       "name": "Plan B · Runde 2 · Co-Learning",
       "purpose": "Plan B, Runde 2, Co-Learning-Gruppe: Ereignisse und Risiko links, ZWL über dem Streckenspiegel in der Mitte, Handlungsoptionen und Entscheidungsprotokoll rechts."
+    },
+    "planBRecommendation": {
+      "name": "Plan B · Runde 2 · Recommendation",
+      "purpose": "Plan B, Runde 2, Recommendation-Gruppe: wie Co-Learning, aber ohne eigene Option des Menschen; die KI schlägt vor, der Mensch übernimmt oder greift nicht ein."
     }
   }
 }

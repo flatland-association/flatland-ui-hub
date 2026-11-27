@@ -27,8 +27,11 @@ export const PANEL_MODE_AVAILABILITY: Record<string, InteractionMode[]> = {
   // Variant of the reflection for the interview tour (guided questions).
   'reflection-prompt': ['co-learning'],
   // The Plan / KI / Mensch cut of widget B1: neutral options, no ranking, the
-  // human's own course beside them — the §3.3 framing.
-  'proposal-compare': ['co-learning'],
+  // human's own course beside them — the §3.3 framing. Also Recommendation:
+  // Plan B round 2's control group takes or leaves the KI course there, with the
+  // human's own option hidden by its layout (widget.proposal-compare.human;
+  // #201 D-5, docs/plans/plan-b-round2-recommendation.md).
+  'proposal-compare': ['co-learning', 'recommendation'],
   // Superseded in Director by the A/B/C strategy window. Offered in no mode
   // (empty ≠ absent), kept wired so re-enabling it is a config flip.
   'goal-achievement': [],

@@ -2614,6 +2614,10 @@
     "planBColearning": {
       "name": "Plan B · Round 2 · Co-Learning",
       "purpose": "Plan B, round 2, Co-Learning group: events and risk on the left, the ZWL above the track diagram in the centre, action options and decision log on the right."
+    },
+    "planBRecommendation": {
+      "name": "Plan B · Round 2 · Recommendation",
+      "purpose": "Plan B, round 2, Recommendation group: as Co-Learning, but without the human’s own option; the AI proposes, the human takes it or does not intervene."
     }
   }
 }

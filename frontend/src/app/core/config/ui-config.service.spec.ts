@@ -140,6 +140,21 @@ describe('UiConfigService — the Plan B preset block', () => {
     }
   });
 
+  // docs/plans/plan-b-round2-recommendation.md: the control group's screen is the
+  // Co-Learning one without the human's own option, in the same layout.
+  it('gives round 2\'s Recommendation screen the Co-Learning restrictions plus no human option and no map actions', () => {
+    const preset = (id: string) => LAYOUT_PRESETS.find((p) => p.id === id)!;
+    const co = preset('preset-plan-b-colearning');
+    const rec = preset('preset-plan-b-recommendation');
+    expect(rec.ui!.timeUnit).toBe('minutes');
+    expect([...rec.ui!.hidden!].sort()).toEqual([...co.ui!.hidden!, 'widget.proposal-compare.human', 'control.mapTrainActions'].sort());
+    const panels = (p: typeof co) => p.layout.columns.map((c) => [c.zone, c.panels.map((x) => x.type)]);
+    expect(panels(rec)).toEqual(panels(co));
+    service.apply(rec.ui!);
+    expect(service.isHidden('widget.proposal-compare.human')).toBeTrue();
+    expect(service.isHidden('control.mapTrainActions')).toBeTrue();
+  });
+
   it('keeps the map zoom buttons in Plan B (plan-b-small-changes.md, item 2)', () => {
     service.apply(planB());
     expect(service.isHidden('control.mapZoom')).toBeFalse();
