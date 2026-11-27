@@ -204,7 +204,6 @@
       </button>
     }
     <span class="zwd__legend-item"><svg width="22" height="6"><line class="zwd__legend-past" x1="0" y1="3" x2="22" y2="3"></line></svg>{{ 'zwd.legend.actual' | transloco }}</span>
-    <span class="zwd__legend-item"><svg width="22" height="6"><line class="zwd__legend-forecast" x1="0" y1="3" x2="22" y2="3"></line></svg>{{ 'zwd.legend.forecast' | transloco }}</span>
     <span class="zwd__legend-item"><span class="zwd__legend-band"></span>{{ 'zwd.legend.conflict' | transloco }}</span>
     @if (hasPlan()) {
       <button type="button" class="zwd__legend-item zwd__legend-toggle" [attr.aria-pressed]="showDelays()"

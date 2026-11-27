@@ -254,9 +254,10 @@
   stroke-width: 2.2;
 }
 
+// The forecast continues the past in the same style; the now-line is the only
+// boundary between the two (docs/plans/plan-b-round2-general.md, item 2).
 .zwd__forecast {
-  stroke-width: 1.8;
-  stroke-dasharray: 5 4;
+  stroke-width: 2.2;
 }
 
 .zwd__train-label {
@@ -294,14 +295,9 @@
   gap: 5px;
 }
 
-.zwd__legend-past,
-.zwd__legend-forecast {
+.zwd__legend-past {
   stroke: var(--sbb-color-charcoal);
   stroke-width: 2;
-}
-
-.zwd__legend-forecast {
-  stroke-dasharray: 5 4;
 }
 
 .zwd__legend-band {

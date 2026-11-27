@@ -157,8 +157,8 @@ interface PlacedBand extends ContentionBand {
  *
  * Unlike the shipped `marey` widget, the axis is the corridor itself (the
  * scene's stations, see `zwl-axis.ts`), so selecting a different train
- * never changes it. Lines: executed history solid, the baseline forecast
- * dashed. Contentions come from the existing `GET /hmi/contentions` forecast
+ * never changes it. Lines: executed history and the baseline forecast, both
+ * solid. Contentions come from the existing `GET /hmi/contentions` forecast
  * (store.contentions) — the backend `conflict_detector` run on a no-override
  * branch — drawn as ribbons over the contended stretch and time.
  *

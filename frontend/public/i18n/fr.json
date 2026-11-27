@@ -1896,7 +1896,7 @@
       "near": "près de {{name}}"
     },
     "legend": {
-      "actual": "Réel",
+      "actual": "Réel et prévision",
       "forecast": "Prévision",
       "conflict": "Conflit prévu",
       "plan": "Horaire prévu"

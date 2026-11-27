@@ -1896,7 +1896,7 @@
       "near": "nahe {{name}}"
     },
     "legend": {
-      "actual": "Ist",
+      "actual": "Ist und Prognose",
       "forecast": "Prognose",
       "conflict": "Prognostizierter Konflikt",
       "plan": "Soll"

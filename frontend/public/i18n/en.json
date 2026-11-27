@@ -1896,7 +1896,7 @@
       "near": "near {{name}}"
     },
     "legend": {
-      "actual": "Actual",
+      "actual": "Actual and forecast",
       "forecast": "Forecast",
       "conflict": "Forecast conflict",
       "plan": "Timetable"
