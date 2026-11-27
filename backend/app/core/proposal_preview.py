@@ -18,6 +18,7 @@ from threading import BoundedSemaphore
 from fastapi import HTTPException
 
 from app.core.override_manager import override_manager
+from app.utils.agent_compat import agent_direction, agent_position
 
 MAX_COURSES_PER_SESSION = 16
 _POOL = ThreadPoolExecutor(max_workers=2, thread_name_prefix="proposal-preview")
@@ -55,8 +56,8 @@ def fingerprint(env) -> tuple:
     rows = []
     for agent in env.agents:
         handle = int(agent.handle)
-        position = getattr(agent, "position", None)
-        direction = getattr(agent, "direction", None)
+        position = agent_position(agent)
+        direction = agent_direction(agent)
         handler = getattr(agent, "malfunction_handler", None)
         down = int(getattr(handler, "malfunction_down_counter", 0) or 0)
         state = getattr(agent, "state", None)

@@ -48,6 +48,15 @@ def _accept(client, sid, body, ai):
         "candidate_id": ai["candidate_id"], "source_step": body["source_step"]})
 
 
+def test_fingerprints_tell_trains_on_different_cells_apart(client):
+    sid = _held_session(client)
+    rows = proposal_preview.fingerprint(session_manager.get(sid).env)
+    placed = [(position, direction) for _, position, direction, _, _ in rows if position is not None]
+    assert placed, "trains on the map must show their cell"
+    assert all(direction is not None for _, direction in placed)
+    assert len(set(placed)) == len(placed)
+
+
 def test_forecast_fingerprints_match_the_live_run_through_a_breakdown(client):
     sid = _held_session(client, at=10)  # the breakdown starts at step 20, inside the window
     session = session_manager.get(sid)
