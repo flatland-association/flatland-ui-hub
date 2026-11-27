@@ -2577,6 +2577,10 @@
     "uc2Rl": {
       "name": "UC2 RL",
       "purpose": "Supervise the trained UC2/tutorial policy on the original native scenarios."
+    },
+    "planBColearning": {
+      "name": "Plan B · Tour 2 · Co-Learning",
+      "purpose": "Plan B, tour 2, groupe Co-Learning : événements et risque à gauche, le diagramme espace-temps au-dessus du schéma de voies au centre, options d’action et journal des décisions à droite."
     }
   }
 }

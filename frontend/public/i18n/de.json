@@ -2577,6 +2577,10 @@
     "uc2Rl": {
       "name": "UC2 RL",
       "purpose": "Beobachte die trainierte UC2-/Tutorial-Policy auf den originalen Szenarien."
+    },
+    "planBColearning": {
+      "name": "Plan B · Runde 2 · Co-Learning",
+      "purpose": "Plan B, Runde 2, Co-Learning-Gruppe: Ereignisse und Risiko links, ZWL über dem Streckenspiegel in der Mitte, Handlungsoptionen und Entscheidungsprotokoll rechts."
     }
   }
 }

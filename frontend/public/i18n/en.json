@@ -2577,6 +2577,10 @@
     "uc2Rl": {
       "name": "UC2 RL",
       "purpose": "Supervise the trained UC2/tutorial policy on the original native scenarios."
+    },
+    "planBColearning": {
+      "name": "Plan B · Round 2 · Co-Learning",
+      "purpose": "Plan B, round 2, Co-Learning group: events and risk on the left, the ZWL above the track diagram in the centre, action options and decision log on the right."
     }
   }
 }
