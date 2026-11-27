@@ -6,6 +6,7 @@ import math
 from types import SimpleNamespace
 
 from fastapi import APIRouter, HTTPException
+from flatland.envs.rail_env_action import RailEnvActions
 from pydantic import BaseModel
 
 from app.core.session_manager import session_manager
@@ -26,6 +27,7 @@ from app.core.route_overrides import (
 from app.policies.plan_policy import (
     PlanPolicy,
     accept_trainrun_plan,
+    note_course_holds,
     note_course_routes,
     plan_accepted,
     plan_branch_factory,
@@ -698,8 +700,11 @@ def _install_ai_course(session, agent, handle: int, trainruns) -> None:
         # replan the operator just accepted.
         override_manager.clear_all(session.id)
         env._route_overrides = {}
-    # The routes still committed are the ones the course was simulated with.
+    # The routes still committed are the ones the course was simulated with,
+    # the holds still committed the trains it has stand.
     note_course_routes(env, getattr(env, "_route_overrides", None))
+    note_course_holds(env, {int(h) for h, a in override_manager.get_all(session.id).items()
+                            if int(a) == RailEnvActions.STOP_MOVING.value})
 
 
 def _finish_apply(session) -> None:

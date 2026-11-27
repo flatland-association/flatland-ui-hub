@@ -7,11 +7,15 @@ there for the rest of the run. Now the course is dropped for every train once
 the released train is at the end of its cut-short run, and deadlock avoidance
 drives them all (`PlanPolicy._drop_exhausted_course`).
 """
+from types import SimpleNamespace
+
 import pytest
 from fastapi.testclient import TestClient
+from flatland.envs.rail_trainrun_data_structures import TrainrunWaypoint, Waypoint
 
 from app.core.session_manager import session_manager
 from app.main import app
+from app.policies.plan_policy import PlanPolicy
 
 pytestmark = pytest.mark.integration
 
@@ -64,3 +68,33 @@ def test_a_train_still_held_keeps_the_course(client):
     assert env._plan_off_plan == set()
     state = client.get(f"/session/{sid}/state").json()
     assert state["agents"][1]["position"] == [3, 10] and state["agents"][1]["state"] == "STOPPED"
+
+
+def _next_to_target_env(held_at_takeover):
+    """Train 1 stands on (3, 10), facing east, one cell before its target (3, 11)."""
+    moving = SimpleNamespace(name="MOVING")
+    agents = [SimpleNamespace(state=moving, current_configuration=((3, 2), 1), targets={((3, 20), 1)}),
+              SimpleNamespace(state=moving, current_configuration=((3, 10), 1), targets={((3, 11), 1)})]
+    return SimpleNamespace(agents=agents, _plan_off_plan=set(), _plan_course_holds=set(held_at_takeover))
+
+
+def _course():
+    return {0: [TrainrunWaypoint(30, Waypoint((3, 1), 1)), TrainrunWaypoint(31, Waypoint((3, 2), 1)),
+                TrainrunWaypoint(32, Waypoint((3, 3), 1))],
+            1: [TrainrunWaypoint(30, Waypoint((3, 10), 1))]}
+
+
+def test_a_train_held_next_to_its_target_is_released_from_its_cut_short_run():
+    env = _next_to_target_env(held_at_takeover={1})
+    policy = PlanPolicy(None, _course())
+    policy._env = env
+    policy._drop_exhausted_course()  # released: no longer in the policy's holds
+    assert env._plan_off_plan == {0, 1}
+
+
+def test_a_complete_run_next_to_the_target_keeps_the_course():
+    env = _next_to_target_env(held_at_takeover=set())
+    policy = PlanPolicy(None, _course())
+    policy._env = env
+    policy._drop_exhausted_course()
+    assert env._plan_off_plan == set()

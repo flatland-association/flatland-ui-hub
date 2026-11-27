@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Set, Tuple
 
 from app.policies.base import Policy
-from app.policies.plan_policy import note_course_routes
+from app.policies.plan_policy import note_course_holds, note_course_routes
 
 
 class SwitchAtStepPolicy(Policy):
@@ -44,15 +44,16 @@ class SwitchAtStepPolicy(Policy):
         self._current = self._active()
         self._switch_if_due()
 
-    def _switch_if_due(self) -> None:
+    def _switch_if_due(self, holds=None) -> None:
         """On the first call at or after step ``at``: the plan state the course
         starts from, as `_install_ai_course` leaves it (every train on plan, the
-        routes still committed are the ones the course runs with)."""
+        routes and holds still committed are the ones the course runs with)."""
         if self._switched or self._env is None or self._active() is not self.after:
             return
         self._switched = True
         self._env._plan_off_plan = set()
         note_course_routes(self._env, getattr(self._env, "_route_overrides", None))
+        note_course_holds(self._env, holds)
 
     def start_episode(self, train: bool = False) -> None:
         for policy in (self.before, self.after):
@@ -76,7 +77,7 @@ class SwitchAtStepPolicy(Policy):
             self._current.end_step()
 
     def set_committed_overrides(self, holds: Set[int], routes: Dict[int, List[Tuple[int, int, int]]]) -> bool:
-        self._switch_if_due()
+        self._switch_if_due(holds)
         setter = getattr(self._active(), "set_committed_overrides", None)
         return bool(setter(holds, routes)) if setter is not None else False
 

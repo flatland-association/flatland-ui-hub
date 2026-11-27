@@ -191,7 +191,10 @@ class PlanPolicy(Policy):
         a forecast horizon can cut a run the same way. (A complete run ends on
         the cell before the target: the rollout records no position for the
         step the train enters it and is done. Its train finishing is not this
-        case.) The course assumed the train would stay where its run ends, and
+        case.) A run is cut short for sure when its train was held as the course
+        was taken (`note_course_holds`): the course had it stand, however close
+        to its target; adjacency alone can't tell, a train held next to its
+        target ends there too. The course assumed the train would stay where its run ends, and
         the other trains' runs were made around that. Once the hold is gone that assumption is void for all of
         them. Handing only this train to the fallback sends it into trains that
         still follow the course (they never wait for a train off its plan);
@@ -205,6 +208,7 @@ class PlanPolicy(Policy):
         if env is None:
             return
         off = self._off_plan_set()
+        held_at_takeover = getattr(env, "_plan_course_holds", None) or set()
         for handle, run in self.trainruns.items():
             if handle in off or handle in self._holds or not run:
                 continue
@@ -212,7 +216,8 @@ class PlanPolicy(Policy):
             if getattr(agent.state, "name", str(agent.state)) == "DONE" or agent_position(agent) is None:
                 continue
             end = run[-1].waypoint.position
-            if any(abs(end[0] - t[0]) + abs(end[1] - t[1]) <= 1 for t in agent_target_positions(agent)):
+            if handle not in held_at_takeover and any(
+                    abs(end[0] - t[0]) + abs(end[1] - t[1]) <= 1 for t in agent_target_positions(agent)):
                 continue  # a complete run: its train is about to finish
             index = self._locate(handle)
             if index is not None and index >= len(run) - 1:
@@ -418,6 +423,16 @@ def note_course_routes(env: RailEnv, routes) -> None:
     its train off plan (`PlanPolicy.set_committed_overrides`).
     """
     env._plan_course_routes = {int(h): _nodes(r) for h, r in (routes or {}).items()}
+
+
+def note_course_holds(env: RailEnv, holds) -> None:
+    """Record the trains held when a course was taken: the course has them stand.
+
+    Their runs are cut short, also when they end next to the target, so once
+    released at the end of such a run the course is dropped
+    (`PlanPolicy._drop_exhausted_course`).
+    """
+    env._plan_course_holds = {int(h) for h in (holds or ())}
 
 
 def plan_accepted(env: RailEnv) -> bool:
