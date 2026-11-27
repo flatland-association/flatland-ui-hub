@@ -2245,9 +2245,13 @@ export class SessionStore {
    *  experiment-scenario-import.md §8), and the pause writes its trajectory
    *  to disk. Fire and forget, so a late answer cannot touch the next
    *  session's `playing`. */
+  /** The session whose pause request has not answered yet: leaving it sends
+   *  no second pause (a leg end pauses, then starts the next leg). */
+  private _pauseInFlight: string | null = null;
+
   private _stopPlayingOnServer(): void {
     const s = this.session();
-    if (s && this.playing()) this.api.pause(s.id).subscribe({ error: () => undefined });
+    if (s && this.playing() && this._pauseInFlight !== s.id) this.api.pause(s.id).subscribe({ error: () => undefined });
   }
 
   /** End the current session and return to the welcome screen — without a full
@@ -2360,7 +2364,10 @@ export class SessionStore {
   pause() {
     const s = this.session();
     if (!s) return;
-    this.api.pause(s.id).subscribe({
+    this._pauseInFlight = s.id;
+    this.api.pause(s.id).pipe(finalize(() => {
+      if (this._pauseInFlight === s.id) this._pauseInFlight = null;
+    })).subscribe({
       next: () => this.playing.set(false),
       error: (e) => this.error.set(`Pause failed: ${e.message}`),
     });
