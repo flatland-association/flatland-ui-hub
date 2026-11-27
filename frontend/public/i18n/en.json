@@ -2005,6 +2005,14 @@
     },
     "origin": {
       "explanation": "Timetable: reference · Actual: observed · Forecast: possible future. Time is in simulation steps.",
+      "categoryHint": "Train category inferred from scenario names; the map uses different train colours.",
+      "category": {
+        "longDistance": "Red: long-distance",
+        "regional": "Orange: regional",
+        "freight": "Violet: freight",
+        "service": "Blue: locomotive / service",
+        "unknown": "Grey: category unknown"
+      },
       "selected": "Selected: {{name}}",
       "select": "Select a train line for details.",
       "delay": "Delay: {{delay}} steps",

@@ -1,5 +1,25 @@
 # Widget spec — ZWL, time-distance diagram (v2)
 
+## Origin train-category colours
+
+Origin and Extended infer a category only from recognised prefixes in the
+scenario's own train names: long-distance, regional, freight, and locomotive
+or service. Freight is violet; an unrecognised or missing name is neutral.
+These are inferred categories, not authoritative metadata; the UI explains
+the inference and shows a legend. The existing diagram and map keep their
+handle-based palette.
+
+| New files | Purpose |
+|---|---|
+| None | Reuse the existing colour and identity services. |
+
+| Modified files | Change |
+|---|---|
+| `frontend/src/app/core/agent-color.service.ts` and its spec | Classify supported scenario names and return category colour tokens. |
+| `frontend/src/app/core/train-identity.service.ts` and its spec | Expose the scenario's own name without substituting authored names. |
+| `frontend/src/app/features/zwl/zwl.component.{ts,html,scss}` and spec | Apply the colours only in Origin/Extended and explain their meaning. |
+| `frontend/public/i18n/{en,de,fr}.json` | Translate the category legend. |
+
 ## ZWL origin extended — conflict details and map link
 
 1. **Identity:** `zwl-origin-extended`, prediction, overview-detail, centre;

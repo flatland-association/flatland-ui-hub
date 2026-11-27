@@ -3,6 +3,8 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { WritableSignal, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SessionStore } from '../../core/session.store';
+import { AgentColorService } from '../../core/agent-color.service';
+import { TrainIdentityService } from '../../core/train-identity.service';
 import type { ContentionGroup } from '../../core/events/event-types';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { ZwlComponent } from './zwl.component';
@@ -147,6 +149,30 @@ describe('ZwlComponent — following the now-line', () => {
     fixture.detectChanges();
     expect(c.timeVertical()).toBeTrue();
     expect(fixture.nativeElement.querySelector('.zwd--origin')).not.toBeNull();
+  });
+
+  it('uses scenario categories only in origin, keeping missing names neutral', () => {
+    const identity = TestBed.inject(TrainIdentityService);
+    const colors = TestBed.inject(AgentColorService);
+    spyOn(identity, 'scenarioNameFor').and.callFake((handle) => handle === 0 ? 'G4' : null);
+    const stub = c as unknown as Record<string, unknown>;
+    stub['points'] = () => new Map([
+      [0, { past: [{ step: 0, pos: 1 }], forecast: [] }],
+      [1, { past: [{ step: 0, pos: 2 }], forecast: [] }],
+    ]);
+    stub['planOnAxis'] = () => new Map();
+    expect(c.lines().map((line) => line.color)).toEqual([
+      colors.getColorSolid(0), colors.getColorSolid(1),
+    ]);
+    fixture.componentRef.setInput('origin', true);
+    fixture.detectChanges();
+    expect(c.lines().map((line) => line.color)).toEqual([
+      colors.getScenarioCategoryColor('freight'), colors.getScenarioCategoryColor('unknown'),
+    ]);
+    expect(fixture.nativeElement.querySelector('.zwd__category-hint')).not.toBeNull();
+    fixture.componentRef.setInput('extended', true);
+    fixture.detectChanges();
+    expect(c.lines()[0].color).toBe(colors.getScenarioCategoryColor('freight'));
   });
 
   it('reports an unavailable conflict forecast instead of a clear forecast', () => {

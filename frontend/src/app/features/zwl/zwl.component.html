@@ -262,6 +262,15 @@
   </div>
 
   <footer class="zwd__legend">
+    @if (origin()) {
+      <span class="zwd__category-hint">{{ 'zwd.origin.categoryHint' | transloco }}</span>
+      @for (item of categoryLegend; track item.category) {
+        <span class="zwd__legend-item">
+          <span class="zwd__category-swatch" [style.color]="item.color" aria-hidden="true"></span>
+          {{ ('zwd.origin.category.' + item.category) | transloco }}
+        </span>
+      }
+    }
     @if (hasPlan()) {
       <button type="button" class="zwd__legend-item zwd__legend-toggle" [attr.aria-pressed]="showPlan()"
               [class.zwd__legend-toggle--off]="!showPlan()" (click)="toggleLayer('plan')">

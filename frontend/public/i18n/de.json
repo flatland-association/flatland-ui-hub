@@ -2005,6 +2005,14 @@
     },
     "origin": {
       "explanation": "Soll: Referenz · Ist: beobachtet · Prognose: mögliche Zukunft. Zeit in Simulationsschritten.",
+      "categoryHint": "Zugart aus Szenarionamen abgeleitet; die Karte verwendet andere Zugfarben.",
+      "category": {
+        "longDistance": "Rot: Fernverkehr",
+        "regional": "Orange: Regionalverkehr",
+        "freight": "Violett: Güterverkehr",
+        "service": "Blau: Lok / Dienstzug",
+        "unknown": "Grau: Zugart unbekannt"
+      },
       "selected": "Ausgewählt: {{name}}",
       "select": "Wähle eine Zuglinie für Details.",
       "delay": "Verspätung: {{delay}} Schritte",

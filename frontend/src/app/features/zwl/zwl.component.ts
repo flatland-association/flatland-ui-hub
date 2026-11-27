@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { ApiService } from '../../core/api.service';
-import { AgentColorService } from '../../core/agent-color.service';
+import { AgentColorService, type ScenarioTrainCategory } from '../../core/agent-color.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { MINUTES_PER_STEP } from '../../core/combined-actions/combined-actions-preview';
 import { CurrentDelayService } from '../../core/timetable/current-delay.service';
@@ -190,6 +190,9 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   private readonly store = inject(SessionStore);
   private readonly colors = inject(AgentColorService);
   private readonly identity = inject(TrainIdentityService);
+  readonly categoryLegend: readonly { category: ScenarioTrainCategory; color: string }[] =
+    (['longDistance', 'regional', 'freight', 'service', 'unknown'] as const)
+      .map((category) => ({ category, color: this.colors.getScenarioCategoryColor(category) }));
   private readonly api = inject(ApiService);
   private readonly i18n = inject(LanguageService);
   private readonly galleryFixture = inject(GalleryFixtureService);
@@ -827,6 +830,12 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
     return out.join(' ');
   }
 
+  private trainColor(handle: number): string {
+    return this.origin()
+      ? this.colors.getScenarioCategoryColor(this.colors.scenarioCategory(this.identity.scenarioNameFor(handle)))
+      : this.colors.getColorSolid(handle);
+  }
+
   readonly lines = computed<TrainLine[]>(() => {
     const out: TrainLine[] = [];
     for (const [handle, { past, forecast }] of this.points()) {
@@ -844,7 +853,7 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
         handle,
         name: this.identity.nameFor(handle),
         delay: this.delaysNow.label(handle),
-        color: this.colors.getColorSolid(handle),
+        color: this.trainColor(handle),
         pastD: this.pathD(past),
         forecastD: this.pathD(fc),
         planD: planRun.length > 1 ? this.pathD(planRun) : '',
@@ -941,7 +950,7 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
           key: `${d.handle}:${d.live ? 'live' : d.place}`,
           x,
           y,
-          color: this.colors.getColorSolid(d.handle),
+          color: this.trainColor(d.handle),
           label: `${deltaMin > 0 ? '+' : '−'}${Math.abs(deltaMin)}`,
           title: `${this.identity.nameFor(d.handle)} · ${place} · ${this.i18n.t('zwd.delaySteps', { n: `${delayMin > 0 ? '+' : ''}${delayMin}` })}`,
         };
@@ -1033,7 +1042,7 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
     return {
       handle,
       name: this.identity.nameFor(handle),
-      color: this.colors.getColorSolid(handle),
+      color: this.trainColor(handle),
       leadD: `M${ax.toFixed(1)} ${ay.toFixed(1)} L${cx.toFixed(1)} ${cy.toFixed(1)}`,
       cx,
       cy,

@@ -66,6 +66,16 @@
   overflow: auto;
 }
 
+.zwd__category-hint {
+  flex-basis: 100%;
+}
+
+.zwd__category-swatch {
+  display: inline-block;
+  width: 18px;
+  border-top: 3px solid currentColor;
+}
+
 .zwd__detail {
   max-height: 180px;
   overflow: auto;

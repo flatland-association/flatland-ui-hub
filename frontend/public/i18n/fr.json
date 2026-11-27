@@ -2005,6 +2005,14 @@
     },
     "origin": {
       "explanation": "Horaire : référence · Réel : observé · Prévision : futur possible. Temps en pas de simulation.",
+      "categoryHint": "Catégorie déduite des noms du scénario ; la carte utilise d'autres couleurs pour les trains.",
+      "category": {
+        "longDistance": "Rouge : grandes lignes",
+        "regional": "Orange : trafic régional",
+        "freight": "Violet : marchandises",
+        "service": "Bleu : locomotive / train de service",
+        "unknown": "Gris : catégorie inconnue"
+      },
       "selected": "Sélection : {{name}}",
       "select": "Sélectionne une ligne de train pour les détails.",
       "delay": "Retard : {{delay}} pas",
