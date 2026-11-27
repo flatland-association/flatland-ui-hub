@@ -1706,6 +1706,7 @@
     "noDrawnRoute": "Durch die gezogenen Zellen führt kein Fahrweg.",
     "drawnRouteLeft": "Der Zug hat den gezogenen Fahrweg schon verlassen. Zieh ihn neu, ab dort, wo der Zug jetzt ist.",
     "aiValidFor": "Noch {{seconds}} s übernehmbar, danach wird er neu berechnet.",
+    "aiRecomputing": "Neuer KI-Verlauf wird gerechnet…",
     "aiPending": "Der KI-Verlauf übernimmt in etwa {{seconds}} s. Bis dahin fahren die Züge wie jetzt.",
     "aiPendingPaused": "Der KI-Verlauf übernimmt, sobald die Simulation weiterläuft. Bis dahin fahren die Züge wie jetzt.",
     "aiRefreshed": "Der vorherige KI-Verlauf passte nicht mehr zur Lage. Dieser ist neu berechnet.",

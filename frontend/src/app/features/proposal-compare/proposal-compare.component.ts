@@ -144,24 +144,44 @@ export class ProposalCompareComponent implements OnDestroy {
     return Math.ceil((this.lastComputeSeconds + this.store.proposalReactionSeconds()) * this.store.playSpeed());
   }
 
+  /** Whole seconds since the last step while the run plays: a 1 s clock,
+   *  restarted on each step and stopped while paused (Q-5). */
+  private readonly secondsSinceStep = signal(0);
+
+  /** Seconds until step `at` while the run plays, counted down every second
+   *  but never ahead of the step the run is on; null when paused. */
+  private secondsUntil(at: number): number | null {
+    const speed = this.store.playing() ? this.store.playSpeed() : 0;
+    if (speed <= 0) return null;
+    const steps = at - this.store.elapsedSteps();
+    const counted = Math.round(steps / speed - this.secondsSinceStep());
+    return Math.max(0, counted, Math.round((steps - 1) / speed));
+  }
+
   /** Seconds the shown AI course can still be taken in; null without a lead. */
   readonly aiSecondsLeft = computed(() => {
     const at = this.result()?.ai_activation_step;
-    if (at == null || this.decided() || !this.store.playing()) return null;
-    return Math.max(0, Math.round((at - this.store.elapsedSteps()) / this.store.playSpeed()));
+    if (at == null || this.decided()) return null;
+    return this.secondsUntil(at);
   });
 
   /** Seconds until a taken AI course takes over; null when none is waiting. */
   readonly pendingSecondsLeft = computed(() => {
     const at = this.pendingActivation();
-    if (at == null) return null;
-    const speed = this.store.playing() ? this.store.playSpeed() : 0;
-    return speed > 0 ? Math.max(0, Math.round((at - this.store.elapsedSteps()) / speed)) : null;
+    return at == null ? null : this.secondsUntil(at);
   });
 
   readonly targetHandle = computed(() => (this.decided() ? this.decided()!.handle : this.store.selectedHandle()));
 
   constructor() {
+    effect((onCleanup) => {
+      this.store.elapsedSteps();
+      if (!this.store.playing()) return;
+      untracked(() => this.secondsSinceStep.set(0));
+      const timer = setInterval(() => this.secondsSinceStep.update((n) => n + 1), 1000);
+      onCleanup(() => clearInterval(timer));
+    });
+
     // One effect for both ways in: a different train (from anywhere) or a
     // different option (from this panel or the map). A different train is a
     // different question, so the old answer goes; a different option only asks

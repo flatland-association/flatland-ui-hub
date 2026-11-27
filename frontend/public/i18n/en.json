@@ -1706,6 +1706,7 @@
     "noDrawnRoute": "There is no route through the cells you drew.",
     "drawnRouteLeft": "The train has already left the route you drew. Draw it again from where the train is now.",
     "aiValidFor": "Can be taken for another {{seconds}} s; after that it is recomputed.",
+    "aiRecomputing": "Computing a new AI course…",
     "aiPending": "The AI course takes over in about {{seconds}} s. Until then the trains run as they do now.",
     "aiPendingPaused": "The AI course takes over once the simulation runs on. Until then the trains run as they do now.",
     "aiRefreshed": "The earlier AI course no longer fitted the situation. This one is new.",

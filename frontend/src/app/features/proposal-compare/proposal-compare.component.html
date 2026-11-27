@@ -78,7 +78,7 @@
         }
 
         @if (ai(); as v) {
-          <section class="pc-course pc-course--ai">
+          <section class="pc-course pc-course--ai" [class.is-stale]="loading() && !shownApplied() && !decided()">
             <header class="pc-course-head">
               <span class="pc-course-name">{{ 'proposals.ai' | transloco }}</span>
               <span class="pc-course-sub">{{ 'proposals.aiSub' | transloco }}</span>
@@ -101,10 +101,12 @@
                 </p>
               }
             } @else if (!decided()) {
-              <button type="button" class="pc-take pc-take--ai" data-log="proposals.takeAi" [disabled]="loading() || applying() !== null" (click)="take('ai')">
+              <button type="button" class="pc-take pc-take--ai" data-log="proposals.takeAi" [disabled]="loading() || applying() !== null || aiSecondsLeft() === 0" (click)="take('ai')">
                 {{ (applying() === 'ai' ? 'proposals.taking' : 'proposals.takeAi') | transloco }}
               </button>
-              @if (aiSecondsLeft() !== null && !loading()) {
+              @if (loading()) {
+                <p class="pc-system pc-deadline">{{ 'proposals.aiRecomputing' | transloco }}</p>
+              } @else if (aiSecondsLeft() !== null) {
                 <p class="pc-system pc-deadline">{{ 'proposals.aiValidFor' | transloco: { seconds: aiSecondsLeft() } }}</p>
               }
               @if (aiRefreshed()) {

@@ -347,6 +347,13 @@
   font-style: italic;
 }
 
+/* An AI course that has run out while the panel computes the next one:
+   greyed, so its numbers don't read as current. */
+.pc-course.is-stale {
+  color: var(--app-text-muted);
+  opacity: 0.6;
+}
+
 /* The human course while its option is being worked out. */
 .pc-placeholder.is-busy {
   color: var(--app-whatif-human);

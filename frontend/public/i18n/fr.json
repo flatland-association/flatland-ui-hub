@@ -1706,6 +1706,7 @@
     "noDrawnRoute": "Aucun itinéraire ne passe par les cases tracées.",
     "drawnRouteLeft": "Le train a déjà quitté l’itinéraire tracé. Trace-le à nouveau depuis sa position actuelle.",
     "aiValidFor": "Peut encore être adopté pendant {{seconds}} s ; ensuite, il est recalculé.",
+    "aiRecomputing": "Nouveau parcours IA en cours de calcul…",
     "aiPending": "Le déroulement de l’IA prend le relais dans environ {{seconds}} s. D’ici là, les trains circulent comme maintenant.",
     "aiPendingPaused": "Le déroulement de l’IA prend le relais dès que la simulation reprend. D’ici là, les trains circulent comme maintenant.",
     "aiRefreshed": "Le déroulement précédent de l’IA ne correspondait plus à la situation. Celui-ci est nouveau.",

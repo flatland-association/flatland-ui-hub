@@ -222,6 +222,42 @@ describe('ProposalCompareComponent — future AI courses', () => {
     expect(http.match((r) => r.url.endsWith('/proposals')).length).toBe(1);
   });
 
+  it('counts the AI deadline down every second, never ahead of the run, and stops offering it at 0 s (Q-5)', () => {
+    jasmine.clock().install();
+    try {
+      const { fixture, component, http, store } = create();
+      store.playSpeedBase.set(1 / 3);  // 3 s per step, as in Plan B
+      store.playing.set(true);
+      store.state.set({ elapsed_steps: 7 } as SessionState);
+      http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush({ ...courses(), ai_activation_step: 9 }));
+      fixture.detectChanges();
+      const seen = [component.aiSecondsLeft()];
+      for (let i = 0; i < 4; i++) { jasmine.clock().tick(1000); fixture.detectChanges(); seen.push(component.aiSecondsLeft()); }
+      expect(seen).toEqual([6, 5, 4, 3, 3]);  // waits at 3 s for step 8
+      store.state.set({ elapsed_steps: 8 } as SessionState);
+      fixture.detectChanges();
+      for (let i = 0; i < 3; i++) { jasmine.clock().tick(1000); fixture.detectChanges(); }
+      expect(component.aiSecondsLeft()).toBe(0);
+      const take = fixture.nativeElement.querySelector('.pc-take--ai') as HTMLButtonElement;
+      expect(take.disabled).toBeTrue();
+      store.playing.set(false);
+      fixture.detectChanges();
+      expect(component.aiSecondsLeft()).toBeNull();
+    } finally {
+      jasmine.clock().uninstall();
+    }
+  });
+
+  it('greys out the AI course that ran out while a new one is computed', () => {
+    const { fixture, component, http } = create();
+    http.match((r) => r.url.endsWith('/proposals')).forEach((r) => r.flush(courses()));
+    fixture.detectChanges();
+    component.load(component.chosenOption());
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.pc-course--ai').classList).toContain('is-stale');
+    expect(fixture.nativeElement.textContent).toContain('Computing a new AI course…');
+  });
+
   /** docs/plans/uc2-rl-keep-human-decisions.md: uc2_rl keeps the other trains' stops. */
   for (const [keeps, text] of [
     [true, 'trains with your decision (stop, turn, reroute) keep it'],
