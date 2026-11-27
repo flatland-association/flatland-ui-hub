@@ -55,6 +55,14 @@ describe('Plan B final questionnaire', () => {
     }
   });
 
+  it('offers "Weiss nicht" after every agreement scale', () => {
+    for (const sec of s.sections.filter((x) => x.scale)) expect(sec.unknownOption).withContext(sec.id).toBe('Weiss nicht');
+  });
+
+  it('no longer asks pb_3, but keeps it for round 1\'s answers', () => {
+    expect(questions.filter((q) => q.retired).map((q) => q.id)).toEqual(['pb_3']);
+  });
+
   it('asks the share as a percent, age and years as numbers, the rest as radio lists', () => {
     const q = (id: string) => questions.find((x) => x.id === id)!;
     expect(q('pb_5').type).toBe('percent');

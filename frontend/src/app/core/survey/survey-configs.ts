@@ -157,8 +157,16 @@ const AGREE_5 = ['stimme überhaupt nicht zu', 'stimme eher nicht zu', 'teils/te
 function pbItem(n: number, text: string, points: 5 | 7) {
   return { id: `pb_${n}`, text, type: 'likert' as const, min: 1, max: points };
 }
-function pbMatrix(id: string, page: number, points: 5 | 7, items: [number, string][], head?: { title?: string; description?: string }): SurveySection {
-  return { id, page, scale: points === 7 ? AGREE_7 : AGREE_5, ...head, questions: items.map(([n, t]) => pbItem(n, t, points)) };
+/** Every agreement matrix offers "Weiss nicht" after the scale. */
+const PB_UNKNOWN = 'Weiss nicht';
+function pbMatrix(
+  id: string, page: number, points: 5 | 7, items: [number, string][],
+  head?: { title?: string; description?: string }, retired: string[] = [],
+): SurveySection {
+  return {
+    id, page, scale: points === 7 ? AGREE_7 : AGREE_5, unknownOption: PB_UNKNOWN, ...head,
+    questions: items.map(([n, t]) => ({ ...pbItem(n, t, points), ...(retired.includes(`pb_${n}`) ? { retired: true } : {}) })),
+  };
 }
 const PB_AGREE = 'Inwiefern stimmst du folgenden Aussagen zu?';
 const PB_AGREE_5 = 'Bitte bewerte auf einer Skala von 1–5 (1 = stimme überhaupt nicht zu, 5 = stimme voll und ganz zu).';
@@ -181,7 +189,7 @@ export const PLAN_B_FINAL_SURVEY: SurveyConfig = {
     ], {
       title: 'Bitte denke an alle Entscheidungen zurück, die du während der Aufgabe getroffen hast, sowie an deren Ergebnisse.',
       description: 'Auf einer Skala von 1–7: Inwieweit stimmst du folgenden Aussagen zu? (1 = stimme überhaupt nicht zu, 7 = stimme voll und ganz zu)',
-    }),
+    }, ['pb_3']), // pb_3 dropped for round 2; kept for round 1's answers
     {
       id: 'pb-share',
       page: 1,

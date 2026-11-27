@@ -27,7 +27,15 @@ export interface SurveyQuestion {
   reverse?: boolean;
   /** Subscale the item belongs to, for scoring (e.g. `trust` / `distrust`). */
   subscale?: string;
+  /** No longer asked. Kept in the questionnaire so answers recorded before it
+   *  was dropped still have their text, column and codebook entry, and a
+   *  replay still shows them. The form leaves it out. */
+  retired?: boolean;
 }
+
+/** The stored answer of a matrix's "don't know" column
+ *  (`SurveySection.unknownOption`): not a scale point, so it has no score. */
+export const SURVEY_UNKNOWN = 'unknown';
 
 export interface SurveySection {
   id: string;
@@ -38,6 +46,9 @@ export interface SurveySection {
   /** Column labels of a matrix: the section's `likert` items render as rows,
    *  one radio per label, valued `min` … `min + scale.length - 1`. */
   scale?: string[];
+  /** A matrix: the label of one more column after the scale, e.g. "Weiss
+   *  nicht". Stored as `SURVEY_UNKNOWN`, not as a number. */
+  unknownOption?: string;
   /** 1-based page of a paged survey (`SurveyConfig.paged`). */
   page?: number;
   questions: SurveyQuestion[];

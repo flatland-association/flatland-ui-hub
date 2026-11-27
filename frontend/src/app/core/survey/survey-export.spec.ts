@@ -66,7 +66,7 @@ describe('survey-export', () => {
       expect(rows.find((r) => r.item_id === 'pb_1')).toEqual(jasmine.objectContaining({
         survey_id: 'plan-b-final', survey_part: 'pb-responsibility', page: 1, type: 'likert', min: 1, max: 7,
       }));
-      expect(rows.find((r) => r.item_id === 'pb_1')!.options).toMatch(/^1=stimme überhaupt nicht zu; .*7=stimme voll und ganz zu$/);
+      expect(rows.find((r) => r.item_id === 'pb_1')!.options).toMatch(/^1=stimme überhaupt nicht zu; .*7=stimme voll und ganz zu; unknown=Weiss nicht$/);
       expect(rows.find((r) => r.item_id === 'pb_ai_use')!.options).toContain('nie | seltener als einmal pro Monat');
       expect(rows.find((r) => r.item_id === 'pb_age')).toEqual(jasmine.objectContaining({ type: 'number', unit: 'Jahre', min: 15, max: 99 }));
       // The building blocks stay, listing every questionnaire that asks them.
@@ -81,6 +81,22 @@ describe('survey-export', () => {
       const { columns, rows } = toWideRows(pbRecords);
       expect(columns).toContain('pb_38');
       expect(rows[0]['pb_5']).toBe(70);
+    });
+
+    it('"Weiss nicht" is stored, exported and listed as "unknown", without a score', () => {
+      const answered = [record('s4', 2, [{ ...PB, answers: { pb_1: 'unknown', pb_19: 'unknown' } }])];
+      const long = toLongRows(answered);
+      expect(long.map((r) => [r.item_id, r.answer, r.scored_value])).toEqual([['pb_1', 'unknown', null], ['pb_19', 'unknown', null]]);
+      expect(toWideRows(answered).rows[0]['pb_1']).toBe('unknown');
+      expect(codebook().find((r) => r.item_id === 'pb_10')!.options).toMatch(/; unknown=Weiss nicht$/);
+    });
+
+    it('keeps the retired item pb_3 for round 1 answers, marked as retired', () => {
+      const round1 = [record('s5', 2, [{ ...PB, answers: { pb_3: 5 } }])];
+      expect(toLongRows(round1)[0].question).toBe('Ich hatte das Gefühl, dass ich für das Ergebnis der Aufgabe Rechenschaft ablegen müsste.');
+      expect(toWideRows(round1).rows[0]['pb_3']).toBe(5);
+      expect(codebook().find((r) => r.item_id === 'pb_3')!.retired).toBeTrue();
+      expect(codebook().find((r) => r.item_id === 'pb_1')!.retired).toBeFalse();
     });
   });
 

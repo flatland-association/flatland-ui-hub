@@ -238,6 +238,8 @@
   cursor: pointer;
 }
 .q-matrix__label { display: none; }
+// "Weiss nicht" is not a scale point: set apart by a rule on its left.
+.q-matrix .q-matrix__unknown { border-left: 1px solid var(--sbb-color-cloud); }
 
 // Narrow: each item over its options, the labels next to the radios.
 @media (max-width: 640px) {
@@ -246,6 +248,7 @@
   .q-matrix tbody th { display: block; padding: 0 0 6px 6px; }
   .q-matrix td { display: flex; align-items: center; gap: 8px; padding: 3px 6px; text-align: left; }
   .q-matrix__label { display: inline; font-size: 12px; }
+  .q-matrix .q-matrix__unknown { border-left: none; border-top: 1px dotted var(--sbb-color-cloud); }
 }
 
 .q-number { display: flex; align-items: center; gap: 8px; }

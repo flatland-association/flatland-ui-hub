@@ -5,7 +5,7 @@ import { InteractionLogService } from '../../core/interaction-log/interaction-lo
 import { SessionStore } from '../../core/session.store';
 import { postSessionSurvey, surveyById } from '../../core/survey/survey-configs';
 import { SurveyContext, surveyRecord } from '../../core/survey/survey-scoring';
-import { SurveyAnswers, SurveyConfig, SurveyQuestion, SurveySection } from '../../core/survey/survey.types';
+import { SURVEY_UNKNOWN, SurveyAnswers, SurveyConfig, SurveyQuestion, SurveySection } from '../../core/survey/survey.types';
 import { LanguageService } from '../../core/i18n/language.service';
 
 /**
@@ -53,11 +53,22 @@ export class SurveyComponent implements OnInit {
 
   readonly config = computed<SurveyConfig>(() => {
     const recorded = this.replayAnswers();
-    if (!recorded) return postSessionSurvey(this.store.interactionMode(), [...(this.parts() ?? this.store.enabledSurveyParts())], this.afterLeg());
+    if (!recorded) {
+      // A retired item is no longer asked (SurveyQuestion.retired).
+      return withQuestions(
+        postSessionSurvey(this.store.interactionMode(), [...(this.parts() ?? this.store.enabledSurveyParts())], this.afterLeg()),
+        (q) => !q.retired,
+      );
+    }
     const id = this.surveyId();
     const all = (id && surveyById(id, this.afterLeg())) || postSessionSurvey(this.store.interactionMode(), undefined, this.afterLeg());
-    return { ...all, sections: all.sections.filter((sec) => sec.questions.some((q) => q.id in recorded)) };
+    // A replay shows a retired item only where it was answered.
+    const shown = withQuestions(all, (q) => !q.retired || q.id in recorded);
+    return { ...shown, sections: shown.sections.filter((sec) => sec.questions.some((q) => q.id in recorded)) };
   });
+
+  /** The value a matrix's "don't know" column stores. */
+  readonly unknownValue = SURVEY_UNKNOWN;
   readonly answers = signal<SurveyAnswers>({});
   /** What a number field shows: the answers as they were when its page opened.
    *  Bound to `answers` instead, every keystroke would write the parsed number
@@ -298,4 +309,13 @@ export class SurveyComponent implements OnInit {
   cancel(): void {
     this.closed.emit();
   }
+}
+
+/** `config` with only the questions `keep` accepts, and without the sections
+ *  that leaves empty. */
+function withQuestions(config: SurveyConfig, keep: (q: SurveyQuestion) => boolean): SurveyConfig {
+  const sections = config.sections
+    .map((sec) => ({ ...sec, questions: sec.questions.filter(keep) }))
+    .filter((sec) => sec.questions.length > 0);
+  return { ...config, sections };
 }
