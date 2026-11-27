@@ -9,7 +9,9 @@ import {
   untracked,
 } from '@angular/core';
 import { ApiService, DirectorVerification } from '../../core/api.service';
+import { isFixedActorPolicy } from '../../core/models';
 import { OperatorModelService, ValueAxis } from '../../core/operator-model.service';
+import { TourContextService } from '../../core/demo/tour-context.service';
 import { SessionStore } from '../../core/session.store';
 import { ReflectionCaseType, REFLECTION_CASE_LABELS, VALUE_AXIS_LABELS } from '../../core/reflection-moments';
 import { ShiftContradiction, ShiftKpis, buildShiftReview, shiftKpis, statedReason } from '../../core/shift-review';
@@ -54,6 +56,7 @@ const AXIS_KEY: Record<ValueAxis, string> = {
 })
 export class ShiftReviewComponent {
   store = inject(SessionStore);
+  private readonly tour = inject(TourContextService);
   private readonly i18n = inject(LanguageService);
   private model = inject(OperatorModelService);
   private api = inject(ApiService);
@@ -94,7 +97,7 @@ export class ShiftReviewComponent {
           this.verification.set(null);
           this.verifyFailed.set(false);
         }
-        if (!sid || !open) return;
+        if (!sid || !open || isFixedActorPolicy(policy)) return;
         if (this.verification() || this.verifyFailed()) return;
         // Context can change before the effect's cleanup runs. Never accept a
         // late reply just because the component itself is still mounted.
@@ -121,7 +124,7 @@ export class ShiftReviewComponent {
       kpis: this.kpis(),
       ai: this.store.directorAiWorkload(),
       decisionLog: this.store.decisionLog(),
-      learningRecords: this.store.learningRecords(),
+      learningRecords: this.tour.cardsInView(),
     }),
   );
 
@@ -255,7 +258,8 @@ export class ShiftReviewComponent {
   readonly predictedVsVerified = computed(() => {
     const sid = this.store.session()?.id;
     const policy = this.store.activePolicy();
-    if (!sid || this.verificationContext() !== JSON.stringify([sid, policy])) return null;
+    if (!sid || isFixedActorPolicy(policy)
+        || this.verificationContext() !== JSON.stringify([sid, policy])) return null;
     const v = this.verification();
     if (!v) return null;
     const predictedConnections = v.predicted.utilities?.connections ?? null;

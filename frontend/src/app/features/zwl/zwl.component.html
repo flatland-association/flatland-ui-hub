@@ -1,4 +1,4 @@
-<div class="zwd" [class.zwd--embedded]="embedded">
+<div class="zwd" [class.zwd--embedded]="embedded" [class.zwd--origin]="origin()">
   @if (canPickRoute()) {
     <div class="zwd__route" role="group" [attr.aria-label]="'zwd.route.label' | transloco">
       <label class="zwd__route-end">
@@ -28,11 +28,36 @@
       }
     </div>
   }
+  @if (origin()) {
+    <div class="zwd__origin-context">
+      <span>{{ 'zwd.origin.explanation' | transloco }}</span>
+      @if (selectedTrain(); as train) {
+        <strong>{{ 'zwd.origin.selected' | transloco: { name: train.name } }}</strong>
+        @if (train.delay) { <span>{{ 'zwd.origin.delay' | transloco: { delay: train.delay } }}</span> }
+        <span>{{ ('zwd.origin.status.' + train.status) | transloco }}</span>
+      } @else {
+        <span>{{ 'zwd.origin.select' | transloco }}</span>
+      }
+      @if (!hasPlan()) { <span>{{ 'zwd.origin.noPlan' | transloco }}</span> }
+      @if (!forecastAvailable()) { <span>{{ 'zwd.origin.noForecast' | transloco }}</span> }
+    </div>
+    @if (axis(); as corridor) {
+      <div class="zwd__origin-corridor" [attr.aria-label]="'zwd.origin.corridor' | transloco">
+        <strong>{{ 'zwd.origin.corridor' | transloco }}</strong>
+        @for (station of corridor.ticks; track station.code; let last = $last) {
+          <span>{{ station.name }}</span>@if (!last) { <span aria-hidden="true">·</span> }
+        }
+      </div>
+    }
+  }
   <header class="zwd__bar">
-    <div class="zwd__conflicts" role="list" [attr.aria-label]="'zwd.conflicts.label' | transloco">
+    <div class="zwd__conflicts" role="group" [attr.aria-label]="'zwd.conflicts.label' | transloco">
       @for (b of placedBands(); track b.key) {
-        <button type="button" class="zwd__chip" role="listitem"
-                [class.zwd__chip--active]="hoveredBand() === b.key"
+        <button type="button" class="zwd__chip"
+                [class.zwd__chip--active]="hoveredBand() === b.key || (extended() && selectedContention() === b.group)"
+                [class.zwd__chip--selectable]="extended()"
+                [attr.aria-pressed]="extended() ? selectedContention() === b.group : null"
+                (click)="extended() && selectContention(b)"
                 (mouseenter)="onBandEnter(b)" (mouseleave)="onLeave()" (focus)="onBandEnter(b)" (blur)="onLeave()">
           <span class="zwd__chip-kind">{{ ('zwd.kind.' + b.kind) | transloco }}</span>
           <span class="zwd__chip-where">
@@ -50,19 +75,59 @@
           }
         </button>
       } @empty {
-        <span class="zwd__none">{{ 'zwd.conflicts.none' | transloco }}</span>
+        <span class="zwd__none">{{ (origin() && !conflictForecastAvailable() ? 'zwd.origin.noConflictForecast' : 'zwd.conflicts.none') | transloco }}</span>
       }
     </div>
     @if (hasAxis()) {
-      <button type="button" class="zwd__toggle" (click)="toggleOrientation()"
-              [attr.title]="(timeVertical() ? 'zwd.orientation.toHorizontal' : 'zwd.orientation.toVertical') | transloco">
-        ⤾ {{ 'zwd.orientation.rotate' | transloco }}
-      </button>
+      @if (!origin()) {
+        <button type="button" class="zwd__toggle" (click)="toggleOrientation()"
+                [attr.title]="(timeVertical() ? 'zwd.orientation.toHorizontal' : 'zwd.orientation.toVertical') | transloco">
+          ⤾ {{ 'zwd.orientation.rotate' | transloco }}
+        </button>
+      }
       <button type="button" class="zwd__toggle" (click)="toggleWholeLine()" [attr.aria-pressed]="wholeLine()">
         {{ (wholeLine() ? 'zwd.fitTraffic' : 'zwd.wholeLine') | transloco }}
       </button>
     }
   </header>
+
+  @if (extended()) {
+    <section class="zwd__detail" [attr.aria-label]="'zwd.extended.title' | transloco">
+      @if (contentionRefreshFailed()) {
+        <div>{{ 'zwd.extended.refreshFailed' | transloco }}</div>
+      }
+      @if (contentionSnapshotStep(); as snapshot) {
+        <div>{{ 'zwd.extended.snapshot' | transloco: { step: snapshot } }}</div>
+      } @else if (contentionSnapshotStep() === 0) {
+        <div>{{ 'zwd.extended.snapshot' | transloco: { step: 0 } }}</div>
+      }
+      @if (selectedContention(); as conflict) {
+        <div class="zwd__detail-summary">
+          <strong>{{ 'zwd.extended.title' | transloco }}: {{ ('zwd.kind.' + conflict.kind) | transloco }}</strong>
+          <span>{{ 'zwd.extended.step' | transloco: { step: conflict.step } }}</span>
+          @if (conflict.location?.name; as name) {
+            <span>{{ (conflict.location.kind === 'near' ? 'zwd.conflicts.near' : 'zwd.extended.location') | transloco: { name: name } }}</span>
+          } @else if (conflict.location?.cell || conflict.position; as cell) {
+            <span>{{ 'zwd.extended.cell' | transloco: { row: cell[0], col: cell[1] } }}</span>
+          } @else {
+            <span>{{ 'zwd.extended.noLocation' | transloco }}</span>
+          }
+          <span>{{ 'zwd.extended.mapHint' | transloco }}</span>
+        </div>
+        @for (row of selectedMeasures(); track row.handle) {
+          <div class="zwd__detail-train">
+            <button type="button" class="zwd__toggle" (click)="selectTrain(row.handle)">{{ trainName(row.handle) }}</button>
+            <span>{{ 'zwd.extended.entry' | transloco }}: {{ row.entry ?? ('zwd.extended.unavailable' | transloco) }}</span>
+            <span>{{ 'zwd.extended.headway' | transloco }}: {{ row.headway ?? ('zwd.extended.unavailable' | transloco) }}</span>
+            <span>{{ 'zwd.extended.delay' | transloco }}: {{ row.delay ?? ('zwd.extended.unavailable' | transloco) }}</span>
+            <span>{{ 'zwd.extended.slack' | transloco }}: {{ row.slack ?? ('zwd.extended.unavailable' | transloco) }}</span>
+          </div>
+        }
+      } @else {
+        <span>{{ 'zwd.extended.select' | transloco }}</span>
+      }
+    </section>
+  }
 
   <div class="zwd__plot" #plot>
     @if (!hasAxis()) {
@@ -129,7 +194,7 @@
             <g class="zwd__band" [class.zwd__band--active]="hoveredBand() === b.key"
                (mouseenter)="onBandEnter(b)" (mouseleave)="onLeave()">
               <rect [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.w" [attr.height]="b.h" rx="2"></rect>
-              <text class="zwd__band-label" [attr.x]="b.x + 3" [attr.y]="b.y - 4">{{ b.names }}</text>
+              <text class="zwd__band-label" [attr.x]="b.x + 3" [attr.y]="b.y - 4">@if (origin()) { {{ 'zwd.origin.conflict' | transloco }} · }{{ b.names }}</text>
             </g>
           }
         }
@@ -197,6 +262,15 @@
   </div>
 
   <footer class="zwd__legend">
+    @if (origin()) {
+      <span class="zwd__category-hint">{{ 'zwd.origin.categoryHint' | transloco }}</span>
+      @for (item of categoryLegend; track item.category) {
+        <span class="zwd__legend-item">
+          <span class="zwd__category-swatch" [style.color]="item.color" aria-hidden="true"></span>
+          {{ ('zwd.origin.category.' + item.category) | transloco }}
+        </span>
+      }
+    }
     @if (hasPlan()) {
       <button type="button" class="zwd__legend-item zwd__legend-toggle" [attr.aria-pressed]="showPlan()"
               [class.zwd__legend-toggle--off]="!showPlan()" (click)="toggleLayer('plan')">

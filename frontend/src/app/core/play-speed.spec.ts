@@ -16,7 +16,7 @@ describe('play speed', () => {
 
   it("makes «normal» the scenario's seconds per step, the other levels in proportion", () => {
     const base = playSpeedBaseFor(3);
-    expect(1 / playSpeedForLevel(PLAY_SPEED_DEFAULT_LEVEL, base)).toBeCloseTo(3);
+    expect(1 / playSpeedForLevel(2, base)).toBeCloseTo(3);
     LEVELS.forEach((l, i) => expect(1 / playSpeedForLevel(l, base)).toBeCloseTo([6, 3, 1.5, 0.5, 0.15][i]));
   });
 
@@ -32,8 +32,10 @@ describe('play speed', () => {
     const store = TestBed.inject(SessionStore);
     store.newSession({ scenarioPresetId: 'uc2-1', secondsPerStep: 3 });
     expect(store.playSpeedLevel()).toBe(PLAY_SPEED_DEFAULT_LEVEL);
-    expect(1 / store.playSpeed()).toBeCloseTo(3);
+    // «Normal» is level 2; the session opens on the interactive default.
+    expect(1 / playSpeedForLevel(2, store.playSpeedBase())).toBeCloseTo(3);
+    expect(store.playSpeed()).toBeCloseTo(playSpeedForLevel(PLAY_SPEED_DEFAULT_LEVEL, playSpeedBaseFor(3)));
     store.newSession({ width: 30, height: 30 });
-    expect(store.playSpeed()).toBe(0.5);
+    expect(store.playSpeed()).toBe(playSpeedForLevel(PLAY_SPEED_DEFAULT_LEVEL));
   });
 });

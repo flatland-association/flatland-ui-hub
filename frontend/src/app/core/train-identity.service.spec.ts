@@ -34,6 +34,8 @@ describe('TrainIdentityService', () => {
   it("uses an experiment scenario's own names from its preset", () => {
     onPreset(['Z-W-1-S', 'Z-W-2-IR', 'F-W-S']);
     expect([0, 1, 2].map((h) => trains.nameFor(h))).toEqual(['Z-W-1-S', 'Z-W-2-IR', 'F-W-S']);
+    expect(trains.scenarioNameFor(1)).toBe('Z-W-2-IR');
+    expect(trains.scenarioNameFor(9)).toBeNull();
     expect(trains.handleFor('F-W-S')).toBe(2);
     expect(trains.withTrainNames('Train 1 is malfunctioning')).toBe('Z-W-2-IR is malfunctioning');
   });
@@ -41,5 +43,6 @@ describe('TrainIdentityService', () => {
   it('keeps the roster when the preset names no trains', () => {
     onPreset(null);
     expect(trains.nameFor(0)).toBe(SERVICE_ROSTER[0]);
+    expect(trains.scenarioNameFor(0)).toBeNull();
   });
 });

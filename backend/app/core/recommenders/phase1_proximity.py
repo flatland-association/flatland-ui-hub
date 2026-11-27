@@ -21,6 +21,21 @@ class Phase1ProximityRecommender(InterventionRecommender):
         "Flags trains whose path crosses the malfunction's blocked cell before it "
         "clears; suggests reroute (if a switch is reachable first) or hold."
     )
+    family = "rule-based"
+    deterministic = True
+    role = "operational"
+    observation = "RailEnv paths and ETAs"
+    at_conflict = (
+        "Does not plan. For a malfunction it lists the trains that reach the blocked cell "
+        "before it clears, and per train suggests a reroute when a switch comes first, "
+        "otherwise a hold."
+    )
+    provenance = "Own implementation (app/core/impact_analysis.py)."
+    licence = "Own implementation"
+    grounding = (
+        "Phase 1 of the tactical recommendation seam: who is affected comes first, "
+        "a coherent re-plan (PP) and learned recommenders are planned behind it."
+    )
 
     def recommend(self, env: RailEnv) -> List[Dict[str, Any]]:
         return compute_impact(env)

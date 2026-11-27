@@ -228,3 +228,33 @@ def test_a_malfunction_triggers_a_residual_replan(monkeypatch, tmp_path):
     for h in handles:
         policy.act_for_handle(h)
     assert len(plan_info(fresh).get("replans") or []) == 1
+
+
+# Large networks: the model-free path must retain mandatory stops and must
+# report failure when a complete executable service cannot be established.
+
+def test_director_routes_the_intermediate_stops_of_the_ecml_scene():
+    """The ECML scene's waypoints are no switch decision or origin/target
+    cell; without them as graph nodes no train was routable."""
+    from app.core.env_factory import load_preset_env
+
+    env = load_preset_env("ecml2026-scene1-level0")
+    GoalDirectedPolicy(env)
+
+    assert plan_info(env)["source"] != "unroutable"
+    planned = {s.handle for s in module.plan_schedules(env)}
+    assert planned == set(range(len(env.agents)))
+
+
+def test_an_incomplete_olten_fallback_is_rejected_explicitly():
+    from app.core.env_factory import load_preset_env
+
+    env = load_preset_env("olten")
+    GoalDirectedPolicy(env)
+
+    info = plan_info(env)
+    assert info["source"] == "no-executable-plan"
+    assert not info["validation"]["accepted"]
+    assert not info["rejected"]["avoidance"]["accepted"]
+    assert module.plan_schedules(env) is None
+    assert module.plan_player(env) is None

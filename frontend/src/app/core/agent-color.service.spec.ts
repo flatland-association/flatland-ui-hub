@@ -51,6 +51,20 @@ describe('AgentColorService', () => {
     expect(svc.getLabel(1)).toBe('Intercity');
   });
 
+  it('infers categories only from recognised scenario-name prefixes', () => {
+    for (const name of ['IC3', 'ICE', 'IR35', 'EC_91']) {
+      expect(svc.scenarioCategory(name)).withContext(name).toBe('longDistance');
+    }
+    for (const name of ['S17u', 'RE_18', 'RB51']) {
+      expect(svc.scenarioCategory(name)).withContext(name).toBe('regional');
+    }
+    expect(svc.scenarioCategory('G4')).toBe('freight');
+    expect(svc.scenarioCategory('Lok 12')).toBe('service');
+    for (const name of [null, '', 'ICELAND', 'Z-W-2-IR', 'unknown']) {
+      expect(svc.scenarioCategory(name)).withContext(String(name)).toBe('unknown');
+    }
+  });
+
   it('plan colours are deterministic per handle', () => {
     expect(svc.getPlanColor(3)).toBe(svc.getPlanColor(3));
   });

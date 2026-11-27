@@ -78,6 +78,11 @@ export class TrainIdentityService {
     return this.nameByHandle()[handle] ?? `#${handle}`;
   }
 
+  /** Name supplied by the scenario, without the illustrative roster fallback. */
+  scenarioNameFor(handle: number): string | null {
+    return this.ownNames()[handle] ?? null;
+  }
+
   /**
    * Text from outside the HMI (backend notifications) names trains by handle:
    * "Train 0 is malfunctioning". Rewritten here, so those texts use the same name

@@ -55,6 +55,7 @@ class DeadLockAvoidancePolicy(Policy):
         self._walker: Optional[DeadlockAvoidanceShortestDistanceWalker] = None
         self._agent_can_move: Dict[int, tuple] = {}
         self._agent_positions: Optional[np.ndarray] = None
+        self._agent_occupancy: Optional[np.ndarray] = None
         self._routes: Dict[int, List[Tuple[int, int, int]]] = {}
 
     # ── observation bundle ───────────────────────────────────────────
@@ -71,6 +72,7 @@ class DeadLockAvoidancePolicy(Policy):
         self._walker.routes = self._routes
         self._agent_can_move = {}
         self._agent_positions = None
+        self._agent_occupancy = None
 
     def set_committed_overrides(
         self,
@@ -124,7 +126,13 @@ class DeadLockAvoidancePolicy(Policy):
     def _build_agent_position_map(self) -> None:
         """Mark cells currently occupied by active agents."""
         env = self._env
-        positions = np.full((env.height, env.width), -1, dtype=int)
+        shape = (env.height, env.width)
+        if self._agent_positions is None or self._agent_positions.shape != shape:
+            self._agent_positions = np.empty(shape, dtype=int)
+        if self._agent_occupancy is None or self._agent_occupancy.shape != shape:
+            self._agent_occupancy = np.empty(shape, dtype=bool)
+        positions = self._agent_positions
+        positions.fill(-1)
         for h in range(env.get_num_agents()):
             agent = env.agents[h]
             pos = agent_position(agent)
@@ -134,7 +142,7 @@ class DeadLockAvoidancePolicy(Policy):
                 TrainState.MALFUNCTION,
             ) and pos is not None:
                 positions[pos] = h
-        self._agent_positions = positions
+        np.greater(positions, -1, out=self._agent_occupancy)
 
     def _walk_all_agents(self) -> None:
         """Build per-agent shortest-path maps via the walker."""
@@ -180,10 +188,10 @@ class DeadLockAvoidancePolicy(Policy):
         full_shortest_distance_agent_map: np.ndarray,
     ) -> bool:
         """Pairwise check: enough free buffer cells against each oncoming agent?"""
-        if self._agent_positions is None:
+        if self._agent_positions is None or self._agent_occupancy is None:
             return True
 
-        agent_positions_map = (self._agent_positions > -1).astype(int)
+        agent_positions_map = self._agent_occupancy
         len_opp_agents = len(opp_agents)
 
         for opp_a in opp_agents:

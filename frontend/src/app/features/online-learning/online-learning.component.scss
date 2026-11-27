@@ -1,0 +1,317 @@
+// Colours come from Lyne / app design tokens only (see
+// docs/reference/frontend-lyne-conventions.md §1 — the stylelint colour gate
+// guards this file).
+:host {
+  display: block;
+  container-type: inline-size;
+}
+
+.olm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--app-text);
+}
+
+.olm-banner {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border-left: 3px solid var(--app-positive);
+  background: var(--app-border);
+  font-weight: 600;
+}
+
+.olm-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.olm-state {
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--app-border);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &.state-running,
+  &.state-updating {
+    border-color: var(--app-positive);
+    color: var(--app-positive);
+  }
+
+  &.state-error {
+    border-color: var(--app-severity-warn);
+    color: var(--app-severity-warn);
+  }
+}
+
+.olm-version {
+  font-weight: 600;
+}
+
+.olm-sub,
+.olm-note {
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.olm-note {
+  margin: 0;
+}
+
+.olm-error {
+  color: var(--app-severity-warn);
+}
+
+.olm-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 6px;
+}
+
+.olm-btn {
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text);
+  border-radius: 3px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+
+  &.primary {
+    border-color: var(--app-accent);
+    color: var(--app-accent);
+  }
+
+  &:hover:not([disabled]) {
+    border-color: var(--sbb-color-charcoal);
+  }
+
+  &[disabled] {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
+
+.olm-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--app-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.olm-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--app-border);
+  overflow: hidden;
+}
+
+.olm-bar-fill {
+  height: 100%;
+  background: var(--app-accent);
+  transition: width 0.4s ease;
+}
+
+.olm-buffers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    padding: 3px 6px;
+    border: 1px solid var(--app-border);
+    border-radius: 3px;
+    min-width: 0;
+  }
+
+  span {
+    font-size: 11px;
+    color: var(--app-text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  strong {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.olm-current-scenario {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--app-text-muted);
+
+  code {
+    min-width: 0;
+    color: var(--app-text);
+    font: inherit;
+    overflow-wrap: anywhere;
+  }
+}
+
+.olm-training-scenarios {
+  border-top: 1px solid var(--app-border);
+  padding-top: 4px;
+
+  summary {
+    color: var(--app-text-muted);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  ul {
+    display: grid;
+    gap: 3px;
+    max-height: 8rem;
+    overflow: auto;
+    margin: 4px 0 0;
+    padding-inline-start: 18px;
+    scrollbar-gutter: stable;
+  }
+
+  li {
+    font-size: 11px;
+    overflow-wrap: anywhere;
+  }
+}
+
+.olm-evals {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.olm-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--app-text-muted);
+}
+
+.olm-source-details {
+  border-top: 1px solid var(--app-border);
+  padding-top: 4px;
+
+  summary {
+    color: var(--app-text-muted);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+  }
+}
+
+.olm-source-details > .olm-note {
+  margin-top: 4px;
+}
+
+.olm-source-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.olm-source-group {
+  min-width: 0;
+
+  ul {
+    list-style: none;
+    margin: 2px 0 0;
+    padding: 0;
+  }
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  li span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  strong {
+    flex: 0 0 auto;
+  }
+}
+
+.olm-source-heading,
+.olm-source-empty {
+  color: var(--app-text-muted);
+  font-size: 10px;
+}
+
+.olm-history-scroll {
+  max-height: 8rem;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.olm-history table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    padding: 3px 4px;
+    text-align: left;
+    border-bottom: 1px solid var(--app-border);
+    font-weight: 400;
+  }
+
+  tbody tr {
+    height: 2.25rem;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--app-surface);
+    color: var(--app-text-muted);
+  }
+
+  tr.decision-accepted td:nth-child(2) {
+    color: var(--app-positive);
+    font-weight: 600;
+  }
+
+  tr.decision-rolled_back td:nth-child(2),
+  tr.decision-collapsed td:nth-child(2) {
+    color: var(--app-severity-warn);
+  }
+
+  .olm-sub {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .olm-bar-fill {
+    transition: none;
+  }
+}

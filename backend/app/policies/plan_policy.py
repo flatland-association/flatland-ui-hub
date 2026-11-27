@@ -245,11 +245,33 @@ class PlanPolicy(Policy):
         # earliest arrival this action could produce.
         if elapsed + 1 < nxt.scheduled_at:
             return RailEnvActions.STOP_MOVING
+        if self._owes_a_stand(handle, run, index):
+            return RailEnvActions.STOP_MOVING
         if self._blocked_by_plan_order(handle, nxt.waypoint.position):
             return RailEnvActions.STOP_MOVING
         return RailEnvActions(
             action_for_move(int(agent_direction(agent)), int(nxt.waypoint.direction))
         )
+
+    def _owes_a_stand(self, handle: int, run, index: int) -> bool:
+        """True while a late train is at a stop the plan stands at, unserved.
+
+        Replay by position keeps the route but not the dwell: a train that
+        reaches its stop after the planned departure would drive straight
+        through, and Flatland counts a stop only when the train stood on it. So
+        where the plan stands (its next waypoint is more than one step later)
+        at an intermediate stop not yet served, the train stops once, however
+        late. A stop the plan passes through is left alone — skipping it was the
+        plan's decision. (`app.core.stops`; plan stage 2f.)
+        """
+        here, nxt = run[index], run[index + 1]
+        if nxt.scheduled_at <= here.scheduled_at + 1:
+            return False
+        from app.core.stops import remaining_stops
+
+        row, col = (int(v) for v in here.waypoint.position)
+        heading = int(here.waypoint.direction)
+        return any(stop.matches(row, col, heading) for stop in remaining_stops(self._env, handle))
 
     def _blocked_by_plan_order(self, handle: int, cell: Tuple[int, int]) -> bool:
         """True while a train the plan sends through `cell` first has not been.
@@ -336,14 +358,8 @@ def baseline_trainruns_from_env(env: RailEnv) -> Optional[TrainrunDict]:
 
 def install_trainrun_plan(env: RailEnv, trainruns: TrainrunDict) -> None:
     """Make `trainruns` the plan the session runs on, keeping the timetable as
-    the yardstick (stashed on first replacement).
-
-    An accepted course is never stashed: on a scenario that shipped no plan, a
-    second acceptance would otherwise make the first accepted course the
-    yardstick, and the proposals would be graded against an AI course.
-    """
-    if (not getattr(env, "_accepted_trainrun_plan", False)
-            and getattr(env, "_baseline_trainrun_plan", None) is None):
+    the yardstick (stashed on first replacement)."""
+    if getattr(env, "_baseline_trainrun_plan", None) is None:
         env._baseline_trainrun_plan = trainruns_from_env(env)
     env._trainrun_plan = trainruns
 

@@ -56,7 +56,7 @@ def test_off_map_train_enters_on_its_drawn_route():
     env = load_preset_env("tutorial")
     env.step({})
     env.step({})  # BA ready to depart
-    assert commit_route(env, BA, LOOP)
+    assert commit_route(env, BA, via=LOOP)
     assert route_move(env, BA) == RailEnvActions.MOVE_FORWARD  # enter at the origin
 
 
@@ -71,7 +71,7 @@ def test_tutorial_drawn_route_lets_both_trains_arrive():
         env = load_preset_env("tutorial")
         for _ in range(3):  # the operator draws while the clock runs
             env.step({})
-        assert commit_route(env, BA, LOOP)
+        assert commit_route(env, BA, via=LOOP)
         override_manager.set(session_id, BA, REROUTE_ACTION)
         arrived, positions = _run(env, session_id)
         assert AB in arrived and BA in arrived
@@ -197,7 +197,7 @@ def test_drawn_route_under_a_taken_plan_is_driven_by_the_fallback():
         arrived, on_loop = {}, False
         for t in range(45):
             if t == 3:
-                assert commit_route(env, BA, LOOP)
+                assert commit_route(env, BA, via=LOOP)
                 override_manager.set(session_id, BA, REROUTE_ACTION)
             policy = OverridePolicy(PlanPolicy(env, plan, fallback=DeadLockAvoidancePolicy()), session_id)
             policy.reset(env)
@@ -302,7 +302,7 @@ def test_a_new_director_course_puts_a_rerouted_train_back_on_plan():
         env = session.env
         apply_strategy(session.id, session, "pp")  # course A
         assert not getattr(env, "_plan_off_plan", None)
-        route = commit_route(env, BA, LOOP)  # rerouted under course A
+        route = commit_route(env, BA, via=LOOP)  # rerouted under course A
         policy = PlanPolicy(env, env._trainrun_plan, fallback=DeadLockAvoidancePolicy())
         policy.reset(env)
         policy.set_committed_overrides(set(), {BA: route})

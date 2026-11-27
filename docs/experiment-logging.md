@@ -593,6 +593,8 @@ studies: a control whose meaning changes gets a new one.
 | `<viewedSeq() === e.seq ? 'log.hideDecision' : 'log.viewDecision'>` | `features/decision-log/decision-log-panel.component.html` |
 | `actions.<opt.action>` | `features/agent-inspector/agent-inspector.component.html` |
 | `ca.card.apply` | `features/combined-actions/components/action-card/action-card.component.html` |
+| `dispatcher.consent.approve` | `features/dispatcher-activity-overlay/dispatcher-activity-overlay.component.html` |
+| `dispatcher.consent.decline` | `features/dispatcher-activity-overlay/dispatcher-activity-overlay.component.html` |
 | `experimentRun.finishConfirm.back` | `app.component.html` |
 | `experimentRun.finishConfirm.back` | `app.component.html` |
 | `experimentRun.finishConfirm.yes` | `app.component.html` |

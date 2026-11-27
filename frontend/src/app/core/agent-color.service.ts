@@ -1,6 +1,16 @@
 import { Injectable } from '@angular/core';
 import { ColorState, TRAIN_TYPES, TrainType, TrainTypeColors } from './agent-color.types';
 
+export type ScenarioTrainCategory = 'longDistance' | 'regional' | 'freight' | 'service' | 'unknown';
+
+const SCENARIO_CATEGORY_COLORS: Record<ScenarioTrainCategory, string> = {
+  longDistance: 'var(--sbb-color-red)',
+  regional: 'var(--sbb-color-orange)',
+  freight: 'var(--sbb-color-violet)',
+  service: 'var(--app-blue)',
+  unknown: 'var(--app-text-muted)',
+};
+
 /**
  * Central source of truth for agent / train colours.
  *
@@ -52,6 +62,20 @@ export class AgentColorService {
    */
   getColorSolid(handle: number, state: ColorState = 'default'): string {
     return this.getColorsSolid(handle)[state];
+  }
+
+  /** Interpret only recognised scenario-name prefixes; authored fallback names are not data. */
+  scenarioCategory(name: string | null): ScenarioTrainCategory {
+    const value = name?.trim().toUpperCase() ?? '';
+    if (/^(ICE|IC|IR|EC|TGV)(?=$|[\d\s_-])/.test(value)) return 'longDistance';
+    if (/^(S|RE|RB|R)(?=$|[\d\s_-])/.test(value)) return 'regional';
+    if (/^(G|GÜTERZUG|GUETERZUG)(?=$|[\d\s_-])/.test(value)) return 'freight';
+    if (/^(LOK|LOCO|DIENSTZUG)(?=$|[\d\s_-])/.test(value)) return 'service';
+    return 'unknown';
+  }
+
+  getScenarioCategoryColor(category: ScenarioTrainCategory): string {
+    return SCENARIO_CATEGORY_COLORS[category];
   }
 
   /**

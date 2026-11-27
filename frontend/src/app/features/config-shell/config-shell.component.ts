@@ -1,4 +1,5 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, Input, inject, viewChild } from '@angular/core';
+import type { SbbMenuElement } from '@sbb-esta/lyne-elements/menu.js';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { BrandThemeService } from '../../core/theme/brand-theme.service';
@@ -27,7 +28,7 @@ const AREA_LINKS: AreaLink[] = [
   { id: 'infrastructure-builder', label: 'Infrastructure Builder', href: '/infrastructure-builder', icon: 'location-pin-map-small' },
   { id: 'widgets', label: 'Widgets Gallery', href: '/widgets', icon: 'nine-squares-small' },
   { id: 'algorithms', label: 'Algorithm Gallery', href: '/algorithms', icon: 'robot-small' },
-  { id: 'scenarios', label: 'Scenario Gallery', href: '/scenarios', icon: 'map-small' },
+  { id: 'scenarios', label: 'Scenario Gallery', href: '/scenarios', icon: 'globe-small' },
   { id: 'contribute', label: 'Contribute', href: '/contribute', icon: 'handshake-small' },
 ];
 
@@ -65,6 +66,32 @@ const AREA_LINKS: AreaLink[] = [
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ConfigShellComponent {
+  private readonly menu = viewChild<ElementRef<SbbMenuElement>>('menu');
+  private closeAfterOpening = false;
+
+  /** Lyne accepts action clicks during entrance, but ignores close() until
+   *  opening finishes. Keep Settings from appearing under a stranded menu. */
+  requestMenuClose(): void {
+    const menu = this.menu()?.nativeElement;
+    if (!menu) return;
+    if (menu.isOpen) {
+      this.closeAfterOpening = false;
+      menu.close();
+    } else if (menu.trigger?.getAttribute('aria-expanded') === 'true') {
+      this.closeAfterOpening = true;
+    }
+  }
+
+  onMenuOpened(): void {
+    if (!this.closeAfterOpening) return;
+    this.closeAfterOpening = false;
+    this.menu()?.nativeElement.close();
+  }
+
+  onMenuClosed(): void {
+    this.closeAfterOpening = false;
+  }
+
   /** App language. The switch lives in this shared menu so every surface offers it,
    *  but only in-scope copy follows it — internal tools stay English by design
    *  (docs/plans/i18n-strategy.md). */

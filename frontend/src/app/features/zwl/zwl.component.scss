@@ -47,6 +47,68 @@
   color: var(--app-text-muted);
 }
 
+.zwd__origin-context,
+.zwd__origin-corridor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.zwd__origin-context {
+  color: var(--app-text-muted);
+}
+
+.zwd__origin-corridor {
+  max-height: 48px;
+  overflow: auto;
+}
+
+.zwd__category-hint {
+  flex-basis: 100%;
+}
+
+.zwd__category-swatch {
+  display: inline-block;
+  width: 18px;
+  border-top: 3px solid currentColor;
+}
+
+.zwd__detail {
+  max-height: 180px;
+  overflow: auto;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.zwd__detail-summary,
+.zwd__detail-train {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 2px 0;
+}
+
+.zwd--origin {
+  .zwd__band rect {
+    fill: none;
+    stroke-width: 2;
+    stroke-dasharray: 4 3;
+  }
+
+  .zwd__legend-band {
+    background: transparent;
+    border-style: dashed;
+  }
+
+  .zwd__legend {
+    flex-wrap: wrap;
+  }
+}
+
 .zwd__bar {
   display: flex;
   align-items: flex-start;
@@ -74,6 +136,10 @@
   color: inherit;
   font: inherit;
   cursor: default;
+
+  &--selectable {
+    cursor: pointer;
+  }
 
   &--active,
   &:focus-visible {

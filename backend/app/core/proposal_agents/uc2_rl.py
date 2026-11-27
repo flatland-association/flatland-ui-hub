@@ -73,6 +73,21 @@ class UC2RLProposalAgent(ProposalAgent):
     label = "UC2 RL"
     respects_overrides = True
     description = "The trained UC2 model (one per infrastructure) runs every train on from the current state."
+    # Catalog text (algorithm_catalog): the same model as the uc2_rl policy.
+    family = "learned"
+    deterministic = True
+    role = "operational"
+    observation = "UC2ObservationBuilder (313 current-state features + 5 action masks)"
+    at_conflict = (
+        "Rolls the trained model forward from the current state, with the joint ROAM "
+        "movement check and the dispatcher's kept decisions per train, and offers the courses it reaches."
+    )
+    provenance = (
+        "The uc2_rl policy's model: verified native planner demonstrations, declared safe "
+        "corrections, user-command recovery and one scenario-blind UC2-track model."
+    )
+    licence = "MIT (ECML starter-kit network/observation code); bundled trained weights."
+    grounding = "Native Tutorial and UC2-1 to UC2-4 infrastructures only; outside them the agent is not available."
 
     def available(self, env: RailEnv) -> bool:
         from app.policies.learned import uc2_roam_bundle
@@ -80,12 +95,6 @@ class UC2RLProposalAgent(ProposalAgent):
         if importlib.util.find_spec("torch") is None or not uc2_roam_bundle.available():
             return False
         return uc2_roam_bundle.compatibility_error(env) is None
-
-    def forecast_horizon(self, env: RailEnv) -> int:
-        """The rest of the episode: a full native replay is this adviser's contract."""
-        elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
-        max_ep = int(getattr(env, "_max_episode_steps", 0) or 0)
-        return max(0, max_ep - elapsed) if max_ep else 200
 
     def propose(self, env: RailEnv) -> List[Proposal]:
         trainruns = rollout_trainruns(env)

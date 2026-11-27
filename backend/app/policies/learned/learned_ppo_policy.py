@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import math
 from collections import OrderedDict
+import pickle
 from threading import RLock
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, Optional
@@ -233,7 +234,12 @@ def load_actor_critic(path: Path = DEFAULT_CHECKPOINT) -> ActorCritic:
             _MODELS.move_to_end(key)
             return model
         # The shipped inference export contains tensors and primitive metadata.
-        ckpt = torch.load(path, weights_only=True, map_location="cpu")
+        # Lab and online-learning checkpoints written by this app may carry
+        # richer metadata; those local files load the full way.
+        try:
+            ckpt = torch.load(path, weights_only=True, map_location="cpu")
+        except pickle.UnpicklingError:
+            ckpt = torch.load(path, weights_only=False, map_location="cpu")
         model = load_actor_critic_checkpoint(ActorCritic(obs_size=checkpoint_observation_size(ckpt),
                                                       hidden_size=checkpoint_hidden_size(ckpt)), ckpt)
         model.eval().requires_grad_(False)

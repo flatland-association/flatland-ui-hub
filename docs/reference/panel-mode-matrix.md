@@ -32,12 +32,19 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 | `flatland-map` | ● | ● | ● |
 | `graphic-timetable` (`marey`) | ● | ● | ● |
 | `zug-weg-diagramm` (B4, first-cut) | ● pills (if enabled) mark the policy's choice | ● pills (if enabled) neutral | ● read-only — no pills whatever the setting |
-| `agent-inspector` | ● | ● | ● |
+| `zwl-origin` (first-cut) | ● optional pills mark the policy's choice | ● optional pills neutral | ● read-only — no pills |
+| `zwl-origin-extended` (first-cut) | ● conflict details and linked map; optional pills mark the policy's choice | ● conflict details and linked map; optional pills neutral | ● conflict details and linked map; read-only — no pills |
+| `agent-inspector` | ● under a learned policy the AI's option at the next switch is marked, with its probability | ● under a learned policy options stay neutral | ● under a learned policy a plain line "the AI will take …" (not in the default Director layout) |
 | `impact` | ● | ● | ◐ overview only |
 | `whatif-compare` | ● | ● | ● read-only (no Commit) |
 | `risk-uncertainty` | ● | ● | ● read-only |
 | `decision-log` | ● | ● | ● |
+| `ai-track-record` (A3, first-cut) | ● "followed the recommendation" | ● "chose the same", no judgement | ● "took over", rate per 100 steps |
 | `combined-actions` | ● | ● | ● read-only (no reorder / Apply) |
+| `deviation-radar` (first-cut) | ● | ● | ● read-only overview: filters and row selection only |
+| `track-occupancy` (first-cut, centre view) | ● | ● | ● read-only: no track change in any mode yet |
+| `connection-watch` (first-cut) | ● | ● | ○ *(connections are a Director objective, not a list)* |
+| `staged-dispositions` (first-cut) | ● expectation optional | ● expectation (less/same/more) required before release | ○ |
 | `scenario` | ○ | ● neutral compare surface | ○ |
 | `agents` (`agents-list`) | ● | ● | ○ |
 | `agents-table` | ● | ● | ○ |
@@ -74,6 +81,10 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 >
 > Generated from `frontend/src/app/core/layout/panel-mode-availability.ts`
 > (checked 2026-08-19). That file is the source of truth; this table documents it.
+
+Synthetic dispatcher activity appears as an overlay anchored to native controls,
+with ownership and optional event-log access in the existing toolbar. It is not a
+registered widget or saved-layout panel. See [dispatcher usage](../dispatcher-agents.md).
 
 ## Behaviour per mode
 
@@ -197,20 +208,6 @@ and survives a mode switch; a chip resets to the mode's set.
 ### `recommendations` / `co-learning-reflection` / `goal-achievement` / `director-directive`
 Pure availability panels — each is the signature surface of exactly one mode
 (see the availability table). They do not need internal mode branching.
-
-### Director mode with any driver
-
-Director mode means the same whichever policy drives: the AI drives, the human
-supervises and may intervene. Entering Director switches to `goal_directed`,
-except where the human picked another policy or the session pinned one (a tour's
-`backendPolicy`, a study condition's `policy`): then that driver stays. Only
-`goal_directed` takes the directive (the strategy tiles' weights); with another
-driver the objective-level widgets have nothing to steer, the policy and
-single-train levers still work. The RL tours' presets (`preset-uc2-rl`,
-`preset-pf-ch-rl`) therefore hide the directive bar and keep the header toolbar
-(`ui.hidden`, `headerToolbar`), and their shift review leaves out the plan check
-as for any session without a committed Director plan
-(docs/plans/rl-modularization.md, Q-1).
 
 ## Design guidance (from this matrix)
 

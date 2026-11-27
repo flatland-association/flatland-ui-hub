@@ -1,5 +1,87 @@
 # Widget spec — ZWL, time-distance diagram (v2)
 
+## Origin train-category colours
+
+Origin and Extended infer a category only from recognised prefixes in the
+scenario's own train names: long-distance, regional, freight, and locomotive
+or service. Freight is violet; an unrecognised or missing name is neutral.
+These are inferred categories, not authoritative metadata; the UI explains
+the inference and shows a legend. The existing diagram and map keep their
+handle-based palette.
+
+| New files | Purpose |
+|---|---|
+| None | Reuse the existing colour and identity services. |
+
+| Modified files | Change |
+|---|---|
+| `frontend/src/app/core/agent-color.service.ts` and its spec | Classify supported scenario names and return category colour tokens. |
+| `frontend/src/app/core/train-identity.service.ts` and its spec | Expose the scenario's own name without substituting authored names. |
+| `frontend/src/app/features/zwl/zwl.component.{ts,html,scss}` and spec | Apply the colours only in Origin/Extended and explain their meaning. |
+| `frontend/public/i18n/{en,de,fr}.json` | Translate the category legend. |
+
+## ZWL origin extended — conflict details and map link
+
+1. **Identity:** `zwl-origin-extended`, prediction, overview-detail, centre;
+   grounding: time-distance diagrams in railway dispatching practice. Source:
+   existing `features/zwl/`, `features/flatland-map/`, and the existing
+   Flatland contention forecast; new presentation only.
+2. **Promise:** select a forecast conflict, inspect its available details and
+   locate it on the separately configured map.
+3. **Modes:** available in all modes. Optional decision pills mark the policy
+   choice in recommendation, remain neutral in co-learning and are hidden in
+   director. Inspection and selection do not change simulation state.
+4. **System interaction:** use the existing contention groups and their location,
+   forecast step, trains and per-train measures. Missing measures and locations
+   are explicitly unavailable. Share the selected conflict with the existing
+   map; use actual window cells or the representative cell, not a guessed
+   location. Clear selection if it cannot be matched unambiguously on refresh.
+   No backend change or new prediction algorithm.
+5. **Accountability:** selection is presentation only; existing train-action
+   authority and logging remain unchanged.
+6. **Acceptance:** select a conflict by mouse and keyboard, inspect its details
+   and map location; check unavailable data, refresh and disappearance, the
+   three modes and the gallery.
+7. **Files:** no new files required. Modify the existing ZWL, map and session
+   store and their tests; extend plugin host, designer, widget registry,
+   UI-config schema, translations, catalog and mode matrix. Existing IDs and
+   default layouts remain unchanged.
+8. **Limits:** forecast outcomes are not guarantees; the horizon is a compute
+   budget. Variant comparison, ideal lines and post-decision effects are
+   deferred until their data and modelling are established. The map is a
+   separate widget that must be present in the layout.
+
+## ZWL origin — separately selectable variant
+
+1. **Identity:** `zwl-origin`, prediction, overview-detail, centre;
+   grounding: railway dispatch time-distance diagrams. Source: existing
+   `features/zwl/` and its `zwl-axis.ts`, with its Flatland HMI provenance
+   described below. The origin-specific presentation is new.
+2. **Promise:** read the timetable, observed movement and forecast against
+   a named corridor and identify forecast conflicts.
+3. **Modes:** available in all modes. Optional decision pills mark the policy
+   choice in recommendation, remain neutral in co-learning, and are hidden
+   in director. Reading and selection remain available in all modes.
+4. **System interaction:** consume the existing geography, trajectory, plan,
+   scenario and contention signals; select a train or corridor; optional
+   train actions use `TrainActionService`. No backend changes. Real signal
+   states, category-based colours, extra forecast types, conflict-specific
+   dispatch and a detailed track topology remain deferred where unavailable.
+   The corridor strip is schematic, not a signalling view.
+5. **Allocation/accountability:** monitoring is shared; train action authority
+   follows the existing mode rules and dispatch logging. Selection and filters
+   do not create decision events.
+6. **Acceptance:** with a named corridor and a forecast, verify that the
+   station names, now-line, actual/forecast distinction and each available
+   conflict and its affected trains appear; absent forecast data must not be
+   labelled conflict-free. Check the three modes and widget gallery.
+7. **Changes:** modify the existing ZWL component and tests, plugin host,
+   designer palette and settings, widget registry, translations, mode matrix
+   and widget catalog. No change to existing panel IDs or default layouts.
+8. **Risks:** modelled outcomes are not guaranteed and may be stale; steps
+   are not automatically real minutes. Test the conflict presentation with
+   operators. No new forecast algorithm is introduced.
+
 > **Superseded in part (2026-10-28):** the backend runs `flatland-rl==4.3.0` since 2026-08-26 (`3462ffb7`); where this text says we are on 4.2.6, read 4.3.0. See [`flatland-43-upgrade.md`](flatland-43-upgrade.md).
 >
 > **Update 2026-09-29.** It is no longer "alongside" the `marey`: it replaced it

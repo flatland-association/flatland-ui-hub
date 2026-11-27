@@ -1,0 +1,126 @@
+{
+  "policy": "pf_ch_rl",
+  "case_role": "known_training_fixtures",
+  "cases": [
+    {
+      "case_id": "train-pf-ch-wn-wal-conflict-000",
+      "arrived": 3,
+      "trains": 3,
+      "steps": 43,
+      "expected_steps": 43,
+      "horizon": 140
+    },
+    {
+      "case_id": "train-pf-ch-wn-wal-long-approach-000",
+      "arrived": 3,
+      "trains": 3,
+      "steps": 59,
+      "expected_steps": 59,
+      "horizon": 180
+    },
+    {
+      "case_id": "train-pf-ch-wn-wal-connections-000",
+      "arrived": 4,
+      "trains": 4,
+      "steps": 59,
+      "expected_steps": 59,
+      "horizon": 180
+    },
+    {
+      "case_id": "train-pf-ch-corridor-000",
+      "arrived": 16,
+      "trains": 16,
+      "steps": 156,
+      "expected_steps": 156,
+      "horizon": 194
+    },
+    {
+      "case_id": "train-pf-ch-corridor-stops-000",
+      "arrived": 16,
+      "trains": 16,
+      "steps": 181,
+      "expected_steps": 181,
+      "horizon": 320
+    },
+    {
+      "case_id": "train-public-demo-pf-ch-wn-wal-conflict-w1-door-fault",
+      "arrived": 3,
+      "trains": 3,
+      "steps": 49,
+      "expected_steps": 49,
+      "horizon": 140
+    },
+    {
+      "case_id": "train-public-demo-pf-ch-wn-wal-long-approach-e1-late-into-the-section",
+      "arrived": 3,
+      "trains": 3,
+      "steps": 63,
+      "expected_steps": 63,
+      "horizon": 180
+    },
+    {
+      "case_id": "train-public-demo-pf-ch-wn-wal-long-approach-strategy-e1-breakdown-weesen",
+      "arrived": 3,
+      "trains": 3,
+      "steps": 77,
+      "expected_steps": 77,
+      "horizon": 180
+    },
+    {
+      "case_id": "train-public-demo-pf-ch-wn-wal-long-approach-interview-e1-breakdown-single-track",
+      "arrived": 3,
+      "trains": 3,
+      "steps": 70,
+      "expected_steps": 70,
+      "horizon": 180
+    },
+    {
+      "case_id": "train-public-demo-pf-ch-wn-wal-long-approach-advanced-e2-breakdown-counter-train",
+      "arrived": 3,
+      "trains": 3,
+      "steps": 79,
+      "expected_steps": 79,
+      "horizon": 180
+    },
+    {
+      "case_id": "train-public-demo-pf-ch-corridor-stops-corridor-shift-incidents",
+      "arrived": 16,
+      "trains": 16,
+      "steps": 197,
+      "expected_steps": 197,
+      "horizon": 320
+    },
+    {
+      "case_id": "train-public-demo-pf-ch-wn-wal-conflict-e1-station-hold",
+      "arrived": 3,
+      "trains": 3,
+      "steps": 43,
+      "expected_steps": 43,
+      "horizon": 140
+    },
+    {
+      "case_id": "train-public-demo-pf-ch-wn-wal-long-approach-advanced-test-w1-breakdown-no-gain",
+      "arrived": 3,
+      "trains": 3,
+      "steps": 73,
+      "expected_steps": 73,
+      "horizon": 180
+    },
+    {
+      "case_id": "train-public-demo-pf-ch-wn-wal-connections-strategy-e1-breakdown-weesen",
+      "arrived": 4,
+      "trains": 4,
+      "steps": 77,
+      "expected_steps": 77,
+      "horizon": 180
+    },
+    {
+      "case_id": "train-public-demo-pf-ch-wn-wal-connections-advanced-e2-breakdown-counter-train",
+      "arrived": 4,
+      "trains": 4,
+      "steps": 79,
+      "expected_steps": 79,
+      "horizon": 180
+    }
+  ]
+}

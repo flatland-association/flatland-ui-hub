@@ -5,13 +5,15 @@ import {
 } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { ApiService } from '../../core/api.service';
-import { AgentColorService } from '../../core/agent-color.service';
+import { AgentColorService, type ScenarioTrainCategory } from '../../core/agent-color.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { MINUTES_PER_STEP } from '../../core/combined-actions/combined-actions-preview';
 import { CurrentDelayService } from '../../core/timetable/current-delay.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { SmoothClockService } from '../../core/motion/smooth-clock.service';
 import { LanguageService } from '../../core/i18n/language.service';
+import { GalleryFixtureService } from '../../core/gallery-fixture.service';
+import type { ContentionGroup } from '../../core/events/event-types';
 import {
   columnAxis, contentionBand, delayMarks, onAxis, routeAxis, sectionName,
   type AxisModel, type CellPoint, type ContentionBand, type DelayMark, type LinePoint,
@@ -80,9 +82,6 @@ const BIG_GROUP_NEAR_STEPS = 12;
 /** Names listed on a ribbon or chip before "+N". */
 const MAX_NAMES = 3;
 
-/** While the simulation plays, re-ask the contentions forecast every this
- *  many steps (the store only refreshes it on discrete actions). */
-const CONTENTION_REFRESH_STEPS = 3;
 /** Minimum vertical distance between two station labels, px. */
 const LABEL_MIN_GAP = 12;
 
@@ -139,6 +138,7 @@ interface DecisionGlyph {
 }
 
 interface PlacedBand extends ContentionBand {
+  group: ContentionGroup;
   x: number;
   y: number;
   w: number;
@@ -184,12 +184,18 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
    * Actions.
    */
   readonly decisionPills = input(false);
+  readonly origin = input(false);
+  readonly extended = input(false);
 
   private readonly store = inject(SessionStore);
   private readonly colors = inject(AgentColorService);
   private readonly identity = inject(TrainIdentityService);
+  readonly categoryLegend: readonly { category: ScenarioTrainCategory; color: string }[] =
+    (['longDistance', 'regional', 'freight', 'service', 'unknown'] as const)
+      .map((category) => ({ category, color: this.colors.getScenarioCategoryColor(category) }));
   private readonly api = inject(ApiService);
   private readonly i18n = inject(LanguageService);
+  private readonly galleryFixture = inject(GalleryFixtureService);
   /** Acting goes through the dispatch seam, never straight to the store. */
   private readonly trainActions = inject(TrainActionService);
 
@@ -410,17 +416,11 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
    *  after discrete actions (step buttons, policy change), so a playing session
    *  would otherwise show a stale, usually empty, forecast. Throttled; the
    *  backend memoises per step. */
-  private lastContentionStep = -Infinity;
   private readonly contentionRefresh = effect(() => {
     const now = this.now();
     const sid = this.store.session()?.id;
-    if (!sid) return;
-    untracked(() => {
-      if (now < this.lastContentionStep || now - this.lastContentionStep >= CONTENTION_REFRESH_STEPS) {
-        this.lastContentionStep = now;
-        this.store.refreshContentions(true);
-      }
-    });
+    if (!sid || this.galleryFixture.seeded) return;
+    untracked(() => this.store.refreshContentionsForZwl(sid, now));
   });
 
   private readonly baselineForecast = computed(() => {
@@ -428,19 +428,69 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
     return all.find((s) => s.isBaseline) ?? all[0] ?? null;
   });
 
+  private readonly executedHistory = signal<Map<number, CellPoint[]>>(new Map());
+  private historyRequestKey = '';
+  private readonly refreshExecutedHistory = effect(() => {
+    const sessionId = this.store.session()?.id ?? null;
+    const now = this.now();
+    if (!sessionId) {
+      this.historyRequestKey = '';
+      this.executedHistory.set(new Map());
+      return;
+    }
+
+    const requestKey = `${sessionId}:${now}`;
+    if (requestKey === this.historyRequestKey) return;
+    this.historyRequestKey = requestKey;
+
+    // Batched /step calls return only the final state; fetch the captured steps.
+    untracked(() => this.api.getMareyData(sessionId).subscribe({
+      next: (data: any) => {
+        if (this.historyRequestKey !== requestKey) return;
+        const pointsByHandle = new Map<number, CellPoint[]>();
+        for (const [handle, agent] of Object.entries(data?.agents ?? {}) as [string, any][]) {
+          const points = (Array.isArray(agent?.history) ? agent.history : [])
+            .map((point: any): CellPoint | null => {
+              const step = Number(point?.step);
+              const row = Number(point?.row);
+              const col = Number(point?.col);
+              return Number.isFinite(step) && Number.isFinite(row) && Number.isFinite(col)
+                ? { step, row, col }
+                : null;
+            })
+            .filter((point: CellPoint | null): point is CellPoint => point != null)
+            .sort((a: CellPoint, b: CellPoint) => a.step - b.step);
+          if (points.length > 0) pointsByHandle.set(Number(handle), points);
+        }
+        this.executedHistory.set(pointsByHandle);
+      },
+      error: () => {
+        if (this.historyRequestKey === requestKey) this.executedHistory.set(new Map());
+      },
+    }));
+  });
+
   /** Per handle, as grid cells: executed points (dwells expanded to their end
    *  step) and the baseline forecast beyond now. */
   private readonly cellPoints = computed(() => {
     const now = this.now();
     const out = new Map<number, { past: CellPoint[]; forecast: CellPoint[] }>();
-    for (const [h, traj] of this.store.trajectories()) {
-      const past: CellPoint[] = [];
-      for (const p of traj) {
-        if (!p.position || p.step > now) continue;
-        const [row, col] = [Number(p.position[0]), Number(p.position[1])];
-        past.push({ step: p.step, row, col });
-        const end = Math.min(p.endStep ?? p.step, now);
-        if (end > p.step) past.push({ step: end, row, col });
+    const local = this.store.trajectories();
+    const executed = this.executedHistory();
+    const handles = new Set([...local.keys(), ...executed.keys()]);
+    for (const h of handles) {
+      const history = executed.get(h);
+      const past: CellPoint[] = history?.length
+        ? history.filter((point) => point.step <= now)
+        : [];
+      if (past.length === 0) {
+        for (const p of local.get(h) ?? []) {
+          if (!p.position || p.step > now) continue;
+          const [row, col] = [Number(p.position[0]), Number(p.position[1])];
+          past.push({ step: p.step, row, col });
+          const end = Math.min(p.endStep ?? p.step, now);
+          if (end > p.step) past.push({ step: end, row, col });
+        }
       }
       past.sort((a, b) => a.step - b.step);
       out.set(h, { past, forecast: [] });
@@ -482,12 +532,26 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
     return out;
   });
 
-  readonly bands = computed<ContentionBand[]>(() => {
+  readonly bands = computed<(ContentionBand & { group: ContentionGroup })[]>(() => {
     const axis = this.axis();
-    if (!axis) return [];
+    if (!axis) {
+      return this.store.contentions().map((group, index) => ({
+        key: `off-axis:${index}`,
+        group,
+        handles: group.handles,
+        kind: group.kind,
+        fromPos: null,
+        toPos: null,
+        fromStep: group.step,
+        toStep: group.step + 1,
+        section: group.location?.name ?? null,
+        near: group.location?.kind === 'near',
+      }));
+    }
     const now = this.now();
-    return this.store.contentions().map((g) => {
-      const band = contentionBand(g, axis);
+    return this.store.contentions().map((g, index) => {
+      const base = contentionBand(g, axis);
+      const band = { ...base, group: g, key: `${base.key}:${index}` };
       // The backend merges every overlapping conflict into one group, so a busy
       // corridor yields a single ribbon over the whole line and the whole
       // horizon. For such a group show only where it starts: the first stretch
@@ -562,7 +626,7 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   // `marey` widget. Remembered per viewer; presentation only.
 
   readonly orientation = signal<Orientation>(readOrientation());
-  readonly timeVertical = computed(() => this.orientation() === 'time-vertical');
+  readonly timeVertical = computed(() => this.origin() || this.orientation() === 'time-vertical');
 
   toggleOrientation(): void {
     const next: Orientation = this.timeVertical() ? 'time-horizontal' : 'time-vertical';
@@ -766,6 +830,12 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
     return out.join(' ');
   }
 
+  private trainColor(handle: number): string {
+    return this.origin()
+      ? this.colors.getScenarioCategoryColor(this.colors.scenarioCategory(this.identity.scenarioNameFor(handle)))
+      : this.colors.getColorSolid(handle);
+  }
+
   readonly lines = computed<TrainLine[]>(() => {
     const out: TrainLine[] = [];
     for (const [handle, { past, forecast }] of this.points()) {
@@ -783,7 +853,7 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
         handle,
         name: this.identity.nameFor(handle),
         delay: this.delaysNow.label(handle),
-        color: this.colors.getColorSolid(handle),
+        color: this.trainColor(handle),
         pastD: this.pathD(past),
         forecastD: this.pathD(fc),
         planD: planRun.length > 1 ? this.pathD(planRun) : '',
@@ -880,7 +950,7 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
           key: `${d.handle}:${d.live ? 'live' : d.place}`,
           x,
           y,
-          color: this.colors.getColorSolid(d.handle),
+          color: this.trainColor(d.handle),
           label: `${deltaMin > 0 ? '+' : '−'}${Math.abs(deltaMin)}`,
           title: `${this.identity.nameFor(d.handle)} · ${place} · ${this.i18n.t('zwd.delaySteps', { n: `${delayMin > 0 ? '+' : ''}${delayMin}` })}`,
         };
@@ -972,7 +1042,7 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
     return {
       handle,
       name: this.identity.nameFor(handle),
-      color: this.colors.getColorSolid(handle),
+      color: this.trainColor(handle),
       leadD: `M${ax.toFixed(1)} ${ay.toFixed(1)} L${cx.toFixed(1)} ${cy.toFixed(1)}`,
       cx,
       cy,
@@ -986,6 +1056,29 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   }
 
   readonly hasAxis = computed(() => !!this.axis());
+  readonly forecastAvailable = computed(() =>
+    [...this.cellPoints().values()].some((points) => points.forecast.length > 0),
+  );
+  readonly conflictForecastAvailable = computed(() => this.store.contentionHorizonSteps() > 0);
+  readonly selectedTrain = computed(() => {
+    const handle = this.store.selectedHandle();
+    if (handle == null) return null;
+    const agent = this.store.agents().find((a) => a.handle === handle);
+    if (!agent) return null;
+    const state = String(agent.state).toUpperCase();
+    const status = this.store.isMalfunctioning(agent) ? 'malfunction'
+      : state === 'MOVING' ? 'moving'
+      : state === 'STOPPED' ? 'stopped'
+      : state === 'DONE' ? 'done'
+      : state === 'WAITING' ? 'waiting'
+      : state === 'READY_TO_DEPART' ? 'ready'
+      : 'unknown';
+    return {
+      name: this.identity.nameFor(handle),
+      delay: this.delaysNow.label(handle),
+      status,
+    };
+  });
   /** Named, but a network rather than one line (Olten): a route must be chosen. */
   readonly isNetwork = computed(() => this.store.geography()?.layout === 'network');
   /** The route pickers are offered wherever places are named. */
@@ -994,6 +1087,34 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   // ── interaction (presentation only, writes: view) ─────────────
 
   readonly hoveredBand = signal<string | null>(null);
+  readonly selectedContention = this.store.selectedContention;
+  readonly contentionSnapshotStep = this.store.contentionSnapshotStep;
+  readonly contentionRefreshFailed = this.store.contentionRefreshFailed;
+  readonly selectedMeasures = computed(() => {
+    const group = this.selectedContention();
+    return (group?.handles ?? []).map((handle) => {
+      const measures = group?.perHandle?.find((item) => item.agentHandle === handle);
+      return {
+        handle,
+        entry: measures?.baselineOrder?.value ?? null,
+        headway: measures?.headway?.value ?? null,
+        delay: measures?.entryDelay?.value ?? null,
+        slack: measures?.slack?.value ?? null,
+      };
+    });
+  });
+
+  selectContention(band: PlacedBand): void {
+    this.store.selectedContention.set(this.store.selectedContention() === band.group ? null : band.group);
+  }
+
+  trainName(handle: number): string {
+    return this.identity.nameFor(handle);
+  }
+
+  selectTrain(handle: number): void {
+    this.store.selectedHandle.set(handle);
+  }
 
   isHighlighted(handle: number): boolean {
     return this.store.notificationHoverHandles().has(handle) || this.store.selectedHandle() === handle;

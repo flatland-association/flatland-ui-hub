@@ -7,14 +7,16 @@ Single source of truth for:
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
 import importlib.util
-from types import ModuleType
+from dataclasses import dataclass
+from pathlib import Path
+import importlib.util
 from typing import Callable
 
 from flatland.envs.rail_env import RailEnv
 
 from app.policies.base import Policy
+from app.policies.learned import lab_checkpoints, pf_ch_bundle, uc2_bundle, uc2_roam_bundle
 from app.policies.deadlock_avoidance_policy import DeadLockAvoidancePolicy
 from app.policies.goal_directed_policy import GoalDirectedPolicy
 from app.policies.shortest_path_policy import ShortestPathPolicy
@@ -70,18 +72,8 @@ class PolicySpec:
     licence: str = "Flatland (base set)"
     #: Why this exists — a source, a paper, or control-room practice.
     grounding: str = ""
-
-    # ── runtime needs ───────────────────────────────────────────────────
-    #: A specialist's bundle module (``compatibility_error(env)``,
-    #: ``verify_bundle()``): a trained network bound to the infrastructures it
-    #: learned on. It is checked before it may drive, its inference runs in the
-    #: worker under the session's command lock (``core/pf_ch_control.py``), and
-    #: the browser never swaps it for a fallback. None for every other policy.
-    bundle: ModuleType | None = None
-
-    @property
-    def specialist(self) -> bool:
-        return self.bundle is not None
+    #: Other places in the playground that run the same algorithm.
+    used_in: tuple[str, ...] = ()
 
 
 def _mk_deadlock(env: RailEnv) -> Policy:
@@ -114,6 +106,27 @@ def _mk_goal_directed(env: RailEnv) -> Policy:
 
 def _mk_plan(env: RailEnv) -> Policy:
     return PlanPolicy(env, trainruns_from_env(env))
+
+
+# torch is a dev/lab dependency, not a runtime one: the production image
+# installs requirements.txt only. So the learned policy is imported lazily and
+# offered only where torch is installed — importing the registry at app startup
+# must never touch torch (same rule as goal_directed_policy's dials).
+_LEARNED_PPO_CHECKPOINT = Path(__file__).parent / "learned" / "checkpoints" / "ecml2026_ppo.pt"
+# Offered only where both torch and the checkpoint are there. The Space image
+# has both (deploy/hf/Dockerfile); the plain root Dockerfile has no torch.
+_TORCH_AVAILABLE = importlib.util.find_spec("torch") is not None
+_LEARNED_PPO_AVAILABLE = _TORCH_AVAILABLE and _LEARNED_PPO_CHECKPOINT.is_file()
+
+
+def _mk_learned_ppo(env: RailEnv) -> Policy:
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    return LearnedPpoPolicy(env)
+
+
+def _mk_learned_ppo_branch() -> Policy:
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    return LearnedPpoPolicy()
 
 
 def _mk_pf_ch_rl(env: RailEnv) -> Policy:
@@ -169,7 +182,6 @@ _REGISTRY: dict[str, PolicySpec] = {
         runtime_factory=_mk_uc2_rl,
         branch_factory=_branch_uc2_rl,
         family="learned",
-        bundle=uc2_roam_bundle,
         deterministic=True,
         role="operational",
         observation="UC2ObservationBuilder (313 current-state features + 5 action masks)",
@@ -188,7 +200,6 @@ _REGISTRY: dict[str, PolicySpec] = {
         runtime_factory=_mk_pf_ch_rl,
         branch_factory=_branch_pf_ch_rl,
         family="learned",
-        bundle=pf_ch_bundle,
         deterministic=True,
         role="operational",
         observation="PFChObservationBuilder (272 features + 5 action masks)",
@@ -338,8 +349,51 @@ _REGISTRY: dict[str, PolicySpec] = {
         provenance=(
             "Own implementation. Optional torch checkpoints (evaluator / connection model); without them it falls back to plan_avoiding_overlaps and records that in the plan info — degraded, never broken."
         ),
+        licence="Own implementation",
         grounding=(
             "Director mode (WP 3.4): the human steers by goal weights, the planner re-plans against them."
+        ),
+    ),
+    # The first learned policy (docs/plans/marl-lab-plan.md, step 1). Offered
+    # everywhere so the human can work with it in all three modes; it is a
+    # practice partner, not the default. Measured on the project scenarios it
+    # does well on its own ECML topology and short PF-CH approaches, and
+    # deadlocks like Shortest Path on the corridors and Olten — that gap is
+    # what the lab's training steps are for.
+    "learned_ppo": PolicySpec(
+        id="learned_ppo",
+        label="Learned PPO (pretrained)",
+        description=(
+            "A multi-agent RL policy: one network shared by all trains, trained with PPO "
+            "for the Flatland challenge 2026. Greedy, so the same state gives the same actions."
+        ),
+        is_default=False,
+        show_in_ui=_LEARNED_PPO_AVAILABLE,
+        # Off on purpose: scenario_policy_factories() feeds every session's
+        # what-if scenarios (and so the recommendations) from this flag, with or
+        # without show_in_ui. Adding a PPO branch to all sessions would change
+        # every mode's recommendations, and crash where torch is missing.
+        supports_scenarios=False,
+        runtime_factory=_mk_learned_ppo,
+        branch_factory=_mk_learned_ppo_branch,
+        family="learned",
+        deterministic=True,
+        role="baseline",
+        observation="FastTreeObs (36 features + action mask, built by the policy itself)",
+        at_conflict=(
+            "Nothing explicit: it sees opposing and same-direction trains a few branches ahead "
+            "and learned when to stop. Off the topology it was trained on, it deadlocks on "
+            "single-track corridors."
+        ),
+        provenance=(
+            "Flatland challenge 2026 starter kit (flatland-association): pretrained checkpoint, observation "
+            "builder and network, vendored in app/policies/learned/."
+        ),
+        licence="MIT (Flatland challenge 2026 starter kit)",
+        grounding=(
+            "Flatland challenge 2026 (Real-World Baselines, RL track) starter policy. "
+            "The playground's first learned policy, for practising human-AI collaboration "
+            "(docs/plans/marl-lab-plan.md)."
         ),
     ),
     # Only meaningful for a scenario that ships a plan file, so it is hidden
@@ -360,8 +414,94 @@ _REGISTRY: dict[str, PolicySpec] = {
         supports_scenarios=False,
         runtime_factory=_mk_plan,
         branch_factory=PlanPolicy,
+        family="rule-based",
+        deterministic=True,
+        role="operational",
+        observation="DummyObservationBuilder",
+        at_conflict=(
+            "Does not resolve conflicts itself: it follows the trainruns it is given, "
+            "step by step. A train the plan does not cover, or one the operator "
+            "overrode, falls back to deadlock avoidance."
+        ),
+        provenance="Own implementation (app/policies/plan_policy.py).",
+        licence="Own implementation",
+        grounding=(
+            "Executes premade plans of a scenario, and every course a planner produces: "
+            "the plan is the decision, this only carries it out."
+        ),
+        used_in=(
+            "Simulating and accepting PP proposals (/proposals)",
+            "Rolling forward the contention strategies pp and priority",
+        ),
     ),
 }
+
+# ── MARL lab checkpoints (docs/plans/marl-lab-plan.md, step 3) ──────────
+# Every backend/lab/checkpoints/<name>.pt is offered as "lab:<name>", with the
+# rules of learned_ppo: torch only imported when a session builds the policy,
+# show_in_ui only where torch is installed, never in the what-if scenarios.
+# Listed on each lookup (one directory glob), so a checkpoint the lab has just
+# written appears in the next session without restarting the backend.
+
+def _lab_spec(path: Path) -> PolicySpec:
+    meta = lab_checkpoints.read_meta(path)
+    kind = meta.get("kind")
+    base = Path(meta["base"]).stem if meta.get("base") else None
+    if kind == "online":
+        how = f"online learning, version {meta.get('version', '?')} (evaluated against the last stable version and DLA)"
+    elif kind == "hg-dagger":
+        how = f"fine-tuned on {meta.get('interventions', '?')} human interventions (HG-DAgger)"
+    elif kind == "pp-bc":
+        how = f"behaviour cloning from {meta.get('samples', '?')} validated PP teacher decisions"
+    elif kind == "ppo":
+        how = f"PPO, {meta.get('iterations', '?')} iterations on {', '.join(meta.get('scenarios') or ['?'])}"
+    else:
+        how = "trained in the MARL lab"
+    if base:
+        how += f", from {base}"
+
+    def _runtime(env: RailEnv) -> Policy:
+        from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+        return LearnedPpoPolicy(env, checkpoint=path)
+
+    def _branch() -> Policy:
+        from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+        return LearnedPpoPolicy(checkpoint=path)
+
+    # Label and description name a local file, so they are data rather than
+    # UI copy; the frontend falls back to them (no i18n key per checkpoint).
+    return PolicySpec(
+        id=lab_checkpoints.policy_id(path),
+        label=str(meta.get("label") or f"Lab: {path.stem}"),
+        description=f"Learned PPO from the MARL lab: {how}. Greedy, same network as Learned PPO.",
+        is_default=False,
+        # A tour's checkpoint is asked for by id by the tour that trained it
+        # (see `selectable_policy_ids`), not offered to everyone.
+        show_in_ui=_TORCH_AVAILABLE and (
+            not lab_checkpoints.is_tour_checkpoint(path) or lab_checkpoints.tour_checkpoints_visible()
+        ),
+        supports_scenarios=False,
+        runtime_factory=_runtime,
+        branch_factory=_branch,
+        family="learned",
+        deterministic=True,
+        role="baseline",
+        observation=f"{meta.get('observation_schema', 'FastTreeObs')} ({meta.get('obs_size', 36)} features + action mask)",
+        at_conflict=_REGISTRY["learned_ppo"].at_conflict,
+        provenance=f"Local checkpoint backend/lab/checkpoints/{path.name}, trained with backend/lab/marl/.",
+        licence="Own training; network and observation MIT (Flatland challenge 2026 starter kit)",
+        grounding="MARL lab (docs/plans/marl-lab-plan.md): practise with a policy you trained yourself.",
+    )
+
+
+def _lab_specs() -> dict[str, PolicySpec]:
+    specs = (_lab_spec(path) for path in lab_checkpoints.list_checkpoints())
+    return {spec.id: spec for spec in specs}
+
+
+def _all_specs() -> dict[str, PolicySpec]:
+    return {**_REGISTRY, **_lab_specs()}
+
 
 # Policies that no session offers unless something about that session unlocks
 # them. Keeps `show_in_ui` meaning "offer everywhere" rather than "offer never".
@@ -369,25 +509,32 @@ PLAN_POLICY_ID = "plan"
 
 
 def policy_ids(*, include_hidden: bool = True) -> list[str]:
-    if include_hidden:
-        return list(_REGISTRY.keys())
-    return [pid for pid, spec in _REGISTRY.items() if spec.show_in_ui]
+    return [spec.id for spec in policy_specs(include_hidden=include_hidden)]
 
 
 def policy_specs(*, include_hidden: bool = True) -> list[PolicySpec]:
+    specs = _all_specs().values()
     if include_hidden:
-        return list(_REGISTRY.values())
-    return [spec for spec in _REGISTRY.values() if spec.show_in_ui]
+        return list(specs)
+    return [spec for spec in specs if spec.show_in_ui]
+
+
+def selectable_policy_ids(requested: set[str] | None = None) -> set[str]:
+    """What a session may enable: every policy offered in the UI, plus a hidden
+    lab checkpoint the client names explicitly (the MARL lab tour's own
+    `lab:tour-…` model), where torch is there to run it."""
+    available = {spec.id for spec in policy_specs(include_hidden=True) if spec.show_in_ui}
+    if _TORCH_AVAILABLE:
+        available |= {pid for pid in (requested or set()) if lab_checkpoints.path_for_policy_id(pid) is not None}
+    return available
 
 
 def get_policy_spec(policy_id: str) -> PolicySpec | None:
-    return _REGISTRY.get(policy_id)
-
-
-def is_specialist_policy(policy_id: str | None) -> bool:
-    """Whether `policy_id` is a specialist (`PolicySpec.bundle`); unknown ids are not."""
-    spec = _REGISTRY.get(policy_id) if policy_id else None
-    return spec is not None and spec.specialist
+    spec = _REGISTRY.get(policy_id)
+    path = lab_checkpoints.path_for_policy_id(policy_id) if spec is None else None
+    if path is not None:
+        spec = _lab_spec(path)
+    return spec
 
 
 def create_runtime_policy(policy_id: str, env: RailEnv) -> Policy:
@@ -408,6 +555,7 @@ def driving_policy_id(policy_id: str, env: RailEnv) -> str:
     accepted course must not be dropped by the next step. RL drivers are left
     alone; they never follow trainruns.
     """
+    from app.core.pf_ch_control import is_specialist_policy
     from app.policies.plan_policy import plan_accepted
 
     if policy_id != PLAN_POLICY_ID and not is_specialist_policy(policy_id) and plan_accepted(env):

@@ -383,7 +383,7 @@
             </div>
           }
 
-          @if (panel.type === 'zug-weg-diagramm' || (panel.type === 'view-tabs' && isViewTabEnabled(panel, 'zug-weg-diagramm'))) {
+          @if (panel.type === 'zug-weg-diagramm' || panel.type === 'zwl-origin' || panel.type === 'zwl-origin-extended' || (panel.type === 'view-tabs' && isViewTabEnabled(panel, 'zug-weg-diagramm'))) {
             <div class="settings__group">
               <sbb-title level="4" visual-level="6">Time-distance diagram</sbb-title>
               <label class="checkbox">

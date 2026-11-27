@@ -212,6 +212,14 @@ def test_uc2_wrong_map_api_requests_fail_before_policy_or_physics_changes():
 
 
 @pytest.mark.integration
+def _next_state(socket):
+    """The hub also sends play_status frames; take the next state frame."""
+    while True:
+        message = socket.receive_json()
+        if 'state' in message:
+            return message
+
+
 @pytest.mark.parametrize('scenario', uc2_bundle.SCENARIOS)
 def test_uc2_api_websocket_and_reset_replay_the_same_native_mission(scenario):
     from app.main import app
@@ -228,9 +236,9 @@ def test_uc2_api_websocket_and_reset_replay_the_same_native_mission(scenario):
             assert chosen.status_code == 200, chosen.text
             assert session.policy == 'uc2_rl'
             with client.websocket_connect(f'/ws/session/{sid}') as socket:
-                assert socket.receive_json()['state']['elapsed_steps'] == 0
+                assert _next_state(socket)['state']['elapsed_steps'] == 0
                 assert client.post(f'/session/{sid}/step', json={'policy': 'uc2_rl', 'n_steps': 1}).status_code == 200
-                assert socket.receive_json()['state']['elapsed_steps'] == 1
+                assert _next_state(socket)['state']['elapsed_steps'] == 1
             finishes = []
             for repetition in range(2):
                 for _ in range(1 + horizon // 100):
