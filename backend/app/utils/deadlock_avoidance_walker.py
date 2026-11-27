@@ -38,12 +38,14 @@ class DeadlockAvoidanceShortestDistanceWalker(ShortestDistanceWalker):
         self.agent_positions: np.ndarray | None = None
         self.opp_agent_map: Dict[int, List[int]] = {}
         self.same_agent_map: Dict[int, List[int]] = {}
+        self._no_switch_cache: dict[Position, bool] = {}
         # Committed reroutes, (row, col, heading) per train: walked instead of
         # the shortest path (docs/plans/set-route-on-map.md, Q-4).
         self.routes: Dict[int, List[Tuple[int, int, int]]] = {}
 
     # ── route-aware step ─────────────────────────────────────────────
-    def _walk(self, handle: int, position: Position, direction: int):
+    def _walk(self, handle: int, position: Position, direction: int,
+              distance_map: np.ndarray | None = None):
         route = self.routes.get(handle)
         if route:
             here = (int(position[0]), int(position[1]), int(direction))
@@ -56,7 +58,7 @@ class DeadlockAvoidanceShortestDistanceWalker(ShortestDistanceWalker):
                 possible_transitions = _get_transitions(self.env.rail, position[0], position[1], direction)
                 action = self._direction_change_to_action(direction, heading)
                 return (row, col), heading, action, possible_transitions
-        return super()._walk(handle, position, direction)
+        return super()._walk(handle, position, direction, distance_map)
 
     # ── lifecycle ────────────────────────────────────────────────────
     def reset(self, env: RailEnv) -> None:
@@ -66,14 +68,19 @@ class DeadlockAvoidanceShortestDistanceWalker(ShortestDistanceWalker):
         self.agent_positions = None
         self.opp_agent_map = {}
         self.same_agent_map = {}
+        self._no_switch_cache.clear()
 
     def clear(self, agent_positions: np.ndarray) -> None:
         """Reset per-step buffers. Called once per env step before
         walking each agent."""
         n_agents = self.env.get_num_agents()
-        h, w = self.env.height, self.env.width
-        self.shortest_distance_agent_map = np.full((n_agents, h, w), -1, dtype=int)
-        self.full_shortest_distance_agent_map = np.full((n_agents, h, w), -1, dtype=int)
+        shape = (n_agents, self.env.height, self.env.width)
+        if self.shortest_distance_agent_map is None or self.shortest_distance_agent_map.shape != shape:
+            self.shortest_distance_agent_map = np.empty(shape, dtype=int)
+        if self.full_shortest_distance_agent_map is None or self.full_shortest_distance_agent_map.shape != shape:
+            self.full_shortest_distance_agent_map = np.empty(shape, dtype=int)
+        self.shortest_distance_agent_map.fill(-1)
+        self.full_shortest_distance_agent_map.fill(-1)
         self.agent_positions = agent_positions
         self.opp_agent_map = {}
         self.same_agent_map = {}
@@ -124,10 +131,17 @@ class DeadlockAvoidanceShortestDistanceWalker(ShortestDistanceWalker):
     # ── helper ───────────────────────────────────────────────────────
     def _is_no_switch_cell(self, position: Position) -> bool:
         """A cell is a switch if any orientation has more than one transition."""
+        cached = self._no_switch_cache.get(position)
+        if cached is not None:
+            return cached
+
+        no_switch = True
         for new_dir in range(4):
             possible_transitions = _get_transitions(
                 self.env.rail, position[0], position[1], new_dir
             )
             if fast_count_nonzero(possible_transitions) > 1:
-                return False
-        return True
+                no_switch = False
+                break
+        self._no_switch_cache[position] = no_switch
+        return no_switch

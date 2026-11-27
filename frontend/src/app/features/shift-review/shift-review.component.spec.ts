@@ -260,16 +260,13 @@ describe('ShiftReviewComponent', () => {
     });
 
     for (const actor of ['uc2_rl', 'pf_ch_rl'] as const) {
-      it(`keeps the native KPI review when ${actor} drove and there is no plan to verify`, () => {
+      it(`keeps native KPI review without Director verification for ${actor}`, () => {
         store.setActivePolicy(actor);
         withAgents();
         fixture.detectChanges();
-        // As for any driver without a committed Director plan: the 400 leaves the check out.
-        http.expectOne(request => request.url.endsWith('/director/verify'))
-          .flush({ detail: 'No committed plan' }, { status: 400, statusText: 'Bad Request' });
-        fixture.detectChanges();
+        http.expectNone(request => request.url.endsWith('/director/verify'));
         expect(cmp.verification()).toBeNull();
-        expect(cmp.verifyFailed()).toBeTrue();
+        expect(cmp.verifyFailed()).toBeFalse();
         expect(cmp.kpis().total).toBeGreaterThan(0);
         expect(fixture.nativeElement.textContent).not.toContain('The plan, replayed');
       });
@@ -287,18 +284,15 @@ describe('ShiftReviewComponent', () => {
         fixture.detectChanges();
         expect(cmp.verification()).toBeNull();
         expect(cmp.verifyFailed()).toBeFalse();
-        http.expectOne(request => request.url.endsWith('/director/verify'))
-          .flush({ detail: 'No committed plan' }, { status: 400, statusText: 'Bad Request' });
-        fixture.detectChanges();
+        http.expectNone(request => request.url.endsWith('/director/verify'));
         expect(fixture.nativeElement.textContent).not.toContain('The plan, replayed');
       });
 
       it(`ignores a racing Director reply and cancels its subscription after switching to ${actor}`, () => {
         const pending = new Subject<DirectorVerification>();
         let unsubscribed = false;
-        spyOn(TestBed.inject(ApiService), 'verifyDirectorPlan').and.returnValues(
+        spyOn(TestBed.inject(ApiService), 'verifyDirectorPlan').and.returnValue(
           pending.pipe(finalize(() => { unsubscribed = true; })),
-          new Subject<DirectorVerification>(), // the new driver's own request stays open
         );
         withAgents();
         fixture.detectChanges();
@@ -314,10 +308,9 @@ describe('ShiftReviewComponent', () => {
       });
     }
 
-    it('ignores an old error after switching the driver without poisoning its state', () => {
+    it('ignores an old error after switching to a fixed actor without poisoning its state', () => {
       const pending = new Subject<DirectorVerification>();
-      spyOn(TestBed.inject(ApiService), 'verifyDirectorPlan').and.returnValues(
-        pending, new Subject<DirectorVerification>());
+      spyOn(TestBed.inject(ApiService), 'verifyDirectorPlan').and.returnValue(pending);
       withAgents();
       fixture.detectChanges();
       store.setActivePolicy('uc2_rl');

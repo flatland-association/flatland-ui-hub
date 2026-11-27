@@ -7,7 +7,7 @@ import { ApiService } from './api.service';
 import { STUDY_CONDITIONS } from './demo/study-conditions';
 import { TOURS, UC2_RL_TOURS, tourById } from './demo/tours';
 import { LAYOUT_PRESETS } from './layout/layout-presets';
-import { PolicyInfo, SessionInfo } from './models';
+import { isFixedActorPolicy, PolicyInfo, SessionInfo } from './models';
 import { restartSessionOpts } from './restart-session-opts';
 import { SessionStore } from './session.store';
 import { WebSocketService } from './websocket.service';
@@ -20,11 +20,11 @@ const NATIVE_DEMOS = [
 describe('UC2 RL tours stay separate from participant conditions', () => {
   it('offers exactly the five named native fixtures without overriding their limits or faults', () => {
     expect(UC2_RL_TOURS.length).toBe(5);
-    expect(TOURS.filter(tour => tour.backendPolicy === 'uc2_rl')).toEqual(UC2_RL_TOURS);
+    expect(TOURS.filter(tour => tour.policy === 'uc2_rl')).toEqual(UC2_RL_TOURS);
     for (const [id, preset] of NATIVE_DEMOS) {
       const tour = tourById(id)!;
       expect(tour.infrastructureId).withContext(id).toBe(preset);
-      expect(tour.backendPolicy).toBe('uc2_rl');
+      expect(tour.policy).toBe('uc2_rl');
       expect(tour.layout).toBe('preset-uc2-rl');
       expect(tour.modes).toEqual(['director']);
       expect(tour.maxEpisodeSteps).toBeUndefined();
@@ -48,6 +48,8 @@ describe('UC2 RL tours stay separate from participant conditions', () => {
       expect(condition.legs?.[0].scenarioId).toBe('tutorial');
       expect(condition.legs?.slice(1).map(leg => leg.scenarioId).sort()).toEqual(['uc2-1', 'uc2-2', 'uc2-3', 'uc2-4']);
     }
+    expect(isFixedActorPolicy('deadlock_avoidance')).toBeFalse();
+    expect(isFixedActorPolicy('goal_directed')).toBeFalse();
   });
 
   it('reuses compact supervision without adding Director PP strategy surfaces', () => {
@@ -58,8 +60,6 @@ describe('UC2 RL tours stay separate from participant conditions', () => {
     const oldIds = new Set(old.layout.columns.flatMap(column => column.panels.map(panel => panel.id)));
     expect(panels.some(panel => oldIds.has(panel.id))).toBeFalse();
     expect(panels[2].settings).not.toBe(old.layout.columns[1].panels[0].settings);
-    expect(layout.headerToolbar).toBeTrue();
-    expect(layout.ui?.hidden).toEqual(['widget.director-directive']);
   });
 });
 
@@ -85,15 +85,11 @@ describe('UC2 RL native session lifecycle', () => {
     spyOn(ws, 'connect');
     spyOn(ws, 'disconnect');
     spyOn(store, 'refreshState');
-    (store as unknown as { _policies: { set(v: PolicyInfo[]): void } })._policies.set([
-      { id: 'deadlock_avoidance', show_in_ui: true, is_default: true },
-      { id: 'uc2_rl', show_in_ui: true, specialist: true },
-    ] as PolicyInfo[]);
   });
 
   function open(preset = 'uc2-3') {
     store.interactionMode.set('director');
-    store.newSession({ pinnedPolicy: 'uc2_rl', scenarioPresetId: preset,
+    store.newSession({ policy: 'uc2_rl', scenarioPresetId: preset,
       policyControlIds: ['deadlock_avoidance'] });
   }
 
@@ -149,7 +145,6 @@ describe('UC2 RL native session lifecycle', () => {
     accepted.next({ session_id: 'uc2', policy: 'uc2_rl' });
     spyOn(api, 'listPolicies').and.returnValue(of([
       { id: 'deadlock_avoidance', show_in_ui: true, is_default: true } as PolicyInfo,
-      { id: 'uc2_rl', show_in_ui: false, specialist: true } as PolicyInfo,
     ]));
     store.loadPolicies();
     expect(store.activePolicy()).toBe('uc2_rl');
@@ -157,7 +152,7 @@ describe('UC2 RL native session lifecycle', () => {
     expect(store.error()).toBeTruthy();
     const tour = tourById('uc2-rl-3')!;
     const opts = restartSessionOpts({ randomEnv: false, opts: {
-      pinnedPolicy: tour.backendPolicy, scenarioPresetId: tour.infrastructureId,
+      policy: tour.policy, scenarioPresetId: tour.infrastructureId,
     } }, {});
     store.newSession(opts);
     expect(api.deleteSession).toHaveBeenCalledOnceWith('uc2');

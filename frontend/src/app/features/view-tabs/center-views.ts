@@ -3,6 +3,7 @@ import { PanelInstance } from '../../core/layout/models/layout.models';
 import { FlatlandMapComponent } from '../flatland-map/flatland-map.component';
 import { ZwlComponent } from '../zwl/zwl.component';
 import { TimetableComponent } from '../timetable/timetable.component';
+import { TrackOccupancyComponent } from '../track-occupancy/track-occupancy.component';
 import { GoalAchievementPanelComponent } from '../../shared/layout/panels/goal-achievement-panel/goal-achievement-panel.component';
 
 /**
@@ -45,6 +46,7 @@ export const CENTER_VIEWS: CenterViewDef[] = [
       decisionPills: !!(panel as { settings?: { decisionPills?: boolean } } | null)?.settings?.decisionPills,
     }),
   },
+  { type: 'track-occupancy', label: 'Gleisbelegung', labelKey: 'views.trackOccupancy', component: TrackOccupancyComponent, inputs: () => ({ embedded: true }) },
   { type: 'timetable', label: 'Fahrplan', labelKey: 'views.timetable', component: TimetableComponent, inputs: () => ({ embedded: true }) },
   {
     type: 'goal-achievement',

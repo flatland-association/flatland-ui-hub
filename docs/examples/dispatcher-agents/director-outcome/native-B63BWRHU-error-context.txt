@@ -1,0 +1,371 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: dispatcher-comparison.spec.ts >> prepared Director comparison · real map variants and exact native adoption
+- Location: e2e/dispatcher-comparison.spec.ts:4:5
+
+# Error details
+
+```
+Error: Director outcome: the map remains visible
+
+expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "Flatland Dispatcher — start" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "AI4REALNET" [ref=e7]
+        - generic [ref=e8]:
+          - generic [ref=e9]: Flatland Dispatcher
+          - generic [ref=e10]: A Human-AI Teaming Playground
+      - tablist "Interaction mode" [ref=e12]:
+        - tab "Recommendation" [disabled] [ref=e13]
+        - tab "Co-Learning" [disabled] [ref=e16]
+        - tab "Director" [disabled] [selected] [ref=e20]
+      - generic [ref=e26]:
+        - generic [ref=e27]: Menu
+        - generic:
+          - generic: Session Settings…
+          - generic: Help & About
+          - generic: Restart run
+          - generic: End session
+          - generic: English
+          - generic: Deutsch
+          - generic: Français
+          - generic: Neutral (blue)
+          - generic: SBB (red)
+          - generic: Safety (blue, grey brand)
+          - generic: Light
+          - generic: Dark
+          - generic: Automatic (system)
+          - generic: Layout Designer
+          - generic: Infrastructure Builder
+          - generic: Widgets Gallery
+          - generic: Algorithm Gallery
+          - generic: Scenario Gallery
+          - generic: Contribute
+  - generic [ref=e36]:
+    - generic [ref=e37]:
+      - status [ref=e38]:
+        - generic [ref=e40]:
+          - generic [ref=e41]: Synthetic dispatcher
+          - strong [ref=e42]: Result of the adopted plan
+        - paragraph [ref=e43]: The run has ended. Here is the measured outcome.
+      - button "Show action explanation" [ref=e44] [cursor=pointer]: Details
+    - generic [ref=e45]:
+      - generic [ref=e46]: Observed since this plan was adopted
+      - paragraph [ref=e47]: "Plan check: 3 / 3 arrivals expected."
+      - strong [ref=e48]: "Actual: 3 / 3 trains arrived."
+      - paragraph [ref=e49]: "Summed arrival delay (steps): 42 · 3 measured arrivals"
+      - paragraph [ref=e50]: "Observed arrival-delay reference: the original plan captured at run start."
+      - paragraph [ref=e51]: Shift’s over! Time to swap timetables for cool drinks, some exercise or family time. 🥤
+    - generic [ref=e52]:
+      - generic [ref=e53]: Simulation step 82
+      - generic [ref=e54]: Last simulation update 4 s ago
+    - generic [ref=e55]:
+      - generic [ref=e56]:
+        - generic [ref=e57]: Latest action
+        - generic [ref=e58]: Plan confirmed
+      - strong [ref=e59]: Goal weights 5 / 2 / 2 are effective in the controller plan at logical tick 2.
+  - generic [ref=e61]:
+    - generic [ref=e62] [cursor=pointer]: Play
+    - generic [ref=e70]:
+      - generic [ref=e71]: Simulation speed
+      - slider [ref=e72] [cursor=pointer]: "3"
+      - generic [ref=e73]: Fast
+      - generic [ref=e74]: 1 min = 1 s
+    - generic [ref=e77]: Step 1
+    - generic [ref=e80]: Step 10
+    - generic [ref=e83]: Step 50
+    - generic [ref=e88]: Policy
+    - combobox [disabled] [ref=e89] [cursor=pointer]:
+      - option "DLA (Default)"
+      - option "Shortest Path"
+      - option "Random"
+      - option "Forward Only"
+      - option "Director Planner" [selected]
+      - option "Learned PPO (pretrained)"
+      - option "Scripted Plan"
+    - generic [ref=e90]:
+      - generic "Finished" [ref=e91]: Dispatcher Agent
+      - button "Event log" [ref=e92] [cursor=pointer]
+    - status [ref=e93]: Episode finished
+    - generic [ref=e94]: Episode finished. Use Reset to start again.
+  - text: · · · · · · ·
+  - region "Shift review" [ref=e95]:
+    - generic [ref=e97]:
+      - generic [ref=e98]:
+        - generic [ref=e99]: Shift review
+        - generic [ref=e100]: 3/3 trains at their destination (100 %)
+      - generic [ref=e101]:
+        - generic [ref=e102]:
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - strong [ref=e105]: 3/3
+              - text: arrived
+            - generic [ref=e106]:
+              - strong [ref=e107]: "0"
+              - text: delayed
+            - generic [ref=e108]:
+              - strong [ref=e109]: "0"
+              - text: total delay
+            - generic [ref=e110]:
+              - strong [ref=e111]: "0"
+              - text: malfunction(s) at the end
+          - paragraph [ref=e112]: The AI took 28 decisions itself and re-planned 1× — you set the goal 0×.
+          - paragraph [ref=e113]: You set no goal in this shift — the AI ran on the initial directive throughout. So there is nothing I could learn about your priorities either.
+          - generic [ref=e114]:
+            - generic [ref=e115]: The plan, replayed
+            - paragraph [ref=e116]:
+              - text: On a fresh copy of the same episode — same tracks, same timetable, same disruptions — the plan gives 0 delay,
+              - strong [ref=e117]: all trains at their destination
+              - text: and 0/0 connections kept (100 %) over 83 steps.
+            - paragraph [ref=e118]: The models had put connections at 100 % — the search value is a capped geometric mean and deliberately lower than the share that counts. Stability was rated at 84 %.
+            - paragraph [ref=e119]: What is replayed is the plan applied last, from step 0. That says “what this plan achieves on this episode” — not “this is how the shift went”, because it was re-planned along the way.
+        - generic [ref=e120]:
+          - generic [ref=e121]:
+            - generic [ref=e122]: What I learned about you
+            - paragraph [ref=e123]: No confirmed preference yet. Without a confirmed rule the ranking rests purely on the KPI assessment — I add no guesses.
+          - generic [ref=e124]:
+            - generic [ref=e125]: For the next shift
+            - paragraph [ref=e126]: "There is nothing to carry over: without a deliberate decision in this shift I have no evidence to take along."
+      - paragraph [ref=e127]: Rule-based review from this shift’s decision log — no language model, no interpretation beyond the numbers shown.
+  - contentinfo [ref=e128]:
+    - generic [ref=e129]:
+      - generic [ref=e130]:
+        - text: "Step:"
+        - strong [ref=e131]: "82"
+        - text: / 180
+      - generic [ref=e132]:
+        - text: "Grid:"
+        - strong [ref=e133]: 191 × 9
+      - generic [ref=e134]:
+        - text: "Agents:"
+        - strong [ref=e135]: "3"
+      - button "Export session data" [ref=e136] [cursor=pointer]
+    - generic [ref=e137]:
+      - generic "Local build (dev) — not a deployed version" [ref=e138]: dev · local
+      - generic [ref=e139]: "Session: ec0ddf7d"
+      - generic "WebSocket connection" [ref=e140]
+```
+
+# Test source
+
+```ts
+  933  |     expect(actor.metrics.executed).toBe(1);
+  934  |     expect(actor.metrics.effective_goal_changes).toBe(0);
+  935  |     const controller = await this.directorControllerState();
+  936  |     expect(controller.weights).toEqual(value.current?.weights);
+  937  |     expect(controller.paths).toEqual(value.current?.paths);
+  938  |     expect(await this.backendStep('Director comparison hold')).toBe(value.step);
+  939  |     expect(await this.backendPlaying('Director comparison hold')).toBe(false);
+  940  |     if (hold === 'commit') {
+  941  |       expect(this.comparisonHeldCommit!.postDataJSON()).toEqual({ command_id: value.command_id,
+  942  |         generation: value.generation, token: value.token });
+  943  |     }
+  944  |     return value;
+  945  |   }
+  946  |
+  947  |   async directorComparisonFrames(): Promise<DirectorComparisonFrame[]> {
+  948  |     return this.page.evaluate(() =>
+  949  |       (window as typeof window & { directorComparisonFrames: DirectorComparisonFrame[] }).directorComparisonFrames);
+  950  |   }
+  951  |
+  952  |   async directorOutcomeEvidence(): Promise<{ frames: DirectorOutcomeFrame[]; measurements: DirectorOutcomeMeasurement[] }> {
+  953  |     return { frames: await this.page.evaluate(() =>
+  954  |       (window as typeof window & { directorOutcomeFrames: DirectorOutcomeFrame[] }).directorOutcomeFrames),
+  955  |     measurements: [...this.directorOutcomeMeasurements] };
+  956  |   }
+  957  |
+  958  |   async expectNoDirectorOutcome(): Promise<void> {
+  959  |     await expect(this.dispatcherMonitor.getByTestId('dispatcher-outcome')).toHaveCount(0);
+  960  |     await expect(this.dispatcherMonitor.getByTestId('dispatcher-outcome-signoff')).toHaveCount(0);
+  961  |   }
+  962  |
+  963  |   async expectDirectorOutcomeTracking(value: DirectorComparison): Promise<void> {
+  964  |     const outcome = this.dispatcherMonitor.getByTestId('dispatcher-outcome');
+  965  |     await expect(outcome).toBeVisible();
+  966  |     await expect(outcome).toHaveAttribute('data-command-id', value.command_id);
+  967  |     await expect(outcome).toHaveAttribute('data-phase', 'tracking');
+  968  |     await expect(outcome).toHaveAttribute('data-arrived', '0');
+  969  |     await expect(outcome).toHaveAttribute('data-total', String(value.validation!.total));
+  970  |     await expect(outcome.getByTestId('dispatcher-outcome-actual')).toContainText(/\b0\b/);
+  971  |     await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
+  972  |     await expect(this.dispatcherMonitor.getByTestId('dispatcher-outcome-signoff')).toHaveCount(0);
+  973  |   }
+  974  |
+  975  |   private async expectIntermediateDirectorOutcome(value: DirectorComparison, actor: DispatcherState): Promise<void> {
+  976  |     const effect = actor.effects!.find(item => item.command_id === value.command_id)!;
+  977  |     const outcome = this.dispatcherMonitor.getByTestId('dispatcher-outcome');
+  978  |     await expect(outcome).toBeVisible();
+  979  |     await expect(outcome).toHaveAttribute('data-command-id', value.command_id);
+  980  |     await expect(outcome).toHaveAttribute('data-phase', 'tracking');
+  981  |     await expect(outcome).toHaveAttribute('data-arrived', String(effect.after.arrived));
+  982  |     await expect(outcome).toHaveAttribute('data-total', String(actor.metrics['total_trains']));
+  983  |     await expect(outcome.getByTestId('dispatcher-outcome-actual')).toContainText(String(effect.after.arrived));
+  984  |     await expect(outcome.getByTestId('dispatcher-outcome-actual')).toBeInViewport();
+  985  |     await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
+  986  |     await expect(this.dispatcherMonitor.getByTestId('dispatcher-outcome-signoff')).toHaveCount(0);
+  987  |   }
+  988  |
+  989  |   private async expectFinalDirectorOutcome(value: DirectorComparison, actor: DispatcherState): Promise<void> {
+  990  |     const effect = actor.effects!.find(item => item.command_id === value.command_id)!;
+  991  |     const outcome = this.dispatcherMonitor.getByTestId('dispatcher-outcome');
+  992  |     const expected = outcome.getByTestId('dispatcher-outcome-expected');
+  993  |     const actual = outcome.getByTestId('dispatcher-outcome-actual');
+  994  |     const delay = outcome.getByTestId('dispatcher-outcome-delay');
+  995  |     const signoff = this.dispatcherMonitor.getByTestId('dispatcher-outcome-signoff');
+  996  |     await expect(outcome).toBeVisible();
+  997  |     await expect(outcome).toHaveAttribute('data-command-id', value.command_id);
+  998  |     await expect(outcome).toHaveAttribute('data-phase', 'complete');
+  999  |     await expect(outcome).toHaveAttribute('data-arrived', String(effect.after.arrived));
+  1000 |     await expect(outcome).toHaveAttribute('data-total', String(actor.metrics['total_trains']));
+  1001 |     await expect(outcome).toHaveAttribute('data-step', String(effect.after.simulation_steps));
+  1002 |     await expect(expected).toHaveAttribute('data-arrived', String(value.validation!.arrived));
+  1003 |     await expect(expected).toHaveAttribute('data-total', String(value.validation!.total));
+  1004 |     await expect(expected).toContainText(String(value.validation!.arrived));
+  1005 |     await expect(actual).toContainText(String(effect.after.arrived));
+  1006 |     await expect(actual).toBeInViewport();
+  1007 |     expect(effect.after.total_arrival_delay, 'Director outcome: actual native arrivals retain a measured delay').not.toBeNull();
+  1008 |     expect(effect.after.delay_denominator).toBe(effect.after.arrived);
+  1009 |     await expect(delay).toHaveAttribute('data-delay', String(effect.after.total_arrival_delay));
+  1010 |     await expect(delay).toHaveAttribute('data-denominator', String(effect.after.delay_denominator));
+  1011 |     await expect(delay).toHaveAttribute('data-reference', actor.arrival_reference_source!);
+  1012 |     await expect(delay).toContainText(String(effect.after.total_arrival_delay));
+  1013 |     await expect(signoff).toBeInViewport();
+  1014 |     await expect(signoff).toContainText(/Shift’s over!.*cool drinks.*exercise.*family time/s);
+  1015 |     await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
+  1016 |     expect(await outcome.evaluate((summary, signoffTestId) => {
+  1017 |       const ending = document.querySelector(`[data-testid="${signoffTestId}"]`);
+  1018 |       return !!ending && !!(summary.compareDocumentPosition(ending) & Node.DOCUMENT_POSITION_FOLLOWING);
+  1019 |     }, 'dispatcher-outcome-signoff'), 'Director outcome: observed result comes before the shift sign-off').toBe(true);
+  1020 |
+  1021 |     const evidence = await this.directorOutcomeEvidence();
+  1022 |     const linked = evidence.frames.filter(frame => frame.commandId === value.command_id);
+  1023 |     const zero = linked.find(frame => frame.phase === 'tracking' && frame.arrived === 0 && frame.step! > value.step);
+  1024 |     const intermediate = linked.find(frame => frame.phase === 'tracking' && frame.arrived! > 0 && frame.arrived! < frame.total!);
+  1025 |     const complete = linked.filter(frame => frame.phase === 'complete').at(-1);
+  1026 |     expect(zero, 'Director outcome: actual zero arrivals were visible after adoption').toBeTruthy();
+  1027 |     expect(intermediate, 'Director outcome: a genuine intermediate arrival update was visible').toBeTruthy();
+  1028 |     expect(complete, 'Director outcome: completed native measurements were visible').toBeTruthy();
+  1029 |     expect(linked.indexOf(zero!)).toBeLessThan(linked.indexOf(intermediate!));
+  1030 |     expect(linked.indexOf(intermediate!)).toBeLessThan(linked.indexOf(complete!));
+  1031 |     for (const frame of [zero!, intermediate!, complete!]) {
+  1032 |       expect(frame.visible, 'Director outcome: measured progress is visible').toBe(true);
+> 1033 |       expect(frame.mapVisible, 'Director outcome: the map remains visible').toBe(true);
+       |                                                                             ^ Error: Director outcome: the map remains visible
+  1034 |       expect(frame.speechRect!.right, 'Director outcome: speech stays beside the map').toBeLessThanOrEqual(frame.mapRect!.left);
+  1035 |       expect(evidence.measurements.some(measurement => measurement.commandId === value.command_id
+  1036 |         && measurement.sessionId === value.session_id && measurement.step === frame.step
+  1037 |         && measurement.arrived === frame.arrived && measurement.total === frame.total),
+  1038 |       'Director outcome: the rendered count and step match a genuine received native state').toBe(true);
+  1039 |     }
+  1040 |     expect(complete!.summaryPrecedesSignoff).toBe(true);
+  1041 |     expect(complete!.signoffVisible).toBe(true);
+  1042 |     expect(this.comparisonRequests.filter(request => new URL(request.url()).pathname.endsWith('/comparison/prepare'))).toHaveLength(1);
+  1043 |     expect(this.comparisonRequests.filter(request => new URL(request.url()).pathname.endsWith('/comparison/commit'))).toHaveLength(1);
+  1044 |     expect(this.dispatcherControlRequests.filter(request => new URL(request.url()).pathname.endsWith('/play'))).toHaveLength(2);
+  1045 |   }
+  1046 |
+  1047 |   async expectDirectorComparisonMapStages(value: DirectorComparison): Promise<void> {
+  1048 |     const frames = await this.directorComparisonFrames();
+  1049 |     const matching = frames.filter(frame => frame.commandId === value.command_id && frame.token === value.token
+  1050 |       && frame.step === String(value.step) && frame.alternativeId === value.alternative?.id);
+  1051 |     const baseline = matching.filter(frame => frame.stage === 'baseline' && frame.paths.length > 0).at(-1);
+  1052 |     const alternative = matching.filter(frame => frame.stage === 'alternative'
+  1053 |       && frame.reroutes.length + frame.holds.length > 0 && frame.paths.length > 0).at(-1);
+  1054 |     expect(baseline, 'Director comparison: a real baseline was drawn before adoption').toBeTruthy();
+  1055 |     expect(alternative, 'Director comparison: the real alternative was drawn before adoption').toBeTruthy();
+  1056 |     expect(frames.indexOf(baseline!)).toBeLessThan(frames.indexOf(alternative!));
+  1057 |     for (const frame of [baseline!, alternative!]) {
+  1058 |       expect(frame.bubbleVisible, `Director ${frame.stage}: existing bubble remains visible`).toBe(true);
+  1059 |       expect(frame.mapVisible, `Director ${frame.stage}: existing map remains visible`).toBe(true);
+  1060 |       expect(frame.speechRect, `Director ${frame.stage}: full bubble geometry was observed`).toBeTruthy();
+  1061 |       expect(frame.mapRect, `Director ${frame.stage}: actual map geometry was observed`).toBeTruthy();
+  1062 |       expect(frame.speechRect!.right, `Director ${frame.stage}: the speech bubble leaves the entire map clear`)
+  1063 |         .toBeLessThanOrEqual(frame.mapRect!.left);
+  1064 |       expect(frame.text.trim()).not.toBe('');
+  1065 |       expect(frame.text).not.toContain('dispatcher.comparison.');
+  1066 |       expect(frame.paths.every(path => path.visible && path.length > 0 && path.d.length > 0)).toBe(true);
+  1067 |     }
+  1068 |     expect(alternative!.nativeControlVisible, 'Director alternative: the actual A control is fully in the viewport').toBe(true);
+  1069 |     expect(alternative!.nativeControlUncovered, 'Director alternative: the native control centre is unobscured').toBe(true);
+  1070 |     expect(alternative!.cursorVisible, 'Director alternative: the real pending command has a visible cursor').toBe(true);
+  1071 |     const weights = value.alternative!.weights;
+  1072 |     expect(alternative!.cursorTarget).toBe(`director:${weights.punctuality}:${weights.connections}:${weights.stability}`);
+  1073 |     expect(alternative!.pointerDistance, 'Director alternative: cursor and native control geometry were captured together').not.toBeNull();
+  1074 |     expect(alternative!.pointerDistance!).toBeLessThan(4);
+  1075 |     const drawable = Object.entries(value.current!.paths!).filter(([, points]) => points.length >= 2).map(([handle]) => `director_line_${handle}`);
+  1076 |     expect(baseline!.paths.map(path => path.id).sort()).toEqual(drawable.sort());
+  1077 |     expect(baseline!.reroutes).toHaveLength(0);
+  1078 |     expect(baseline!.holds).toHaveLength(0);
+  1079 |     const divergence = value.alternative!.divergence!;
+  1080 |     expect(alternative!.reroutes.map(mark => mark.handle).sort()).toEqual(Object.keys(divergence.reroutes).sort());
+  1081 |     expect(alternative!.holds.map(mark => Number(mark.handle)).sort()).toEqual(divergence.holds.map(hold => hold.handle).sort());
+  1082 |     for (const mark of alternative!.reroutes) {
+  1083 |       const point = divergence.reroutes[mark.handle!].branch;
+  1084 |       expect(mark.visible).toBe(true);
+  1085 |       expect(mark.x).toBe((point.col + .5) * alternative!.cellSize);
+  1086 |       expect(mark.y).toBe((point.row + .5) * alternative!.cellSize);
+  1087 |     }
+  1088 |     for (const mark of alternative!.holds) {
+  1089 |       const hold = divergence.holds.find(item => item.handle === Number(mark.handle))!;
+  1090 |       expect(mark.steps).toBe(hold.steps);
+  1091 |       expect(mark.x).toBe((hold.col + .5) * alternative!.cellSize);
+  1092 |       expect(mark.y).toBe((hold.row + .5) * alternative!.cellSize);
+  1093 |     }
+  1094 |     expect(alternative!.paths.some(path => baseline!.paths.find(before => before.id === path.id)?.d !== path.d),
+  1095 |       'Director comparison: the existing map actually draws different geometry').toBe(true);
+  1096 |   }
+  1097 |
+  1098 |   releaseHeldDirectorComparison(hold: 'commit' | 'prepare-response' | 'resume'): void {
+  1099 |     if (hold === 'commit') this.releaseComparisonCommit?.();
+  1100 |     if (hold === 'prepare-response') this.releaseComparisonPreparation?.();
+  1101 |     if (hold === 'resume') this.releaseComparisonResume?.();
+  1102 |   }
+  1103 |
+  1104 |   releaseAllDirectorComparisonBoundaries(): void {
+  1105 |     this.releaseComparisonPreparation?.(); this.releaseComparisonCommit?.(); this.releaseComparisonResume?.();
+  1106 |   }
+  1107 |
+  1108 |   async expectDirectorComparisonInstalled(value: DirectorComparison): Promise<void> {
+  1109 |     await expect.poll(() => this.comparisonHeldResume !== null,
+  1110 |       { message: 'Director comparison: adoption completed before its real Play request', timeout: STEP_TIMEOUT.director }).toBe(true);
+  1111 |     expect(this.comparisonHeldResume!.postDataJSON().comparison_token,
+  1112 |       'Director comparison: automatic Play is bound to the same revocable candidate token').toBe(value.token);
+  1113 |     const response = this.comparisonResponses.find(item => new URL(item.url()).pathname.endsWith('/comparison/commit'))!;
+  1114 |     expect(response.ok(), 'Director comparison: native adoption accepted').toBe(true);
+  1115 |     const accepted = await response.json() as DispatcherState;
+  1116 |     expect(accepted.comparison?.phase).toBe('committed');
+  1117 |     expect(accepted.comparison?.command_id).toBe(value.command_id);
+  1118 |     const controller = await this.directorControllerState();
+  1119 |     expect(controller.weights).toEqual(value.alternative!.weights);
+  1120 |     expect(controller.paths, 'Director comparison: exact displayed native paths were installed').toEqual(value.alternative!.paths);
+  1121 |     expect(await this.backendStep('Director comparison adoption')).toBe(value.step);
+  1122 |     expect(await this.backendPlaying('Director comparison adoption')).toBe(false);
+  1123 |     const actor = await this.dispatcherState();
+  1124 |     expect(actor.metrics.executed).toBe(2);
+  1125 |     expect(actor.events.filter((event: any) => event.kind === 'result' && event.decision?.command_id === value.command_id
+  1126 |       && event.result.status === 'executed')).toHaveLength(1);
+  1127 |     expect(this.comparisonRequests.filter(request => new URL(request.url()).pathname.endsWith('/comparison/commit'))).toHaveLength(1);
+  1128 |     await expect(this.dispatcherMonitor.getByTestId('dispatcher-comparison')).toHaveAttribute('data-stage', 'committed');
+  1129 |   }
+  1130 |
+  1131 |   async expectDirectorComparisonResumed(value: DirectorComparison): Promise<void> {
+  1132 |     await this.expectSyntheticPlayback();
+  1133 |     await expect.poll(() => this.backendStep('Director comparison resumed'), { timeout: STEP_TIMEOUT.default }).toBeGreaterThan(value.step);
+```

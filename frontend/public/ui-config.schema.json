@@ -34,6 +34,12 @@
           "widget.zug-weg-diagramm",
           "widget.zwl-origin",
           "widget.zwl-origin-extended",
+          "widget.online-learning",
+          "widget.ai-track-record",
+          "widget.deviation-radar",
+          "widget.track-occupancy",
+          "widget.connection-watch",
+          "widget.staged-dispositions",
           "widget.director-divergence",
           "widget.scenario",
           "widget.combined-actions",
@@ -70,6 +76,7 @@
           "control.legNames",
           "widget.proposal-compare.axis.lateness",
           "widget.proposal-compare.axis.time",
+          "widget.proposal-compare.axis.stops",
           "widget.view-tabs.title",
           "widget.decision-log.actions"
         ]

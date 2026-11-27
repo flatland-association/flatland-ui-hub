@@ -50,13 +50,13 @@ service can replace it.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.step_utils.states import TrainState
 
-from app.policies.goal_based_policies.dataset import edge_time_windows
+from app.policies.goal_based_policies.dataset import edge_time_windows, schedule_departure
 from app.policies.goal_based_policies.ensemble import (
     CandidateScore,
     DirectorWeights,
@@ -114,8 +114,7 @@ def _nominal_arrival(
     )
     if windows:
         return float(windows[-1][2])
-    agent = env.agents[handle]
-    return float(getattr(agent, "earliest_departure", 0) or 0)
+    return schedule_departure(env, TrainSchedule(handle=handle, entries=list(entries)))
 
 
 def _static(
@@ -162,10 +161,10 @@ def capture_progress(
         if agent_position(agent) is None:
             # Not on the map yet: everything is still open, but entry may
             # already be overdue (blocked origin, pre-departure malfunction).
-            departure = int(getattr(agent, "earliest_departure", 0) or 0)
+            departure = int(schedule_departure(env, schedule))
             serve_base = full[0].wait if full else 0
             pin = max(0, max(now, departure) + malfunction - departure)
-            seed = (ScheduleEntry(full[0].node_id, serve_base + pin),)
+            seed = (replace(full[0], wait=serve_base + pin),)
             progress[handle] = TrainProgress(
                 handle=handle, status="pending", seed=seed,
                 continue_entries=seed + tuple(full[1:]),
@@ -192,10 +191,10 @@ def capture_progress(
             serve_base = max(current.wait - served, malfunction, 0)
             nominal = _nominal_arrival(
                 env, graph, handle,
-                base + [ScheduleEntry(current.node_id, 0)],
+                base + [replace(current, wait=0)],
             )
             pin = max(0, now + serve_base - int(nominal))
-            seed = tuple(base) + (ScheduleEntry(current.node_id, pin),)
+            seed = tuple(base) + (replace(current, wait=pin),)
             progress[handle] = TrainProgress(
                 handle=handle, status="running", seed=seed,
                 continue_entries=seed + tuple(remaining[1:]),
@@ -211,10 +210,10 @@ def capture_progress(
         arrival = now + steps_left + malfunction
         serve_base = frontier.wait
         nominal = _nominal_arrival(
-            env, graph, handle, base + [ScheduleEntry(frontier.node_id, 0)]
+            env, graph, handle, base + [replace(frontier, wait=0)]
         )
         pin = max(0, arrival + serve_base - int(nominal))
-        seed = tuple(base) + (ScheduleEntry(frontier.node_id, pin),)
+        seed = tuple(base) + (replace(frontier, wait=pin),)
         progress[handle] = TrainProgress(
             handle=handle, status="running", seed=seed,
             continue_entries=seed + tuple(remaining[2:]),
@@ -247,13 +246,13 @@ def splice_entries(
         return None
 
     extra = max(0, entries[len(seed) - 1].wait - progress.pin_wait)
-    front = ScheduleEntry(seed[-1].node_id, progress.serve_base + extra)
+    front = replace(seed[-1], wait=progress.serve_base + extra)
     tail: List[ScheduleEntry] = []
     if progress.tail_anchor == 2:
         # The player's anchor is the node the train departed last; its wait
         # is behind the train — zeroed so an edge that rolls back over that
         # cell cannot trigger a spurious stand.
-        tail.append(ScheduleEntry(seed[-2].node_id, 0))
+        tail.append(replace(seed[-2], wait=0))
     tail.append(front)
     tail.extend(entries[len(seed):])
     return tail

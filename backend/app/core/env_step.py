@@ -18,6 +18,7 @@ def step_env(session_id: str, session, actions: dict, *, disturbances: bool = Tr
     `session.policy`), for the trajectory's provenance.
     Returns `env.step`'s `(obs, rewards, dones, info)`; exceptions propagate."""
     from app.core.disturbances import apply_due_disturbances
+    from app.core.env_guard import env_lock
     from app.core.trajectory_recorder import recorder_for
 
     env = session.env
@@ -32,16 +33,20 @@ def step_env(session_id: str, session, actions: dict, *, disturbances: bool = Tr
         )
     else:
         recorder = None  # a step on a finished episode raises; nothing to record
-    next_obs, rewards, dones, info = env.step(actions)
-    session.last_observations = next_obs
-    session.last_info = info
-    fired = []
-    if disturbances:
-        # Fired against the state the step just produced, so a delay
-        # injected at step N is visible from step N onwards.
-        fired = apply_due_disturbances(session_id, session, env)
+    # A forecast forks the env under the same lock (`env_guard`), never mid-step.
+    with env_lock(env):
+        next_obs, rewards, dones, info = env.step(actions)
+        session.last_observations = next_obs
+        session.last_info = info
+        fired = []
+        if disturbances:
+            # Fired against the state the step just produced, so a delay
+            # injected at step N is visible from step N onwards.
+            fired = apply_due_disturbances(session_id, session, env)
     if recorder is not None:
         recorder.after_step(env, rewards, dones, info, fired)
+    from app.core.dispatcher import after_step
+    after_step(session, dones)
     return next_obs, rewards, dones, info
 
 

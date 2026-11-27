@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideTranslocoTesting } from '../testing/transloco-testing';
-import { PolicyInfo, SessionInfo } from './models';
+import { SessionInfo } from './models';
 import { SessionStore } from './session.store';
 
 /**
@@ -26,12 +26,6 @@ describe('SessionStore — a pinned policy on a planned scenario', () => {
   const open = (pinnedPolicy?: 'deadlock_avoidance') => {
     store.setActivePolicy('deadlock_avoidance');
     store.newSession({ scenarioPresetId: 'planned', policyControlIds: ['deadlock_avoidance'], pinnedPolicy });
-    if (pinnedPolicy) {
-      // A pinned session first learns from the catalog whether its policy is a specialist.
-      http.expectOne((r) => r.url.endsWith('/policies')).flush([
-        { id: 'deadlock_avoidance', show_in_ui: true, is_default: true },
-      ] as PolicyInfo[]);
-    }
     http.expectOne((r) => r.method === 'POST' && r.url.endsWith('/session')).flush({
       id: 'planned-1', width: 1, height: 1, num_agents: 1, has_plan: true, active_policy: 'plan',
     } as SessionInfo);
@@ -46,14 +40,5 @@ describe('SessionStore — a pinned policy on a planned scenario', () => {
   it('switches to the plan without a pin, as before', () => {
     open();
     expect(store.activePolicy()).toBe('plan');
-  });
-
-  it('keeps the pinned policy in Director mode instead of switching to the planner', () => {
-    store.interactionMode.set('director');
-    open('deadlock_avoidance');
-    store.setInteractionMode('co-learning');
-    store.setInteractionMode('director');
-    http.expectNone((r) => r.url.endsWith('/policy'));
-    expect(store.activePolicy()).toBe('deadlock_avoidance');
   });
 });

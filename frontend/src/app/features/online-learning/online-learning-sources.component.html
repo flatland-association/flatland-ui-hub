@@ -1,0 +1,51 @@
+<section class="learning-source-settings">
+  <h3>{{ 'online.source.settingsTitle' | transloco }}</h3>
+  <p class="settings-note">{{ 'online.source.settingsNote' | transloco }}</p>
+
+  @if (status()?.learning_settings) {
+    <div class="source-list">
+      @for (source of sourceOrder; track source.key) {
+        <section class="source-item">
+          <label class="source-toggle">
+            <input
+              type="checkbox"
+              [attr.data-testid]="testIdPrefix + '-source-' + source.slug"
+              [checked]="sourceEnabled(source.key)"
+              [disabled]="busy() || disabled"
+              (change)="setSource(source.key, $any($event.target).checked)"
+            />
+            <span>{{ ('online.source.setting.' + source.key) | transloco }}</span>
+          </label>
+          <p>{{ ('online.source.settingsInfo.' + source.key) | transloco }}</p>
+
+          @if (source.key === 'policy_predictions') {
+            <fieldset [disabled]="busy() || disabled || !sourceEnabled('policy_predictions')">
+              <legend>{{ 'online.source.comparisonPoliciesTitle' | transloco }}</legend>
+              @for (policy of comparisonPolicyOrder; track policy.id) {
+                <label class="policy-toggle">
+                  <input
+                    type="checkbox"
+                    [attr.data-testid]="testIdPrefix + '-policy-' + policy.slug"
+                    [checked]="comparisonPolicyEnabled(policy.id)"
+                    (change)="setComparisonPolicy(policy.id, $any($event.target).checked)"
+                  />
+                  <span>{{ policy.labelKey | transloco }}</span>
+                </label>
+              }
+            </fieldset>
+          }
+        </section>
+      }
+    </div>
+
+    <p class="ppo-note">{{ 'online.source.ppoAlwaysOn' | transloco }}</p>
+  } @else if (statusError()) {
+    <p class="settings-note" role="status">{{ 'online.statusUnavailable' | transloco }}</p>
+  } @else {
+    <p class="settings-note">{{ 'online.source.settingsLoading' | transloco }}</p>
+  }
+
+  @if (requestError(); as error) {
+    <p class="settings-error" role="alert">{{ error }}</p>
+  }
+</section>

@@ -14,7 +14,7 @@ from app.api import overrides, websockets
 from app.core import pf_ch_control, proposal_preview
 from app.core.override_manager import override_manager
 from app.core.play_manager import play_manager
-from app.core.proposal_agents.uc2_rl import UC2RLProposalAgent, rollout_trainruns
+from app.core.proposal_agents.uc2_rl import rollout_trainruns
 from app.core.session_manager import session_manager
 from app.policies.plan_policy import accept_trainrun_plan, planned_arrival_steps, trainruns_from_env
 
@@ -118,7 +118,7 @@ def test_done_before_fork_is_not_stranded_and_ranking_is_completion_then_nonnega
 
     already_done = {"arrived": True, "arrival_step": None}
     assert overrides._variant_metrics(result({0: already_done}), {}, 10, 40) == {
-        "not_arrived": 0, "lateness": 0, "time_in_network": 0}
+        "not_arrived": 0, "lateness": 0, "time_in_network": 0, "stops_missed": 0}
     late = result({0: {"arrived": True, "arrival_step": 5000}})
     stranded = result({0: {"arrived": False, "arrival_step": None}})
     assert overrides.proposal_rank(late, {0: 0}, 0, 5000) < overrides.proposal_rank(stranded, {}, 0, 5000)
@@ -157,8 +157,7 @@ def test_api_accepts_the_exact_selected_alternative_without_calling_resolver(ses
             raise AssertionError("Exact preview acceptance must not regenerate a proposal")
 
         agent = SimpleNamespace(id="uc2_rl", label="UC2 RL", propose_for=lambda *_: choices,
-                                resolve_for=forbidden,
-                                forecast_horizon=UC2RLProposalAgent().forecast_horizon)
+                                resolve_for=forbidden)
         monkeypatch.setattr(overrides, "proposal_agent_for", lambda _: agent)
         session.env._plan_off_plan = {0}  # a previous course must not poison the replacement
         before = proposal_preview.source_state(session)
@@ -230,7 +229,7 @@ def test_uc2_adviser_dla_play_waits_for_source_capture_lock(monkeypatch):
         calls = []
         s, state, _ = _session(monkeypatch, "shortest_path", lambda *_: calls.append("inference"))
         s.proposal_agent_id = "uc2_rl"
-        async with pf_ch_control.command_lock(s):
+        async with s.command_lock:
             task = asyncio.create_task(websockets._play_loop(s.id))
             await asyncio.sleep(0)
             assert not task.done() and not calls
@@ -260,7 +259,7 @@ def test_running_plan_driver_reloads_another_accepted_course_even_when_policy_id
             return "plan", actor
 
         def physics(_sid, _session, actions, **_kwargs):
-            assert pf_ch_control.command_lock(s).locked()
+            assert s.command_lock.locked()
             driven.append(actions[0])
             s.env._elapsed_steps += 1
             if s.env._elapsed_steps == 2:
@@ -268,7 +267,7 @@ def test_running_plan_driver_reloads_another_accepted_course_even_when_policy_id
             return {}, {}, {}, {}
 
         async def accept_between_steps(_state):
-            async with pf_ch_control.command_lock(s):
+            async with s.command_lock:
                 s.env._trainrun_plan = second
 
         monkeypatch.setattr(websockets, "create_driving_policy", build)

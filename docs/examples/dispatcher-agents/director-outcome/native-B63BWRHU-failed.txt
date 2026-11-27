@@ -1,0 +1,50 @@
+
+Running 2 tests using 1 worker
+
+(node:75225) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium-director] › e2e/dispatcher-comparison.spec.ts:4:5 › prepared Director comparison · real map variants and exact native adoption @slow (2.3m)
+(node:79004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium-director] › e2e/dispatcher-comparison.spec.ts:64:5 › prepared Director comparison · takeover rejects a late genuine preparation response @slow (1.5m)
+
+
+  1) [chromium-director] › e2e/dispatcher-comparison.spec.ts:4:5 › prepared Director comparison · real map variants and exact native adoption @slow
+
+    Error: Director outcome: the map remains visible
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+       at support/pages.ts:1033
+
+      1031 |     for (const frame of [zero!, intermediate!, complete!]) {
+      1032 |       expect(frame.visible, 'Director outcome: measured progress is visible').toBe(true);
+    > 1033 |       expect(frame.mapVisible, 'Director outcome: the map remains visible').toBe(true);
+           |                                                                             ^
+      1034 |       expect(frame.speechRect!.right, 'Director outcome: speech stays beside the map').toBeLessThanOrEqual(frame.mapRect!.left);
+      1035 |       expect(evidence.measurements.some(measurement => measurement.commandId === value.command_id
+      1036 |         && measurement.sessionId === value.session_id && measurement.step === frame.step
+        at WorkingScreen.expectFinalDirectorOutcome (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:1033:77)
+        at WorkingScreen.expectDirectorComparisonFinished (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:1165:5)
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/dispatcher-comparison.spec.ts:43:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-native-results/dispatcher-comparison-prep-8acda-s-and-exact-native-adoption-chromium-director/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-native-results/dispatcher-comparison-prep-8acda-s-and-exact-native-adoption-chromium-director/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-native-results/dispatcher-comparison-prep-8acda-s-and-exact-native-adoption-chromium-director/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-native-results/dispatcher-comparison-prep-8acda-s-and-exact-native-adoption-chromium-director/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-director] › e2e/dispatcher-comparison.spec.ts:4:5 › prepared Director comparison · real map variants and exact native adoption @slow
+  1 passed (4.0m)

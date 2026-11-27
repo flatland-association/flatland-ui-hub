@@ -1,0 +1,165 @@
+// Colours come from Lyne / app design tokens only (see
+// docs/reference/frontend-lyne-conventions.md §1).
+:host {
+  display: block;
+  container-type: inline-size;
+}
+
+.sd {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--app-text);
+}
+
+.sd-intro,
+.sd-hint {
+  margin: 0;
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.sd-stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.sd-for {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+}
+
+.sd-title {
+  margin: 4px 0 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--app-text-muted);
+}
+
+.sd-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sd-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px dashed var(--app-colearning-accent);
+  border-radius: 4px;
+  background: var(--app-surface);
+}
+
+.sd-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sd-action {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.sd-expect {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.sd-question {
+  flex-basis: 100%;
+  font-size: 11px;
+}
+
+.sd-required {
+  margin-left: 4px;
+  color: var(--app-text-muted);
+}
+
+.sd-chip {
+  padding: 2px 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+
+  &--on {
+    border-color: var(--app-colearning-accent);
+    background: var(--app-surface-muted);
+    font-weight: 700;
+  }
+}
+
+.sd-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.sd-done {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr);
+  gap: 2px 6px;
+  align-items: center;
+  padding: 4px 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+}
+
+.sd-compare {
+  grid-column: 2;
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.sd-match {
+  color: var(--app-positive);
+  font-weight: 700;
+}
+
+.sd-miss {
+  color: var(--app-severity-warn);
+  font-weight: 700;
+}
+
+.sd-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+// Demo marker: the panel is shown but not yet usable for experiments.
+.sd-demo {
+  margin: 0 0 4px;
+  padding: 4px 6px;
+  border-left: 3px solid var(--sbb-color-orange);
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.sd-demo-label {
+  margin-right: 4px;
+  padding: 0 4px;
+  border-radius: 2px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--sbb-color-orange);
+  color: var(--sbb-color-charcoal);
+}

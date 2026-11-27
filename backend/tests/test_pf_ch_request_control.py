@@ -1,9 +1,4 @@
-"""PF-CH pure inference serializes mutations while forecasts stay responsive.
-
-The middleware locks the mutations without reading a body; `/play`, `/step`
-and `/policy` own their transaction (`actor_transaction`), which stops a
-changing actor before it waits for the lock.
-"""
+"""PF-CH pure inference serializes mutations while forecasts stay responsive."""
 import asyncio
 import json
 from threading import Event
@@ -13,11 +8,10 @@ import pytest
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from app.core.pf_ch_control import PFChControlMiddleware as DispatcherControlMiddleware
+from app.api.dispatcher import DispatcherControlMiddleware
 from app.api.sessions import PolicyChangeRequest, set_session_policy
-from app.core import pf_ch_control as driver
+from app.core import dispatcher_driver as driver
 from app.core.play_manager import PlayState, play_manager
-from app.policies.learned import uc2_bundle
 
 pytestmark = pytest.mark.integration
 
@@ -31,15 +25,14 @@ def _request(session, path, method="GET", body=None):
 
 
 def _session(monkeypatch, *, policy="pf_ch_rl", play_policy="pf_ch_rl", running=True):
-    session = SimpleNamespace(id="pf-ch-request-control", policy=policy,
-                              _pf_ch_command_lock=asyncio.Lock(), control_revision=0,
-                              enabled_policy_ids={"pf_ch_rl", "uc2_rl", "plan", "deadlock_avoidance", "goal_directed", "shortest_path"},
+    session = SimpleNamespace(id="pf-ch-request-control", dispatcher=None, policy=policy,
+                              command_lock=asyncio.Lock(), control_revision=0,
+                              enabled_policy_ids={"pf_ch_rl", "plan", "deadlock_avoidance", "goal_directed", "learned_ppo"},
                               env=SimpleNamespace(height=9, width=191, agents=[SimpleNamespace(handle=0)]))
     state = PlayState(session.id, 4, play_policy)
     state.running = running
     play_manager.register(state)
-    monkeypatch.setattr(uc2_bundle, "compatibility_error", lambda _: None)
-    monkeypatch.setattr("app.core.pf_ch_control.session_manager.get", lambda _: session)
+    monkeypatch.setattr("app.api.dispatcher.session_manager.get", lambda _: session)
 
     async def broadcast(*_):
         pass
@@ -49,12 +42,11 @@ def _session(monkeypatch, *, policy="pf_ch_rl", play_policy="pf_ch_rl", running=
 
 
 @pytest.mark.parametrize(("path", "method"), [
-    ("/action", "POST"), ("/agent/0/override", "POST"),
+    ("/step", "POST"), ("/action", "POST"), ("/policy", "POST"), ("/agent/0/override", "POST"),
 ])
-@pytest.mark.parametrize("policy_id", ["pf_ch_rl", "uc2_rl"])
-def test_manual_mutations_wait_for_pf_ch_inference(monkeypatch, path, method, policy_id):
+def test_manual_mutations_wait_for_pf_ch_inference(monkeypatch, path, method):
     async def exercise():
-        session, _, middleware = _session(monkeypatch, policy=policy_id, play_policy=policy_id)
+        session, _, middleware = _session(monkeypatch)
         entered, release = Event(), Event()
         order = []
 
@@ -64,12 +56,12 @@ def test_manual_mutations_wait_for_pf_ch_inference(monkeypatch, path, method, po
             order.append("inference-complete")
 
         async def transaction():
-            async with driver.command_lock(session):
-                await driver.run_inference(session, infer)
+            async with session.command_lock:
+                await driver.run_in_worker(session, infer)
 
         async def handler(_):
-            assert driver.command_lock(session).locked()
-            assert not getattr(session, "_pf_ch_busy", False)
+            assert session.command_lock.locked()
+            assert not driver.playback(session)["busy"]
             order.append("request")
             return JSONResponse({"ok": True})
 
@@ -93,76 +85,12 @@ def test_manual_mutations_wait_for_pf_ch_inference(monkeypatch, path, method, po
     asyncio.run(exercise())
 
 
-@pytest.mark.parametrize("policy_id", ["pf_ch_rl", "uc2_rl"])
-def test_same_actor_step_waits_for_inference_in_its_transaction(monkeypatch, policy_id):
-    async def exercise():
-        session, state, _ = _session(monkeypatch, policy=policy_id, play_policy=policy_id)
-        entered, release = Event(), Event()
-        order = []
-
-        def infer():
-            entered.set()
-            assert release.wait(3), "test did not release inference"
-            order.append("inference-complete")
-
-        async def transaction():
-            async with driver.command_lock(session):
-                await driver.run_inference(session, infer)
-
-        async def step():
-            async with driver.actor_transaction(session, policy_id) as actor_change:
-                assert not actor_change
-                assert driver.command_lock(session).locked()
-                order.append("step")
-
-        worker = asyncio.create_task(transaction())
-        request = None
-        try:
-            assert await asyncio.to_thread(entered.wait, 3)
-            request = asyncio.create_task(step())
-            await asyncio.sleep(0)
-            assert not request.done()
-            assert state.running, "the same actor keeps playing"
-            release.set()
-            await asyncio.gather(worker, request)
-            assert order == ["inference-complete", "step"]
-        finally:
-            release.set()
-            await asyncio.gather(worker, *([request] if request else []), return_exceptions=True)
-            play_manager._states.pop(session.id, None)
-
-    asyncio.run(exercise())
-
-
-@pytest.mark.parametrize(("path", "method"), [
-    ("/play", "POST"), ("/step", "POST"), ("/policy", "POST"),
-])
-def test_middleware_lets_the_actor_requests_through_without_reading_them(monkeypatch, path, method):
-    async def exercise():
-        session, state, middleware = _session(monkeypatch)
-
-        async def endpoint(_):
-            return JSONResponse({"ok": True})
-
-        try:
-            async with driver.command_lock(session):
-                response = await asyncio.wait_for(middleware.dispatch(
-                    _request(session, path, method, {"policy": "deadlock_avoidance"}), endpoint), 1)
-                assert response.status_code == 200
-                assert state.running, "only the endpoint decides an actor change"
-        finally:
-            play_manager._states.pop(session.id, None)
-
-    asyncio.run(exercise())
-
-
 @pytest.mark.parametrize(("path", "method"), [
     ("/pause", "POST"), ("/reset", "POST"), ("", "DELETE"),
 ])
-@pytest.mark.parametrize("policy_id", ["pf_ch_rl", "uc2_rl"])
-def test_stop_signals_before_waiting_and_acknowledges_only_after_drain(monkeypatch, path, method, policy_id):
+def test_stop_signals_before_waiting_and_acknowledges_only_after_drain(monkeypatch, path, method):
     async def exercise():
-        session, state, middleware = _session(monkeypatch, policy=policy_id, play_policy=policy_id)
+        session, state, middleware = _session(monkeypatch)
         entered, release = Event(), Event()
         order = []
 
@@ -172,16 +100,16 @@ def test_stop_signals_before_waiting_and_acknowledges_only_after_drain(monkeypat
             order.append("inference-complete")
 
         async def transaction():
-            async with driver.command_lock(session):
-                await driver.run_inference(session, infer)
+            async with session.command_lock:
+                await driver.run_in_worker(session, infer)
 
         async def stop(_):
-            assert not getattr(session, "_pf_ch_busy", False)
+            assert not driver.playback(session)["busy"]
             order.append("play-stopped")
 
         async def acknowledge(_):
-            assert driver.command_lock(session).locked()
-            assert not getattr(session, "_pf_ch_busy", False)
+            assert session.command_lock.locked()
+            assert not driver.playback(session)["busy"]
             order.append("ack")
             return JSONResponse({"ok": True})
 
@@ -193,6 +121,7 @@ def test_stop_signals_before_waiting_and_acknowledges_only_after_drain(monkeypat
             control = asyncio.create_task(middleware.dispatch(_request(session, path, method), acknowledge))
             await asyncio.sleep(0)
             assert not state.running
+            assert driver.interrupted(session)
             assert not control.done()
             assert order == []
             release.set()
@@ -209,7 +138,7 @@ def test_stop_signals_before_waiting_and_acknowledges_only_after_drain(monkeypat
 
 @pytest.mark.parametrize(("path", "method"), [
     ("/director/progress", "GET"), ("/play_status", "GET"), ("/state", "GET"),
-    ("/hmi/scenarios", "GET"), ("/state", "HEAD"),
+    ("/lab/ai-choices", "GET"), ("/hmi/scenarios", "GET"), ("/state", "HEAD"),
     ("/step", "OPTIONS"), ("/what-if-override", "POST"),
     ("/director/whatif", "POST"), ("/director/verify", "POST"),
 ])
@@ -221,7 +150,7 @@ def test_reads_and_read_only_previews_remain_available_during_pure_inference(mon
             return JSONResponse({"busy": True})
 
         try:
-            async with driver.command_lock(session):
+            async with session.command_lock:
                 response = await asyncio.wait_for(middleware.dispatch(_request(session, path, method), status), 1)
                 assert response.status_code == 200
         finally:
@@ -234,7 +163,7 @@ def test_reads_and_read_only_previews_remain_available_during_pure_inference(mon
 def test_play_policy_keeps_guard_when_session_policy_is_not_yet_pf_ch(monkeypatch, running):
     async def exercise():
         session, _, middleware = _session(monkeypatch, policy="deadlock_avoidance", running=running)
-        session._pf_ch_busy = not running
+        session.command_busy = not running
         calls = []
 
         async def mutate(_):
@@ -243,7 +172,7 @@ def test_play_policy_keeps_guard_when_session_policy_is_not_yet_pf_ch(monkeypatc
 
         request = None
         try:
-            async with driver.command_lock(session):
+            async with session.command_lock:
                 request = asyncio.create_task(middleware.dispatch(_request(session, "/action", "POST"), mutate))
                 await asyncio.sleep(0)
                 assert not request.done()
@@ -261,7 +190,7 @@ def test_play_policy_keeps_guard_when_session_policy_is_not_yet_pf_ch(monkeypatc
 
 @pytest.mark.parametrize(("policy", "play_policy"), [
     ("deadlock_avoidance", "deadlock_avoidance"), ("goal_directed", "goal_directed"),
-    ("shortest_path", "shortest_path"), ("deadlock_avoidance", "pf_ch_rl"),
+    ("learned_ppo", "learned_ppo"), ("deadlock_avoidance", "pf_ch_rl"),
 ])
 def test_legacy_and_inactive_former_pf_ch_sessions_keep_their_existing_path(monkeypatch, policy, play_policy):
     async def exercise():
@@ -271,7 +200,7 @@ def test_legacy_and_inactive_former_pf_ch_sessions_keep_their_existing_path(monk
             return JSONResponse({"ok": True})
 
         try:
-            async with driver.command_lock(session):
+            async with session.command_lock:
                 response = await asyncio.wait_for(middleware.dispatch(_request(session, "/state"), handler), 1)
                 assert response.status_code == 200
         finally:
@@ -283,12 +212,10 @@ def test_legacy_and_inactive_former_pf_ch_sessions_keep_their_existing_path(monk
 @pytest.mark.parametrize(("actor", "session_policy", "requested"), [
     ("plan", "plan", "pf_ch_rl"), ("pf_ch_rl", "pf_ch_rl", "plan"),
     ("plan", "pf_ch_rl", "pf_ch_rl"), ("pf_ch_rl", "plan", "plan"),
-    ("plan", "plan", "uc2_rl"), ("uc2_rl", "uc2_rl", "plan"),
-    ("plan", "uc2_rl", "uc2_rl"), ("uc2_rl", "plan", "plan"),
 ])
 def test_pf_ch_policy_switch_pauses_actual_actor_before_ack(monkeypatch, actor, session_policy, requested):
     async def exercise():
-        session, state, _ = _session(monkeypatch, policy=session_policy, play_policy=actor)
+        session, state, middleware = _session(monkeypatch, policy=session_policy, play_policy=actor)
         entered, release = Event(), Event()
         order = []
 
@@ -298,29 +225,33 @@ def test_pf_ch_policy_switch_pauses_actual_actor_before_ack(monkeypatch, actor, 
             order.append("inference-drained")
 
         async def transaction():
-            async with driver.command_lock(session):
-                await driver.run_inference(session, infer)
+            async with session.command_lock:
+                await driver.run_in_worker(session, infer)
 
-        async def apply_policy():
-            result = await set_session_policy(session.id, PolicyChangeRequest(policy=requested))
+        async def apply_policy(_):
+            assert not state.running
             assert play_manager.get(session.id) is None
+            result = set_session_policy(session.id, PolicyChangeRequest(policy=requested))
             order.append("policy-ack")
-            return result
+            return JSONResponse(result)
 
         worker = asyncio.create_task(transaction())
         state.task = worker
         change = None
         try:
             assert await asyncio.to_thread(entered.wait, 3)
-            change = asyncio.create_task(apply_policy())
+            change = asyncio.create_task(middleware.dispatch(
+                _request(session, "/policy", "POST", {"policy": requested}), apply_policy))
             await asyncio.sleep(0)
             assert not state.running, "Stop must address the actual PlayState, before its lock drains"
+            assert driver.interrupted(session)
             assert not change.done()
             assert session.policy == session_policy
             release.set()
-            _, result = await asyncio.gather(worker, change)
-            assert result["policy"] == requested
+            _, response = await asyncio.gather(worker, change)
+            assert response.status_code == 200
             assert session.policy == requested
+            assert session.control_revision == 1
             assert order == ["inference-drained", "policy-ack"]
         finally:
             release.set()
@@ -335,10 +266,14 @@ def test_pf_ch_policy_switch_pauses_actual_actor_before_ack(monkeypatch, actor, 
 ])
 def test_same_actor_and_legacy_only_policy_switch_do_not_pause(monkeypatch, actor, requested):
     async def exercise():
-        session, state, _ = _session(monkeypatch, policy=actor, play_policy=actor)
+        session, state, middleware = _session(monkeypatch, policy=actor, play_policy=actor)
+
+        async def apply_policy(_):
+            return JSONResponse(set_session_policy(session.id, PolicyChangeRequest(policy=requested)))
 
         try:
-            await set_session_policy(session.id, PolicyChangeRequest(policy=requested))
+            response = await middleware.dispatch(_request(session, "/policy", "POST", {"policy": requested}), apply_policy)
+            assert response.status_code == 200
             assert session.policy == requested
             assert state.running
             assert play_manager.get(session.id) is state
@@ -353,19 +288,23 @@ def test_rejected_pf_ch_policy_request_preserves_running_pp(monkeypatch, rejecti
     from fastapi import HTTPException
 
     async def exercise():
-        session, state, _ = _session(monkeypatch, policy="plan", play_policy="plan")
+        session, state, middleware = _session(monkeypatch, policy="plan", play_policy="plan")
         if rejection == "incompatible":
             session.env.width = 100
         else:
             session.enabled_policy_ids.remove("pf_ch_rl")
 
+        async def apply_policy(_):
+            return JSONResponse(set_session_policy(session.id, PolicyChangeRequest(policy="pf_ch_rl")))
+
         try:
             with pytest.raises(HTTPException) as caught:
-                await set_session_policy(session.id, PolicyChangeRequest(policy="pf_ch_rl"))
+                await middleware.dispatch(_request(session, "/policy", "POST", {"policy": "pf_ch_rl"}), apply_policy)
             assert caught.value.status_code == 400
             assert session.policy == "plan"
             assert state.running
             assert play_manager.get(session.id) is state
+            assert session.control_revision == 0
         finally:
             play_manager._states.pop(session.id, None)
 
@@ -374,23 +313,23 @@ def test_rejected_pf_ch_policy_request_preserves_running_pp(monkeypatch, rejecti
 
 def test_incoming_pf_ch_play_waits_for_transaction_without_hiding_previous_actor(monkeypatch):
     async def exercise():
-        session, state, _ = _session(monkeypatch, policy="plan", play_policy="plan")
+        session, state, middleware = _session(monkeypatch, policy="plan", play_policy="plan")
         seen = []
 
-        async def play():
-            async with driver.actor_transaction(session, "pf_ch_rl") as actor_change:
-                assert actor_change
-                seen.append(state.policy)
-                assert not state.running, "The old actor must be signalled before the transaction drains"
+        async def play(_):
+            seen.append(state.policy)
+            assert state.running, "The Play handler must still see the old actor for its explicit handover"
+            return JSONResponse({"ok": True})
 
         request = None
         try:
-            async with driver.command_lock(session):
-                request = asyncio.create_task(play())
+            async with session.command_lock:
+                request = asyncio.create_task(middleware.dispatch(
+                    _request(session, "/play", "POST", {"policy": "pf_ch_rl", "speed": 4}), play))
                 await asyncio.sleep(0)
                 assert not request.done()
                 assert not seen
-                assert not state.running
+                assert state.running
             await request
             assert seen == ["plan"]
         finally:
@@ -400,10 +339,3 @@ def test_incoming_pf_ch_play_waits_for_transaction_without_hiding_previous_actor
             play_manager._states.pop(session.id, None)
 
     asyncio.run(exercise())
-
-
-def test_the_control_module_does_not_import_the_api():
-    """`core` reads no request models: the endpoints validate their requests."""
-    import inspect
-
-    assert "app.api" not in inspect.getsource(driver)

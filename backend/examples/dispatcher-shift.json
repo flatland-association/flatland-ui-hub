@@ -1,0 +1,12 @@
+[
+  {
+    "operator_type": "synthetic_dispatcher",
+    "interaction_mode": "recommendation",
+    "scenario_preset_id": "pf-ch-corridor-stops",
+    "disturbance_ids": ["corridor-shift-incidents"],
+    "seed": 42,
+    "max_episode_steps": 320,
+    "malfunction_rate": 0,
+    "dispatcher": { "profile": "baseline" }
+  }
+]

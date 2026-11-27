@@ -330,3 +330,7 @@
   gap: 0.125rem;
   font-variant-numeric: tabular-nums;
 }
+
+[data-dispatcher-action="planned"] { outline: 2px dashed var(--app-select-color); }
+[data-dispatcher-action="executed"] { outline: 2px solid var(--sbb-color-green); }
+[data-dispatcher-action="stale"], [data-dispatcher-action="rejected"], [data-dispatcher-action="cancelled"] { outline: 2px dotted var(--sbb-color-red); }

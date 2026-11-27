@@ -1,0 +1,33 @@
+{
+  "complete": true,
+  "duration_s": 7.8632259579899255,
+  "lines_duration_s": 0.0041367920057382435,
+  "avoidance_duration_s": 0.04249341698596254,
+  "planned_overlap": {
+    "captured_C": true,
+    "cached_balanced": true,
+    "lines": true,
+    "avoidance": true
+  },
+  "replays": [
+    {
+      "name": "lines",
+      "faults": false,
+      "duration_s": 0.6191938749980181,
+      "arrived": 1,
+      "all_arrived": false,
+      "steps": 320,
+      "total_delay": 2160
+    },
+    {
+      "name": "avoidance",
+      "faults": false,
+      "duration_s": 0.5213902909890749,
+      "arrived": 0,
+      "all_arrived": false,
+      "steps": 320,
+      "total_delay": 2283
+    }
+  ],
+  "limits": "No models/search/residual replanning; existing heuristics and realphysics replay only; 30s wholeprocess supervisor"
+}

@@ -14,6 +14,7 @@ import { StreamStore } from './stream-store';
 
 function fakeStore() {
   return {
+    dispatcher: signal(null),
     session: signal<SessionInfo | null>(null),
     decisionLog: signal<DecisionLogEntry[]>([]),
     state: signal<unknown>(null),

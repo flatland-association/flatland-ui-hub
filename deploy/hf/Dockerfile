@@ -29,6 +29,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+# torch, CPU-only wheels (no CUDA, ~200 MB instead of several GB). The Space
+# runs the Director planner with its trained models, the learned PPO policy
+# (docs/plans/marl-lab-plan.md) and the PF-CH/UC2 RL drivers; without torch
+# they fall back or hide.
 RUN pip install --no-cache-dir "torch>=2.2.0" --index-url https://download.pytorch.org/whl/cpu
 # Inference only; one ASGI worker owns all sessions.
 ENV OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
@@ -40,8 +44,24 @@ ENV OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 # see docs/deploy-hugging-face-space.md on persisting study data).
 RUN useradd -m -u 1000 user
 COPY --chown=user backend/app ./app
+# The Director's planner weights, 3.4 MB, tracked in the repo as plain files.
+# `goal_directed_policy.py` resolves them from `parents[2]`, which is /app here,
+# so they belong next to ./app and not inside it. Without them
+# /director/strategies answers `available: false, "No models installed"` while
+# the trains still drive on the model-free fallback — so the screen looks alive
+# and only the A/B/C tiles stay empty.
+# The Director planner's checkpoints. goal_directed_policy.py looks for them
+# beside the app package (/app/models/goal_directed).
+COPY --chown=user backend/models ./models
 COPY --from=frontend-build --chown=user /app/frontend/dist/frontend/browser ./static
 RUN mkdir -p /app/data && chown user /app/data
+# MARL lab tour: training the AI from the browser (docs/plans/marl-lab-tour.md,
+# decided 2026-10-23: on, in a temporary dir). The trainer lives in backend/lab;
+# checkpoints and intervention logs go to /tmp, so a Space restart wipes them
+# and visitors' models never pile up. MARL_LAB_TRAINING=0 switches it off.
+COPY --chown=user backend/lab ./lab
+ENV MARL_LAB_CHECKPOINTS_DIR=/tmp/marl-lab/checkpoints \
+    MARL_LAB_RUNS_DIR=/tmp/marl-lab/runs
 
 USER user
 ENV HOME=/home/user

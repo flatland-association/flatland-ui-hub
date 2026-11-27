@@ -30,6 +30,8 @@ export class TourGuideComponent {
   readonly store = inject(SessionStore);
   readonly uiConfig = inject(UiConfigService);
   private readonly tour = inject(TourContextService);
+  /** A tour without a debrief ends in free driving, not in the shift summary. */
+  readonly tourWithoutDebrief = computed(() => !!this.tour.briefing() && !this.tour.hasDebrief());
   private readonly run = inject(ExperimentRunService);
   private readonly replay = inject(ReplayService);
 

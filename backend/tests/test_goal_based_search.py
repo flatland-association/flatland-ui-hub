@@ -101,10 +101,8 @@ def test_decision_budget_caps_the_walk(scenario, models):
 
 @pytest.mark.integration
 def test_the_director_never_returns_worse_than_the_baselines(scenario, models):
-    """The portfolio guarantee, per corner weight: whatever the search
-    produced, the committed plan's weighted score is at least the score
-    of both baseline planners — by construction, so a regression here
-    means the portfolio pick broke."""
+    """The portfolio guarantee applies to executable plans: no model
+    score may rescue a candidate that fails the actual mission."""
     env, graph, context = scenario
     for weights in (
         DirectorWeights(1, 0, 0),
@@ -116,7 +114,11 @@ def test_the_director_never_returns_worse_than_the_baselines(scenario, models):
         assert plan.source in plan.considered
         assert plan.score.weighted == pytest.approx(
             max(plan.considered.values()))
-        assert set(plan.considered) == {"search", "lines", "avoidance"}
+        assert {"search", "lines", "avoidance"} <= set(plan.validation)
+        assert set(plan.considered) == {
+            name for name, report in plan.validation.items()
+            if report["accepted"]
+        }
         payload = json.loads(json.dumps(plan.to_dict()))
         assert payload["source"] == plan.source
         assert set(payload["schedules"]) == {"0", "1", "2", "3"} or set(
@@ -232,3 +234,212 @@ def test_verification_returns_ground_truth_for_the_plan(models):
     assert verified["total_delay"] >= 0
     assert 0.0 <= verified["kept_ratio"] <= 1.0
     assert 0.0 <= verified["safety"] <= 1.0
+
+
+@pytest.fixture
+def admission_portfolio(monkeypatch):
+    """Isolate final ranking from neural search and physical validation.
+
+    Validator integration tests execute actual trains. These tests check
+    the separate admission boundary: even the most attractive score must
+    never let a rejected plan through.
+    """
+    from types import SimpleNamespace
+
+    from app.planners import director_pp, plan_validation
+    from app.policies.goal_based_policies import search
+    from app.policies.goal_based_policies.ensemble import CandidateScore
+    from app.policies.goal_based_policies.schedule import (
+        ScheduleEntry, TrainSchedule,
+    )
+
+    plans = {
+        name: [TrainSchedule(0, [ScheduleEntry(index)])]
+        for index, name in enumerate(("search", "lines", "avoidance", "pp1", "pp2"))
+    }
+    names = {id(plan): name for name, plan in plans.items()}
+    accepted = set()
+    scores = {"search": 0.99, "lines": 0.4, "avoidance": 0.2,
+              "pp1": 0.3, "pp2": 0.5}
+    scored_names, pp_calls = [], []
+    pp_plans = []
+
+    def score(name):
+        value = scores[name]
+        return CandidateScore(value, value, value, value, None,
+                              {"utilities": {}})
+
+    monkeypatch.setitem(search.STRATEGIES, "greedy", lambda *a, **kw:
+                        search.SearchOutcome(plans["search"], score("search"),
+                                             [{"handle": 0, "chosen": 0}], 1, (0,)))
+    monkeypatch.setattr(search, "plan_all_lines", lambda *a: plans["lines"])
+    monkeypatch.setattr(search, "plan_avoiding_overlaps", lambda *a: plans["avoidance"])
+
+    def validate(env, graph, schedules):
+        name = names[id(schedules)]
+        ok = name in accepted
+        return SimpleNamespace(
+            accepted=ok,
+            reason="complete" if ok else "mission-incomplete",
+            to_dict=lambda: {"accepted": ok,
+                             "reason": "complete" if ok else "mission-incomplete"},
+        )
+
+    def rank(context, candidates, *args):
+        out = []
+        for plan in candidates:
+            name = names[id(plan)]
+            assert name in accepted, "an invalid final plan reached objective ranking"
+            scored_names.append(name)
+            out.append(score(name))
+        return out
+
+    def pp(env, graph):
+        pp_calls.append((env, graph))
+        return [((0,), plans[name]) for name in pp_plans]
+
+    monkeypatch.setattr(plan_validation, "validate_schedules", validate)
+    monkeypatch.setattr(search, "score_candidates", rank)
+    monkeypatch.setattr(director_pp, "candidate_schedules", pp)
+    return SimpleNamespace(accepted=accepted, scored=scored_names, pp_calls=pp_calls,
+                           pp_plans=pp_plans, plans=plans)
+
+
+def test_final_admission_rejects_a_higher_scoring_unexecutable_plan(admission_portfolio):
+    pool = admission_portfolio
+    pool.accepted.update(("lines", "avoidance"))
+    plan = director_plan(object(), object(), DirectorWeights(), None, None,
+                         context=object())
+    assert plan.source == "lines"
+    assert plan.schedules is pool.plans["lines"]
+    assert plan.considered == {"lines": 0.4, "avoidance": 0.2}
+    assert plan.validation["search"] == {
+        "accepted": False, "reason": "mission-incomplete"}
+    assert not pool.pp_calls
+    assert set(pool.scored) == {"lines", "avoidance"}
+    assert plan.to_dict()["validation"] == plan.validation
+    assert plan.trace == []
+    assert plan.decisions == 0
+    assert plan.stuck == ()
+
+
+def test_strict_pp_can_supply_a_valid_plan_when_the_native_portfolio_fails(admission_portfolio):
+    pool = admission_portfolio
+    pool.pp_plans.extend(("pp1", "pp2"))
+    pool.accepted.add("pp2")
+    plan = director_plan(object(), object(), DirectorWeights(), None, None,
+                         context=object())
+    assert plan.source == "pp-2"
+    assert plan.schedules is pool.plans["pp2"]
+    assert plan.considered == {"pp-2": 0.5}
+    assert len(pool.pp_calls) == 1
+    assert pool.scored == ["pp2"]
+    assert not plan.validation["pp"]["accepted"]
+    assert plan.validation["pp-2"]["accepted"]
+    assert plan.trace == []
+    assert plan.decisions == 0
+    assert plan.stuck == ()
+
+
+def test_no_valid_candidate_is_an_explicit_failure_with_rejection_evidence(admission_portfolio):
+    from app.policies.goal_based_policies.search import NoExecutablePlanError
+
+    pool = admission_portfolio
+    pool.pp_plans.append("pp1")
+    with pytest.raises(NoExecutablePlanError, match="No executable") as rejected:
+        director_plan(object(), object(), DirectorWeights(), None, None,
+                      context=object())
+    assert set(rejected.value.reports) == {"search", "lines", "avoidance", "pp"}
+    assert all(not report["accepted"] for report in rejected.value.reports.values())
+    assert rejected.value.pp_attempted
+    assert pool.scored == []
+
+
+def test_no_representable_pp_result_stays_an_explicit_failure(admission_portfolio):
+    from app.policies.goal_based_policies.search import NoExecutablePlanError
+
+    with pytest.raises(NoExecutablePlanError) as rejected:
+        director_plan(object(), object(), DirectorWeights(), None, None,
+                      context=object())
+    assert rejected.value.reports["pp"] == {
+        "accepted": False, "reason": "no-representable-pp-plan",
+        "stage": "pp-fallback"}
+
+
+def test_a_large_initial_scene_uses_valid_pp_before_learned_search(
+        admission_portfolio, monkeypatch):
+    from types import SimpleNamespace
+
+    from app.policies.goal_based_policies import search
+
+    pool = admission_portfolio
+    pool.pp_plans.extend(("pp1", "pp2"))
+    pool.accepted.update(("pp1", "pp2"))
+
+    def refuse(*args, **kwargs):
+        raise AssertionError("ran expensive native search despite a valid PP portfolio")
+
+    monkeypatch.setitem(search.STRATEGIES, "greedy", refuse)
+    monkeypatch.setattr(search, "plan_all_lines", refuse)
+    env = SimpleNamespace(agents=[object()] * (search.TRAINED_MAX_TRAINS + 1),
+                          _elapsed_steps=0)
+    plan = director_plan(env, object(), DirectorWeights(), None, None,
+                         context=object())
+    assert plan.source == "pp-2"
+    assert plan.considered == {"pp": 0.3, "pp-2": 0.5}
+    assert len(pool.pp_calls) == 1
+    assert plan.trace == [] and plan.decisions == 0 and plan.stuck == ()
+    assert set(plan.validation) == {"pp", "pp-2"}
+    assert all(report["stage"] == "initial-pp" for report in plan.validation.values())
+
+
+def test_eight_trains_retain_native_construction_before_pp(admission_portfolio):
+    from types import SimpleNamespace
+
+    from app.policies.goal_based_policies import search
+
+    pool = admission_portfolio
+    pool.pp_plans.append("pp2")
+    pool.accepted.update(("search", "pp2"))
+    env = SimpleNamespace(agents=[object()] * search.TRAINED_MAX_TRAINS,
+                          _elapsed_steps=0)
+    plan = director_plan(env, object(), DirectorWeights(), None, None,
+                         context=object())
+    assert plan.source == "search"
+    assert pool.pp_calls == []
+
+
+def test_failed_large_initial_pp_is_not_repeated_after_native_failure(admission_portfolio):
+    from types import SimpleNamespace
+
+    from app.policies.goal_based_policies import search
+
+    pool = admission_portfolio
+    pool.pp_plans.append("pp1")
+    env = SimpleNamespace(agents=[object()] * (search.TRAINED_MAX_TRAINS + 1),
+                          _elapsed_steps=0)
+    with pytest.raises(search.NoExecutablePlanError) as rejected:
+        director_plan(env, object(), DirectorWeights(), None, None,
+                      context=object())
+    assert len(pool.pp_calls) == 1
+    assert set(rejected.value.reports) == {"pp", "search", "lines", "avoidance"}
+    assert rejected.value.reports["pp"]["stage"] == "initial-pp"
+    assert rejected.value.pp_attempted
+
+
+def test_a_native_plan_can_still_succeed_after_large_initial_pp_is_rejected(admission_portfolio):
+    from types import SimpleNamespace
+
+    from app.policies.goal_based_policies import search
+
+    pool = admission_portfolio
+    pool.pp_plans.append("pp1")
+    pool.accepted.add("search")
+    env = SimpleNamespace(agents=[object()] * (search.TRAINED_MAX_TRAINS + 1),
+                          _elapsed_steps=0)
+    plan = director_plan(env, object(), DirectorWeights(), None, None,
+                         context=object())
+    assert plan.source == "search"
+    assert plan.considered == {"search": 0.99}
+    assert len(pool.pp_calls) == 1
+    assert not plan.validation["pp"]["accepted"]

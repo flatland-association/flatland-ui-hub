@@ -1,0 +1,270 @@
+"""Synthetic operator ownership and export; reads never drive the runtime."""
+import json
+import re
+from typing import Literal
+
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from starlette.middleware.base import BaseHTTPMiddleware
+
+from app.core.dispatcher import DEMO_SETUP, PREPARED_DEMOS, PROFILES, export_run
+from app.core.dispatcher_driver import broadcast_playback, request_stop
+from app.core.play_manager import play_manager
+from app.core.session_manager import ensure_policy_enabled, session_manager
+from app.core.pf_ch_control import is_specialist_policy, preflight_policy
+
+router = APIRouter()
+
+
+def _session(session_id):
+    session = session_manager.get(session_id)
+    if not session or not getattr(session, "dispatcher", None):
+        raise HTTPException(404, "No synthetic dispatcher in this session")
+    return session
+
+
+@router.get("/dispatcher/profiles")
+def profiles():
+    return PROFILES
+
+
+@router.get("/dispatcher/demo")
+def demo():
+    """An existing authored scenario, explicitly selected for synthetic tests."""
+    return DEMO_SETUP
+
+
+@router.get("/dispatcher/demos")
+def prepared_demos():
+    """Complete launch recipes; the dispatcher still observes only live HMI data."""
+    return PREPARED_DEMOS
+
+
+@router.get("/session/{session_id}/dispatcher")
+def state(session_id: str):
+    session = _session(session_id)
+    return session.dispatcher.snapshot(session)
+
+
+class OwnershipRequest(BaseModel):
+    owner: Literal["human", "synthetic"]
+
+
+async def _broadcast(session):
+    from app.api.sessions import _broadcast_state
+    await _broadcast_state(session.id, session.env)
+
+
+@router.post("/session/{session_id}/dispatcher/ownership")
+async def ownership(session_id: str, body: OwnershipRequest):
+    session = _session(session_id)
+    if body.owner == "human":
+        await play_manager.stop(session_id)
+        session.dispatcher.invalidate(session, "takeover", human=True)
+    elif body.owner == "synthetic":
+        session.dispatcher.hand_back(session)
+    await _broadcast(session)
+    return session.dispatcher.snapshot(session)
+
+
+class DecisionRequest(BaseModel):
+    command_id: str
+    generation: int
+    decision: Literal["approve", "decline"]
+
+
+@router.post("/session/{session_id}/dispatcher/decision")
+async def decision(session_id: str, body: DecisionRequest):
+    session = _session(session_id)
+    session.dispatcher.decide(session, body.command_id, body.generation, body.decision)
+    await _broadcast(session)
+    return session.dispatcher.snapshot(session)
+
+
+class StopRequest(BaseModel):
+    reason: Literal["stop", "mode_change", "restart"] = "stop"
+
+
+class ComparisonRequest(BaseModel):
+    command_id: str
+    generation: int
+
+
+class ComparisonCommitRequest(ComparisonRequest):
+    token: str
+
+
+def _comparison(session):
+    comparison = session.dispatcher.comparison
+    if comparison is None:
+        raise HTTPException(409, "No prepared Director comparison")
+    return comparison
+
+
+@router.post("/session/{session_id}/dispatcher/comparison/prepare")
+async def prepare_comparison(session_id: str, body: ComparisonRequest):
+    from app.core.dispatcher_driver import run_in_worker
+
+    session = _session(session_id)
+    comparison = _comparison(session)
+    await run_in_worker(session, lambda: comparison.prepare(session, body.command_id, body.generation))
+    await _broadcast(session)
+    return session.dispatcher.snapshot(session)
+
+
+@router.post("/session/{session_id}/dispatcher/comparison/commit")
+async def commit_comparison(session_id: str, body: ComparisonCommitRequest):
+    session = _session(session_id)
+    _comparison(session).commit(session, body.command_id, body.generation, body.token)
+    await _broadcast(session)
+    return session.dispatcher.snapshot(session)
+
+
+@router.post("/session/{session_id}/dispatcher/stop")
+async def stop(session_id: str, body: StopRequest | None = None):
+    session = _session(session_id)
+    await play_manager.stop(session_id)
+    reason = body.reason if body else "stop"
+    session.dispatcher.invalidate(session, reason, human=True)
+    if session.dispatcher.run_status not in {"aborted", "error", "finished"}:
+        session.dispatcher.run_status = "aborted"
+        session.dispatcher.abort_reason = reason
+    await _broadcast(session)
+    return session.dispatcher.snapshot(session)
+
+
+@router.get("/session/{session_id}/dispatcher/export")
+def export(session_id: str):
+    return export_run(_session(session_id))
+
+
+class DispatcherControlMiddleware(BaseHTTPMiddleware):
+    """Serialize live mutations against the backend's worker-policy steps.
+
+    PF-CH human sessions keep read-only forecasts available. Synthetic runs
+    retain their takeover rules. Other human sessions bypass this seam.
+    """
+
+    async def dispatch(self, request, call_next):
+        match = re.match(r"^/session/([^/]+)(/.*)?$", request.url.path)
+        session = session_manager.get(match[1]) if match else None
+        if session and not getattr(session, "dispatcher", None):
+            playing = play_manager.get(session.id)
+            path = match[2] or ""
+            requested_policy = await _requested_human_policy(request, path, session)
+            active_play = (getattr(playing, "running", False)
+                           or getattr(session, "command_busy", False))
+            pf_ch_play = (is_specialist_policy(getattr(playing, "policy", None))
+                          and active_play)
+            if (is_specialist_policy(getattr(session, "policy", None)) or pf_ch_play
+                    or is_specialist_policy(requested_policy)):
+                if request.method in ("GET", "HEAD", "OPTIONS") or (
+                        request.method == "POST" and path in {
+                            "/what-if-override", "/director/whatif", "/director/verify"}):
+                    return await call_next(request)
+                reset_or_delete = ((request.method == "DELETE" and path == "")
+                                   or (request.method == "POST" and path == "/reset"))
+                actor_change = (path == "/policy" and requested_policy is not None and active_play
+                                and requested_policy != getattr(playing, "policy", None)
+                                and any(is_specialist_policy(policy) for policy in (
+                                    requested_policy, getattr(playing, "policy", None))))
+                if reset_or_delete or actor_change or (request.method == "POST" and path == "/pause"):
+                    # Signal before waiting: inference must drain without committing
+                    # a proposal after Pause, Reset or deleting this session.
+                    request_stop(session)
+                    await broadcast_playback(session)
+                async with session.command_lock:
+                    if reset_or_delete or actor_change:
+                        await play_manager.stop(session.id)
+                    # Only pure inference leaves ASGI; preserve the existing
+                    # forecast paths while serializing live mutations.
+                    return await call_next(request)
+        if not session or not getattr(session, "dispatcher", None):
+            return await call_next(request)
+        path = match[2] or ""
+        run_control = {"/step", "/play", "/pause", "/reset", "/dispatcher/ownership", "/dispatcher/stop", "/dispatcher/decision",
+                       "/dispatcher/comparison/prepare", "/dispatcher/comparison/commit"}
+        previews = {"/what-if-override", "/director/whatif", "/director/verify"}
+        if request.method in ("GET", "HEAD") and path in {"/director/progress", "/play_status"}:
+            return await call_next(request)
+        should_stop = request.method == "DELETE" and path == ""
+        if request.method == "POST" and path in {"/pause", "/reset"}:
+            should_stop = True
+        if request.method == "POST" and path in {"/dispatcher/ownership", "/dispatcher/stop"}:
+            # Parse exactly the control body before signalling a running worker.
+            # CachedRequest preserves these bytes for FastAPI's own validation.
+            try:
+                raw = await request.body()
+                media = request.headers.get("content-type", "application/json").split(";")[0].strip().lower()
+                value = json.loads(raw) if raw and (media == "application/json" or (
+                    media.startswith("application/") and media.endswith("+json"))) else raw or None
+                if path == "/dispatcher/ownership":
+                    owner = OwnershipRequest.model_validate(value).owner
+                    if owner == "synthetic":
+                        try:
+                            session.dispatcher.validate_hand_back(session)
+                        except HTTPException as exc:
+                            return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail}, headers=exc.headers)
+                    should_stop = owner == "human" or session.dispatcher.owner != "synthetic"
+                else:
+                    if value is not None:
+                        StopRequest.model_validate(value)
+                    should_stop = True
+            except (ValueError, TypeError):
+                # Invalid requests still receive the normal endpoint's 422,
+                # while simulation and cancellation state remain untouched.
+                should_stop = False
+        if should_stop:
+            request_stop(session)
+            await broadcast_playback(session)
+        valid_play = False
+        if request.method == "POST" and path == "/play" and getattr(session.dispatcher, "comparison", None) is not None:
+            from app.api.websockets import PlayRequest
+            from app.core.session_manager import ensure_policy_enabled
+            try:
+                media = request.headers.get("content-type", "").split(";")[0].strip().lower()
+                if media == "application/json" or (media.startswith("application/") and media.endswith("+json")):
+                    play_request = PlayRequest.model_validate_json(await request.body())
+                    valid_play = play_request.comparison_token is None and ensure_policy_enabled(session, play_request.policy)
+            except ValueError:
+                pass
+        if request.method == "POST" and (should_stop or valid_play):
+            from app.core.director_comparison import cancel_comparison
+            cancel_comparison(session, "playback_interrupted" if path in {"/play", "/pause"} else "control_interrupted")
+        async with session.command_lock:
+            if request.method not in ("GET", "HEAD", "OPTIONS"):
+                if path not in run_control | previews and session.dispatcher.owner == "synthetic" and request.method != "DELETE":
+                    return JSONResponse(status_code=409, content={"detail": {"reason": "dispatcher_owns_role", "action": "take_over_first"}})
+                if (request.method == "DELETE" and path == "") or (request.method == "POST" and path == "/reset"):
+                    await play_manager.stop(session.id)
+            response = await call_next(request)
+            if request.method not in ("GET", "HEAD", "OPTIONS") and path not in run_control | previews:
+                session.dispatcher.event(session, "human_command", source="human", path=path, http_status=response.status_code)
+            return response
+
+
+async def _requested_human_policy(request, path, session) -> str | None:
+    """Inspect only validated policy requests; rejection must not stop Play."""
+    if request.method != "POST" or path not in {"/policy", "/play"}:
+        return None
+    media = request.headers.get("content-type", "application/json").split(";")[0].strip().lower()
+    if media != "application/json" and not (media.startswith("application/") and media.endswith("+json")):
+        return None
+    try:
+        if path == "/policy":
+            from app.api.sessions import PolicyChangeRequest
+            requested = PolicyChangeRequest.model_validate_json(await request.body()).policy
+        else:
+            from app.api.websockets import PlayRequest
+            requested = PlayRequest.model_validate_json(await request.body()).policy
+    except (ValueError, TypeError):
+        return None
+    if not ensure_policy_enabled(session, requested):
+        return None
+    if is_specialist_policy(requested):
+        try:
+            preflight_policy(session.env, requested)
+        except HTTPException:
+            return None
+    return requested
