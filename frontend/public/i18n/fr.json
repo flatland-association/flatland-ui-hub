@@ -2001,7 +2001,7 @@
         "arrived": "arrivés",
         "delayed": "en retard",
         "totalDelay": "pas de retard au total",
-        "malfunctions": "perturbation(s) à la fin"
+        "malfunctions": "encore perturbé(s) à la clôture"
       },
       "interventions": "Vos interventions ({{n}})",
       "noInterventions": "Vous n’êtes pas intervenu vous-même pendant ce service.",
@@ -2550,7 +2550,12 @@
       "leg": "Scénario",
       "interventions": "Interventions",
       "total": "Total",
-      "lastLeg": "Ci-dessous, le dernier scénario en détail."
+      "overviewTitle": "Tes décisions et réflexions",
+      "overviewTitleNoReflection": "Tes décisions",
+      "events": "Événements",
+      "decisions": "Décisions",
+      "reflection": "Réflexion",
+      "noDecisions": "Aucune intervention"
     },
     "media": {
       "workingScreenAlt": "L’écran de travail : la situation à gauche, le plan de voies au centre, les modules Co-Learning à droite.",

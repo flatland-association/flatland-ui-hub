@@ -34,15 +34,17 @@ describe('study conditions', () => {
   });
 
   // The guide strip carries «Schicht beenden» and «Reflexion öffnen»; without
-  // it, the run must need neither (docs/plans/hide-scenario-bar.md §4.5).
-  it('hides the guide strip only where the run has no Schichtbilanz and keeps the decision log', () => {
+  // it, the run must need neither (docs/plans/hide-scenario-bar.md §4.5). The
+  // toolbar's finish button leads to the Schichtbilanz where a run has one
+  // (the Plan B experiments of round 2, docs/plans/plan-b-control-group.md §4.2), and
+  // the decision log offers the reflections.
+  it('hides the guide strip only where the decision log stays', () => {
     const hidesGuide = STUDY_CONDITIONS.filter((c) =>
       LAYOUT_PRESETS.find((p) => p.id === c.layoutId)?.ui?.hidden?.includes('control.guide'),
     );
     expect(hidesGuide.length).toBeGreaterThan(0);
     for (const c of hidesGuide) {
       const hidden = LAYOUT_PRESETS.find((p) => p.id === c.layoutId)!.ui!.hidden!;
-      expect(hasShiftSummary(c)).withContext(conditionId(c)).toBeFalse();
       expect(hidden).withContext(conditionId(c)).not.toContain('widget.decision-log');
     }
   });
@@ -57,9 +59,10 @@ describe('study conditions', () => {
     }
   });
 
-  it('Plan B goes without the Schichtbilanz, the other guided conditions keep it (#174)', () => {
+  it('the formative Plan B runs go without the Schichtbilanz, the other guided conditions keep it (#174)', () => {
+    const without = (id: string) => /^plan-b-(p\d\d|uc2)$/.test(id);
     for (const c of guided) {
-      expect(c.shiftSummary).withContext(conditionId(c)).toBe(conditionId(c).startsWith('plan-b-') ? false : undefined);
+      expect(c.shiftSummary).withContext(conditionId(c)).toBe(without(conditionId(c)) ? false : undefined);
     }
   });
 

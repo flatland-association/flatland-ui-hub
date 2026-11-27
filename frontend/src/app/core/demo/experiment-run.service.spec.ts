@@ -121,6 +121,21 @@ describe('ExperimentRunService', () => {
     expect(run.guideVisible()).toBeTrue();
   });
 
+  // docs/plans/plan-b-control-group.md §4.5: what the Schichtbilanz's overview lists.
+  it('keeps each decision of a leg with its reason, reflection and events', () => {
+    begin(run, store, TWO_LEGS);
+    const events = [{ code: 'train.malfunction', title: 'Malfunction', message: 'Train 2 …', params: { train: 2 } }];
+    store.decisionLog.set([
+      { seq: 1, t: 0, simStep: 31, mode: 'co-learning', handle: 1, accountableOwner: 'human', action: 'hold', aiSuggestion: null, decisionTimeMs: 900,
+        rationale: 'Vermeide Deadlock', reflection: { gut: 'fit' }, events },
+      { seq: 2, t: 0, simStep: 40, mode: 'co-learning', handle: 2, accountableOwner: 'system', action: 'hold', aiSuggestion: null, decisionTimeMs: null },
+    ]);
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory()[0].decisions).toEqual([
+      { handle: 1, action: 'hold', simStep: 31, decisionTimeMs: 900, reason: 'Vermeide Deadlock', reflection: { gut: 'fit' }, events },
+    ]);
+  });
+
   it('records a finished leg once, with its id, KPIs and reason', () => {
     begin(run, store, TWO_LEGS);
     run.finishLeg('clicked');

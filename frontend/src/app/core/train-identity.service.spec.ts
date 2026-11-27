@@ -42,4 +42,19 @@ describe('TrainIdentityService', () => {
     onPreset(null);
     expect(trains.nameFor(0)).toBe(SERVICE_ROSTER[0]);
   });
+
+  // docs/plans/plan-b-control-group.md F-5: an earlier leg's trains keep that scenario's names.
+  it('names a train as another scenario of the run named it, else as this session does', () => {
+    TestBed.inject(TourContextService).scenarioPresets.set([
+      { id: 'leg-a', name: 'A', width: 30, height: 30, agents: 3, train_names: ['A-0', 'A-1', 'A-2'] },
+      { id: 'leg-b', name: 'B', width: 30, height: 30, agents: 3, train_names: ['B-0', 'B-1', 'B-2'] },
+      { id: 'leg-c', name: 'C', width: 30, height: 30, agents: 3, train_names: null },
+    ]);
+    store.session.set({ id: 's', width: 30, height: 30, num_agents: 3, scenario_preset_id: 'leg-b' } as SessionInfo);
+    expect(trains.nameIn('leg-a', 1)).toBe('A-1');
+    expect(trains.nameIn('leg-b', 1)).toBe('B-1');
+    expect(trains.nameIn('leg-c', 1)).withContext('no own names: this session\'s').toBe('B-1');
+    expect(trains.nameIn(null, 2)).toBe('B-2');
+    expect(trains.withTrainNames('Train 1 is malfunctioning', (h) => trains.nameIn('leg-a', h))).toBe('A-1 is malfunctioning');
+  });
 });

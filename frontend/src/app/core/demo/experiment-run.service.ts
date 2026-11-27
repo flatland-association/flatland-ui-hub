@@ -7,7 +7,7 @@ import {
   buildExperimentRunRecord,
   experimentRunRecordFileName,
 } from '../interaction-log/experiment-run-record';
-import { interventionsFrom, shiftKpis } from '../shift-review';
+import { shiftDecisionsFrom, shiftKpis } from '../shift-review';
 import { LegFinishReason, ShiftRecord, TourContextService } from './tour-context.service';
 import { TourGuideService } from './tour-guide.service';
 import { ExperimentLeg, StudyCondition, conditionId, hasFinishConfirm, hasShiftSummary } from './study-conditions';
@@ -238,12 +238,10 @@ export class ExperimentRunService {
     // The leg is over: it does not play on behind its questionnaire.
     if (this.store.playing()) this.store.pause();
     const agents = this.store.agents();
-    const decisions = interventionsFrom(this.store.decisionLog()).map((i) => ({
-      handle: i.handle,
-      action: i.action,
-      simStep: i.step,
-      decisionTimeMs: this.store.decisionLog().find((e) => e.seq === i.seq)?.decisionTimeMs ?? null,
-    }));
+    // With the reasons, reflections and events, for the Schichtbilanz's overview
+    // (docs/plans/plan-b-control-group.md §4.5): "Szenario abschliessen" waits
+    // for open reflections, so they are complete here.
+    const decisions = shiftDecisionsFrom(this.store.decisionLog());
     const finishedAt = Date.now();
     const runError = this.store.runError();
     // From the dialog itself, not from the reason: a `clicked` finish can also
