@@ -107,9 +107,10 @@ export class ProposalCompareComponent implements OnDestroy {
   private static readonly STOP = 4;
 
   readonly optionChoices: OptionChoice[] = [
-    // label / hint are translation keys, resolved in the template.
+    // label / hint are translation keys, resolved in the template. No "Halten
+    // bis frei" any more (plan-b-round2-general.md, item 7); the option stays in
+    // `ProposalOption` and the backend, so older logs and replays still read.
     { option: 'hold', label: 'proposals.option.hold', hint: 'proposals.option.holdHint' },
-    { option: 'hold_until_clear', label: 'proposals.option.holdUntilClear', hint: 'proposals.option.holdUntilClearHint' },
     { option: 'proceed', label: 'proposals.option.proceed', hint: 'proposals.option.proceedHint' },
     { option: 'reroute', label: 'proposals.option.reroute', hint: 'proposals.option.rerouteHint' },
   ];
