@@ -407,7 +407,9 @@
       "malfunction": {
         "title": "Malfunction",
         "message": "{{train}} is malfunctioning ({{steps}} steps remaining).",
-        "short": "Malfunction, {{steps}} steps remaining."
+        "messageOne": "{{train}} is malfunctioning (1 step remaining).",
+        "short": "Malfunction, {{steps}} steps remaining.",
+        "shortOne": "Malfunction, 1 step remaining."
       },
       "overridePending": {
         "title": "Override active",
@@ -645,6 +647,7 @@
     "name": "Train {{n}}",
     "slackLeft": "{{n}} left",
     "late": "+{{n}} steps late",
+    "lateOne": "+1 step late",
     "now": "now",
     "inSteps": "in {{n}}",
     "arr": "Arr.",
@@ -777,6 +780,9 @@
     "status": {
       "arrived": "arrived",
       "depIn": "dep in {{n}} steps",
+      "depInOne": "dep in 1 step",
+      "disruption": "⚠ disruption, {{n}} steps left",
+      "disruptionOne": "⚠ disruption, 1 step left",
       "ready": "ready"
     }
   },

@@ -71,18 +71,23 @@ export class TimetableComponent {
       let status: string;
       let tone: TimetableRow['tone'];
       if (a.is_malfunctioning) {
-        status = `⚠ ${a.malfunction_remaining}`;
+        const left = a.malfunction_remaining;
+        status = left === 1
+          ? this.i18n.t('timetable.status.disruptionOne')
+          : this.i18n.t('timetable.status.disruption', { n: left });
         tone = 'warn';
       } else if (done) {
         status = this.i18n.t('timetable.status.arrived');
         tone = 'ok';
       } else if (!a.position) {
         status = a.eta_to_depart != null && a.eta_to_depart > 0
-          ? this.i18n.t('timetable.status.depIn', { n: a.eta_to_depart })
+          ? (a.eta_to_depart === 1
+            ? this.i18n.t('timetable.status.depInOne')
+            : this.i18n.t('timetable.status.depIn', { n: a.eta_to_depart }))
           : this.i18n.t('timetable.status.ready');
         tone = 'muted';
       } else if (delay > 0) {
-        status = this.i18n.t('train.late', { n: delay });
+        status = delay === 1 ? this.i18n.t('train.lateOne') : this.i18n.t('train.late', { n: delay });
         tone = 'late';
       } else {
         status = this.i18n.t('train.onTime');

@@ -407,7 +407,9 @@
       "malfunction": {
         "title": "Störung",
         "message": "{{train}} ist gestört (noch {{steps}} Schritte).",
-        "short": "Störung, noch {{steps}} Schritte."
+        "messageOne": "{{train}} ist gestört (noch 1 Schritt).",
+        "short": "Störung, noch {{steps}} Schritte.",
+        "shortOne": "Störung, noch 1 Schritt."
       },
       "overridePending": {
         "title": "Eingriff aktiv",
@@ -645,6 +647,7 @@
     "name": "Zug {{n}}",
     "slackLeft": "noch {{n}}",
     "late": "+{{n}} Schritte spät",
+    "lateOne": "+1 Schritt spät",
     "now": "jetzt",
     "inSteps": "in {{n}}",
     "arr": "Ank.",
@@ -777,6 +780,9 @@
     "status": {
       "arrived": "angekommen",
       "depIn": "ab in {{n}} Schritten",
+      "depInOne": "ab in 1 Schritt",
+      "disruption": "⚠ Störung, noch {{n}} Schritte",
+      "disruptionOne": "⚠ Störung, noch 1 Schritt",
       "ready": "bereit"
     }
   },

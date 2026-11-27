@@ -241,7 +241,7 @@ export class LeftSidebarComponent {
     const t = a.time_to_deadline;
     if (t === null || t === undefined) return '–';
     if (t >= 0) return this.i18n.t('train.slackLeft', { n: t });   // slack left before latest arrival
-    return this.i18n.t('train.late', { n: -t });                   // past the latest arrival
+    return t === -1 ? this.i18n.t('train.lateOne') : this.i18n.t('train.late', { n: -t });   // past the latest arrival
   }
 
   deadlineTooltip(a: AgentDTO): string {

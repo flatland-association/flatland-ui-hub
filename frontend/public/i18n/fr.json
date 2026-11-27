@@ -407,7 +407,9 @@
       "malfunction": {
         "title": "Panne",
         "message": "{{train}} est en panne (encore {{steps}} pas).",
-        "short": "Panne, encore {{steps}} pas."
+        "messageOne": "{{train}} est en panne (encore 1 pas).",
+        "short": "Panne, encore {{steps}} pas.",
+        "shortOne": "Panne, encore 1 pas."
       },
       "overridePending": {
         "title": "Intervention active",
@@ -645,6 +647,7 @@
     "name": "Train {{n}}",
     "slackLeft": "reste {{n}}",
     "late": "+{{n}} pas de retard",
+    "lateOne": "+1 pas de retard",
     "now": "maintenant",
     "inSteps": "dans {{n}}",
     "arr": "Arr.",
@@ -777,6 +780,9 @@
     "status": {
       "arrived": "arrivé",
       "depIn": "départ dans {{n}} pas",
+      "depInOne": "départ dans 1 pas",
+      "disruption": "⚠ perturbation, encore {{n}} pas",
+      "disruptionOne": "⚠ perturbation, encore 1 pas",
       "ready": "prêt"
     }
   },

@@ -31,7 +31,7 @@ export class NotificationWordingService {
     if (n.code === 'disturbance.event' && p['disturbance'] != null) {
       return this.i18n.t(`disturbances.${p['disturbance']}.events.${p['event']}.description`, undefined, this.named(n.message));
     }
-    if (n.code) return this.i18n.t(`notifications.${n.code}.message`, this.resolvedParams(n), this.named(n.message));
+    if (n.code) return this.counted(n, `notifications.${n.code}.message`, this.named(n.message));
     return this.named(n.message);
   }
 
@@ -42,7 +42,16 @@ export class NotificationWordingService {
    */
   shortMessageOf(n: AppNotification): string | null {
     if (!n.code) return null;
-    return this.i18n.t(`notifications.${n.code}.short`, this.resolvedParams(n), '') || null;
+    return this.counted(n, `notifications.${n.code}.short`, '') || null;
+  }
+
+  /** The key's wording, from its `…One` variant when the notification counts
+   *  one step and that variant exists ("noch 1 Schritt"), as the repo's other
+   *  `…One` keys do. */
+  private counted(n: AppNotification, key: string, fallback: string): string {
+    const params = this.resolvedParams(n);
+    const one = n.params?.['steps'] === 1 ? this.i18n.t(`${key}One`, params, '') : '';
+    return one || this.i18n.t(key, params, fallback);
   }
 
   /** Backend texts name trains by handle; show the shared name instead. */
