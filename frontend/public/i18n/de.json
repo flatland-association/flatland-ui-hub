@@ -1967,7 +1967,7 @@
         "arrived": "angekommen",
         "delayed": "verspätet",
         "totalDelay": "Schritte Verspätung gesamt",
-        "malfunctions": "Störung(en) am Ende"
+        "malfunctions": "bei Abschluss noch gestört"
       },
       "interventions": "Deine Eingriffe ({{n}})",
       "noInterventions": "Du hast in dieser Schicht nicht selbst eingegriffen.",
@@ -2510,7 +2510,12 @@
       "leg": "Szenario",
       "interventions": "Eingriffe",
       "total": "Total",
-      "lastLeg": "Darunter das letzte Szenario im Detail."
+      "overviewTitle": "Deine Entscheidungen und Reflexionen",
+      "overviewTitleNoReflection": "Deine Entscheidungen",
+      "events": "Ereignisse",
+      "decisions": "Entscheidungen",
+      "reflection": "Reflexion",
+      "noDecisions": "Keine Eingriffe"
     },
     "media": {
       "workingScreenAlt": "Die Arbeitsansicht: links die Lage, in der Mitte der Streckenspiegel, rechts die Co-Learning-Module.",

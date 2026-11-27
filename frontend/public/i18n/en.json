@@ -1967,7 +1967,7 @@
         "arrived": "arrived",
         "delayed": "delayed",
         "totalDelay": "steps of delay in total",
-        "malfunctions": "disruption(s) at the end"
+        "malfunctions": "still disrupted at the finish"
       },
       "interventions": "Your interventions ({{n}})",
       "noInterventions": "You did not intervene yourself in this shift.",
@@ -2510,7 +2510,12 @@
       "leg": "Scenario",
       "interventions": "Interventions",
       "total": "Total",
-      "lastLeg": "Below, the last scenario in detail."
+      "overviewTitle": "Your decisions and reflections",
+      "overviewTitleNoReflection": "Your decisions",
+      "events": "Events",
+      "decisions": "Decisions",
+      "reflection": "Reflection",
+      "noDecisions": "No interventions"
     },
     "media": {
       "workingScreenAlt": "The working screen: the situation on the left, the track map in the centre, the Co-Learning modules on the right.",

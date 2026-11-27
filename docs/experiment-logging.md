@@ -271,6 +271,27 @@ otherwise; `backs` counts how often the dialog was closed without "Ja"
 have records made before #180; `header.finishConfirm` tells the two apart. The two buttons are also clicks
 (`experimentRun.finishConfirm.yes`, `experimentRun.finishConfirm.back`).
 
+**Events at a decision.** Every decision entry (`decisions` of a session
+record) carries `events`: the disturbance messages the TMS showed when the
+decision was made, for any train, the decided train's own first, each as
+`{code, params, title, message, relatedElement}` (`code` is
+`train.malfunction` or `disturbance.event`; `title` and `message` are the
+server's English text). Absent when none was open, and in records made
+before 2026-11-25. A guided condition's leg also keeps its decisions with
+them in its entry of the run record's `legs`: `decisions[]` gains
+`reason` (the stated reason), `reflection` (the guided reflection
+answers, question id → answer) and `events`. The Schichtbilanz's overview
+Szenario | Ereignisse | Entscheidungen | Reflexion is built from these
+(#209, `docs/plans/plan-b-control-group.md` §4.5).
+
+**Course taken in the Handlungsoptionen.** A decision made with a course's
+button in `proposal-compare` carries `proposal`: `plan` ("Plan behalten",
+logged as `proceed`) or `ai` ("KI-Plan übernehmen", logged as `accept`). It
+tells "Plan behalten" from the panel's own option "Weiterfahren", which is
+also `proceed` with `origin: 'proposals'`. Absent on every other decision
+and in records made before 2026-11-27; a leg's `decisions[]` in the run
+record keeps it too.
+
 ### UI state: panels and viewports
 
 Clicks don't show what was visible: a panel collapsed by default, or a

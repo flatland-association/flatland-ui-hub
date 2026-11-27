@@ -83,8 +83,17 @@ export class TrainIdentityService {
    * "Train 0 is malfunctioning". Rewritten here, so those texts use the same name
    * as every panel instead of a second vocabulary.
    */
-  withTrainNames(text: string): string {
-    return text.replace(/\b(?:Train|Zug)\s*#?\s*(\d+)\b/g, (_, handle: string) => this.nameFor(Number(handle)));
+  withTrainNames(text: string, nameFor: (handle: number) => string = (h) => this.nameFor(h)): string {
+    return text.replace(/\b(?:Train|Zug)\s*#?\s*(\d+)\b/g, (_, handle: string) => nameFor(Number(handle)));
+  }
+
+  /**
+   * The name a train had in another scenario of the run (an earlier leg in the
+   * Schichtbilanz, a replayed leg): that scenario's own names, else this
+   * session's (docs/plans/plan-b-control-group.md F-5).
+   */
+  nameIn(scenarioId: string | null | undefined, handle: number): string {
+    return this.tourContext.presetById(scenarioId)?.train_names?.[handle] ?? this.nameFor(handle);
   }
 
   /** Handle for a service name, or null when this session has no such train. */

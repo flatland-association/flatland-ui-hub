@@ -26,13 +26,15 @@ export class NotificationWordingService {
     return this.named(n.title);
   }
 
-  messageOf(n: AppNotification): string {
+  /** `nameFor` names the trains, by default as this session does; another
+   *  scenario's messages pass that scenario's names (`TrainIdentityService.nameIn`). */
+  messageOf(n: AppNotification, nameFor: (handle: number) => string = (h) => this.identity.nameFor(h)): string {
     const p = n.params ?? {};
     if (n.code === 'disturbance.event' && p['disturbance'] != null) {
-      return this.i18n.t(`disturbances.${p['disturbance']}.events.${p['event']}.description`, undefined, this.named(n.message));
+      return this.i18n.t(`disturbances.${p['disturbance']}.events.${p['event']}.description`, undefined, this.named(n.message, nameFor));
     }
-    if (n.code) return this.i18n.t(`notifications.${n.code}.message`, this.resolvedParams(n), this.named(n.message));
-    return this.named(n.message);
+    if (n.code) return this.i18n.t(`notifications.${n.code}.message`, this.resolvedParams(n, nameFor), this.named(n.message, nameFor));
+    return this.named(n.message, nameFor);
   }
 
   /**
@@ -46,16 +48,16 @@ export class NotificationWordingService {
   }
 
   /** Backend texts name trains by handle; show the shared name instead. */
-  named(text: string | null | undefined): string {
-    return this.identity.withTrainNames(text ?? '');
+  named(text: string | null | undefined, nameFor?: (handle: number) => string): string {
+    return this.identity.withTrainNames(text ?? '', nameFor);
   }
 
   /** Values as the sentence shows them: the train's shared name instead of its
    *  handle, and direction / cell type in the viewer's language. */
-  private resolvedParams(n: AppNotification): Record<string, unknown> {
+  private resolvedParams(n: AppNotification, nameFor: (handle: number) => string = (h) => this.identity.nameFor(h)): Record<string, unknown> {
     const p: Record<string, unknown> = { ...(n.params ?? {}) };
     if (p['train'] != null && Number.isFinite(Number(p['train']))) {
-      p['train'] = this.identity.nameFor(Number(p['train']));
+      p['train'] = nameFor(Number(p['train']));
     }
     if (typeof p['direction'] === 'string') {
       p['direction'] = this.i18n.t(`notifications.direction.${p['direction']}`, undefined, String(p['direction']).toUpperCase());
