@@ -2511,6 +2511,7 @@
       "interventions": "Interventions",
       "total": "Total",
       "overviewTitle": "Tes décisions et réflexions",
+      "overviewTitleNoReflection": "Tes décisions",
       "events": "Événements",
       "decisions": "Décisions",
       "reflection": "Réflexion",

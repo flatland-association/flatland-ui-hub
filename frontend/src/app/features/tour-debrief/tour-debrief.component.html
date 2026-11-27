@@ -87,7 +87,7 @@
           <!-- Every scenario's decisions with their events and reflections (docs/plans/plan-b-control-group.md §4.5). -->
           <div class="db-block">
             <!-- No system-hold count: the decision log holds only the last scenario's (F-6). -->
-            <app-reflection-overview [legs]="overviewLegs()" />
+            <app-reflection-overview [legs]="overviewLegs()" [showReflection]="showReflection()" />
           </div>
           } @else {
           <div class="db-block">

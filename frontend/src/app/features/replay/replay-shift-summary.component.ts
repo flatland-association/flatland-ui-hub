@@ -59,7 +59,7 @@ import { ReflectionOverviewComponent } from '../reflection-overview/reflection-o
         </tbody>
       </table>
       @if (overviewLegs().length) {
-        <app-reflection-overview class="replay-summary__overview" [legs]="overviewLegs()" />
+        <app-reflection-overview class="replay-summary__overview" [legs]="overviewLegs()" [showReflection]="showReflection()" />
       }
     </section>
   `,
@@ -74,6 +74,14 @@ export class ReplayShiftSummaryComponent {
    *  decision logs; only for an experiment's run (its sessions name their
    *  `legId`), as live (F-7), and not for a run without decisions on single
    *  trains. */
+  /** The column "Reflexion" as live: only where the recorded condition's
+   *  briefing asks for reflections (D-22); shown when that condition no
+   *  longer exists, so recorded answers are not hidden. */
+  readonly showReflection = computed(() => {
+    const briefing = this.replay.briefing();
+    return briefing ? !!briefing.reasonDialog : true;
+  });
+
   readonly overviewLegs = computed<OverviewLeg[]>(() => {
     const legs = this.replay.legs();
     if (!legs.some((leg) => leg.header.legId)) return [];

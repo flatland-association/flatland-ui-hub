@@ -44,8 +44,8 @@ describe('TourDebriefComponent', () => {
   /** A guided condition after its last leg, the shift ended; Plan B's
    *  briefing cuts the debrief to the Schichtbilanz (without its German, which
    *  the spec doesn't load). */
-  const afterLastLeg = (c: StudyCondition) => {
-    TestBed.inject(TourContextService).set({ ...briefingById('plan-b')!, language: undefined });
+  const afterLastLeg = (c: StudyCondition, reasonDialog = true) => {
+    TestBed.inject(TourContextService).set({ ...briefingById('plan-b')!, language: undefined, reasonDialog });
     run.start(c, false);
     store.startDemo(c.legs!.map(() => c.mode), false);
     while (!store.demoIsLast()) store.advanceDemo();
@@ -149,5 +149,20 @@ describe('TourDebriefComponent', () => {
     expect(fixture.componentInstance.systemHolds()).toBe(1);
     expect(el.querySelector('app-reflection-overview')).not.toBeNull();
     expect(text(el)).not.toContain('The system held');
+  });
+
+  // docs/plans/plan-b-control-group.md D-22
+  it('leaves the overview\'s column "Reflexion" out where the briefing asks for no reflection', () => {
+    afterLastLeg(TWO_LEGS);
+    expect(render().querySelectorAll('app-reflection-overview thead th').length).toBe(4);
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [TourDebriefComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    run = TestBed.inject(ExperimentRunService);
+    store = TestBed.inject(SessionStore);
+    afterLastLeg(TWO_LEGS, false);
+    expect(render().querySelectorAll('app-reflection-overview thead th').length).toBe(3);
   });
 });

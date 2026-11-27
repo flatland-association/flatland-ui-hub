@@ -19,14 +19,16 @@ import { TrainIdentityService } from '../../core/train-identity.service';
   imports: [TranslocoPipe],
   template: `
     <div class="ro">
-      <span class="ro__title">{{ 'experimentRun.review.overviewTitle' | transloco }}</span>
+      <span class="ro__title">{{ (showReflection() ? 'experimentRun.review.overviewTitle' : 'experimentRun.review.overviewTitleNoReflection') | transloco }}</span>
       <table class="ro__table">
         <thead>
           <tr>
             <th scope="col">{{ 'experimentRun.review.leg' | transloco }}</th>
             <th scope="col">{{ 'experimentRun.review.events' | transloco }}</th>
             <th scope="col">{{ 'experimentRun.review.decisions' | transloco }}</th>
-            <th scope="col">{{ 'experimentRun.review.reflection' | transloco }}</th>
+            @if (showReflection()) {
+              <th scope="col">{{ 'experimentRun.review.reflection' | transloco }}</th>
+            }
           </tr>
         </thead>
         <tbody>
@@ -36,7 +38,9 @@ import { TrainIdentityService } from '../../core/train-identity.service';
                 <th scope="row">{{ leg.label }}</th>
                 <td>–</td>
                 <td>{{ 'experimentRun.review.noDecisions' | transloco }}</td>
-                <td>–</td>
+                @if (showReflection()) {
+                  <td>–</td>
+                }
               </tr>
             } @else {
               @for (d of leg.decisions; track $index; let first = $first) {
@@ -53,18 +57,20 @@ import { TrainIdentityService } from '../../core/train-identity.service';
                     }
                   </td>
                   <td><strong>{{ trainName(d.handle, leg.scenarioId) }}</strong> · {{ actionLabel(d) }}</td>
-                  <td>
-                    @let reflection = lines(d.reflection);
-                    @if (d.reason) {
-                      <span class="ro__line">{{ 'tourUi.debrief.reason' | transloco: { reason: d.reason } }}</span>
-                    }
-                    @for (line of reflection; track line) {
-                      <span class="ro__line">{{ line }}</span>
-                    }
-                    @if (!d.reason && !reflection.length) {
-                      <span class="ro__line">–</span>
-                    }
-                  </td>
+                  @if (showReflection()) {
+                    <td>
+                      @let reflection = lines(d.reflection);
+                      @if (d.reason) {
+                        <span class="ro__line">{{ 'tourUi.debrief.reason' | transloco: { reason: d.reason } }}</span>
+                      }
+                      @for (line of reflection; track line) {
+                        <span class="ro__line">{{ line }}</span>
+                      }
+                      @if (!d.reason && !reflection.length) {
+                        <span class="ro__line">–</span>
+                      }
+                    </td>
+                  }
                 </tr>
               }
             }
@@ -79,6 +85,9 @@ import { TrainIdentityService } from '../../core/train-identity.service';
 export class ReflectionOverviewComponent {
   /** One entry per scenario, in run order. */
   readonly legs = input.required<OverviewLeg[]>();
+  /** The column "Reflexion"; left out where the run asks for no reflection,
+   *  i.e. its briefing has no `reasonDialog` (docs/plans/plan-b-control-group.md D-22). */
+  readonly showReflection = input(true);
 
   private readonly i18n = inject(LanguageService);
   private readonly identity = inject(TrainIdentityService);

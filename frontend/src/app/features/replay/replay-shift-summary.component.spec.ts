@@ -5,6 +5,7 @@ import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { ReplayService } from '../../core/replay/replay.service';
 import type { SessionRecord } from '../../core/interaction-log/session-record';
 import { ReplayShiftSummaryComponent } from './replay-shift-summary.component';
+import type { TourBriefing } from '../../core/demo/tour-briefings';
 
 /** A recorded session with one decision on a train; `legId` set for an experiment's leg. */
 function record(legId: string | null, scenarioId = 'leg-a'): SessionRecord {
@@ -42,5 +43,14 @@ describe('ReplayShiftSummaryComponent', () => {
     const el = render([record(null)]);
     expect(el.querySelector('.replay-summary__table')).not.toBeNull();
     expect(el.querySelector('app-reflection-overview')).toBeNull();
+  });
+
+  // docs/plans/plan-b-control-group.md D-22: as live.
+  it('leaves out the column "Reflexion" where the recorded condition asks for no reflection', () => {
+    const replay = TestBed.inject(ReplayService);
+    const cols = () => render([record('leg-a'), record('leg-b', 'leg-b')]).querySelectorAll('app-reflection-overview thead th').length;
+    expect(cols()).withContext('no known condition: shown').toBe(4);
+    spyOn(replay, 'briefing').and.returnValue({ id: 'no-reflection' } as TourBriefing);
+    expect(cols()).toBe(3);
   });
 });

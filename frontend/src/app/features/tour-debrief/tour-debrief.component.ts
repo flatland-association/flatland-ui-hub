@@ -101,6 +101,10 @@ export class TourDebriefComponent {
    *  (docs/plans/plan-b-control-group.md D-15, D-18). */
   readonly inExperiment = computed(() => this.run.active());
 
+  /** The overview's column "Reflexion", only where the run asks for
+   *  reflections (docs/plans/plan-b-control-group.md D-22). */
+  readonly showReflection = computed(() => this.tourContext.reasonDialog());
+
   /**
    * The record of the run's leg `i`: the last one, as a leg aborted and
    * resumed on a new session is recorded once per session (`recordShift`

@@ -69,4 +69,19 @@ describe('ReflectionOverviewComponent', () => {
     expect(rows[1][1]).toBe('A-0 · Take the AI plan');
     expect(rows[2][1]).toBe('A-0 · Proceed');
   });
+
+  // docs/plans/plan-b-control-group.md D-22
+  it('leaves out the column "Reflexion" where the run asks for no reflection', () => {
+    const fixture = TestBed.createComponent(ReflectionOverviewComponent);
+    fixture.componentRef.setInput('legs', [{ label: 'Scenario 1/1', scenarioId: 'leg-a', decisions: [
+      { step: 5, handle: 0, action: 'hold', reason: 'Vermeide Deadlock', reflection: null, events: [], proposal: null },
+    ] }, { label: 'Scenario 2/2', scenarioId: 'leg-a', decisions: [] }]);
+    fixture.componentRef.setInput('showReflection', false);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelectorAll('thead th').length).toBe(3);
+    expect(el.querySelector('.ro__title')!.textContent).toBe('Your decisions');
+    expect(el.textContent).not.toContain('Vermeide Deadlock');
+    expect([...el.querySelectorAll('tbody tr')].map((tr) => tr.children.length)).toEqual([3, 3]);
+  });
 });
