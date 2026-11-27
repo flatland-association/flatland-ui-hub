@@ -57,7 +57,7 @@ describe('StateLogService', () => {
     expect(frames().map((f) => f.simStep)).toEqual([0, 1, 2]);
   });
 
-  it('skips the same state sent again, but keeps a step where nothing moved (#230)', () => {
+  it('skips the same state sent again, but keeps a step where nothing moved', () => {
     messages.next({ type: 'state', state: state(0, [agent(0, 1)]) });
     messages.next({ type: 'state', state: state(0, [agent(0, 1)]) }); // repeated broadcast
     messages.next({ type: 'state', state: state(1, [agent(0, 1)]) }); // next step, train stands

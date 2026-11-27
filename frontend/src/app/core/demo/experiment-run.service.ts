@@ -76,7 +76,7 @@ export class ExperimentRunService {
   private legStartedAt = 0;
   /** The trains seen broken down in the current session: the leg's KPI
    *  `malfunctions` counts these, not the trains broken down at the end of the
-   *  leg, which was almost always 0 (#230). */
+   *  leg, which was almost always 0 (plan-b-log-findings.md §4.4). */
   private brokeDown: { sessionId: string | null; handles: Set<number> } = { sessionId: null, handles: new Set() };
   private readonly _watchBreakdowns = effect(() => {
     const sessionId = this.store.session()?.id ?? null;

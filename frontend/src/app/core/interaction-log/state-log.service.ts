@@ -63,7 +63,7 @@ export class StateLogService {
     const simStep = state.elapsed_steps ?? 0;
     // The same state broadcast again (the step answer and the WebSocket both
     // send it) changes nothing: writing it made every other frame empty,
-    // the last one included (#230).
+    // the last one included (plan-b-log-findings.md §4.4).
     if (!withMap && !agents.length && simStep === this._lastStep
       && state.max_episode_steps === this._maxSteps && !!state.episode_done === this._episodeDone) return;
     this._lastStep = simStep;

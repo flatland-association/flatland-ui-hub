@@ -44,7 +44,7 @@ def step_env(session_id: str, session, actions: dict, *, disturbances: bool = Tr
         recorder.after_step(env, rewards, dones, info, fired)
     if getattr(session, "_pending_course", None) is not None:
         # A KI course accepted for a step ahead takes over once that step is
-        # reached (#230). The callers pick up the
+        # reached (plan-b-log-findings.md §4.3). The callers pick up the
         # new plan before the next step.
         from app.api.overrides import activate_pending_course
         activate_pending_course(session)

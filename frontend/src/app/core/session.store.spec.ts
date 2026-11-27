@@ -302,7 +302,7 @@ describe('SessionStore — unsent reflections', () => {
   });
 });
 
-/** #230: a decision window left open in one leg must not time the next leg's
+/** plan-b-log-findings.md §4.4: a decision window left open in one leg must not time the next leg's
  *  decision for the same train number. */
 describe('SessionStore — decision time across legs', () => {
   let store: SessionStore;

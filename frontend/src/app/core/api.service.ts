@@ -366,7 +366,7 @@ export class ApiService {
   }
 
   /** `route`: for a reroute (5), the drawn route (via cells and where the drawing began). */
-  /** `source` 'system': the HMI's automatic hold, not the operator's (#230). */
+  /** `source` 'system': the HMI's automatic hold, not the operator's (plan-b-log-findings.md §4.4). */
   setOverride(id: string, handle: number, action: ActionInt, route?: DrawnRoute, source?: 'system'): Observable<any> {
     return this.http.post(
       `${API_BASE}/session/${id}/agent/${handle}/override`,
@@ -559,7 +559,7 @@ export class ApiService {
 
   /** `route`: for `option` reroute, the drawn route (via cells and where the drawing began). */
   /** `leadSteps`: compute the AI courses for that many steps ahead, so one can
-   *  still be taken after the participant has read it (#230). */
+   *  still be taken after the participant has read it (plan-b-log-findings.md §4.3). */
   getProposals(id: string, handle: number, option?: ProposalOption, route?: DrawnRoute, leadSteps = 0) {
     let params = new HttpParams().set('handle', handle).set('alternatives', 8);
     if (leadSteps > 0) params = params.set('lead_steps', leadSteps);

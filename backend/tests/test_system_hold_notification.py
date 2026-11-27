@@ -1,4 +1,5 @@
-"""#230: the automatic hold of an affected train is not worded as the operator's."""
+"""The automatic hold of an affected train is not worded as the operator's
+(docs/plans/plan-b-log-findings.md §4.4)."""
 import pytest
 from fastapi.testclient import TestClient
 

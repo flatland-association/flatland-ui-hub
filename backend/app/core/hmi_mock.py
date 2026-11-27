@@ -120,7 +120,8 @@ def generate_notifications(session_id: str, step: int) -> List[AppNotification]:
             label = {1: "LEFT", 2: "FORWARD", 3: "RIGHT", 4: "STOP", 5: "REROUTE"}.get(int(action), str(action))
             direction = {1: "left", 2: "forward", 3: "right", 4: "stop", 5: "reroute"}.get(int(action), str(action))
             if override_manager.is_system(session_id, h):
-                # The automatic hold of an affected train, not the operator's (#230).
+                # The automatic hold of an affected train, not the operator's
+                # (plan-b-log-findings.md §4.4).
                 out.append(AppNotification(
                     id=f"n_{step}_ov_{h}",
                     kind="warning",

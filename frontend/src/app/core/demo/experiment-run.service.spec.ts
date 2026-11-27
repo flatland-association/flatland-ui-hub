@@ -154,7 +154,7 @@ describe('ExperimentRunService', () => {
     });
   }
 
-  it('counts the trains that broke down during the leg, not only at its end (#230)', () => {
+  it('counts the trains that broke down during the leg, not only at its end', () => {
     begin(run, store, ONE_LEG);
     store.session.set({ id: 'broke-down' } as SessionInfo);
     const at = (step: number, broken: boolean) => store.state.set({

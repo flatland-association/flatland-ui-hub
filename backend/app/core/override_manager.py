@@ -17,7 +17,7 @@ class OverrideManager:
         # session_id -> handle -> action_int
         self._overrides: Dict[str, Dict[int, int]] = {}
         # session_id -> handles whose override the system set (the automatic
-        # hold of an affected train), not the operator (#230)
+        # hold of an affected train), not the operator (plan-b-log-findings.md §4.4)
         self._system: Dict[str, Set[int]] = {}
 
     def set(self, session_id: str, handle: int, action: int, system: bool = False) -> None:

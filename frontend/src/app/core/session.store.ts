@@ -755,7 +755,8 @@ export class SessionStore {
   clearDecisionLog(): void {
     this.decisionLog.set([]);
     // A decision window still open from the previous leg would otherwise time
-    // the next leg's decision for the same train number from back then (#230).
+    // the next leg's decision for the same train number from back then
+    // (plan-b-log-findings.md §4.4).
     this._decisionWindowStart.set({});
     // A reflection patches its decision: with the decisions gone, nothing is
     // left to ask (docs/plans/reflection-inline.md §4.1). Every reset clears
@@ -899,7 +900,7 @@ export class SessionStore {
   /** How long a participant may take to read and take a KI course while the
    *  run plays. The course is computed for the step reached after this (plus
    *  the computing time), so taking it in time is exact
-   *  (#230). A default, not yet a study decision. */
+   *  (plan-b-log-findings.md Q-1). A default, not yet a study decision. */
   readonly proposalReactionSeconds = signal<number>(10);
 
   setProposalReactionSeconds(n: number): void {
