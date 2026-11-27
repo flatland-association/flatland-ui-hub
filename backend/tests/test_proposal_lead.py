@@ -108,6 +108,27 @@ def test_reset_drops_the_pending_course(client):
     assert client.get(f"/session/{sid}/state").json()["pending_course"] is None
 
 
+def test_a_lead_token_from_before_a_reset_is_refused(client):
+    sid = _held_session(client)
+    body, ai = _ai(client, sid, lead=3)
+    client.post(f"/session/{sid}/reset")
+    _step(client, sid, body["source_step"])  # same step number, other episode
+    assert _accept(client, sid, body, ai).status_code == 409
+    assert proposal_preview.pending_course(session_manager.get(sid)) is None
+
+
+def test_proposals_computed_across_a_reset_are_not_published(client):
+    sid = _held_session(client)
+    session = session_manager.get(sid)
+    captured = overrides._capture_proposal_source(session, HELD, None, None, 3, lead_steps=3)
+    evaluated = overrides._evaluate_proposals(captured)
+    client.post(f"/session/{sid}/reset")
+    with pytest.raises(overrides.HTTPException) as refused:
+        overrides._publish_proposals(session, captured, evaluated)
+    assert refused.value.status_code == 409
+    assert not getattr(session, "_proposal_previews", {})
+
+
 def test_without_a_lead_the_exact_same_step_rule_is_unchanged(client):
     sid = _held_session(client)
     body, ai = _ai(client, sid, lead=0)

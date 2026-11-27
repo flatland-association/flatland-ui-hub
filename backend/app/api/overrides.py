@@ -962,6 +962,10 @@ def _evaluate_proposals_unchecked(captured):
 
 def _publish_proposals(session, captured, evaluated):
     payload, courses = evaluated
+    # Evaluated off the lock: a reset meanwhile cleared the cache and started
+    # another episode, which these courses don't belong to.
+    if not proposal_preview.same_episode(session, captured[4]):
+        raise HTTPException(409, "This proposal preview's session was reset; load proposals again")
     for variant, proposal, lead in courses:
         variant["preview_token"] = proposal_preview.remember_course(
             session, captured[4], captured[6], proposal, lead)

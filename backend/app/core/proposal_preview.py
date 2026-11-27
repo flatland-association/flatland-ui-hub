@@ -29,6 +29,7 @@ _SLOTS = BoundedSemaphore(4)  # two running and at most two queued jobs
 class PreviewSource:
     env_id: int
     step: int
+    generation: int  # the env's num_resets: a reset reuses the env object
     digest: bytes
 
 
@@ -72,6 +73,16 @@ def committed_snapshot(session) -> tuple:
     return tuple(sorted((int(h), int(a)) for h, a in override_manager.get_all(session.id).items()))
 
 
+def episode_generation(env) -> int:
+    """Counts the env's resets. A reset reuses the env object and restarts the
+    step count, so env id and step alone can't tell two episodes apart."""
+    return int(getattr(env, "num_resets", 0) or 0)
+
+
+def same_episode(session, source: PreviewSource) -> bool:
+    return id(session.env) == source.env_id and episode_generation(session.env) == source.generation
+
+
 def source_state(session) -> PreviewSource:
     """Read under the session command lock, including same-step interventions."""
     from app.policies.goal_directed_policy import env_weights, plan_player
@@ -90,7 +101,7 @@ def source_state(session) -> PreviewSource:
                env.rail.grid.tobytes(), sorted(env.resource_map.level_free_positions),
                env_weights(env), player.snapshot() if player is not None else None)
     digest = hashlib.sha256(pickle.dumps(payload, protocol=5)).digest()
-    return PreviewSource(id(env), int(env._elapsed_steps), digest)
+    return PreviewSource(id(env), int(env._elapsed_steps), episode_generation(env), digest)
 
 
 def remember_course(session, source: PreviewSource, handle: int, proposal, lead: dict | None = None) -> str:
@@ -128,7 +139,7 @@ def lead_course(session, token: str, *, handle: int, candidate_id: str | None,
     if (source_step != course.source.step or handle != course.handle
             or candidate_id != course.candidate_id
             or tuple(priority or ()) != course.priority
-            or id(session.env) != course.source.env_id):
+            or not same_episode(session, course.source)):
         raise HTTPException(409, "This proposal preview is stale or no longer matches; load proposals again")
     return course
 
