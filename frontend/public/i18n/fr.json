@@ -401,6 +401,10 @@
       "finished": {
         "title": "Épisode terminé",
         "message": "Tous les trains ont atteint leur destination."
+      },
+      "timeUp": {
+        "title": "Épisode terminé",
+        "message": "Le temps est écoulé : {{notArrived}} trains sur {{total}} ne sont pas arrivés."
       }
     },
     "train": {
@@ -984,7 +988,8 @@
       "deadlock": "Éviter le blocage",
       "critical": "Situation critique",
       "experience": "Expérience",
-      "other": "Autre"
+      "other": "Autre",
+      "unknown": "Je ne sais pas"
     }
   },
   "effect": {
@@ -1624,13 +1629,13 @@
     }
   },
   "proposals": {
-    "titleTooltip": "Plan, proposition de l’IA et votre choix pour le train sélectionné, tous calculés aussi loin.",
-    "note": "Trois déroulements pour le train choisi : le plan sans intervention, la proposition de l’IA et votre choix. Rien n’est appliqué tant que vous n’en adoptez pas un.",
+    "titleTooltip": "Aucune intervention, proposition de l’IA et votre choix pour le train sélectionné, tous calculés aussi loin.",
+    "note": "Trois déroulements pour le train choisi : aucune intervention, la proposition de l’IA et votre choix. Rien n’est appliqué tant que vous n’en adoptez pas un.",
     "empty": "Choisissez un train — sur la carte, dans l’horaire ou dans le panneau d’impact.",
     "optionAria": "Votre option",
     "noReroute": "Aucun autre itinéraire pour ce train ici.",
     "loading": "Calcul des déroulements…",
-    "plan": "Plan",
+    "plan": "Aucune intervention",
     "ai": "IA",
     "human": "Humain",
     "planSub": "sans intervention",
@@ -1639,14 +1644,14 @@
     "atDestination": "{{done}}/{{total}} trains à destination",
     "taken": "✓ adopté",
     "taking": "adoption…",
-    "keepPlan": "Garder le plan",
+    "keepPlan": "Ne pas intervenir",
     "takeAi": "Adopter le plan de l’IA",
     "takeHuman": "Adopter « {{label}} »",
     "order": "Ordre : {{order}}",
     "placeholder": "Choisissez une option ci-dessus, nous calculerons alors votre déroulement.",
     "compare": "Comparaison",
     "notAvailable": "n/d",
-    "aiMatchesPlan": "Ce déroulement de l’IA ne change aucune arrivée par rapport au plan.",
+    "aiMatchesPlan": "Ce déroulement de l’IA ne change aucune arrivée par rapport à « Aucune intervention ».",
     "hideAlternatives": "Masquer les autres déroulements de l’IA",
     "showAlternatives": "Autres déroulements de l’IA ({{n}})",
     "holdCaveat": "Dans le prototype, le train s’arrête ainsi ; vous le libérez vous-même dès que l’endroit est dégagé.",
@@ -1862,14 +1867,16 @@
     "gut": {
       "fit": "Elle allait dans le sens de la décision",
       "against": "Elle allait dans l’autre sens",
-      "none": "Aucune"
+      "none": "Aucune",
+      "unknown": "Je ne sais pas"
     },
     "missing": {
       "duration": "La durée de la perturbation",
       "connections": "L’effet sur les correspondances",
       "otherTrains": "Ce que font les autres trains",
       "nothing": "Rien",
-      "other": "Autre chose"
+      "other": "Autre chose",
+      "unknown": "Je ne sais pas"
     }
   },
   "zwd": {
@@ -1896,7 +1903,7 @@
       "near": "près de {{name}}"
     },
     "legend": {
-      "actual": "Réel",
+      "actual": "Réel et prévision",
       "forecast": "Prévision",
       "conflict": "Conflit prévu",
       "plan": "Horaire prévu"

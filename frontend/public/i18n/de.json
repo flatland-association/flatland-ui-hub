@@ -401,6 +401,10 @@
       "finished": {
         "title": "Episode beendet",
         "message": "Alle Züge haben ihr Ziel erreicht."
+      },
+      "timeUp": {
+        "title": "Episode beendet",
+        "message": "Die Zeit ist abgelaufen: {{notArrived}} von {{total}} Zügen sind nicht angekommen."
       }
     },
     "train": {
@@ -984,7 +988,8 @@
       "deadlock": "Blockade vermeiden",
       "critical": "Kritische Lage",
       "experience": "Erfahrungswert",
-      "other": "Sonstiges"
+      "other": "Sonstiges",
+      "unknown": "Weiss nicht"
     }
   },
   "effect": {
@@ -1624,13 +1629,13 @@
     }
   },
   "proposals": {
-    "titleTooltip": "Plan, KI-Vorschlag und deine Wahl für den ausgewählten Zug, alle gleich weit vorausgerechnet.",
-    "note": "Drei Verläufe für den gewählten Zug: der Plan ohne Eingriff, der Vorschlag der KI und deine Wahl. Nichts davon wird umgesetzt, bis du eine der drei Varianten übernimmst.",
+    "titleTooltip": "Kein Eingriff, KI-Vorschlag und deine Wahl für den ausgewählten Zug, alle gleich weit vorausgerechnet.",
+    "note": "Drei Verläufe für den gewählten Zug: kein Eingriff, der Vorschlag der KI und deine Wahl. Nichts davon wird umgesetzt, bis du eine der drei Varianten übernimmst.",
     "empty": "Wähle einen Zug — auf der Karte, im Fahrplan oder im Lage-Panel.",
     "optionAria": "Deine Option",
     "noReroute": "Für diesen Zug gibt es hier keinen anderen Fahrweg.",
     "loading": "Verläufe werden gerechnet…",
-    "plan": "Plan",
+    "plan": "Kein Eingriff",
     "ai": "KI",
     "human": "Mensch",
     "planSub": "ohne Eingriff",
@@ -1639,14 +1644,14 @@
     "atDestination": "{{done}}/{{total}} Züge am Ziel",
     "taken": "✓ übernommen",
     "taking": "wird übernommen…",
-    "keepPlan": "Plan behalten",
+    "keepPlan": "Nicht eingreifen",
     "takeAi": "KI-Plan übernehmen",
     "takeHuman": "{{label}} übernehmen",
     "order": "Reihenfolge: {{order}}",
     "placeholder": "Wähle oben eine Option, dann rechnen wir deinen Verlauf.",
     "compare": "Vergleich",
     "notAvailable": "n. v.",
-    "aiMatchesPlan": "Dieser KI-Verlauf ändert gegenüber dem Plan keine Ankunft.",
+    "aiMatchesPlan": "Dieser KI-Verlauf ändert gegenüber «Kein Eingriff» keine Ankunft.",
     "hideAlternatives": "Weitere KI-Verläufe ausblenden",
     "showAlternatives": "Weitere KI-Verläufe ({{n}})",
     "holdCaveat": "Im Prototyp hält der Zug damit an; die Freigabe gibst du selbst, sobald die Stelle frei ist.",
@@ -1862,14 +1867,16 @@
     "gut": {
       "fit": "passte zur Entscheidung",
       "against": "sprach dagegen",
-      "none": "keins"
+      "none": "keins",
+      "unknown": "Weiss nicht"
     },
     "missing": {
       "duration": "Dauer der Störung",
       "connections": "Folgen für Anschlüsse",
       "otherTrains": "Was die anderen Züge tun",
       "nothing": "Nichts",
-      "other": "Anderes"
+      "other": "Anderes",
+      "unknown": "Weiss nicht"
     }
   },
   "zwd": {
@@ -1896,7 +1903,7 @@
       "near": "nahe {{name}}"
     },
     "legend": {
-      "actual": "Ist",
+      "actual": "Ist und Prognose",
       "forecast": "Prognose",
       "conflict": "Prognostizierter Konflikt",
       "plan": "Soll"

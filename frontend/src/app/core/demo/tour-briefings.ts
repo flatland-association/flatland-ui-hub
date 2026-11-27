@@ -229,7 +229,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         module: true,
         panelType: 'proposal-compare',
         title: 'Alternativen',
-        hint: 'Neu: Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Handlungsoptionen» siehst du vorab, was der Plan, der KI-Vorschlag und deine eigene Wahl für den Zug bedeuten.',
+        hint: 'Neu: Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Handlungsoptionen» siehst du vorab, was kein Eingriff, der KI-Vorschlag und deine eigene Wahl für den Zug bedeuten.',
       },
       {
         id: 'decide',
@@ -280,7 +280,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
     // overview — the panels themselves are no longer labelled.
     moduleBadges: {
       impact: 'Risiko- und Auswirkungsanalyse',
-      'proposal-compare': 'Auswirkungsanalyse: Plan, KI-Vorschlag und deine Wahl',
+      'proposal-compare': 'Auswirkungsanalyse: kein Eingriff, KI-Vorschlag und deine Wahl',
       'decision-log': 'Grundlage für Reflexion und Lernen',
     },
     modeIntros: {
@@ -298,7 +298,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         whatYouCanControl: [
           'Die Simulation starten, pausieren oder schrittweise laufen lassen',
           'Für einen betroffenen Zug eine Option wählen',
-          'Unter «Handlungsoptionen» vorab vergleichen: Plan, KI-Vorschlag und deine eigene Wahl',
+          'Unter «Handlungsoptionen» vorab vergleichen: kein Eingriff, KI-Vorschlag und deine eigene Wahl',
           'Nach einer Entscheidung den Grund angeben, als Regel oder nur für diesmal',
         ],
         watchFor: [
@@ -419,7 +419,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
           area: 'Alternative Actions',
           kolbPhase: 'Konkrete Erfahrung',
           does: 'Von der KI berechnete Handlungsalternativen',
-          inTour: 'Panel «Handlungsoptionen»: Plan, KI-Neuplanung und deine Wahl im Vergleich, auch direkt am Zug auf der Karte',
+          inTour: 'Panel «Handlungsoptionen»: kein Eingriff, KI-Neuplanung und deine Wahl im Vergleich, auch direkt am Zug auf der Karte',
           status: 'live',
           statusNote: 'Erlebbar; die KI rechnet mit einem klassischen Planer statt mit gelernten Agenten',
         },
@@ -643,7 +643,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
       module: true,
       panelType: 'proposal-compare',
       title: 'Alternatives',
-      hint: 'New: the AI offers options without recommending one. Under «Action options» you see in advance what the plan, the AI proposal and your own choice mean for the train.',
+      hint: 'New: the AI offers options without recommending one. Under «Action options» you see in advance what no intervention, the AI proposal and your own choice mean for the train.',
     },
     {
       id: 'decide',
@@ -691,7 +691,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
   ],
   moduleBadges: {
     impact: 'Risk and impact analysis',
-    'proposal-compare': 'Impact analysis: plan, AI proposal and your choice',
+    'proposal-compare': 'Impact analysis: no intervention, AI proposal and your choice',
     'decision-log': 'Basis for reflection and learning',
   },
   modeIntros: {
@@ -709,7 +709,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
       whatYouCanControl: [
         'Start, pause or step the simulation',
         'Choose an option for an affected train',
-        'Compare in advance under «Action options»: plan, AI proposal and your own choice',
+        'Compare in advance under «Action options»: no intervention, AI proposal and your own choice',
         'After a decision, give your reason, as a rule or just for this time',
       ],
       watchFor: [
@@ -829,7 +829,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
         area: 'Alternative Actions',
         kolbPhase: 'Concrete experience',
         does: 'Options for action computed by the AI',
-        inTour: 'Panel «Action options»: plan, AI replan and your choice side by side, also directly at the train on the map',
+        inTour: 'Panel «Action options»: no intervention, AI replan and your choice side by side, also directly at the train on the map',
         status: 'live',
         statusNote: 'Hands-on; the AI computes with a classic planner instead of learned agents',
       },
@@ -918,7 +918,7 @@ const OLTEN_ZWL_EN: TourBriefing = {
         'Choose, reorder or reject the AI’s package in Combined Actions',
       ],
       watchFor: [
-        'Solid line = what happened, dashed = the forecast; red ribbons = a forecast conflict on the section',
+        'Up to “now” the line shows what happened, after it the forecast; grey dotted ribbons = a forecast conflict on the section',
         'A train picked in one view is highlighted in all three',
         'Trains enter and leave the diagram where they join or leave the chosen section',
         'Olten has no timetable plan, so there is no target line and no delay marks here — the Walensee tours show those',
@@ -964,7 +964,7 @@ const OLTEN_ZWL_DE: TourBriefing = {
         'Das Paket der KI in Combined Actions wählen, umordnen oder ablehnen',
       ],
       watchFor: [
-        'Durchgezogen = was passiert ist, gestrichelt = die Prognose; rote Bänder = ein prognostizierter Konflikt auf dem Abschnitt',
+        'Bis «jetzt» zeigt die Linie, was passiert ist, danach die Prognose; graue, gepunktete Bänder = ein prognostizierter Konflikt auf dem Abschnitt',
         'Ein gewählter Zug ist in allen drei Ansichten hervorgehoben',
         'Züge erscheinen und verschwinden dort, wo sie in den gewählten Abschnitt ein- oder aus ihm herausfahren',
         'Olten hat keinen Soll-Fahrplan, darum fehlen hier Soll-Linie und Verspätungsmarken — die zeigen die Walensee-Touren',
@@ -1029,7 +1029,7 @@ const WALENSEE_ZWL_EN: TourBriefing = {
         'Decide early: the longer you wait, the less the re-plan can still save',
         'A strategy can cost time: “↑ n min” — or deadlock the section entirely',
         'The confidence says how clearly the best strategy beats the runner-up',
-        'Solid = what happened, dashed = the forecast, thin = the timetable',
+        'Up to “now” = what happened, after it = the forecast, thin = the timetable',
       ],
       goal: 'See what re-planning is worth against the timetable, why deciding early matters — and why a strategy switch that sounds harmless can block a single-track section.',
       note: 'This is a prototype: the look and wording of the panels are not final.',
@@ -1069,7 +1069,7 @@ const WALENSEE_ZWL_DE: TourBriefing = {
         'Früh entscheiden: Je länger du wartest, desto weniger kann die Neuplanung noch sparen',
         'Eine Strategie kann Zeit kosten: «↑ n min» — oder den Abschnitt ganz blockieren',
         'Die Sicherheit sagt, wie klar die beste Strategie die zweitbeste schlägt',
-        'Durchgezogen = was passiert ist, gestrichelt = die Prognose, dünn = der Fahrplan',
+        'Bis «jetzt» = was passiert ist, danach die Prognose, dünn = der Fahrplan',
       ],
       goal: 'Sehen, was eine Neuplanung gegenüber dem Fahrplan wert ist, warum frühes Entscheiden zählt — und warum ein Strategiewechsel, der harmlos klingt, einen Einspurabschnitt blockieren kann.',
       note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht endgültig.',

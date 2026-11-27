@@ -57,11 +57,19 @@ export class CurrentDelayService {
     return out;
   });
 
-  /** "+5" (steps) for a late train, '' when on time or unknown — the label
-   *  suffix. No unit sign: times are steps, and the ZWL says so at its axis
-   *  (docs/plans/plan-b-small-changes.md, item 8). */
+  /** "+5" (steps) for a late train, "0" when on time (early running is not
+   *  shown), '' when there is nothing to measure — the label suffix. No unit
+   *  sign: times are steps, and the ZWL says so at its axis
+   *  (docs/plans/plan-b-small-changes.md, item 8; plan-b-round2-general.md,
+   *  item 1). */
   label(handle: number): string {
-    const m = this.minutes().get(handle);
-    return m != null && m > 0 ? `+${m}` : '';
+    return delayLabel(this.minutes().get(handle));
   }
+}
+
+/** The label for a delay in steps: "+n" when late, "0" when on time, '' when
+ *  unknown. */
+export function delayLabel(late: number | null | undefined): string {
+  if (late == null) return '';
+  return late > 0 ? `+${late}` : '0';
 }

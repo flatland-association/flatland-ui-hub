@@ -113,10 +113,8 @@
   border-radius: 2px;
   cursor: pointer;
 
-  &--yes {
-    color: var(--app-colearning-on-accent);
-    background: var(--app-colearning-accent);
-  }
+  // "Ja, als Regel" looks like "Nein": the two answers carry the same weight
+  // (plan-b-round2-general.md, item 5). The class stays for the tests and logs.
 
   &:disabled {
     opacity: 0.45;

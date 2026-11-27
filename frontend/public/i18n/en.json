@@ -401,6 +401,10 @@
       "finished": {
         "title": "Episode finished",
         "message": "All agents have reached their target."
+      },
+      "timeUp": {
+        "title": "Episode finished",
+        "message": "Time is up: {{notArrived}} of {{total}} trains have not arrived."
       }
     },
     "train": {
@@ -984,7 +988,8 @@
       "deadlock": "Avoid deadlock",
       "critical": "Critical situation",
       "experience": "Experience",
-      "other": "Other"
+      "other": "Other",
+      "unknown": "Don’t know"
     }
   },
   "effect": {
@@ -1624,13 +1629,13 @@
     }
   },
   "proposals": {
-    "titleTooltip": "Plan, AI proposal and your choice for the selected train, all computed equally far ahead.",
-    "note": "Three courses for the chosen train: the plan without intervention, the AI’s proposal and your choice. None of it is carried out until you take one of the three.",
+    "titleTooltip": "No intervention, AI proposal and your choice for the selected train, all computed equally far ahead.",
+    "note": "Three courses for the chosen train: no intervention, the AI’s proposal and your choice. None of it is carried out until you take one of the three.",
     "empty": "Choose a train — on the map, in the timetable or in the impact panel.",
     "optionAria": "Your option",
     "noReroute": "There is no other route for this train here.",
     "loading": "Computing the courses…",
-    "plan": "Plan",
+    "plan": "No intervention",
     "ai": "AI",
     "human": "Human",
     "planSub": "without intervention",
@@ -1639,14 +1644,14 @@
     "atDestination": "{{done}}/{{total}} trains at their destination",
     "taken": "✓ taken",
     "taking": "taking it…",
-    "keepPlan": "Keep the plan",
+    "keepPlan": "Don’t intervene",
     "takeAi": "Take the AI plan",
     "takeHuman": "Take “{{label}}”",
     "order": "Order: {{order}}",
     "placeholder": "Choose an option above, then we compute your course.",
     "compare": "Comparison",
     "notAvailable": "n/a",
-    "aiMatchesPlan": "This AI course changes no arrival compared with the plan.",
+    "aiMatchesPlan": "This AI course changes no arrival compared with no intervention.",
     "hideAlternatives": "Hide further AI courses",
     "showAlternatives": "Further AI courses ({{n}})",
     "holdCaveat": "In the prototype the train stops with this; you give the release yourself once the spot is clear.",
@@ -1862,14 +1867,16 @@
     "gut": {
       "fit": "It matched the decision",
       "against": "It pointed the other way",
-      "none": "None"
+      "none": "None",
+      "unknown": "Don’t know"
     },
     "missing": {
       "duration": "How long the disruption lasts",
       "connections": "Effect on connections",
       "otherTrains": "What the other trains do",
       "nothing": "Nothing",
-      "other": "Something else"
+      "other": "Something else",
+      "unknown": "Don’t know"
     }
   },
   "zwd": {
@@ -1896,7 +1903,7 @@
       "near": "near {{name}}"
     },
     "legend": {
-      "actual": "Actual",
+      "actual": "Actual and forecast",
       "forecast": "Forecast",
       "conflict": "Forecast conflict",
       "plan": "Timetable"

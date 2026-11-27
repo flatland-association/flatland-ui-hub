@@ -220,7 +220,6 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   readonly trainOptionChoices: { option: ProposalOption; label: string }[] = [
     // Translation keys, shared with the proposals panel the strip points to.
     { option: 'hold', label: 'proposals.option.hold' },
-    { option: 'hold_until_clear', label: 'proposals.option.holdUntilClear' },
     { option: 'proceed', label: 'proposals.option.proceed' },
     { option: 'reroute', label: 'proposals.option.reroute' },
   ];

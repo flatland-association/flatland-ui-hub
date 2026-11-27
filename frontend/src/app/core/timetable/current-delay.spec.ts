@@ -1,4 +1,5 @@
 import { currentDelaySteps, PlannedCell, ExecutedCell } from './current-delay';
+import { delayLabel } from './current-delay.service';
 
 describe('currentDelaySteps', () => {
   // Planned: depart A (0,0) at 10, B (0,1) at 11, stop at C (0,2) from 12 to 15, D (0,3) at 16.
@@ -37,5 +38,14 @@ describe('currentDelaySteps', () => {
     expect(currentDelaySteps(plan, [at(12, 9)], [5, 9], 'MOVING', 12)).toBeNull();
     expect(currentDelaySteps(plan, [], null, 'DONE', 30)).toBeNull();
     expect(currentDelaySteps([], [], [0, 1], 'MOVING', 30)).toBeNull();
+  });
+});
+
+describe('delayLabel', () => {
+  it('shows "+n" when late, "0" when on time, nothing when unknown', () => {
+    expect(delayLabel(5)).toBe('+5');
+    expect(delayLabel(0)).toBe('0');
+    expect(delayLabel(null)).toBe('');
+    expect(delayLabel(undefined)).toBe('');
   });
 });

@@ -38,6 +38,12 @@ _RECOMMENDATION_TEMPLATES = [
 ]
 
 
+def _arrived(agent) -> bool:
+    """Whether a train has reached its target (Flatland's `TrainState.DONE`)."""
+    from flatland.envs.step_utils.states import TrainState
+    return getattr(agent, "state", None) == TrainState.DONE
+
+
 def _seeded(session_id: str, step: int, salt: str = "") -> int:
     h = hashlib.md5(f"{session_id}|{step}|{salt}".encode()).hexdigest()
     return int(h[:8], 16)
@@ -73,19 +79,35 @@ def generate_notifications(session_id: str, step: int) -> List[AppNotification]:
     if env is None:
         return out
 
-    # 1) Episode finished
+    # 1) Episode finished. Flatland ends the episode when every train has
+    # arrived, and also when its time runs out with trains still on the way;
+    # only the first may say that all trains arrived.
     dones = getattr(env, "dones", {}) or {}
     if dones.get("__all__"):
-        out.append(AppNotification(
-            id=f"n_{step}_done",
-            kind="info",
-            title="Episode finished",
-            message="All agents have reached their target.",
-            timestamp=step,
-            relatedElement=None,
-            code="episode.finished",
-            params={},
-        ))
+        agents = list(getattr(env, "agents", []) or [])
+        not_arrived = sum(1 for a in agents if not _arrived(a))
+        if not_arrived == 0:
+            out.append(AppNotification(
+                id=f"n_{step}_done",
+                kind="info",
+                title="Episode finished",
+                message="All agents have reached their target.",
+                timestamp=step,
+                relatedElement=None,
+                code="episode.finished",
+                params={},
+            ))
+        else:
+            out.append(AppNotification(
+                id=f"n_{step}_done",
+                kind="info",
+                title="Episode finished",
+                message=f"Time is up: {not_arrived} of {len(agents)} trains have not arrived.",
+                timestamp=step,
+                relatedElement=None,
+                code="episode.timeUp",
+                params={"notArrived": not_arrived, "total": len(agents)},
+            ))
 
     overrides = override_manager.get_all(session_id)
 

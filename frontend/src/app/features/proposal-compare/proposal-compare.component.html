@@ -60,7 +60,6 @@
           <section class="pc-course pc-course--plan">
             <header class="pc-course-head">
               <span class="pc-course-name">{{ 'proposals.plan' | transloco }}</span>
-              <span class="pc-course-sub">{{ 'proposals.planSub' | transloco }}</span>
             </header>
             <p class="pc-arrival">{{ arrivalText(v) }}</p>
             <p class="pc-system">{{ 'proposals.atDestination' | transloco: { done: v.system.done, total: v.system.total } }}</p>
@@ -193,9 +192,6 @@
         }
       }
 
-      @if (chosenOption() === 'hold_until_clear' && shownApplied() !== 'human' && !decided()) {
-        <p class="pc-caveat">{{ 'proposals.holdCaveat' | transloco }}</p>
-      }
       @if (shownApplied() === 'ai' && !decided()) {
         <p class="pc-caveat">{{ (r.ai_keeps_overrides ? 'proposals.aiTakenCaveatKept' : 'proposals.aiTakenCaveat') | transloco }}</p>
       }
