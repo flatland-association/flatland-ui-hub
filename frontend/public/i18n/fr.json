@@ -59,6 +59,7 @@
     "mode": "mode",
     "guidedDemo": "Démo guidée",
     "step": "Pas :",
+    "stepMin": "Minute :",
     "grid": "Grille :",
     "agents": "Trains :",
     "interventions": "Interventions :",
@@ -411,7 +412,9 @@
       "malfunction": {
         "title": "Panne",
         "message": "{{train}} est en panne (encore {{steps}} pas).",
-        "short": "Panne, encore {{steps}} pas."
+        "messageMin": "{{train}} est en panne (encore {{steps}} min).",
+        "short": "Panne, encore {{steps}} pas.",
+        "shortMin": "Panne, encore {{steps}} min."
       },
       "overridePending": {
         "title": "Intervention active",
@@ -682,6 +685,7 @@
     "arrived": "{{n}}/{{total}} arrivés",
     "arrivedPct": "{{pct}} % arrivés",
     "step": "Pas",
+    "stepMin": "Minute",
     "active": "actifs",
     "delayed": "en retard",
     "malfunctionOne": "panne",
@@ -813,6 +817,7 @@
     "conflict": "Conflit · {{n}} trains",
     "conflictAt": "Conflit à {{name}} · {{n}} trains",
     "inSteps": "· dans {{s}} pas",
+    "inStepsMin": "· dans {{s}} min",
     "trains": "{{n}} trains passent ailleurs",
     "trainsOne": "Un train passe ailleurs",
     "trainsWaiting": "{{n}} passent ailleurs · {{w}} attendent",
@@ -849,6 +854,7 @@
     "policy": "Politique",
     "episodeFinished": "Épisode terminé",
     "stepsRemaining": "Pas restants",
+    "stepsRemainingMin": "Minutes restantes",
     "finishSurvey": "Terminer et questionnaire",
     "finishModeSurvey": "Terminer le mode et questionnaire →",
     "finishTour": "Terminer la visite",
@@ -955,6 +961,7 @@
     "viewDecision": "Voir",
     "hideDecision": "Masquer",
     "decidedAt": "Déjà décidé · pas {{n}} · pour information",
+    "decidedAtMin": "Déjà décidé · minute {{n}} · pour information",
     "reflectionDone": "Réflexion enregistrée",
     "action": {
       "hold": "Maintenir",
@@ -1042,8 +1049,10 @@
     "reachesIn": "Atteint l’endroit dans",
     "clearsIn": "Endroit libre dans",
     "steps": "{{n}} pas",
+    "stepsMin": "{{n}} min",
     "buffer": "Marge de temps",
     "bufferNone": "aucune — le train serait à l’arrêt {{n}} pas",
+    "bufferNoneMin": "aucune — le train resterait à l’arrêt {{n}} min",
     "bufferTight": "tout juste suffisante",
     "measures": "Mesures possibles",
     "measureHold": "Maintenir",
@@ -1671,12 +1680,16 @@
     "applyFailed": "Le déroulement n’a pas pu être adopté.",
     "notArriving": "n’arrive pas",
     "step": "Pas {{n}}",
+    "stepMin": "Minute {{n}}",
     "stepOnPlan": "Pas {{n}} · selon le plan",
+    "stepOnPlanMin": "Minute {{n}} · selon le plan",
     "stepVsPlan": "Pas {{n}} · {{delta}} par rapport au plan",
+    "stepVsPlanMin": "Minute {{n}} · {{delta}} par rapport au plan",
     "axis": {
       "lateness": "Retard par rapport à l’horaire",
       "time": "Temps dans le réseau",
-      "unit": "pas"
+      "unit": "pas",
+      "unitMin": "min"
     },
     "strandedOne": "Avec « {{name}} », au moins un train n’arrive pas dans la période considérée — les chiffres ne sont que partiellement comparables.",
     "strandedMany": "Avec {{names}}, des trains n’arrivent pas dans la période considérée — les chiffres ne sont que partiellement comparables.",
@@ -1684,17 +1697,21 @@
     "quoted": "« {{name}} »",
     "computing": "Calcul de « {{option}} » …",
     "compareNote": "Totaux sur tous les trains, en pas de simulation.",
+    "compareNoteMin": "Totaux sur tous les trains, en minutes.",
     "previewExpired": "La simulation ou le plan a changé. Recalculez les déroulements avant d’en adopter un.",
     "refreshCourses": "Recalculer les déroulements",
     "inspectCourse": "Afficher ce déroulement",
     "course": {
       "rl": "Déroulement propre au modèle",
       "branch": "Prendre la branche {{direction}} au pas {{step}}",
+      "branchMin": "Prendre la branche {{direction}} à la minute {{step}}",
       "wait": "Attendre {{n}} pas à partir du pas {{step}}",
+      "waitMin": "Attendre {{n}} minutes à partir de la minute {{step}}",
       "left": "à gauche",
       "forward": "tout droit",
       "right": "à droite",
-      "waitOne": "Attendre un pas à partir du pas {{step}}"
+      "waitOne": "Attendre un pas à partir du pas {{step}}",
+      "waitOneMin": "Attendre une minute à partir de la minute {{step}}"
     },
     "drawRoute": "Appuyez sur le train sur la carte et tracez son itinéraire sur les aiguillages. Relâchez pour voir le déroulement ; Échap annule.",
     "noDrawnRoute": "Aucun itinéraire ne passe par les cases tracées.",
@@ -1714,11 +1731,14 @@
     "contentionAtStation": "Conflit à {{name}}",
     "contentionAtCell": "Conflit à la cellule {{row}}, {{col}}",
     "contentionDetail": "{{trains}} trains · dans {{n}} pas",
+    "contentionDetailMin": "{{trains}} trains · dans {{n}} min",
     "contentionDetailNow": "{{trains}} trains · maintenant",
     "holdMark": "Le train {{train}} attend ici {{n}} pas au lieu d’être détourné",
+    "holdMarkMin": "Le train {{train}} attend ici {{n}} min au lieu de changer d’itinéraire",
     "agentTitle": "{{name}} (train {{train}}) : {{problems}}",
     "released": "{{name}} — libéré en position {{rank}} de l’action",
     "predicted": " · {{delta}} pas prévus",
+    "predictedMin": " · {{delta}} min prévues",
     "clickToPin": "Cliquez sur la cellule pour l’épingler",
     "optionsAria": "Options pour {{name}}",
     "compareInPanel": "{{name}} · comparer dans le panneau",
@@ -1732,6 +1752,7 @@
     "opacity": "Opacité des tuiles de voie",
     "problem": {
       "malfunctionLeft": "Perturbation — encore {{n}} pas",
+      "malfunctionLeftMin": "Perturbation — encore {{n}} min",
       "malfunction": "Perturbation",
       "delay": "Retard {{n}}",
       "blockedBy": "bloqué par le train {{train}} en ({{row}}, {{col}}) — y arrive dans {{eta}}, libre dans {{clears}}",
@@ -1849,7 +1870,9 @@
     "impact": {
       "template": "Quand {{block}} et {{reroute}}, tu choisis {{strategy}}.",
       "blockLong": "le tronçon reste bloqué encore {{n}} pas",
+      "blockLongMin": "la section reste bloquée encore {{n}} minutes",
       "blockShort": "le tronçon se libère d’ici {{n}} pas",
+      "blockShortMin": "la section se libère dans {{n}} minutes",
       "reroute": "un autre itinéraire existe",
       "noReroute": "aucun autre itinéraire n’existe"
     }
@@ -1886,8 +1909,10 @@
     "fitTraffic": "Ajuster au trafic",
     "singleTrack": "voie unique",
     "timeUnit": "Pas",
+    "timeUnitMin": "min",
     "toNow": "Revenir à maintenant",
     "delaySteps": "{{n}} pas",
+    "delayStepsMin": "{{n}} min",
     "kind": {
       "blocked": "Blocage",
       "swap_attempt": "Face-à-face",
@@ -1897,6 +1922,7 @@
       "label": "Conflits prévus",
       "none": "Aucun conflit prévu",
       "inMin": "dans {{min}} pas",
+      "inMinMin": "dans {{min}} min",
       "now": "maintenant",
       "unnamed": "Section sans nom",
       "offView": "hors de cette vue",
@@ -2436,6 +2462,12 @@
       "hint": "Enregistré dans ce navigateur et ajouté à l’export de session, pour l’analyse et la relecture. Désactivé par défaut.",
       "enforced": "Fixé par cette expérience.",
       "enforcedDeployment": "Fixé pour cette installation."
+    },
+    "timeUnit": {
+      "label": "Unité de temps",
+      "title": "Afficher les durées en pas de simulation ou en minutes. Un pas est affiché comme une minute ; seul le libellé change.",
+      "steps": "Pas",
+      "minutes": "Minutes"
     }
   },
   "tile": {

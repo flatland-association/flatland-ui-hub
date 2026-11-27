@@ -11,6 +11,7 @@ import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.se
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { ReflectionPromptComponent } from '../reflection-prompt/reflection-prompt.component';
 import { ProposalCompareComponent } from '../proposal-compare/proposal-compare.component';
+import { TimeKeyPipe } from '../../core/time-unit/time-unit.service';
 
 /** Translation key per logged action (i18n plan, phase 3). */
 const ACTION_KEY: Record<DecisionAction, string> = {
@@ -66,7 +67,7 @@ export function scrollIntoPanel(el: HTMLElement): void {
 @Component({
   selector: 'app-decision-log-panel',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe, ReflectionPromptComponent, ProposalCompareComponent],
+  imports: [CommonModule, TranslocoPipe, ReflectionPromptComponent, ProposalCompareComponent, TimeKeyPipe],
   templateUrl: './decision-log-panel.component.html',
   styleUrl: './decision-log-panel.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

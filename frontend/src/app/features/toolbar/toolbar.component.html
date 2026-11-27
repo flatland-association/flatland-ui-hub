@@ -87,7 +87,7 @@
     @let elapsed = store.state()?.elapsed_steps ?? 0;
     @let stepsLeft = target !== null ? target - elapsed : 0;
     @if (stepsLeft > 1) {
-      <span class="step-countdown" [attr.title]="'toolbar.stepsRemaining' | transloco">{{ stepsLeft }}</span>
+      <span class="step-countdown" [attr.title]="'toolbar.stepsRemaining' | timeKey | transloco">{{ stepsLeft }}</span>
     } @else {
       <sbb-loading-indicator-circle size="s"></sbb-loading-indicator-circle>
     }

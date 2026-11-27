@@ -817,7 +817,9 @@ const PLAN_B: LayoutPreset = {
  */
 const PLAN_B_COLEARNING_UI: UiConfig = {
   ...PLAN_B_UI,
-  hidden: [...(PLAN_B_UI.hidden ?? [])],
+  // Minutes, fixed: the setting is hidden (plan item 2).
+  hidden: [...(PLAN_B_UI.hidden ?? []), 'control.timeUnit'],
+  timeUnit: 'minutes',
 };
 
 const PLAN_B_COLEARNING: LayoutPreset = {

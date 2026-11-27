@@ -971,6 +971,16 @@
                      (change)="draftSmoothMotion.set($any($event.target).checked)">
               <span>{{ 'settings.reflection.smooth' | transloco }}</span>
             </label>
+            <!-- Hidden where the layout fixes the unit (UiConfig.timeUnit), e.g. Plan B round 2. -->
+            @if (!uiConfig.isHidden('control.timeUnit')) {
+              <label [attr.title]="'settings.timeUnit.title' | transloco">
+                <span>{{ 'settings.timeUnit.label' | transloco }}</span>
+                <select [value]="draftTimeUnit()" (change)="draftTimeUnit.set($any($event.target).value)">
+                  <option value="steps">{{ 'settings.timeUnit.steps' | transloco }}</option>
+                  <option value="minutes">{{ 'settings.timeUnit.minutes' | transloco }}</option>
+                </select>
+              </label>
+            }
           </div>
         </section>
 
@@ -1092,7 +1102,7 @@
             }
           </span>
         }
-        <span>{{ 'footer.step' | transloco }} <strong>{{ store.elapsedSteps() }}</strong> / {{ store.maxSteps() }}</span>
+        <span>{{ 'footer.step' | timeKey | transloco }} <strong>{{ store.elapsedSteps() }}</strong> / {{ store.maxSteps() }}</span>
         <span>{{ 'footer.grid' | transloco }} <strong>{{ store.state()?.width }} × {{ store.state()?.height }}</strong></span>
         <span>{{ 'footer.agents' | transloco }} <strong>{{ store.agents().length }}</strong></span>
         @if (store.isCoLearning()) {

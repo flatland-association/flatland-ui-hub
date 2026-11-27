@@ -13,6 +13,7 @@ import { ProposalOption, ProposalsResult, ProposalVariant } from '../../core/eve
 import { ProposalChoiceService } from '../../core/proposals/proposal-choice.service';
 import { PanelFrameService } from '../../core/layout/panel-frame';
 import { ReplayService } from '../../core/replay/replay.service';
+import { TimeKeyPipe } from '../../core/time-unit/time-unit.service';
 
 /** One option the operator can put next to the plan and the AI. */
 interface OptionChoice {
@@ -73,7 +74,7 @@ const VARIANT_LABEL: Record<string, string> = { plan: 'proposals.plan', ai: 'pro
 @Component({
   selector: 'app-proposal-compare',
   standalone: true,
-  imports: [TranslocoPipe, CommonModule],
+  imports: [TranslocoPipe, CommonModule, TimeKeyPipe],
   templateUrl: './proposal-compare.component.html',
   styleUrl: './proposal-compare.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

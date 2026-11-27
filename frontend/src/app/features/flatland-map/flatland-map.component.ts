@@ -34,6 +34,7 @@ import { ClickLogService } from '../../core/interaction-log/click-log.service';
 import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 import { ClickLocator } from '../../core/replay/click-locator';
 import { extendRoute, RouteNode, viaCells } from '../../core/routing/route-drawing';
+import { TimeKeyPipe } from '../../core/time-unit/time-unit.service';
 
 
 interface DirectionalMarker {
@@ -122,7 +123,7 @@ interface DirectorPlanLine {
 @Component({
   selector: 'app-flatland-map',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, TimeKeyPipe],
   templateUrl: './flatland-map.component.html',
   styleUrl: './flatland-map.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

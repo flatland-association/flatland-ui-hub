@@ -23,6 +23,11 @@ export interface UiConfig {
    *  (docs/plans/reflection-question-order.md). Questions not listed follow
    *  in the default order. A value, like `studyLogging`: `apply()` ignores it. */
   reflectionPromptQuestionOrder?: string[];
+  /** Times in steps or minutes, fixed for the layout
+   *  (docs/plans/plan-b-round2-colearning.md, item 2). A value, not a
+   *  restriction: the condition's wins over the deployment's; unset, the
+   *  viewer's Settings choice applies (`TimeUnitService`). */
+  timeUnit?: 'steps' | 'minutes';
 }
 
 /** The `UiConfig` keys only `ui-config.json` sets; `apply()` ignores them. */
@@ -66,6 +71,9 @@ export class UiConfigService {
   private readonly _reflectionPromptQuestionOrder = signal<readonly ReflectionQuestionId[]>(REFLECTION_QUESTION_POOL);
   /** The order the reflection asks its guided questions in: the deployment's, else the default. */
   readonly reflectionPromptQuestionOrder = this._reflectionPromptQuestionOrder.asReadonly();
+  private readonly _timeUnit = signal<'steps' | 'minutes' | null>(null);
+  /** The time unit the layout or deployment fixes, or null to leave it to the viewer. */
+  readonly timeUnit = this._timeUnit.asReadonly();
 
   /** Fetches the deployment file and applies it as the baseline. Never
    *  rejects: a missing or malformed file warns and leaves nothing hidden
@@ -99,6 +107,7 @@ export class UiConfigService {
     this.hidden.set(this.mergeIds(config, 'hidden'));
     this.collapsedDefaults.set(this.mergeIds(config, 'collapsedByDefault'));
     this.allowlist.set(mergeAllowlists(this.baseline.policyAllowlist, config.policyAllowlist));
+    this._timeUnit.set(validTimeUnit(config.timeUnit) ?? validTimeUnit(this.baseline.timeUnit));
   }
 
   /** Union of baseline and condition, each validated against the registry. */
@@ -159,4 +168,8 @@ function mergeAllowlists(base: string[] | undefined, override: string[] | undefi
   if (base === undefined) return override ?? null;
   if (override === undefined) return base;
   return base.filter((id) => override.includes(id));
+}
+
+function validTimeUnit(v: unknown): 'steps' | 'minutes' | null {
+  return v === 'steps' || v === 'minutes' ? v : null;
 }

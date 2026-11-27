@@ -42,7 +42,7 @@
           </span>
           <span class="zwd__chip-who">{{ b.names }}</span>
           <span class="zwd__chip-when">
-            @if (b.inMin > 0) { {{ 'zwd.conflicts.inMin' | transloco: { min: b.inMin } }} }
+            @if (b.inMin > 0) { {{ 'zwd.conflicts.inMin' | timeKey | transloco: { min: b.inMin } }} }
             @else { {{ 'zwd.conflicts.now' | transloco }} }
           </span>
           @if (b.offView) {

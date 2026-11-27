@@ -13,6 +13,7 @@ import { ActionInt, REROUTE_ACTION } from '../../core/models';
 import { LearningRecord } from '../../core/learning-store.service';
 import { matchingRule, measureOf } from '../../core/demo/rule-match';
 import { ClickLogService } from '../../core/interaction-log/click-log.service';
+import { TimeKeyPipe } from '../../core/time-unit/time-unit.service';
 
 /**
  * Impact analysis panel (Phase 1): when a train malfunctions, shows which other
@@ -25,7 +26,7 @@ import { ClickLogService } from '../../core/interaction-log/click-log.service';
 @Component({
   selector: 'app-impact-panel',
   standalone: true,
-  imports: [TranslocoPipe, CommonModule],
+  imports: [TranslocoPipe, CommonModule, TimeKeyPipe],
   templateUrl: './impact-panel.component.html',
   styleUrl: './impact-panel.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

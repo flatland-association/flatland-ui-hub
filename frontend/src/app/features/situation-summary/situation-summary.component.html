@@ -8,7 +8,7 @@
        as "I'll look when I have time". It belongs with the other numbers the
        operator actually watches. -->
   <div class="sit-clock">
-    <span class="sit-clock-label">{{ 'situation.step' | transloco }}</span>
+    <span class="sit-clock-label">{{ 'situation.step' | timeKey | transloco }}</span>
     <span class="sit-clock-value">{{ store.elapsedSteps() }} / {{ store.maxSteps() }}</span>
   </div>
 

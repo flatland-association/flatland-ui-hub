@@ -64,12 +64,12 @@
                 {{ 'impact.blockedBy' | transloco: { train: trainName(item.blocked_by), where: whereText(item) } }}
               </div>
               <dl class="ip-assessment">
-                <div><dt>{{ 'impact.reachesIn' | transloco }}</dt><dd>{{ 'impact.steps' | transloco: { n: item.eta_steps } }}</dd></div>
-                <div><dt>{{ 'impact.clearsIn' | transloco }}</dt><dd>{{ 'impact.steps' | transloco: { n: item.clears_in_steps } }}</dd></div>
+                <div><dt>{{ 'impact.reachesIn' | transloco }}</dt><dd>{{ 'impact.steps' | timeKey | transloco: { n: item.eta_steps } }}</dd></div>
+                <div><dt>{{ 'impact.clearsIn' | transloco }}</dt><dd>{{ 'impact.steps' | timeKey | transloco: { n: item.clears_in_steps } }}</dd></div>
                 <div><dt>{{ 'impact.buffer' | transloco }}</dt>
                   <dd>
                     @if (buffer(item) > 0) {
-                      {{ 'impact.bufferNone' | transloco: { n: buffer(item) } }}
+                      {{ 'impact.bufferNone' | timeKey | transloco: { n: buffer(item) } }}
                     } @else {
                       {{ 'impact.bufferTight' | transloco }}
                     }

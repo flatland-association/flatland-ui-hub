@@ -78,6 +78,7 @@ import { ReplayWatermarkComponent } from './features/replay/replay-watermark.com
 import { ReplayClicksComponent } from './features/replay/replay-clicks.component';
 import { ReplayCursorComponent } from './features/replay/replay-cursor.component';
 import { UiStateRegistry } from './core/interaction-log/ui-state-registry.service';
+import { TimeKeyPipe, TimeUnit, TimeUnitService } from './core/time-unit/time-unit.service';
 type RuntimeLayoutOption = {
   id: string;
   name: string;
@@ -132,7 +133,7 @@ type RuntimeLayoutOption = {
     HelpAboutComponent,
     PanelShellComponent,
     ConfigShellComponent,
-    ExperimentProgressComponent,
+    ExperimentProgressComponent, TimeKeyPipe,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -1578,6 +1579,9 @@ export class AppComponent implements OnInit {
   /** Trains glide between steps (docs/plans/smooth-playback.md); remembered per browser. */
   draftSmoothMotion = signal(true);
   private readonly smoothMotion = inject(SmoothMotionService);
+  /** Times in steps or minutes (docs/plans/plan-b-round2-colearning.md, item 2); remembered per browser. */
+  draftTimeUnit = signal<TimeUnit>('steps');
+  private readonly timeUnit = inject(TimeUnitService);
 
   isDraftSurveyPartEnabled(id: string): boolean {
     return this.draftSurveyParts().includes(id);
@@ -2022,6 +2026,7 @@ export class AppComponent implements OnInit {
     this.draftRecommendationDuration.set(this.store.recommendationDurationSeconds());
     this.draftAutoPauseOnConflict.set(this.store.autoPauseOnConflict());
     this.draftSmoothMotion.set(this.smoothMotion.enabled());
+    this.draftTimeUnit.set(this.timeUnit.preference());
     this.draftVisualEncodingPreset.set(this.store.visualEncodingPreset());
     this.scenarioPolicyMode.set(false);
     this.settingsTab.set('basic');
@@ -2057,6 +2062,7 @@ export class AppComponent implements OnInit {
     this.store.setRecommendationDurationSeconds(this.draftRecommendationDuration());
     this.store.setAutoPauseOnConflict(this.draftAutoPauseOnConflict());
     this.smoothMotion.set(this.draftSmoothMotion());
+    this.timeUnit.setPreference(this.draftTimeUnit());
     this.store.setVisualEncodingPreset(this.draftVisualEncodingPreset());
     this.persistSessionSettings();
     this.settingsMode.set(false);
