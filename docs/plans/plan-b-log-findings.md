@@ -3,7 +3,7 @@
 > **Status:** plan of 2026-11-27, written after the code (built by 2026-11-25). Based on `main` 85e36e5c. Issue
 > [#230](https://github.com/flatland-association/flatland-ui-hub/issues/230) ("Findings Logging", chenkins). Branch
 > `gereon/fix-230` at 56a971a8 (code at dab7403c, then this plan), PR [#231](https://github.com/flatland-association/flatland-ui-hub/pull/231)
-> (umbra99). Steps S-1–S-8 are done; F-1–F-7 are fixed (1751b5f0, 757675c5, 3a780e8b, 12473dee, 301b06aa, 608cc97e), F-8–F-15 are open and planned in S-9–S-13 and S-18; S-14–S-17 complete the call log (Q-2). Open questions:
+> (umbra99). Steps S-1–S-18 are done; F-1–F-15 are fixed (1751b5f0, 757675c5, 3a780e8b, 12473dee, 301b06aa, 608cc97e, b3b49329, c820e19d, dce10453, a288ba3b, 19cf2356, d6c01ab4); S-14–S-17 complete the call log (Q-2) in dc7cfa9c, f1e6cf1b, 4957d85f and 13d8fb4a. Open questions:
 > none (Q-1–Q-5 decided on 2026-11-27).
 >
 > **Why:** in the Plan B study runs, «KI-Plan übernehmen» failed 18 times out of 20 with 409 ("proposal preview is
@@ -136,8 +136,9 @@ The code keeps no list of its own; the PR adds no `TODO`.
 - `course_activation` keeps only the last outcome. A client that misses the state broadcast between two activations
   misses the earlier one.
 - Proposals are still as slow as before (REQ-2, §1.4).
-- The countdowns (S-13) assume the nominal pace: a server that steps more slowly than planned makes the real wait
-  longer than shown (Q-5).
+- The countdowns (S-13) assume the nominal pace: when the server steps more slowly than planned, they stand still at
+  the value of the next step until it arrives (never ahead of the run, picture 14a), so the real wait is longer than
+  shown (Q-5).
 - `kpis.malfunctions` counts trains, not breakdowns: a train that breaks down twice in a leg counts once (REQ-4).
 
 ### 2.2 Assumptions
@@ -262,6 +263,15 @@ decision or a finding:
 | [9](plan-b-log-findings/9-s7-scheduled-disturbance-mockup.png) | F-6 before S-7: a scheduled disturbance missing from the forecast (mockup: Plan B schedules none) | §4.3 |
 | [10](plan-b-log-findings/10-s8-held-next-to-target-mockup.png) | F-7 before S-8: a train held next to its target stays there (mockup: Plan B holds no train there) | §4.3 |
 
+| [11a](plan-b-log-findings/11a-s9-cancelled-before.png), [11b](plan-b-log-findings/11b-s9-cancelled-after.png) | F-8 and S-9: a waiting AI course dropped by a new hold; before, the panel waits for ever; after, it loads new courses | §4.5 |
+| [12](plan-b-log-findings/12-s10-pending.png) | S-10: while the course waits, only "Bis dahin fahren die Züge wie jetzt." (before: picture 2) | §4.5 |
+| [13](plan-b-log-findings/13-s12-timetable.png) | S-12: "⚠ Störung, noch N Schritte" in the timetable; the column fits (before: picture 5) | §4.5 |
+| [14a](plan-b-log-findings/14a-s13-countdown.png), [14b](plan-b-log-findings/14b-s13-zero.png), [15](plan-b-log-findings/15-s13-recompute.png) | S-13: the deadline per second, the button off at 0 s, the greyed course while recomputing (before: pictures 7, 4a, 4b) | §4.5 |
+
+Pictures 11b–15 come from the code at d6c01ab4 (S-9–S-18; preview backend with the production build, same scripted run
+as above; 14b and 15 with 5 s reading time and a 12 s reader, as picture 4a), 11a from dab7403c. The call log steps
+(S-11, S-14–S-17) don't show on screen: §4.4 has excerpts of the backend call logs of the same runs.
+
 F-2 (S-4) and F-3 (S-6) don't show on screen: the sequence diagrams in §6.3 and §6.4 show them, before and after the
 fix.
 
@@ -343,15 +353,56 @@ Mockups, since Plan B schedules no disturbances and holds no train next to its t
 
 <img src="plan-b-log-findings/6-req6-system-hold.png" alt="REQ-6: system hold in the events and in the decision log" width="640">
 
+The call log steps, before (dab7403c) and after (S-9–S-18), from the backend call logs (`backend-calls.jsonl`) of the
+runs of §4.2, shortened:
+
+- **S-14** A repeated command answer was stored as a reference: the second hold for IR35 lost its response, and so
+  did the second pause at the leg end. After S-14 only GET answers are references
+  (`test_a_repeated_post_keeps_its_response`); in the run after S-9–S-18 no command answer repeats any more (S-16
+  adds the step, S-17 drops the second pause).
+
+  ```text
+  before  298 POST /agent/1/override 200 {"session_id": "5486b18c", "handle": 1, "action": 4}
+          332 POST /agent/1/override 200 response_same_as=298
+  ```
+- **S-15** The 409 of an AI course taken a step late:
+
+  ```text
+  before  360 POST /proposals/apply 409 {"detail": "This proposal preview is stale or no longer matches; load proposals again"}
+  after   570 POST /proposals/apply 409 {"detail": "This proposal preview is stale or no longer matches (computed at step 37, now step 38); load proposals again"}
+  ```
+- **S-16** The override answer:
+
+  ```text
+  before  298 POST /agent/1/override 200 {"session_id": "5486b18c", "handle": 1, "action": 4}
+  after   515 POST /agent/1/override 200 {"session_id": "95bfca9c", "handle": 1, "action": 4, "via": [], "start": null, "step": 33}
+  ```
+- **S-17** The leg end (the episode ends while the run plays):
+
+  ```text
+  before  577 POST /pause 200 {"session_id": "2ee270b8", "playing": false}
+          578 POST /pause 200 response_same_as=577
+  after   793 POST /pause 200 {"session_id": "cc0eb7ee", "playing": false}
+  ```
+- **S-11** At dab7403c, `sessions.py`'s `_build_state_payload` sent no `pending_course`/`course_activation`, so the
+  state message of a manual `/step` didn't say that the course took over (the preview backend of the "before"
+  pictures already carried that patch, so its log shows no difference). After S-11, the message of the `/step` that
+  reaches the course's step:
+
+  ```json
+  {"elapsed_steps": 37, "pending_course": null,
+   "course_activation": {"handle": 1, "step": 37, "activation_step": 37, "outcome": "installed"}}
+  ```
+
 ### 4.5 Panel and timetable fixes (S-9, S-10, S-12, S-13)
 
-*The review fixes participants see, shown as mockups before they are built.*
+*The review fixes participants see: mockups from before they were built, then screenshots as built.*
 
 - **S-12 (F-11, F-15)** The timetable's status says what the number is and in which unit: "⚠ Störung, noch 6 Schritte"
   instead of "⚠ 6", as its other statuses and the events do. The KI deadline counts seconds; with the unit the two no
   longer read as one countdown. It keeps the exact remaining duration, as the other panels do, until #225 switches
-  them all to an expected value (decision 2026-11-27). One step reads in the singular ("ab in 1 Schritt", "+1 Schritt spät"), as the repo's
-  other `…One` keys do.
+  them all to an expected value (decision 2026-11-27). One step reads in the singular ("ab in 1 Schritt", "+1 Schritt spät", and in the
+  events "Störung, noch 1 Schritt."), as the repo's other `…One` keys do.
 - **S-13 (F-12, F-13)** The KI deadline and the pending text tick every second (Q-5). At 0 s «KI-Plan übernehmen» is
   disabled; while the panel recomputes, the course that ran out is greyed out and the text says a new one is computed.
 - **S-9 (F-8)** A course cancelled by another decision or a reset ends the panel's waiting state; the state reports
@@ -361,6 +412,16 @@ Mockups, since Plan B schedules no disturbances and holds no train next to its t
   Q-1 shows the contradiction).
 
 <img src="plan-b-log-findings/5-f11-timetable-mockup.png" alt="S-12 mockup: timetable status with unit" width="560"> <img src="plan-b-log-findings/4b-q1b-recompute-mockup.png" alt="S-13 mockup: course that ran out greyed while recomputing" width="560">
+
+As built (d6c01ab4), S-9 before and after, then S-10, S-12 and S-13:
+
+<img src="plan-b-log-findings/11a-s9-cancelled-before.png" alt="F-8: the panel waits for ever for a course a new hold dropped" width="560"> <img src="plan-b-log-findings/11b-s9-cancelled-after.png" alt="S-9: the panel stops waiting and loads new courses" width="560">
+
+<img src="plan-b-log-findings/12-s10-pending.png" alt="S-10: only the waiting text while the course waits" width="560"> <img src="plan-b-log-findings/13-s12-timetable.png" alt="S-12: timetable status with unit" width="560">
+
+<img src="plan-b-log-findings/14a-s13-countdown.png" alt="S-13: the deadline counted down every second" width="900">
+
+<img src="plan-b-log-findings/14b-s13-zero.png" alt="S-13: the button disabled at 0 s" width="560"> <img src="plan-b-log-findings/15-s13-recompute.png" alt="S-13: the old course greyed while a new one is computed" width="560">
 
 ## 5. Building block view
 
@@ -804,20 +865,17 @@ code, but the PR comment is not resolved on GitHub yet. "resolved" in Source: th
 | ✅ ❌ | F-5 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945690) | bug | medium | `backend/app/api/overrides.py:622`: `apply_proposal` drops the pending course before `lead_course`/`exact_course` validate the token; an expired token's 409 still cancels the accepted course. Fixed in 3a780e8b (S-5): the early clear is gone; `_finish_apply` and the pending path replace it after validation. | fix(proposals): cancel a pending AI course only after the replacing decision is accepted. |
 | ✅ ❌ | F-6 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945734) | correctness | medium | `backend/app/api/overrides.py:833`: `_roll_forward` steps the copy with `future.step()`, which does not tick `session.disturbance_scheduler` as `step_env` does; a scheduled delay or area closure inside the lead is missing from the forecast, so the course goes through the re-check or is rejected. Fixed in 301b06aa (S-7): `_roll_forward` ticks a private copy of the scheduler captured with the proposal, without notifications. | fix(proposals): tick a private disturbance scheduler during the lead forecast. |
 | ✅ ❌ | F-7 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945779) | bug | medium | `backend/app/policies/plan_policy.py:216`: `_drop_exhausted_course` takes a run ending next to the target as complete. A one-waypoint run of a train held next to its target passes too; once released, `_plan_action` keeps returning `DO_NOTHING` and the train stands. Fixed in 608cc97e (S-8): the trains held at takeover are recorded (`note_course_holds`); their runs count as cut short wherever they end. | fix(plan-policy): tell completed runs from runs cut short at a hold. |
-|  | F-8 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945849) | bug | medium | `frontend/src/app/features/proposal-compare/proposal-compare.component.ts:221`: an override from outside the panel or a reset in the same session drops `pending_course` without a `course_activation`; the panel stays "taken, waiting" and doesn't reload. Report the cancellation in the state (with an id of the course) and clear the panel's waiting state on it. Open: planned in S-9. | fix(proposal-compare): clear the waiting state when a pending AI course is cancelled. |
-|  | F-9 | code review | bug | medium | `frontend/src/app/features/proposal-compare/proposal-compare.component.html:214`: while an AI course is pending, the comparison still shows `proposals.aiTakenCaveat` ("Die Züge fahren ab jetzt nach dem Plan der KI."), next to `proposals.aiPending` ("Bis dahin fahren die Züge wie jetzt."). The two texts contradict each other until the activation step. Show the caveat only once the course is installed. Open: planned in S-10. | fix(proposal-compare): show the AI-taken caveat only once the course has taken over. |
-|  | F-10 | code review | robustness | low | `backend/app/api/sessions.py:138`: `/step`, `/reset` and the other endpoints of `sessions.py` broadcast the state through their own `_build_state_payload`, which lacks `course_state`; only `/state` and the WebSocket play loop carry it. A pending course activated by a manual step (paused after accepting, then «Schritt») leaves the panel at "übernimmt in etwa 0 s" until the next play-loop broadcast. Add `course_state` there too, or share one payload builder. Open: planned in S-11. | fix(sessions): send the pending course state with every state broadcast. |
-|  | F-11 | code review | usability | low | `frontend/src/app/features/timetable/timetable.component.ts:74`: the status column of a broken-down train shows a bare `⚠ <malfunction_remaining>`, a count of steps without a unit. The other statuses of the column name their unit (`train.late` "+N Schritte spät", `timetable.status.depIn` "ab in N Schritten"), and the Lage panel and the Ereignisse count the breakdown in steps too. In the movies, "⚠ 4" of another train (S17u) stood next to "Noch 6 s übernehmbar" in Handlungsoptionen and read as the same countdown. Show it as "⚠ Störung, noch 4 Schritte" through a translation key, as the other statuses. Was a follow-up; taken into this PR by the user's decision (2026-11-27). Open: planned in S-12. | fix(timetable): name the breakdown and its unit, and say one step in the singular. |
-|  | F-12 | code review | usability | low | `frontend/src/app/features/proposal-compare/proposal-compare.component.ts:148`: `aiSecondsLeft` and `pendingSecondsLeft` change only when a step arrives; in Plan B "Noch 6 s übernehmbar" and "übernimmt in etwa 3 s" jump by 3 s and stand still in between, so the real time left is anywhere from 0 to 3 s more than shown. Make both texts tick every second (Q-5). Was offered as a follow-up; taken into this PR by the user's decision (2026-11-27). Open: planned in S-13. | fix(proposal-compare): count the AI deadline down every second and stop offering a course that has run out. |
-|  | F-13 | code review | usability | low | `frontend/src/app/features/proposal-compare/proposal-compare.component.html:104`: an AI course that has run out is still offered. From its activation step until the next step, «KI-Plan übernehmen» stays enabled under "Noch 0 s übernehmbar"; a click whose request arrives after the step goes through the re-check or a 409. While the panel recomputes (`load()` keeps the AI column), the old course's numbers stay visible under a disabled button, with only "Verläufe werden gerechnet…" above the columns and nothing saying the course ran out. Disable the button at 0 s, and while recomputing grey out the old course and say that a new one is computed. Open: planned in S-13. | fix(proposal-compare): count the AI deadline down every second and stop offering a course that has run out. |
-|  | F-14 | code review | docs | low | 23 added lines in 18 files refer to `#230` (listed in the note below the table), but the PR is to close #230 (Q-4 a), which leaves no reference to it in the code. Point them to `docs/plans/plan-b-log-findings.md` (the section where it helps) or drop them where the code says enough; test names lose the number. Open: planned in S-18. | docs: point the code comments to the plan instead of the closed issue. |
-|  | F-15 | code review | i18n | low | `frontend/src/app/features/timetable/timetable.component.ts:81`: for one step the status column reads "ab in 1 Schritten" (`timetable.status.depIn`, seen in picture 4a); `train.late` gives "+1 Schritte spät" the same way (timetable line 85, also `agents-table.component.ts:264` and `left-sidebar.component.ts:244`). Already on `main`. The repo writes plurals as a second key with `One` (`heldOne`, `summaryOne`, `disturbanceOne`): add `timetable.status.depInOne` and `train.lateOne` in en, de and fr and pick them for 1 at the three call sites; the new `timetable.status.disruption` of S-12 gets `disruptionOne` from the start. Taken into this PR by the user's decision (2026-11-27). Open: planned in S-12. | fix(timetable): name the breakdown and its unit, and say one step in the singular. |
+| ✅ ❌ | F-8 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/231#discussion_r4698945849) | bug | medium | `frontend/src/app/features/proposal-compare/proposal-compare.component.ts:221`: an override from outside the panel or a reset in the same session drops `pending_course` without a `course_activation`; the panel stays "taken, waiting" and doesn't reload. Report the cancellation in the state (with an id of the course) and clear the panel's waiting state on it. Fixed in b3b49329 (S-9): the state reports a dropped course as `outcome: "cancelled"`; the panel stops waiting and loads new courses. | fix(proposal-compare): clear the waiting state when a pending AI course is cancelled. |
+| ✅ | F-9 | code review | bug | medium | `frontend/src/app/features/proposal-compare/proposal-compare.component.html:214`: while an AI course is pending, the comparison still shows `proposals.aiTakenCaveat` ("Die Züge fahren ab jetzt nach dem Plan der KI."), next to `proposals.aiPending` ("Bis dahin fahren die Züge wie jetzt."). The two texts contradict each other until the activation step. Show the caveat only once the course is installed. Fixed in c820e19d (S-10): the caveat shows only once no course is pending. | fix(proposal-compare): show the AI-taken caveat only once the course has taken over. |
+| ✅ | F-10 | code review | robustness | low | `backend/app/api/sessions.py:138`: `/step`, `/reset` and the other endpoints of `sessions.py` broadcast the state through their own `_build_state_payload`, which lacks `course_state`; only `/state` and the WebSocket play loop carry it. A pending course activated by a manual step (paused after accepting, then «Schritt») leaves the panel at "übernimmt in etwa 0 s" until the next play-loop broadcast. Add `course_state` there too, or share one payload builder. Fixed in dce10453 (S-11): `sessions.py`'s state broadcast carries `course_state`, as the play loop's does. | fix(sessions): send the pending course state with every state broadcast. |
+| ✅ | F-11 | code review | usability | low | `frontend/src/app/features/timetable/timetable.component.ts:74`: the status column of a broken-down train shows a bare `⚠ <malfunction_remaining>`, a count of steps without a unit. The other statuses of the column name their unit (`train.late` "+N Schritte spät", `timetable.status.depIn` "ab in N Schritten"), and the Lage panel and the Ereignisse count the breakdown in steps too. In the movies, "⚠ 4" of another train (S17u) stood next to "Noch 6 s übernehmbar" in Handlungsoptionen and read as the same countdown. Show it as "⚠ Störung, noch 4 Schritte" through a translation key, as the other statuses. Was a follow-up; taken into this PR by the user's decision (2026-11-27). Fixed in a288ba3b (S-12): "⚠ Störung, noch N Schritte" through `timetable.status.disruption`. | fix(timetable): name the breakdown and its unit, and say one step in the singular. |
+| ✅ | F-12 | code review | usability | low | `frontend/src/app/features/proposal-compare/proposal-compare.component.ts:148`: `aiSecondsLeft` and `pendingSecondsLeft` change only when a step arrives; in Plan B "Noch 6 s übernehmbar" and "übernimmt in etwa 3 s" jump by 3 s and stand still in between, so the real time left is anywhere from 0 to 3 s more than shown. Make both texts tick every second (Q-5). Was offered as a follow-up; taken into this PR by the user's decision (2026-11-27). Fixed in 19cf2356 (S-13): both texts tick every second from a 1 s clock restarted on each step, never ahead of the run. | fix(proposal-compare): count the AI deadline down every second and stop offering a course that has run out. |
+| ✅ | F-13 | code review | usability | low | `frontend/src/app/features/proposal-compare/proposal-compare.component.html:104`: an AI course that has run out is still offered. From its activation step until the next step, «KI-Plan übernehmen» stays enabled under "Noch 0 s übernehmbar"; a click whose request arrives after the step goes through the re-check or a 409. While the panel recomputes (`load()` keeps the AI column), the old course's numbers stay visible under a disabled button, with only "Verläufe werden gerechnet…" above the columns and nothing saying the course ran out. Disable the button at 0 s, and while recomputing grey out the old course and say that a new one is computed. Fixed in 19cf2356 (S-13): the button is disabled at 0 s; while recomputing, the old course is greyed with `proposals.aiRecomputing`. | fix(proposal-compare): count the AI deadline down every second and stop offering a course that has run out. |
+| ✅ | F-14 | code review | docs | low | 23 added lines in 18 files refer to `#230` (listed in the note below the table), but the PR is to close #230 (Q-4 a), which leaves no reference to it in the code. Point them to `docs/plans/plan-b-log-findings.md` (the section where it helps) or drop them where the code says enough; test names lose the number. Fixed in d6c01ab4 (S-18): the comments point to this plan; no `#230` is left outside `docs/plans/`. | docs: point the code comments to the plan instead of the closed issue. |
+| ✅ | F-15 | code review | i18n | low | `frontend/src/app/features/timetable/timetable.component.ts:81`: for one step the status column reads "ab in 1 Schritten" (`timetable.status.depIn`, seen in picture 4a); `train.late` gives "+1 Schritte spät" the same way (timetable line 85, also `agents-table.component.ts:264` and `left-sidebar.component.ts:244`). Already on `main`. The repo writes plurals as a second key with `One` (`heldOne`, `summaryOne`, `disturbanceOne`): add `timetable.status.depInOne` and `train.lateOne` in en, de and fr and pick them for 1 at the three call sites; the new `timetable.status.disruption` of S-12 gets `disruptionOne` from the start. The events card has the same bug ("Störung, noch 1 Schritte.", seen in the screenshots of 2026-11-27): `NotificationWordingService` words the backend's `train.malfunction` notification through `notifications.train.malfunction.message`/`short`, plural only; for `steps` 1 it takes `messageOne`/`shortOne` when they exist. Taken into this PR by the user's decision (2026-11-27). Fixed in a288ba3b (S-12): `…One` keys for one step in the timetable, the trains table, the left sidebar and the events. | fix(timetable): name the breakdown and its unit, and say one step in the singular. |
 
-Issue references: the PR closes #230 (Q-4 a; "Closes #230" in the PR body). The code refers to `#230` on 23 added
-lines in 18 files (comments, docstrings and test names in `overrides.py`, `proposal_preview.py`, `env_step.py`,
-`switch_policy.py`, `override_manager.py`, `hmi_mock.py`, two backend tests, `api.service.ts`, `event-types.ts`,
-`session.store.ts`, `experiment-run.service.ts`, `state-log.service.ts`, `proposal-compare.component.ts` and their
-specs): open finding F-14.
+Issue references: the PR closes #230 (Q-4 a; "Closes #230" in the PR body). Since d6c01ab4 (S-18, F-14) no line of
+the PR outside `docs/plans/` refers to `#230` (`git grep -n '#230' -- ':!docs/plans'` finds none).
 
 ## 10. Glossary
 
@@ -883,7 +941,7 @@ so a new override for the train cancels it (F-4). Picture 3 in Q-1 shows the tak
 | ✅ S-1 | - | AI courses computed a step ahead: lead, forecast, `SwitchAtStepPolicy`, pending course, activation in the step loop, panel deadline and reload, tests (§4.3). The cleanup commit replaced the links to the removed plan by `#230`. | feat | high | feat: implement KI course suggestions computed for a step ahead. | 6c589b86, dab7403c | - | - |
 | ✅ S-2 | - | Logging fixes (§4.4), system hold notifications, `PlanPolicy` fallback for released holds, tests. The cleanup commit removed files committed by mistake (diagnostic script, data, another plan). | fix | medium | feat: Add DLA label sources and diagnostic script for takeover states. | f34a5bed, dab7403c | S-1 | - |
 
-#### Phase 2: Review fixes 💡
+#### Phase 2: Review fixes ✅
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
@@ -893,21 +951,21 @@ so a new override for the train cancels it (F-4). Picture 3 in Q-1 shows the tak
 | ✅ S-6 | F-3 | `SwitchAtStepPolicy` forwards overrides to the active policy only and repeats the install's plan-state reset at the switch; test that the inactive policy leaves the plan state alone. | correctness | high | fix(proposals): forward committed overrides only to the active policy when previewing a switch. | 12473dee | S-1 | - |
 | ✅ S-7 | F-6 | Tick a private copy of the disturbance scheduler in `_roll_forward`, without notifications; test with a delay scheduled inside the lead. | correctness | medium | fix(proposals): tick a private disturbance scheduler during the lead forecast. | 301b06aa | S-3 | - |
 | ✅ S-8 | F-7 | Tell complete runs from runs cut short by a hold in `_drop_exhausted_course`; test for a train held next to its target. | bug | medium | fix(plan-policy): tell completed runs from runs cut short at a hold. | 608cc97e | S-2 | - |
-| 💡 S-9 | F-8 | Report a cancelled pending course in the state (`outcome: "cancelled"`); the panel clears its waiting state and reloads, no new text; backend test and spec. | bug | medium | fix(proposal-compare): clear the waiting state when a pending AI course is cancelled. |  | S-5, S-11 | - |
-| 💡 S-10 | F-9 | Show `proposals.aiTakenCaveat` only when no course is pending; spec. | bug | medium | fix(proposal-compare): show the AI-taken caveat only once the course has taken over. |  | S-1 | - |
-| 💡 S-11 | F-10 | `course_state` in `sessions.py`'s state broadcast (or one shared builder with `websockets.py`); test that `/step` sends `course_activation`. | robustness | low | fix(sessions): send the pending course state with every state broadcast. |  | S-1 | - |
-| 💡 S-12 | F-11, F-15 | `timetable.status.disruption` ("⚠ Störung, noch {{n}} Schritte" / "⚠ disruption, {{n}} steps left" / "⚠ perturbation, encore {{n}} pas") instead of the bare number, with `disruptionOne` ("⚠ Störung, noch 1 Schritt" / "⚠ disruption, 1 step left" / "⚠ perturbation, encore 1 pas"); `timetable.status.depInOne` ("ab in 1 Schritt" / "dep in 1 step" / "départ dans 1 pas") and `train.lateOne` ("+1 Schritt spät" / "+1 step late" / "+1 pas de retard") picked for 1 in the timetable, `agents-table` and `left-sidebar`; `timetable.component.spec.ts` for 1 and N; check in the running app that the column still fits. | usability | low | fix(timetable): name the breakdown and its unit, and say one step in the singular. |  | - | - |
-| 💡 S-13 | F-12, F-13 | Countdown of `aiSecondsLeft` and `pendingSecondsLeft` ticking every second (Q-5): a 1 s clock signal, restarted on each step, stopped while paused. «KI-Plan übernehmen» disabled at 0 s; while recomputing, the old AI course greyed out (app tokens) with `proposals.aiRecomputing` ("Neuer KI-Verlauf wird gerechnet…" / "Computing a new AI course…" / "Nouveau parcours IA en cours de calcul…"). Spec with fake timers for both texts, the button at 0 s and the recomputing state. | usability | low | fix(proposal-compare): count the AI deadline down every second and stop offering a course that has run out. |  | S-10 | - |
+| ✅ S-9 | F-8 | Report a cancelled pending course in the state (`outcome: "cancelled"`); the panel clears its waiting state and reloads, no new text; backend test and spec. | bug | medium | fix(proposal-compare): clear the waiting state when a pending AI course is cancelled. | b3b49329 | S-5, S-11 | - |
+| ✅ S-10 | F-9 | Show `proposals.aiTakenCaveat` only when no course is pending; spec. | bug | medium | fix(proposal-compare): show the AI-taken caveat only once the course has taken over. | c820e19d | S-1 | - |
+| ✅ S-11 | F-10 | `course_state` in `sessions.py`'s state broadcast (or one shared builder with `websockets.py`); test that `/step` sends `course_activation`. | robustness | low | fix(sessions): send the pending course state with every state broadcast. | dce10453 | S-1 | - |
+| ✅ S-12 | F-11, F-15 | `timetable.status.disruption` ("⚠ Störung, noch {{n}} Schritte" / "⚠ disruption, {{n}} steps left" / "⚠ perturbation, encore {{n}} pas") instead of the bare number, with `disruptionOne` ("⚠ Störung, noch 1 Schritt" / "⚠ disruption, 1 step left" / "⚠ perturbation, encore 1 pas"); `timetable.status.depInOne` ("ab in 1 Schritt" / "dep in 1 step" / "départ dans 1 pas") and `train.lateOne` ("+1 Schritt spät" / "+1 step late" / "+1 pas de retard") picked for 1 in the timetable, `agents-table` and `left-sidebar`; in the events, `NotificationWordingService` takes a `…One` variant of the notification key for `steps` 1 (`notifications.train.malfunction.messageOne`, `shortOne`); `timetable.component.spec.ts` and `notification-wording.service.spec.ts` for 1 and N; check in the running app that the column still fits. | usability | low | fix(timetable): name the breakdown and its unit, and say one step in the singular. | a288ba3b | - | - |
+| ✅ S-13 | F-12, F-13 | Countdown of `aiSecondsLeft` and `pendingSecondsLeft` ticking every second (Q-5): a 1 s clock signal, restarted on each step, stopped while paused. «KI-Plan übernehmen» disabled at 0 s; while recomputing, the old AI course greyed out (app tokens) with `proposals.aiRecomputing` ("Neuer KI-Verlauf wird gerechnet…" / "Computing a new AI course…" / "Nouveau parcours IA en cours de calcul…"). Spec with fake timers for both texts, the button at 0 s and the recomputing state. | usability | low | fix(proposal-compare): count the AI deadline down every second and stop offering a course that has run out. | 19cf2356 | S-10 | - |
 
-#### Phase 3: Complete the call log (REQ-8) and close #230 💡
+#### Phase 3: Complete the call log (REQ-8) and close #230 ✅
 
 | ID | Findings | Step | Category | Severity | Commit message | Commit(s) | Needs | Blocked by |
 |---|---|---|---|---|---|---|---|---|
-| 💡 S-14 | - | Deduplicate only GET in `call-log.interceptor.ts` and `call_log.py`; tests that a repeated POST keeps its response; `docs/experiment-logging.md`. | fix | medium | fix(call-log): log the response of every command, deduplicate only polled GET answers. |  | - | - |
-| 💡 S-15 | - | `exact_course` and the lead path name the failed check and the steps compared in the 409 text; a test per reason. | fix | medium | fix(proposals): say why an AI course is refused and which steps were compared. |  | S-4 | - |
-| 💡 S-16 | - | `set_override` answers with `via`, `start` and the step; `test_override_answer.py`. | fix | low | fix(overrides): echo the route and step in the override answer. |  | - | - |
-| 💡 S-17 | - | `_stopPlayingOnServer` skips a pause in flight; spec for a leg end. | fix | low | fix(session-store): send one pause at the end of a leg. |  | - | - |
-| 💡 S-18 | F-14 | Replace the `#230` references in code, docstrings and test names by references to this plan or drop them; `git grep -n '#230' -- ':!docs/plans'` finds none of the PR's lines. | docs | low | docs: point the code comments to the plan instead of the closed issue. |  | S-3–S-17 | - |
+| ✅ S-14 | - | Deduplicate only GET in `call-log.interceptor.ts` and `call_log.py`; tests that a repeated POST keeps its response; `docs/experiment-logging.md`. | fix | medium | fix(call-log): log the response of every command, deduplicate only polled GET answers. | dc7cfa9c | - | - |
+| ✅ S-15 | - | `exact_course` and the lead path name the failed check and the steps compared in the 409 text; a test per reason. | fix | medium | fix(proposals): say why an AI course is refused and which steps were compared. | f1e6cf1b | S-4 | - |
+| ✅ S-16 | - | `set_override` answers with `via`, `start` and the step; `test_override_answer.py`. | fix | low | fix(overrides): echo the route and step in the override answer. | 4957d85f | - | - |
+| ✅ S-17 | - | `_stopPlayingOnServer` skips a pause in flight; spec for a leg end. | fix | low | fix(session-store): send one pause at the end of a leg. | 13d8fb4a | - | - |
+| ✅ S-18 | F-14 | Replace the `#230` references in code, docstrings and test names by references to this plan or drop them; `git grep -n '#230' -- ':!docs/plans'` finds none of the PR's lines. | docs | low | docs: point the code comments to the plan instead of the closed issue. | d6c01ab4 | S-3–S-17 | - |
 
 ## 12. Change inventory
 
@@ -924,6 +982,7 @@ so a new override for the train cancels it (F-4). Picture 3 in Q-1 shows the tak
 | `backend/tests/test_plan_policy_released_hold.py` | Released train at the end of a run cut short; held train keeps the course |
 | `backend/tests/test_system_hold_notification.py` | System and operator holds worded apart |
 | `frontend/src/app/features/timetable/timetable.component.spec.ts` | Breakdown status with unit, singular for one step (S-12) |
+| `frontend/src/app/core/notification-wording.service.spec.ts` | A breakdown notification of one step in the singular (S-12) |
 | `backend/tests/test_switch_policy.py` | Only the active policy hears the overrides; plan state reset once at the switch (S-6) |
 | `backend/tests/test_override_answer.py` | The override answer echoes `via`, `start` and the step (S-16) |
 | `docs/plans/plan-b-log-findings.md` | This plan |
@@ -958,7 +1017,8 @@ so a new override for the train cancels it (F-4). Picture 3 in Q-1 shows the tak
 | `frontend/src/app/features/proposal-compare/proposal-compare.component.{ts,html,spec.ts}` | Lead request, deadline, pending text, reload on deadline, 409 and `rejected`; deadline and pending countdown between steps (Q-5); no taking at 0 s, old course greyed while recomputing |
 | `frontend/src/app/features/timetable/timetable.component.ts` | Breakdown status through `timetable.status.disruption`; singular keys for one step |
 | `frontend/src/app/features/agents-table/agents-table.component.ts`, `frontend/src/app/features/left-sidebar/left-sidebar.component.ts` | `train.lateOne` for one step |
-| `frontend/public/i18n/{en,de,fr}.json` | `notifications…systemHold.*`; `proposals.aiValidFor`, `aiPending`, `aiPendingPaused`, `aiRefreshed`, `courseRejected`, `aiRecomputing`; `timetable.status.disruption`, `disruptionOne`, `depInOne`; `train.lateOne` |
+| `frontend/src/app/core/notification-wording.service.ts` | A notification counting one step takes the key's `…One` variant when it exists (S-12) |
+| `frontend/public/i18n/{en,de,fr}.json` | `notifications…systemHold.*`; `proposals.aiValidFor`, `aiPending`, `aiPendingPaused`, `aiRefreshed`, `courseRejected`, `aiRecomputing`; `timetable.status.disruption`, `disruptionOne`, `depInOne`; `train.lateOne`; `notifications.train.malfunction.messageOne`, `shortOne` |
 
 S-18 also touches the comments, docstrings and test names that refer to `#230` in the files above and their specs.
 
