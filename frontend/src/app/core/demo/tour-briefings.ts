@@ -229,7 +229,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         module: true,
         panelType: 'proposal-compare',
         title: 'Alternativen',
-        hint: 'Neu: Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Handlungsoptionen» siehst du vorab, was der Plan, der KI-Vorschlag und deine eigene Wahl für den Zug bedeuten.',
+        hint: 'Neu: Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Handlungsoptionen» siehst du vorab, was kein Eingriff, der KI-Vorschlag und deine eigene Wahl für den Zug bedeuten.',
       },
       {
         id: 'decide',
@@ -280,7 +280,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
     // overview — the panels themselves are no longer labelled.
     moduleBadges: {
       impact: 'Risiko- und Auswirkungsanalyse',
-      'proposal-compare': 'Auswirkungsanalyse: Plan, KI-Vorschlag und deine Wahl',
+      'proposal-compare': 'Auswirkungsanalyse: kein Eingriff, KI-Vorschlag und deine Wahl',
       'decision-log': 'Grundlage für Reflexion und Lernen',
     },
     modeIntros: {
@@ -298,7 +298,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         whatYouCanControl: [
           'Die Simulation starten, pausieren oder schrittweise laufen lassen',
           'Für einen betroffenen Zug eine Option wählen',
-          'Unter «Handlungsoptionen» vorab vergleichen: Plan, KI-Vorschlag und deine eigene Wahl',
+          'Unter «Handlungsoptionen» vorab vergleichen: kein Eingriff, KI-Vorschlag und deine eigene Wahl',
           'Nach einer Entscheidung den Grund angeben, als Regel oder nur für diesmal',
         ],
         watchFor: [
@@ -419,7 +419,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
           area: 'Alternative Actions',
           kolbPhase: 'Konkrete Erfahrung',
           does: 'Von der KI berechnete Handlungsalternativen',
-          inTour: 'Panel «Handlungsoptionen»: Plan, KI-Neuplanung und deine Wahl im Vergleich, auch direkt am Zug auf der Karte',
+          inTour: 'Panel «Handlungsoptionen»: kein Eingriff, KI-Neuplanung und deine Wahl im Vergleich, auch direkt am Zug auf der Karte',
           status: 'live',
           statusNote: 'Erlebbar; die KI rechnet mit einem klassischen Planer statt mit gelernten Agenten',
         },
@@ -643,7 +643,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
       module: true,
       panelType: 'proposal-compare',
       title: 'Alternatives',
-      hint: 'New: the AI offers options without recommending one. Under «Action options» you see in advance what the plan, the AI proposal and your own choice mean for the train.',
+      hint: 'New: the AI offers options without recommending one. Under «Action options» you see in advance what no intervention, the AI proposal and your own choice mean for the train.',
     },
     {
       id: 'decide',
@@ -691,7 +691,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
   ],
   moduleBadges: {
     impact: 'Risk and impact analysis',
-    'proposal-compare': 'Impact analysis: plan, AI proposal and your choice',
+    'proposal-compare': 'Impact analysis: no intervention, AI proposal and your choice',
     'decision-log': 'Basis for reflection and learning',
   },
   modeIntros: {
@@ -709,7 +709,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
       whatYouCanControl: [
         'Start, pause or step the simulation',
         'Choose an option for an affected train',
-        'Compare in advance under «Action options»: plan, AI proposal and your own choice',
+        'Compare in advance under «Action options»: no intervention, AI proposal and your own choice',
         'After a decision, give your reason, as a rule or just for this time',
       ],
       watchFor: [
@@ -829,7 +829,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
         area: 'Alternative Actions',
         kolbPhase: 'Concrete experience',
         does: 'Options for action computed by the AI',
-        inTour: 'Panel «Action options»: plan, AI replan and your choice side by side, also directly at the train on the map',
+        inTour: 'Panel «Action options»: no intervention, AI replan and your choice side by side, also directly at the train on the map',
         status: 'live',
         statusNote: 'Hands-on; the AI computes with a classic planner instead of learned agents',
       },
