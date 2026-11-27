@@ -137,6 +137,15 @@ export interface TourBriefing {
    */
   assessmentOnly?: boolean;
   /**
+   * How a new conflict engages the human, where it differs from the mode's
+   * default (`ImpactPanelComponent.modeBehavior`). `'hold'` holds the affected
+   * trains while the rest runs on, in Recommendation too: no global pause and
+   * no countdown that applies the AI's option. Plan B round 2's control group,
+   * so both groups decide under the same conditions (#201 D-7,
+   * docs/plans/plan-b-round2-recommendation.md, item 4).
+   */
+  decisionMoment?: 'hold';
+  /**
    * The app language while this tour runs. Tour-owned text keeps its own
    * language, but the panels follow the app setting — without this a German
    * tour started from the English default shows a mix. The previous language
