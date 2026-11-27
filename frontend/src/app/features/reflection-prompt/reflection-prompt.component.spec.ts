@@ -7,7 +7,7 @@ import { SessionStore } from '../../core/session.store';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { UiConfigService } from '../../core/config/ui-config.service';
 import { REFLECTION_QUESTION_POOL } from '../../core/reflection-questions';
-import { reflectionAnswers, ReflectionPromptComponent } from './reflection-prompt.component';
+import { reflectionAnswers, ReflectionPromptComponent, toggled } from './reflection-prompt.component';
 
 /** The same order after every decision, not one drawn per decision
  *  (docs/plans/reflection-question-order.md). */
@@ -86,6 +86,30 @@ describe('reflection-prompt: serialised answers', () => {
 
   it('keeps a partial answer partial', () => {
     expect(reflectionAnswers(null, new Set(['nothing']), '')).toEqual({ missing: 'nothing' });
+  });
+});
+
+/** docs/plans/plan-b-round2-general.md, item 6: "Weiss nicht" (and "Nichts"
+ *  for the missing information) stand alone in a multiple-choice question. */
+describe('reflection-prompt: exclusive answers', () => {
+  const exclusive = new Set(['nothing', 'unknown']);
+
+  it('clears the other answers when an exclusive one is chosen', () => {
+    expect([...toggled(new Set(['duration', 'otherTrains']), 'unknown', exclusive)]).toEqual(['unknown']);
+  });
+
+  it('clears an exclusive answer when another one is chosen', () => {
+    expect([...toggled(new Set(['unknown']), 'duration', exclusive)]).toEqual(['duration']);
+    expect([...toggled(new Set(['unknown']), 'nothing', exclusive)]).toEqual(['nothing']);
+  });
+
+  it('keeps ordinary answers combinable and lets an answer be taken back', () => {
+    expect([...toggled(new Set(['duration']), 'otherTrains', exclusive)]).toEqual(['duration', 'otherTrains']);
+    expect([...toggled(new Set(['unknown']), 'unknown', exclusive)]).toEqual([]);
+  });
+
+  it('stores "Weiss nicht" as its id', () => {
+    expect(reflectionAnswers('unknown', new Set(['unknown']), '')).toEqual({ gut: 'unknown', missing: 'unknown' });
   });
 });
 

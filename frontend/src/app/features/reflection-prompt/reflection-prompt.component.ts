@@ -25,12 +25,14 @@ const FACTORS: Chip[] = [
   { id: 'critical', labelKey: 'rationale.chip.critical' },
   { id: 'experience', labelKey: 'rationale.chip.experience' },
   { id: 'other', labelKey: 'rationale.chip.other' },
+  { id: 'unknown', labelKey: 'rationale.chip.unknown' },
 ];
 
 const GUT: Chip[] = [
   { id: 'fit', labelKey: 'reflectionPrompt.gut.fit' },
   { id: 'against', labelKey: 'reflectionPrompt.gut.against' },
   { id: 'none', labelKey: 'reflectionPrompt.gut.none' },
+  { id: 'unknown', labelKey: 'reflectionPrompt.gut.unknown' },
 ];
 
 const MISSING: Chip[] = [
@@ -39,7 +41,13 @@ const MISSING: Chip[] = [
   { id: 'otherTrains', labelKey: 'reflectionPrompt.missing.otherTrains' },
   { id: 'nothing', labelKey: 'reflectionPrompt.missing.nothing' },
   { id: 'other', labelKey: 'reflectionPrompt.missing.other' },
+  { id: 'unknown', labelKey: 'reflectionPrompt.missing.unknown' },
 ];
+
+/** Answers that rule out the others in a multiple-choice question: choosing one
+ *  clears the rest, choosing another clears it (plan-b-round2-general.md, item 6). */
+const FACTORS_EXCLUSIVE: ReadonlySet<string> = new Set(['unknown']);
+const MISSING_EXCLUSIVE: ReadonlySet<string> = new Set(['nothing', 'unknown']);
 
 /**
  * Reflection with guided questions — the interview tour's "why?" prompt, a
@@ -138,18 +146,19 @@ export class ReflectionPromptComponent {
   }
 
   toggleFactor(id: string): void {
-    this.selectedFactors.update((set) => toggled(set, id));
+    this.selectedFactors.update((set) => toggled(set, id, FACTORS_EXCLUSIVE));
   }
 
   toggleMissing(id: string): void {
-    this.missing.update((set) => toggled(set, id));
+    this.missing.update((set) => toggled(set, id, MISSING_EXCLUSIVE));
   }
 
   setGut(id: string): void {
     this.gut.set(this.gut() === id ? null : id);
   }
 
-  /** A reason is what makes a hypothesis worth confirming; rejecting one needs none. */
+  /** A reason is what makes a hypothesis worth confirming; rejecting one needs
+   *  none. "Weiss nicht" counts as an answer. */
   canConfirm(): boolean {
     return this.selectedFactors().size > 0;
   }
@@ -200,9 +209,15 @@ export function reflectionAnswers(gut: string | null, missing: ReadonlySet<strin
   return out;
 }
 
-function toggled(set: Set<string>, id: string): Set<string> {
-  const next = new Set(set);
-  if (next.has(id)) next.delete(id);
-  else next.add(id);
+/** `set` with `id` switched; an exclusive answer stands alone. */
+export function toggled(set: ReadonlySet<string>, id: string, exclusive: ReadonlySet<string> = new Set()): Set<string> {
+  if (set.has(id)) {
+    const next = new Set(set);
+    next.delete(id);
+    return next;
+  }
+  if (exclusive.has(id)) return new Set([id]);
+  const next = new Set([...set].filter((x) => !exclusive.has(x)));
+  next.add(id);
   return next;
 }

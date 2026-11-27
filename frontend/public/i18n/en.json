@@ -988,7 +988,8 @@
       "deadlock": "Avoid deadlock",
       "critical": "Critical situation",
       "experience": "Experience",
-      "other": "Other"
+      "other": "Other",
+      "unknown": "Don’t know"
     }
   },
   "effect": {
@@ -1866,14 +1867,16 @@
     "gut": {
       "fit": "It matched the decision",
       "against": "It pointed the other way",
-      "none": "None"
+      "none": "None",
+      "unknown": "Don’t know"
     },
     "missing": {
       "duration": "How long the disruption lasts",
       "connections": "Effect on connections",
       "otherTrains": "What the other trains do",
       "nothing": "Nothing",
-      "other": "Something else"
+      "other": "Something else",
+      "unknown": "Don’t know"
     }
   },
   "zwd": {

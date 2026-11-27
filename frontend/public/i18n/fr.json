@@ -988,7 +988,8 @@
       "deadlock": "Éviter le blocage",
       "critical": "Situation critique",
       "experience": "Expérience",
-      "other": "Autre"
+      "other": "Autre",
+      "unknown": "Je ne sais pas"
     }
   },
   "effect": {
@@ -1866,14 +1867,16 @@
     "gut": {
       "fit": "Elle allait dans le sens de la décision",
       "against": "Elle allait dans l’autre sens",
-      "none": "Aucune"
+      "none": "Aucune",
+      "unknown": "Je ne sais pas"
     },
     "missing": {
       "duration": "La durée de la perturbation",
       "connections": "L’effet sur les correspondances",
       "otherTrains": "Ce que font les autres trains",
       "nothing": "Rien",
-      "other": "Autre chose"
+      "other": "Autre chose",
+      "unknown": "Je ne sais pas"
     }
   },
   "zwd": {
