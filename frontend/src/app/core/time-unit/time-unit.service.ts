@@ -40,6 +40,9 @@ export const MINUTE_KEYS: ReadonlySet<string> = new Set([
   'hypothesis.impact.blockLong',
   'hypothesis.impact.blockShort',
   'situation.step',
+  // The Schichtbilanz (docs/plans/plan-b-round2-experiments.md item 4).
+  'tourUi.guide.step',
+  'tourUi.debrief.kpi.totalDelay',
 ]);
 
 /** The key to translate for `key` in `unit`. */

@@ -8,6 +8,7 @@ import { SessionStore } from '../../core/session.store';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { briefingById } from '../../core/demo/tour-briefings';
 import { TourDebriefComponent } from './tour-debrief.component';
+import { UiConfigService } from '../../core/config/ui-config.service';
 
 const TWO_LEGS: StudyCondition = {
   id: 'spec-2x',
@@ -164,5 +165,14 @@ describe('TourDebriefComponent', () => {
     store = TestBed.inject(SessionStore);
     afterLastLeg(TWO_LEGS, false);
     expect(render().querySelectorAll('app-reflection-overview thead th').length).toBe(3);
+  });
+
+  // docs/plans/plan-b-round2-experiments.md items 4, 5: a tutorial, in minutes.
+  it('ends an experiment without a questionnaire with "Finish", and counts the delay in minutes where the layout says so', () => {
+    afterLastLeg({ ...TWO_LEGS, surveyParts: [] });
+    TestBed.inject(UiConfigService).apply({ timeUnit: 'minutes' });
+    const el = render();
+    expect(nextLabel(el)).toBe('Finish');
+    expect(el.querySelector('.db-legs')!.textContent).toContain('minutes of delay in total');
   });
 });

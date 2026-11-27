@@ -1975,6 +1975,7 @@
       "module": "Module Co-Learning",
       "afterEpisode": "après l’épisode",
       "step": "Étape {{n}}",
+      "stepMin": "Minute {{n}}",
       "afterLive": "Toutes les étapes pendant la marche sont terminées. Terminez le service : suivent le bilan, la simulation d’événement et ce que l’IA a appris.",
       "afterLiveNoShiftSummary": "Toutes les étapes pendant la marche sont terminées. Terminez le scénario quand vous êtes prêt·e.",
       "allDone": "Les neuf étapes sont terminées.",
@@ -2001,6 +2002,7 @@
         "arrived": "arrivés",
         "delayed": "en retard",
         "totalDelay": "pas de retard au total",
+        "totalDelayMin": "minutes de retard au total",
         "malfunctions": "encore perturbé(s) à la clôture"
       },
       "interventions": "Vos interventions ({{n}})",

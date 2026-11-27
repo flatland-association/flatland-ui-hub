@@ -18,6 +18,7 @@ import { LearningRecordsComponent } from '../learning-records/learning-records.c
 import { SandboxReplayComponent } from '../sandbox-replay/sandbox-replay.component';
 import { RuleBuilderComponent } from '../rule-builder/rule-builder.component';
 import { ReflectionOverviewComponent } from '../reflection-overview/reflection-overview.component';
+import { TimeKeyPipe } from '../../core/time-unit/time-unit.service';
 
 /** The sections that are steps of the tour guide (thesis flow 7-9). */
 type GuideSection = 'shift-summary' | 'event-simulation' | 'ai-learns';
@@ -57,7 +58,7 @@ const MEASURE_OF_ACTION: Record<string, string> = {
 @Component({
   selector: 'app-tour-debrief',
   standalone: true,
-  imports: [LearningRecordsComponent, SandboxReplayComponent, RuleBuilderComponent, ReflectionOverviewComponent, TranslocoPipe],
+  imports: [LearningRecordsComponent, SandboxReplayComponent, RuleBuilderComponent, ReflectionOverviewComponent, TranslocoPipe, TimeKeyPipe],
   templateUrl: './tour-debrief.component.html',
   styleUrl: './tour-debrief.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

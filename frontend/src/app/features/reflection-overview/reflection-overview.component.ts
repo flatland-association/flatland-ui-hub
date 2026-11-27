@@ -5,6 +5,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 import { NotificationWordingService } from '../../core/notification-wording.service';
 import { OverviewDecision, OverviewLeg, reflectionLines } from '../../core/shift-review';
 import { TrainIdentityService } from '../../core/train-identity.service';
+import { TimeKeyPipe } from '../../core/time-unit/time-unit.service';
 
 /**
  * The reflection overview of the Schichtbilanz
@@ -16,7 +17,7 @@ import { TrainIdentityService } from '../../core/train-identity.service';
 @Component({
   selector: 'app-reflection-overview',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, TimeKeyPipe],
   template: `
     <div class="ro">
       <span class="ro__title">{{ (showReflection() ? 'experimentRun.review.overviewTitle' : 'experimentRun.review.overviewTitleNoReflection') | transloco }}</span>
@@ -49,7 +50,7 @@ import { TrainIdentityService } from '../../core/train-identity.service';
                     <th scope="row" [attr.rowspan]="leg.decisions.length">{{ leg.label }}</th>
                   }
                   <td>
-                    <span class="ro__step">{{ 'tourUi.guide.step' | transloco: { n: d.step } }}</span>
+                    <span class="ro__step">{{ 'tourUi.guide.step' | timeKey | transloco: { n: d.step } }}</span>
                     @for (e of d.events; track $index) {
                       <span class="ro__line">{{ eventText(e, leg.scenarioId) }}</span>
                     } @empty {

@@ -5,6 +5,7 @@ import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { OverviewLeg } from '../../core/shift-review';
 import { ReflectionOverviewComponent } from './reflection-overview.component';
+import { UiConfigService } from '../../core/config/ui-config.service';
 
 /** The overview Szenario | Ereignisse | Entscheidungen | Reflexion
  *  (docs/plans/plan-b-control-group.md §4.5, D-21). */
@@ -84,5 +85,14 @@ describe('ReflectionOverviewComponent', () => {
     expect(el.querySelector('.ro__title')!.textContent).toBe('Your decisions');
     expect(el.textContent).not.toContain('Vermeide Deadlock');
     expect([...el.querySelectorAll('tbody tr')].map((tr) => tr.children.length)).toEqual([3, 3]);
+  });
+
+  // docs/plans/plan-b-round2-experiments.md item 4.
+  it('names the moment in minutes where the layout says so', () => {
+    TestBed.inject(UiConfigService).apply({ timeUnit: 'minutes' });
+    const [row] = render([{ label: 'Scenario 1/1', scenarioId: 'leg-a', decisions: [
+      { step: 31, handle: 0, action: 'hold', reason: null, reflection: null, events: [], proposal: null },
+    ] }]);
+    expect(row[1]).toContain('Minute 31');
   });
 });

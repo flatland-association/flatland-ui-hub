@@ -40,7 +40,7 @@
                 <th scope="col">{{ 'experimentRun.review.leg' | transloco }}</th>
                 <th scope="col">{{ 'tourUi.debrief.kpi.arrived' | transloco }}</th>
                 <th scope="col">{{ 'tourUi.debrief.kpi.delayed' | transloco }}</th>
-                <th scope="col">{{ 'tourUi.debrief.kpi.totalDelay' | transloco }}</th>
+                <th scope="col">{{ 'tourUi.debrief.kpi.totalDelay' | timeKey | transloco }}</th>
                 <th scope="col">{{ 'tourUi.debrief.kpi.malfunctions' | transloco }}</th>
                 <th scope="col">{{ 'experimentRun.review.interventions' | transloco }}</th>
               </tr>
@@ -78,7 +78,7 @@
           <div class="db-kpis">
             <span class="db-kpi"><strong>{{ r.kpis.arrived }}/{{ r.kpis.total }}</strong> {{ 'tourUi.debrief.kpi.arrived' | transloco }}</span>
             <span class="db-kpi" [class.is-warn]="r.kpis.delayed > 0"><strong>{{ r.kpis.delayed }}</strong> {{ 'tourUi.debrief.kpi.delayed' | transloco }}</span>
-            <span class="db-kpi"><strong>{{ r.kpis.totalDelay }}</strong> {{ 'tourUi.debrief.kpi.totalDelay' | transloco }}</span>
+            <span class="db-kpi"><strong>{{ r.kpis.totalDelay }}</strong> {{ 'tourUi.debrief.kpi.totalDelay' | timeKey | transloco }}</span>
             <span class="db-kpi" [class.is-alert]="r.kpis.malfunctions > 0"><strong>{{ r.kpis.malfunctions }}</strong> {{ 'tourUi.debrief.kpi.malfunctions' | transloco }}</span>
           </div>
           }

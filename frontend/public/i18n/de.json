@@ -1975,6 +1975,7 @@
       "module": "Co-Learning-Modul",
       "afterEpisode": "nach der Episode",
       "step": "Schritt {{n}}",
+      "stepMin": "Minute {{n}}",
       "afterLive": "Alle Schritte während der Fahrt sind abgeschlossen. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
       "afterLiveNoShiftSummary": "Alle Schritte während der Fahrt sind abgeschlossen. Schliesse das Szenario ab, wenn du fertig bist.",
       "allDone": "Alle neun Schritte sind abgeschlossen.",
@@ -2001,6 +2002,7 @@
         "arrived": "angekommen",
         "delayed": "verspätet",
         "totalDelay": "Schritte Verspätung gesamt",
+        "totalDelayMin": "Minuten Verspätung gesamt",
         "malfunctions": "bei Abschluss noch gestört"
       },
       "interventions": "Deine Eingriffe ({{n}})",
