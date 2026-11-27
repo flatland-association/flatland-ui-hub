@@ -32,6 +32,9 @@ const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.mapPan', label: 'Map pan control overlay (arrows, reset)', supports: ['hidden'] },
   { id: 'control.mapZoom', label: 'Map zoom buttons (+ / − / %)', supports: ['hidden'] },
   { id: 'control.mapOpacity', label: 'Map rail-tile opacity slider', supports: ['hidden'] },
+  // Actions at the trains: the option strip and the decision pills (Plan B
+  // round 2's Recommendation screen, docs/plans/plan-b-round2-recommendation.md).
+  { id: 'control.mapTrainActions', label: 'Map action buttons at the trains (option strip, decision pills)', supports: ['hidden'] },
   { id: 'control.endShift', label: 'End shift button', supports: ['hidden'] },
   // Only with briefings that set `autoStart`: without Play nothing else starts
   // the run (docs/plans/toolbar-under-guide.md §1.1; checked for conditions in
@@ -61,6 +64,10 @@ const CONTROL_IDS: UiConfigItem[] = [
 const AXIS_IDS: UiConfigItem[] = [
   { id: 'widget.proposal-compare.axis.lateness', label: 'Comparison: delay vs. timetable (Plan/KI/Mensch)', supports: ['hidden'] },
   { id: 'widget.proposal-compare.axis.time', label: 'Comparison: time in network (Plan/KI/Mensch)', supports: ['hidden'] },
+  // The human's own option: the Mensch box, its option buttons and its bar in
+  // the comparison. Plan B round 2's Recommendation screen hides it
+  // (docs/plans/plan-b-round2-recommendation.md, item 2).
+  { id: 'widget.proposal-compare.human', label: 'Plan/KI/Mensch: the human\'s own option (Mensch box and options)', supports: ['hidden'] },
 ];
 
 /** Panel titles a layout can hide. Only the centre view container's so far:

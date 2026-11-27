@@ -58,6 +58,7 @@
           "control.mapPan",
           "control.mapZoom",
           "control.mapOpacity",
+          "control.mapTrainActions",
           "control.endShift",
           "control.playback",
           "control.modeTabs",
@@ -69,6 +70,7 @@
           "control.legNames",
           "widget.proposal-compare.axis.lateness",
           "widget.proposal-compare.axis.time",
+          "widget.proposal-compare.human",
           "widget.view-tabs.title",
           "widget.decision-log.actions"
         ]

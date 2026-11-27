@@ -187,11 +187,14 @@ export class ImpactPanelComponent implements OnDestroy {
    *      'countdown' → gentle global pause + auto-apply countdown (Recommendation)
    *      'hold'      → localized hold of affected trains, world keeps running (Co-Learning)
    *      'none'      → AI handles it, no decision moment (Director)
+   *    A briefing can ask for 'hold' in Recommendation (`TourBriefing.decisionMoment`,
+   *    Plan B round 2's control group).
    *  - reflectAfterDecision: nudge the reflection panel once the last decision lands.
    */
   readonly modeBehavior = computed<{ decisionMoment: 'countdown' | 'hold' | 'none'; reflectAfterDecision: boolean }>(() => {
     switch (this.store.interactionMode()) {
-      case 'recommendation': return { decisionMoment: 'countdown', reflectAfterDecision: false };
+      case 'recommendation':
+        return { decisionMoment: this.tour.decisionMoment() === 'hold' ? 'hold' : 'countdown', reflectAfterDecision: false };
       case 'co-learning':    return { decisionMoment: 'hold', reflectAfterDecision: true };
       case 'director':       return { decisionMoment: 'none', reflectAfterDecision: false };
     }

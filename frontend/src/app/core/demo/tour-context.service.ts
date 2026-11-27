@@ -114,6 +114,8 @@ export class TourContextService {
   readonly pauseOnReflection = computed(() => this.reasonDialog() && !!this.briefing()?.pauseOnReflection);
   /** Impact panel shows the assessment only; the options live in the proposals panel. */
   readonly assessmentOnly = computed(() => !!this.briefing()?.assessmentOnly);
+  /** The briefing's decision moment, where it overrides the mode's (`TourBriefing.decisionMoment`). */
+  readonly decisionMoment = computed(() => this.briefing()?.decisionMoment ?? null);
   /** Name the trains on the map and enlarge their click targets. */
   readonly mapTrainLabels = computed(() => !!this.briefing()?.mapTrainLabels);
   /** Starting the scenario from the mode intro also starts the run. */

@@ -1640,6 +1640,7 @@
   "proposals": {
     "titleTooltip": "Aucune intervention, proposition de l’IA et votre choix pour le train sélectionné, tous calculés aussi loin.",
     "note": "Trois déroulements pour le train choisi : aucune intervention, la proposition de l’IA et votre choix. Rien n’est appliqué tant que vous n’en adoptez pas un.",
+    "noteNoHuman": "Deux déroulements pour le train choisi : aucune intervention et la proposition de l’IA. Rien n’est appliqué tant que vous n’en adoptez pas un.",
     "empty": "Choisissez un train — sur la carte, dans l’horaire ou dans le panneau d’impact.",
     "optionAria": "Votre option",
     "noReroute": "Aucun autre itinéraire pour ce train ici.",
@@ -2613,6 +2614,10 @@
     "planBColearning": {
       "name": "Plan B · Tour 2 · Co-Learning",
       "purpose": "Plan B, tour 2, groupe Co-Learning : événements et risque à gauche, le diagramme espace-temps au-dessus du schéma de voies au centre, options d’action et journal des décisions à droite."
+    },
+    "planBRecommendation": {
+      "name": "Plan B · Tour 2 · Recommendation",
+      "purpose": "Plan B, tour 2, groupe Recommendation : comme Co-Learning, mais sans option propre de l’humain ; l’IA propose, l’humain l’adopte ou n’intervient pas."
     }
   }
 }
