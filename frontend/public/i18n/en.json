@@ -59,6 +59,7 @@
     "mode": "mode",
     "guidedDemo": "Guided demo",
     "step": "Step:",
+    "stepMin": "Minute:",
     "grid": "Grid:",
     "agents": "Agents:",
     "interventions": "Interventions:",
@@ -411,7 +412,9 @@
       "malfunction": {
         "title": "Malfunction",
         "message": "{{train}} is malfunctioning ({{steps}} steps remaining).",
-        "short": "Malfunction, {{steps}} steps remaining."
+        "messageMin": "{{train}} is malfunctioning ({{steps}} min remaining).",
+        "short": "Malfunction, {{steps}} steps remaining.",
+        "shortMin": "Malfunction, {{steps}} min remaining."
       },
       "overridePending": {
         "title": "Override active",
@@ -682,6 +685,7 @@
     "arrived": "{{n}}/{{total}} arrived",
     "arrivedPct": "{{pct}}% arrived",
     "step": "Step",
+    "stepMin": "Minute",
     "active": "active",
     "delayed": "delayed",
     "malfunctionOne": "malfunction",
@@ -813,6 +817,7 @@
     "conflict": "Conflict · {{n}} trains",
     "conflictAt": "Conflict at {{name}} · {{n}} trains",
     "inSteps": "· in {{s}} steps",
+    "inStepsMin": "· in {{s}} min",
     "trains": "{{n}} trains take another route",
     "trainsOne": "One train takes another route",
     "trainsWaiting": "{{n}} another route · {{w}} waiting",
@@ -849,6 +854,7 @@
     "policy": "Policy",
     "episodeFinished": "Episode finished",
     "stepsRemaining": "Steps remaining",
+    "stepsRemainingMin": "Minutes remaining",
     "finishSurvey": "Finish & survey",
     "finishModeSurvey": "Finish mode & survey →",
     "finishTour": "Finish tour",
@@ -955,6 +961,7 @@
     "viewDecision": "View",
     "hideDecision": "Hide",
     "decidedAt": "Already decided · step {{n}} · for information only",
+    "decidedAtMin": "Already decided · minute {{n}} · for information only",
     "reflectionDone": "Reflection recorded",
     "action": {
       "hold": "Hold",
@@ -1042,8 +1049,10 @@
     "reachesIn": "Reaches the spot in",
     "clearsIn": "Spot clears in",
     "steps": "{{n}} steps",
+    "stepsMin": "{{n}} min",
     "buffer": "Time buffer",
     "bufferNone": "none — the train would stand for {{n}} steps",
+    "bufferNoneMin": "none — the train would stand for {{n}} min",
     "bufferTight": "just enough",
     "measures": "Possible measures",
     "measureHold": "Hold",
@@ -1648,7 +1657,7 @@
     "takeAi": "Take the AI plan",
     "takeHuman": "Take “{{label}}”",
     "order": "Order: {{order}}",
-    "placeholder": "Choose an option above, then we compute your course.",
+    "placeholder": "Choose an option, then we compute your course.",
     "compare": "Comparison",
     "notAvailable": "n/a",
     "aiMatchesPlan": "This AI course changes no arrival compared with no intervention.",
@@ -1671,12 +1680,16 @@
     "applyFailed": "The course could not be taken.",
     "notArriving": "does not arrive",
     "step": "Step {{n}}",
+    "stepMin": "Minute {{n}}",
     "stepOnPlan": "Step {{n}} · on plan",
+    "stepOnPlanMin": "Minute {{n}} · on plan",
     "stepVsPlan": "Step {{n}} · {{delta}} vs. plan",
+    "stepVsPlanMin": "Minute {{n}} · {{delta}} vs. plan",
     "axis": {
       "lateness": "Delay against the timetable",
       "time": "Time in the network",
-      "unit": "steps"
+      "unit": "steps",
+      "unitMin": "min"
     },
     "strandedOne": "With “{{name}}” at least one train does not arrive within the period considered — the figures are only partly comparable.",
     "strandedMany": "With {{names}} trains do not arrive within the period considered — the figures are only partly comparable.",
@@ -1684,17 +1697,21 @@
     "quoted": "“{{name}}”",
     "computing": "Working out “{{option}}” …",
     "compareNote": "Totals over all trains, in simulation steps.",
+    "compareNoteMin": "Totals over all trains, in minutes.",
     "previewExpired": "The simulation or plan has changed. Refresh the courses before taking one.",
     "refreshCourses": "Refresh courses",
     "inspectCourse": "Show this course",
     "course": {
       "rl": "The model’s own course",
       "branch": "Take the {{direction}} branch at step {{step}}",
+      "branchMin": "Take the {{direction}} branch at minute {{step}}",
       "wait": "Wait {{n}} steps from step {{step}}",
+      "waitMin": "Wait {{n}} minutes from minute {{step}}",
       "left": "left",
       "forward": "straight",
       "right": "right",
-      "waitOne": "Wait one step from step {{step}}"
+      "waitOne": "Wait one step from step {{step}}",
+      "waitOneMin": "Wait one minute from minute {{step}}"
     },
     "drawRoute": "Press on the train on the map and drag its route over the switches. Release to see the course; Esc cancels.",
     "noDrawnRoute": "There is no route through the cells you drew.",
@@ -1714,11 +1731,14 @@
     "contentionAtStation": "Conflict at {{name}}",
     "contentionAtCell": "Conflict at cell {{row}}, {{col}}",
     "contentionDetail": "{{trains}} trains · in {{n}} step(s)",
+    "contentionDetailMin": "{{trains}} trains · in {{n}} min",
     "contentionDetailNow": "{{trains}} trains · now",
     "holdMark": "Train {{train}} waits here {{n}} step(s) instead of taking another route",
+    "holdMarkMin": "Train {{train}} waits here {{n}} min instead of taking another route",
     "agentTitle": "{{name}} (train {{train}}): {{problems}}",
     "released": "{{name}} — released {{rank}}. in the action",
     "predicted": " · {{delta}} steps predicted",
+    "predictedMin": " · {{delta}} min predicted",
     "clickToPin": "Click the cell to pin",
     "optionsAria": "Options for {{name}}",
     "compareInPanel": "{{name}} · compare in the panel",
@@ -1732,6 +1752,7 @@
     "opacity": "Rail tiles opacity",
     "problem": {
       "malfunctionLeft": "Disruption — {{n}} step(s) left",
+      "malfunctionLeftMin": "Disruption — {{n}} min left",
       "malfunction": "Disruption",
       "delay": "Delay {{n}}",
       "blockedBy": "blocked by train {{train}} at ({{row}}, {{col}}) — reaches it in {{eta}}, clear in {{clears}}",
@@ -1849,7 +1870,9 @@
     "impact": {
       "template": "When {{block}} and {{reroute}}, you choose {{strategy}}.",
       "blockLong": "the section is blocked for another {{n}} steps",
+      "blockLongMin": "the section is blocked for another {{n}} minutes",
       "blockShort": "the section clears within {{n}} steps",
+      "blockShortMin": "the section clears within {{n}} minutes",
       "reroute": "another route exists",
       "noReroute": "there is no other route"
     }
@@ -1886,8 +1909,10 @@
     "fitTraffic": "Fit to traffic",
     "singleTrack": "single track",
     "timeUnit": "Step",
+    "timeUnitMin": "min",
     "toNow": "Back to now",
     "delaySteps": "{{n}} steps",
+    "delayStepsMin": "{{n}} min",
     "kind": {
       "blocked": "Blocking",
       "swap_attempt": "Head-on",
@@ -1897,6 +1922,7 @@
       "label": "Forecast conflicts",
       "none": "No conflicts forecast",
       "inMin": "in {{min}} steps",
+      "inMinMin": "in {{min}} min",
       "now": "now",
       "unnamed": "Unnamed section",
       "offView": "outside this view",
@@ -2436,6 +2462,12 @@
       "hint": "Saved in this browser and added to the session export, for analysis and replay. Off by default.",
       "enforced": "Set by this experiment.",
       "enforcedDeployment": "Set for this installation."
+    },
+    "timeUnit": {
+      "label": "Time unit",
+      "title": "Show times in simulation steps or in minutes. One step is shown as one minute; only the wording changes.",
+      "steps": "Steps",
+      "minutes": "Minutes"
     }
   },
   "tile": {
@@ -2577,6 +2609,10 @@
     "uc2Rl": {
       "name": "UC2 RL",
       "purpose": "Supervise the trained UC2/tutorial policy on the original native scenarios."
+    },
+    "planBColearning": {
+      "name": "Plan B · Round 2 · Co-Learning",
+      "purpose": "Plan B, round 2, Co-Learning group: events and risk on the left, the ZWL above the track diagram in the centre, action options and decision log on the right."
     }
   }
 }

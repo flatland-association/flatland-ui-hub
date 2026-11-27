@@ -16,6 +16,7 @@ import {
   columnAxis, contentionBand, delayMarks, onAxis, routeAxis, sectionName,
   type AxisModel, type CellPoint, type ContentionBand, type DelayMark, type LinePoint,
 } from './zwl-axis';
+import { TimeKeyPipe } from '../../core/time-unit/time-unit.service';
 
 /** Past steps kept on screen left of the now-line. */
 const PAST_WINDOW_STEPS = 80;
@@ -167,7 +168,7 @@ interface PlacedBand extends ContentionBand {
 @Component({
   selector: 'app-zwl',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, TimeKeyPipe],
   templateUrl: './zwl.component.html',
   styleUrls: ['./zwl.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

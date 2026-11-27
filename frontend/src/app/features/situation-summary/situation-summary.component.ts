@@ -2,6 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject } from '@angular/co
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionStore } from '../../core/session.store';
 import { AgentDTO } from '../../core/models';
+import { TimeKeyPipe } from '../../core/time-unit/time-unit.service';
 
 /**
  * Hypervision-style situation summary (left column, top). Synthesises the live
@@ -12,7 +13,7 @@ import { AgentDTO } from '../../core/models';
 @Component({
   selector: 'app-situation-summary',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, TimeKeyPipe],
   templateUrl: './situation-summary.component.html',
   styleUrl: './situation-summary.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

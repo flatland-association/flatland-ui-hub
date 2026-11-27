@@ -59,6 +59,7 @@
     "mode": "Modus",
     "guidedDemo": "Geführte Demo",
     "step": "Schritt:",
+    "stepMin": "Minute:",
     "grid": "Raster:",
     "agents": "Züge:",
     "interventions": "Eingriffe:",
@@ -411,7 +412,9 @@
       "malfunction": {
         "title": "Störung",
         "message": "{{train}} ist gestört (noch {{steps}} Schritte).",
-        "short": "Störung, noch {{steps}} Schritte."
+        "messageMin": "{{train}} ist gestört (noch {{steps}} min).",
+        "short": "Störung, noch {{steps}} Schritte.",
+        "shortMin": "Störung, noch {{steps}} min."
       },
       "overridePending": {
         "title": "Eingriff aktiv",
@@ -682,6 +685,7 @@
     "arrived": "{{n}}/{{total}} angekommen",
     "arrivedPct": "{{pct}} % angekommen",
     "step": "Schritt",
+    "stepMin": "Minute",
     "active": "aktiv",
     "delayed": "verspätet",
     "malfunctionOne": "Störung",
@@ -813,6 +817,7 @@
     "conflict": "Konflikt · {{n}} Züge",
     "conflictAt": "Konflikt bei {{name}} · {{n}} Züge",
     "inSteps": "· in {{s}} Schritten",
+    "inStepsMin": "· in {{s}} min",
     "trains": "{{n}} Züge fahren anders",
     "trainsOne": "Ein Zug fährt anders",
     "trainsWaiting": "{{n}} fahren anders · {{w}} warten",
@@ -849,6 +854,7 @@
     "policy": "Policy",
     "episodeFinished": "Episode beendet",
     "stepsRemaining": "Verbleibende Schritte",
+    "stepsRemainingMin": "Verbleibende Minuten",
     "finishSurvey": "Abschliessen & Umfrage",
     "finishModeSurvey": "Modus abschliessen & Umfrage →",
     "finishTour": "Tour beenden",
@@ -955,6 +961,7 @@
     "viewDecision": "Ansehen",
     "hideDecision": "Ausblenden",
     "decidedAt": "Bereits entschieden · Schritt {{n}} · nur zur Information",
+    "decidedAtMin": "Bereits entschieden · Minute {{n}} · nur zur Information",
     "reflectionDone": "Reflexion erfasst",
     "action": {
       "hold": "Halten",
@@ -1042,8 +1049,10 @@
     "reachesIn": "Erreicht die Stelle in",
     "clearsIn": "Stelle frei in",
     "steps": "{{n}} Schritten",
+    "stepsMin": "{{n}} min",
     "buffer": "Zeitpuffer",
     "bufferNone": "keiner — der Zug stünde {{n}} Schritte",
+    "bufferNoneMin": "keiner — der Zug stünde {{n}} min",
     "bufferTight": "reicht knapp",
     "measures": "Mögliche Massnahmen",
     "measureHold": "Halten",
@@ -1648,7 +1657,7 @@
     "takeAi": "KI-Plan übernehmen",
     "takeHuman": "{{label}} übernehmen",
     "order": "Reihenfolge: {{order}}",
-    "placeholder": "Wähle oben eine Option, dann rechnen wir deinen Verlauf.",
+    "placeholder": "Wähle eine Option, dann rechnen wir deinen Verlauf.",
     "compare": "Vergleich",
     "notAvailable": "n. v.",
     "aiMatchesPlan": "Dieser KI-Verlauf ändert gegenüber «Kein Eingriff» keine Ankunft.",
@@ -1671,12 +1680,16 @@
     "applyFailed": "Die Variante konnte nicht übernommen werden.",
     "notArriving": "kommt nicht an",
     "step": "Schritt {{n}}",
+    "stepMin": "Minute {{n}}",
     "stepOnPlan": "Schritt {{n}} · nach Plan",
+    "stepOnPlanMin": "Minute {{n}} · nach Plan",
     "stepVsPlan": "Schritt {{n}} · {{delta}} gegenüber Plan",
+    "stepVsPlanMin": "Minute {{n}} · {{delta}} gegenüber Plan",
     "axis": {
       "lateness": "Verspätung gegenüber Fahrplan",
       "time": "Zeit im Netz",
-      "unit": "Schritte"
+      "unit": "Schritte",
+      "unitMin": "min"
     },
     "strandedOne": "Bei «{{name}}» kommt mindestens ein Zug im betrachteten Zeitraum nicht an — die Zahlen sind nur bedingt vergleichbar.",
     "strandedMany": "Bei {{names}} kommen Züge im betrachteten Zeitraum nicht an — die Zahlen sind nur bedingt vergleichbar.",
@@ -1684,17 +1697,21 @@
     "quoted": "«{{name}}»",
     "computing": "«{{option}}» wird gerechnet …",
     "compareNote": "Summen über alle Züge, in Schritten der Simulation.",
+    "compareNoteMin": "Summen über alle Züge, in Minuten.",
     "previewExpired": "Die Simulation oder der Plan hat sich geändert. Berechne die Verläufe vor der Übernahme erneut.",
     "refreshCourses": "Verläufe erneut berechnen",
     "inspectCourse": "Diesen Verlauf anzeigen",
     "course": {
       "rl": "Eigener Verlauf des Modells",
       "branch": "Ab Schritt {{step}} den Ast {{direction}} nehmen",
+      "branchMin": "Ab Minute {{step}} den Ast {{direction}} nehmen",
       "wait": "Ab Schritt {{step}} für {{n}} Schritte warten",
+      "waitMin": "Ab Minute {{step}} für {{n}} Minuten warten",
       "left": "links",
       "forward": "geradeaus",
       "right": "rechts",
-      "waitOne": "Ab Schritt {{step}} für einen Schritt warten"
+      "waitOne": "Ab Schritt {{step}} für einen Schritt warten",
+      "waitOneMin": "Ab Minute {{step}} für eine Minute warten"
     },
     "drawRoute": "Drück auf der Karte auf den Zug und zieh seinen Fahrweg über die Weichen. Loslassen zeigt den Verlauf; Esc bricht ab.",
     "noDrawnRoute": "Durch die gezogenen Zellen führt kein Fahrweg.",
@@ -1714,11 +1731,14 @@
     "contentionAtStation": "Konflikt bei {{name}}",
     "contentionAtCell": "Konflikt bei Zelle {{row}}, {{col}}",
     "contentionDetail": "{{trains}} Züge · in {{n}} Schritt(en)",
+    "contentionDetailMin": "{{trains}} Züge · in {{n}} min",
     "contentionDetailNow": "{{trains}} Züge · jetzt",
     "holdMark": "Zug {{train}} wartet hier {{n}} Schritt(e) statt umzufahren",
+    "holdMarkMin": "Zug {{train}} wartet hier {{n}} min statt umzufahren",
     "agentTitle": "{{name}} (Zug {{train}}): {{problems}}",
     "released": "{{name}} — als {{rank}}. der Massnahme freigegeben",
     "predicted": " · {{delta}} Schritte erwartet",
+    "predictedMin": " · {{delta}} min erwartet",
     "clickToPin": "Zelle anklicken zum Fixieren",
     "optionsAria": "Optionen für {{name}}",
     "compareInPanel": "{{name}} · im Panel vergleichen",
@@ -1732,6 +1752,7 @@
     "opacity": "Deckkraft der Gleiskacheln",
     "problem": {
       "malfunctionLeft": "Störung — noch {{n}} Schritt(e)",
+      "malfunctionLeftMin": "Störung — noch {{n}} min",
       "malfunction": "Störung",
       "delay": "Verspätung {{n}}",
       "blockedBy": "blockiert von Zug {{train}} bei ({{row}}, {{col}}) — erreicht in {{eta}}, frei in {{clears}}",
@@ -1849,7 +1870,9 @@
     "impact": {
       "template": "Wenn {{block}} und {{reroute}}, wählst du {{strategy}}.",
       "blockLong": "der Abschnitt noch {{n}} Schritte blockiert ist",
+      "blockLongMin": "der Abschnitt noch {{n}} Minuten blockiert ist",
       "blockShort": "der Abschnitt innerhalb von {{n}} Schritten frei wird",
+      "blockShortMin": "der Abschnitt innerhalb von {{n}} Minuten frei wird",
       "reroute": "ein anderer Fahrweg möglich ist",
       "noReroute": "kein anderer Fahrweg möglich ist"
     }
@@ -1886,8 +1909,10 @@
     "fitTraffic": "Auf Verkehr zoomen",
     "singleTrack": "Einspur",
     "timeUnit": "Schritt",
+    "timeUnitMin": "min",
     "toNow": "Zu jetzt",
     "delaySteps": "{{n}} Schritte",
+    "delayStepsMin": "{{n}} min",
     "kind": {
       "blocked": "Behinderung",
       "swap_attempt": "Gegenfahrt",
@@ -1897,6 +1922,7 @@
       "label": "Prognostizierte Konflikte",
       "none": "Keine Konflikte prognostiziert",
       "inMin": "in {{min}} Schritten",
+      "inMinMin": "in {{min}} min",
       "now": "jetzt",
       "unnamed": "Unbenannter Abschnitt",
       "offView": "ausserhalb dieser Ansicht",
@@ -2436,6 +2462,12 @@
       "hint": "Wird in diesem Browser gespeichert und dem Sitzungsexport beigefügt, für Auswertung und Wiedergabe. Standardmässig aus.",
       "enforced": "Durch dieses Experiment festgelegt.",
       "enforcedDeployment": "Für diese Installation festgelegt."
+    },
+    "timeUnit": {
+      "label": "Zeiteinheit",
+      "title": "Zeiten in Simulationsschritten oder in Minuten anzeigen. Ein Schritt wird als eine Minute gezeigt; nur die Bezeichnung ändert sich.",
+      "steps": "Schritte",
+      "minutes": "Minuten"
     }
   },
   "tile": {
@@ -2577,6 +2609,10 @@
     "uc2Rl": {
       "name": "UC2 RL",
       "purpose": "Beobachte die trainierte UC2-/Tutorial-Policy auf den originalen Szenarien."
+    },
+    "planBColearning": {
+      "name": "Plan B · Runde 2 · Co-Learning",
+      "purpose": "Plan B, Runde 2, Co-Learning-Gruppe: Ereignisse und Risiko links, ZWL über dem Streckenspiegel in der Mitte, Handlungsoptionen und Entscheidungsprotokoll rechts."
     }
   }
 }

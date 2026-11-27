@@ -1,5 +1,6 @@
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
+import { TimeUnitService } from '../time-unit/time-unit.service';
 import { STOCK_PANEL_TITLES } from './panel-titles';
 
 /** Interpolation parameters for a translation (`{{name}}` placeholders). */
@@ -33,6 +34,9 @@ export function initialLang(): Lang {
 @Injectable({ providedIn: 'root' })
 export class LanguageService {
   private readonly transloco = inject(TranslocoService);
+  /** Texts with a step unit say minutes where the screen shows minutes
+   *  (`TimeUnitService`, docs/plans/plan-b-round2-colearning.md, item 2). */
+  private readonly time = inject(TimeUnitService);
 
   /** Labels are endonyms: a language is named in itself, whichever is active. */
   readonly languages: ReadonlyArray<{ code: Lang; label: string }> = [
@@ -121,7 +125,7 @@ export class LanguageService {
   t(key: string, params?: TranslateParams, fallback?: string): string {
     this.version();
     this.lang();
-    const value = this.transloco.translate<string>(key, params ?? {});
+    const value = this.transloco.translate<string>(this.time.key(key), params ?? {});
     if ((value === key || value === '') && fallback !== undefined) return fallback;
     return value;
   }

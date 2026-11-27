@@ -63,6 +63,7 @@
           "control.modeTabs",
           "control.sessionInfo",
           "control.studyLogging",
+          "control.timeUnit",
           "control.menuAreas",
           "control.guide",
           "control.legNames",
@@ -85,6 +86,10 @@
     "studyLogging": {
       "type": "boolean",
       "description": "Deployment file only. Fixes the \"Study logging\" switch (clicks, calls and train movements recorded in the browser) for every run: false for a public installation, true for a lab machine. The switch then shows the value, disabled; list control.studyLogging under hidden to remove it. A tour or condition that sets its own value still wins. Absent: each browser's own setting decides (default off). Ignored in a preset's ui block."
+    },
+    "timeUnit": {
+      "enum": ["steps", "minutes"],
+      "description": "Shows times in simulation steps or in minutes (one step is shown as one minute; only the wording changes). A preset's value wins over the deployment's. Absent: each browser's Settings choice decides (default steps). List control.timeUnit under hidden to remove that setting."
     },
     "reflectionPromptQuestionOrder": {
       "type": "array",

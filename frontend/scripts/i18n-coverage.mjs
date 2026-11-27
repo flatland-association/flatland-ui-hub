@@ -125,7 +125,8 @@ if (strict) {
     e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
   // Only literal, fully-spelled keys; dynamic ones ('ns.' + id) can't be checked statically.
   const KEY = String.raw`'([A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+)'`;
-  const patterns = [new RegExp(KEY + String.raw`\s*\|\s*transloco`, 'g'), new RegExp(String.raw`\.t\(\s*` + KEY + String.raw`\s*[,)]`, 'g')];
+  // `'a.b' | timeKey | transloco` too: the key's minute sibling is checked by time-unit.service.spec.ts.
+  const patterns = [new RegExp(KEY + String.raw`\s*\|\s*(?:timeKey\s*\|\s*)?transloco`, 'g'), new RegExp(String.raw`\.t\(\s*` + KEY + String.raw`\s*[,)]`, 'g')];
   const errors = [];
   for (const file of walk(src).filter((f) => /\.(html|ts)$/.test(f))) {
     const text = fs.readFileSync(file, 'utf8');

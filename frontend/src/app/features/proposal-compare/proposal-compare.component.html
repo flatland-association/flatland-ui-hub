@@ -31,19 +31,6 @@
     </div>
 
     @if (!decided()) {
-    <div class="pc-options" role="group" [attr.aria-label]="'proposals.optionAria' | transloco">
-      @for (c of optionChoices; track c.option) {
-        <button type="button"
-                class="pc-option"
-                [class.is-chosen]="isChosen(c.option)"
-                [disabled]="isDisabled(c.option) || loading()"
-                [title]="(isDisabled(c.option) ? 'proposals.noReroute' : c.hint) | transloco"
-                (click)="choose(c.option)">
-          {{ c.label | transloco }}
-        </button>
-      }
-    </div>
-
     @if (loading()) {
       <p class="pc-loading">{{ 'proposals.loading' | transloco }}</p>
     } @else if (failed(); as message) {
@@ -105,6 +92,9 @@
               <span class="pc-course-name">{{ 'proposals.human' | transloco }}</span>
               <span class="pc-course-sub">{{ humanLabel() }}</span>
             </header>
+            @if (!decided()) {
+              <ng-container [ngTemplateOutlet]="pcOptions"></ng-container>
+            }
             <p class="pc-arrival"
                [class.good]="betterThanPlan(v)"
                [class.bad]="worseThanPlan(v)">{{ arrivalText(v) }}</p>
@@ -125,6 +115,7 @@
               <span class="pc-course-name">{{ 'proposals.human' | transloco }}</span>
               <span class="pc-course-sub">{{ 'proposals.humanSub' | transloco }}</span>
             </header>
+            <ng-container [ngTemplateOutlet]="pcOptions"></ng-container>
             @if (awaitingRoute()) {
               <p class="pc-placeholder pc-placeholder--route">{{ 'proposals.drawRoute' | transloco }}</p>
             } @else if (loading() && chosenOption(); as option) {
@@ -139,7 +130,7 @@
       @if (comparison(); as axes) {
         <section class="pc-compare">
           <div class="pc-compare-head">{{ 'proposals.compare' | transloco }}</div>
-          <p class="pc-compare-note">{{ 'proposals.compareNote' | transloco }}</p>
+          <p class="pc-compare-note">{{ 'proposals.compareNote' | timeKey | transloco }}</p>
           @for (axis of axes; track axis.id) {
             <div class="pc-axis">
               <span class="pc-axis-label">{{ axis.label }}</span>
@@ -197,4 +188,22 @@
       }
     }
   }
+</ng-template>
+
+<!-- The human's options, inside the Mensch box: choose there, and the course
+     computed for the choice appears below them in the same box
+     (docs/plans/plan-b-round2-colearning.md, item 3). -->
+<ng-template #pcOptions>
+  <div class="pc-options" role="group" [attr.aria-label]="'proposals.optionAria' | transloco">
+    @for (c of optionChoices; track c.option) {
+      <button type="button"
+              class="pc-option"
+              [class.is-chosen]="isChosen(c.option)"
+              [disabled]="isDisabled(c.option) || loading()"
+              [title]="(isDisabled(c.option) ? 'proposals.noReroute' : c.hint) | transloco"
+              (click)="choose(c.option)">
+        {{ c.label | transloco }}
+      </button>
+    }
+  </div>
 </ng-template>

@@ -8,11 +8,12 @@ import { PolicyName } from '../../core/models';
 import { ApiService } from '../../core/api.service';
 import { PLAY_SPEED_MAX_LEVEL, PLAY_SPEED_MIN_LEVEL } from '../../core/play-speed';
 import { ExperimentRunService } from '../../core/demo/experiment-run.service';
+import { TimeKeyPipe } from '../../core/time-unit/time-unit.service';
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, TimeKeyPipe],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

@@ -807,6 +807,73 @@ const PLAN_B: LayoutPreset = {
 };
 
 /**
+ * Plan B round 2 — the Co-Learning group (docs/plans/plan-b-round2-colearning.md).
+ *
+ * A copy of `PLAN_B`, written out for the same reason `PLAN_B` is: a study
+ * layout has to be reviewable on its own. `PLAN_B` stays as it was, because
+ * round 1's conditions and replays use it. Differences: no Fahrplan, no
+ * Lagebild; "Lage: Risiko & Auswirkung" moves to the left under the events;
+ * the ZWL sits above the Streckenspiegel, both always visible, no tabs.
+ */
+const PLAN_B_COLEARNING_UI: UiConfig = {
+  ...PLAN_B_UI,
+  // Minutes, fixed: the setting is hidden (plan item 2).
+  hidden: [...(PLAN_B_UI.hidden ?? []), 'control.timeUnit'],
+  timeUnit: 'minutes',
+};
+
+const PLAN_B_COLEARNING: LayoutPreset = {
+  id: 'preset-plan-b-colearning',
+  name: 'Plan B · Runde 2 · Co-Learning',
+  nameKey: 'layouts.planBColearning.name',
+  purpose: 'Plan B, Runde 2, Co-Learning-Gruppe: Ereignisse und Risiko links, ZWL über dem Streckenspiegel in der Mitte, Handlungsoptionen und Entscheidungsprotokoll rechts.',
+  purposeKey: 'layouts.planBColearning.purpose',
+  ui: PLAN_B_COLEARNING_UI,
+  layout: {
+    columns: [
+      {
+        id: 'preset-pbc-left',
+        zone: 'left',
+        rowId: 'preset-pbc-row',
+        name: 'Lage',
+        width: 20,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-pbc-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 160 },
+          { id: 'preset-pbc-impact', type: 'impact', title: 'Lage: Risiko & Auswirkung', expanded: true, collapsible: true, minHeight: 180 },
+        ],
+      },
+      {
+        id: 'preset-pbc-center',
+        zone: 'center',
+        rowId: 'preset-pbc-row',
+        name: 'Netz',
+        width: 50,
+        role: 'main',
+        panels: [
+          // Both views at once, the ZWL on top; no tabs.
+          { id: 'preset-pbc-zugweg', type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 380 },
+          { id: 'preset-pbc-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 340 },
+        ],
+      },
+      {
+        id: 'preset-pbc-right',
+        zone: 'right',
+        rowId: 'preset-pbc-row',
+        name: 'Co-Learning',
+        width: 30,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-pbc-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
+          // As in PLAN_B: the reflection is answered below its entries.
+          { id: 'preset-pbc-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
+        ],
+      },
+    ],
+  },
+};
+
+/**
  * Olten · ZWL — a Recommendation-mode layout for exploring the
  * ZWL on a real network (tour "Olten: explore the time-distance diagram").
  *
@@ -1154,6 +1221,7 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   COLEARNING_STUDY2,
   COLEARNING_INTERVIEW,
   PLAN_B,
+  PLAN_B_COLEARNING,
   RECOMMENDATION_STUDY2,
   RECOMMENDATION_STUDY3,
   COLEARNING_STUDY3,

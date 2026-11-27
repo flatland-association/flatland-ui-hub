@@ -21,7 +21,7 @@
               {{ 'lanes.conflict' | transloco: { n: conflict.trains } }}
             }
             @if (conflict.inSteps > 0) {
-              {{ 'lanes.inSteps' | transloco: { s: conflict.inSteps } }}
+              {{ 'lanes.inSteps' | timeKey | transloco: { s: conflict.inSteps } }}
             }
           </span>
         </div>
@@ -521,7 +521,7 @@
     <!-- A hold has no alternative route to draw: the difference is waiting. -->
     @for (hold of directorHoldMarks(); track hold.handle) {
       <g class="hold-mark">
-        <title>{{ 'map.holdMark' | transloco: { train: hold.handle, n: hold.steps } }}</title>
+        <title>{{ 'map.holdMark' | timeKey | transloco: { train: hold.handle, n: hold.steps } }}</title>
         <circle
           class="hold-mark__dot"
           [attr.cx]="hold.x"
@@ -636,7 +636,7 @@
                 [attr.y]="agentY(a) - 24"
                 text-anchor="middle">{{ delta }}</text>
             }
-            <title>{{ 'map.released' | transloco: { name: identity.nameFor(a.handle), rank: rank } }}{{ combinedActionDelta(a.handle) ? ('map.predicted' | transloco: { delta: combinedActionDeltaLabel(a.handle) }) : '' }}</title>
+            <title>{{ 'map.released' | transloco: { name: identity.nameFor(a.handle), rank: rank } }}{{ combinedActionDelta(a.handle) ? ('map.predicted' | timeKey | transloco: { delta: combinedActionDeltaLabel(a.handle) }) : '' }}</title>
           </g>
         }
 
@@ -791,7 +791,7 @@
       </span>
       <span class="map-contention-label__detail">
         @if (label.inSteps > 0) {
-          {{ 'map.contentionDetail' | transloco: { trains: label.trains, n: label.inSteps } }}
+          {{ 'map.contentionDetail' | timeKey | transloco: { trains: label.trains, n: label.inSteps } }}
         } @else {
           {{ 'map.contentionDetailNow' | transloco: { trains: label.trains } }}
         }

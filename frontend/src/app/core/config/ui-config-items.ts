@@ -40,6 +40,8 @@ const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.modeTabs', label: 'Interaction mode tabs (Recommendation / Co-Learning / Director)', supports: ['hidden'] },
   { id: 'control.sessionInfo', label: 'Session status line ("Loaded scenario preset: …")', supports: ['hidden'] },
   { id: 'control.studyLogging', label: '"Study logging" switch (Session Settings)', supports: ['hidden'] },
+  // Hide it where the layout fixes the unit (UiConfig.timeUnit), e.g. Plan B round 2.
+  { id: 'control.timeUnit', label: 'Time unit: steps or minutes (Session Settings)', supports: ['hidden'] },
   { id: 'control.menuAreas', label: 'Menu "Bereiche" links (Layout Designer, galleries, Contribute)', supports: ['hidden'] },
   // The guide strip of a running leg; the toolbar then stays at the top
   // (docs/plans/hide-scenario-bar.md §4.4). The guide still ticks and logs.

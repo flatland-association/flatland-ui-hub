@@ -24,7 +24,7 @@ describe('stored and logged ids', () => {
 
   it('keeps the ZWL preset and panel ids', () => {
     expect(LAYOUT_PRESETS.map((p) => p.id)).toEqual(
-      jasmine.arrayContaining(['preset-olten-zug-weg', 'preset-zug-weg-corridor']),
+      jasmine.arrayContaining(['preset-olten-zug-weg', 'preset-zug-weg-corridor', 'preset-plan-b', 'preset-plan-b-colearning']),
     );
     const panelIds = LAYOUT_PRESETS.flatMap((p) => p.layout.columns.flatMap((c) => c.panels.map((panel) => panel.id)));
     expect(panelIds).toEqual(
