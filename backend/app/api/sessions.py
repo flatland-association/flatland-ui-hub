@@ -139,6 +139,9 @@ def _build_state_payload(session_id: str, env) -> dict:
     overrides = override_manager.get_all(session_id)
     state = serialize_env(env, overrides=overrides)
     state["episode_done"] = _is_done(env)
+    session = session_manager.get(session_id)
+    if session is not None:  # as the play loop's broadcast (websockets.py)
+        state.update(course_state(session))
     return {"type": "state", "session_id": session_id, "state": state}
 
 

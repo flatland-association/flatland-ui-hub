@@ -161,6 +161,23 @@ def test_reset_drops_the_pending_course(client):
     assert state["course_activation"]["outcome"] == "cancelled"
 
 
+def test_every_state_broadcast_carries_the_course_state(client, monkeypatch):
+    from app.api import sessions
+    sent = []
+
+    async def record(session_id, message):
+        sent.append(message)
+
+    monkeypatch.setattr(sessions.ws_manager, "broadcast", record)
+    sid = _held_session(client)
+    body, ai = _ai(client, sid, lead=1)
+    assert _accept(client, sid, body, ai).json()["pending"] is True
+    sent.clear()
+    _step(client, sid)  # a manual step reaches the activation step
+    state = sent[-1]["state"]
+    assert state["pending_course"] is None
+    assert state["course_activation"]["outcome"] in ("installed", "rechecked")
+
 
 def test_a_lead_token_from_before_a_reset_is_refused(client):
     sid = _held_session(client)
