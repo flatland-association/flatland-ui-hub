@@ -31,3 +31,8 @@
 .replay-summary__total {
   font-weight: 700;
 }
+
+.replay-summary__overview {
+  display: block;
+  margin-top: var(--sbb-spacing-fixed-4x);
+}

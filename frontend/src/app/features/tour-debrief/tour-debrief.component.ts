@@ -4,7 +4,7 @@ import { DecisionAction } from '../../core/decision-log';
 import { OperatorModelService } from '../../core/operator-model.service';
 import { REFLECTION_CASE_LABELS, ReflectionCaseType } from '../../core/reflection-moments';
 import { SessionStore } from '../../core/session.store';
-import { ShiftIntervention, ShiftKpis, buildShiftReview, interventionsFrom, shiftKpis } from '../../core/shift-review';
+import { OverviewLeg, ShiftIntervention, ShiftKpis, buildShiftReview, interventionsFrom, reflectionLines, shiftDecisionsFrom, shiftKpis } from '../../core/shift-review';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ShiftRecord, TourContextService } from '../../core/demo/tour-context.service';
 import { ApiService } from '../../core/api.service';
@@ -17,6 +17,8 @@ import { TrainIdentityService } from '../../core/train-identity.service';
 import { LearningRecordsComponent } from '../learning-records/learning-records.component';
 import { SandboxReplayComponent } from '../sandbox-replay/sandbox-replay.component';
 import { RuleBuilderComponent } from '../rule-builder/rule-builder.component';
+import { ReflectionOverviewComponent } from '../reflection-overview/reflection-overview.component';
+import { TimeKeyPipe } from '../../core/time-unit/time-unit.service';
 
 /** The sections that are steps of the tour guide (thesis flow 7-9). */
 type GuideSection = 'shift-summary' | 'event-simulation' | 'ai-learns';
@@ -56,7 +58,7 @@ const MEASURE_OF_ACTION: Record<string, string> = {
 @Component({
   selector: 'app-tour-debrief',
   standalone: true,
-  imports: [LearningRecordsComponent, SandboxReplayComponent, RuleBuilderComponent, TranslocoPipe],
+  imports: [LearningRecordsComponent, SandboxReplayComponent, RuleBuilderComponent, ReflectionOverviewComponent, TranslocoPipe, TimeKeyPipe],
   templateUrl: './tour-debrief.component.html',
   styleUrl: './tour-debrief.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -95,16 +97,62 @@ export class TourDebriefComponent {
 
   private readonly run = inject(ExperimentRunService);
 
+  /** A running experiment (a guided condition), not a tour: its Schichtbilanz
+   *  is cut to the overview and leads on to the questionnaire
+   *  (docs/plans/plan-b-control-group.md D-15, D-18). */
+  readonly inExperiment = computed(() => this.run.active());
+  /** An experiment without a questionnaire (a tutorial) ends here. */
+  readonly hasFinalSurvey = computed(() => this.run.hasFinalSurvey());
+
+  /** The overview's column "Reflexion", only where the run asks for
+   *  reflections (docs/plans/plan-b-control-group.md D-22). */
+  readonly showReflection = computed(() => this.tourContext.reasonDialog());
+
+  /**
+   * The record of the run's leg `i`: the last one, as a leg aborted and
+   * resumed on a new session is recorded once per session (`recordShift`
+   * keys by session), and only the last attempt was finished.
+   */
+  private legShift(i: number): ShiftRecord | undefined {
+    const leg = this.run.legs()[i];
+    return [...this.tourContext.shiftHistory()].reverse().find((s) => s.legId === leg?.id && s.leg === i);
+  }
+
   /**
    * The Schichtbilanz over all legs of a guided condition (experiment-workflow
    * §2c): one row per leg, as snapshotted at its end, and the totals.
    */
   readonly legRows = computed(() => {
     if (!this.run.multiLeg()) return [];
-    const history = this.tourContext.shiftHistory();
-    return this.run.legs().map((leg, i) => {
-      const shift = history.find((s) => s.legId === leg.id && s.leg === i);
+    return this.run.legs().map((_, i) => {
+      const shift = this.legShift(i);
       return { label: this.run.legLabel(i), kpis: shift?.kpis ?? null, interventions: shift?.interventions ?? 0 };
+    });
+  });
+
+  /**
+   * The reflection overview of an experiment (docs/plans/plan-b-control-group.md
+   * §4.5): every leg's decisions as kept at its end, with their events and
+   * reflections. Empty outside an experiment, where "Deine Eingriffe" lists
+   * the session's decisions instead.
+   */
+  readonly overviewLegs = computed<OverviewLeg[]>(() => {
+    if (!this.inExperiment()) return [];
+    return this.run.legs().map((leg, i) => {
+      const shift = this.legShift(i);
+      return {
+        label: this.run.legLabel(i),
+        scenarioId: leg.scenarioId,
+        decisions: (shift?.decisions ?? []).map((d) => ({
+          step: d.simStep,
+          handle: d.handle,
+          action: d.action as DecisionAction,
+          reason: d.reason ?? null,
+          reflection: d.reflection ?? null,
+          events: d.events ?? [],
+          proposal: d.proposal ?? null,
+        })),
+      };
     });
   });
 
@@ -130,12 +178,7 @@ export class TourDebriefComponent {
 
   /** This shift, as it will go into the tour's shift history. */
   readonly currentShift = computed<ShiftRecord>(() => {
-    const decisions = this.interventions().map((i) => ({
-      handle: i.handle,
-      action: i.action,
-      simStep: i.step,
-      decisionTimeMs: this.store.decisionLog().find((e) => e.seq === i.seq)?.decisionTimeMs ?? null,
-    }));
+    const decisions = shiftDecisionsFrom(this.store.decisionLog());
     const since = this.tourContext.shiftStartedAt();
     const rules = [
       ...this.store
@@ -216,20 +259,7 @@ export class TourDebriefComponent {
 
   /** The guided reflection answers of an intervention, as short lines. */
   reflectionLines(i: ShiftIntervention): string[] {
-    const r = i.reflection;
-    if (!r) return [];
-    const lines: string[] = [];
-    if (r['gut']) {
-      lines.push(this.i18n.t('tourUi.debrief.reflection.gut', { v: this.i18n.t(`reflectionPrompt.gut.${r['gut']}`) }));
-    }
-    if (r['missing']) {
-      const items = r['missing'].split(',').map((id) => this.i18n.t(`reflectionPrompt.missing.${id}`));
-      lines.push(this.i18n.t('tourUi.debrief.reflection.missing', { v: items.join(', ') }));
-    }
-    if (r['tradeoff']) {
-      lines.push(this.i18n.t('tourUi.debrief.reflection.tradeoff', { v: r['tradeoff'] }));
-    }
-    return lines;
+    return reflectionLines(i.reflection, (key, params) => this.i18n.t(key, params));
   }
 
   isUserChoice(sandboxCase: SandboxCase, variant: SandboxVariant): boolean {
@@ -250,8 +280,9 @@ export class TourDebriefComponent {
     });
   }
 
-  /** Only while the episode could still go on; a debrief must not be a trap. */
-  readonly canReopen = computed(() => !this.store.episodeDone() && this.store.shiftEnded());
+  /** Only while the episode could still go on; a debrief must not be a trap.
+   *  Not in an experiment: its scenario is finished, there is no way back. */
+  readonly canReopen = computed(() => !this.inExperiment() && !this.store.episodeDone() && this.store.shiftEnded());
 
   reopenShift(): void {
     this.store.reopenShift();

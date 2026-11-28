@@ -62,6 +62,27 @@ describe('SessionStore — open reflections', () => {
   const decide = (handle: number) => store.recordProposalChoice(handle, 'proceed');
   const seqs = () => store.openReflections().map((r) => r.handle);
 
+  // docs/plans/plan-b-control-group.md §4.5: "Plan behalten" and the human's
+  // own "Weiterfahren" both log as `proceed`.
+  it('records which Handlungsoptionen course was taken', () => {
+    store.recordProposalChoice(0, 'proceed');
+    store.recordProposalChoice(1, 'accept');
+    expect(store.decisionLog().map((e) => [e.action, e.proposal])).toEqual([['proceed', 'plan'], ['accept', 'ai']]);
+  });
+
+  // docs/plans/plan-b-control-group.md D-21
+  it('keeps the disturbance messages open at a decision with it', () => {
+    store.notifications.set([
+      { id: 'n1', kind: 'error', title: 'Malfunction', message: 'Train 3 …', timestamp: 4, relatedElement: { kind: 'train', id: '3' }, code: 'train.malfunction', params: { train: 3, steps: 9 } },
+      { id: 'n2', kind: 'info', title: 'Decision pending', message: '…', timestamp: 4, relatedElement: { kind: 'train', id: '0' }, code: 'train.decisionPending' },
+    ]);
+    decide(0);
+    expect(store.decisionLog()[0].events?.map((e) => e.code)).toEqual(['train.malfunction']);
+    store.notifications.set([]);
+    decide(1);
+    expect(store.decisionLog()[1].events).toBeUndefined();
+  });
+
   it('shows the first decision and lets a second one wait', () => {
     decide(0);
     decide(1);

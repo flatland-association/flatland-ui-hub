@@ -64,7 +64,6 @@
           <section class="pc-course pc-course--ai">
             <header class="pc-course-head">
               <span class="pc-course-name">{{ 'proposals.ai' | transloco }}</span>
-              <span class="pc-course-sub">{{ 'proposals.aiSub' | transloco }}</span>
             </header>
             <p class="pc-arrival"
                [class.good]="betterThanPlan(v)"
@@ -93,7 +92,6 @@
           <section class="pc-course pc-course--human">
             <header class="pc-course-head">
               <span class="pc-course-name">{{ 'proposals.human' | transloco }}</span>
-              <span class="pc-course-sub">{{ humanLabel() }}</span>
             </header>
             @if (!decided()) {
               <ng-container [ngTemplateOutlet]="pcOptions"></ng-container>
@@ -116,7 +114,6 @@
           <section class="pc-course pc-course--human pc-course--empty">
             <header class="pc-course-head">
               <span class="pc-course-name">{{ 'proposals.human' | transloco }}</span>
-              <span class="pc-course-sub">{{ 'proposals.humanSub' | transloco }}</span>
             </header>
             <ng-container [ngTemplateOutlet]="pcOptions"></ng-container>
             @if (awaitingRoute()) {

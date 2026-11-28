@@ -219,7 +219,7 @@
       "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it and commit it. Planning takes about a minute. No survey."
     },
     "plan-b-p01": {
-      "name": "Plan B · participant 01",
+      "name": "Plan B round 1 example",
       "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
     },
     "plan-b-p02": {
@@ -257,6 +257,78 @@
     "plan-b-p10": {
       "name": "Plan B · participant 10",
       "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-r2-tutorial-colearning": {
+      "name": "Tutorial Co-Learning",
+      "description": "The tutorial scenario in Co-Learning mode with the round 2 study UI, then the shift summary. No questionnaire."
+    },
+    "plan-b-r2-tutorial-recommendation": {
+      "name": "Tutorial Recommendations",
+      "description": "The tutorial scenario in Recommendation mode with the round 2 study UI, then the shift summary. No questionnaire."
+    },
+    "plan-b-r2-colearning-p01": {
+      "name": "Round 2 · Co-Learning · participant 01",
+      "description": "Three scenarios in Co-Learning mode with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-colearning-p02": {
+      "name": "Round 2 · Co-Learning · participant 02",
+      "description": "Three scenarios in Co-Learning mode with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-colearning-p03": {
+      "name": "Round 2 · Co-Learning · participant 03",
+      "description": "Three scenarios in Co-Learning mode with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-colearning-p04": {
+      "name": "Round 2 · Co-Learning · participant 04",
+      "description": "Three scenarios in Co-Learning mode with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-colearning-p05": {
+      "name": "Round 2 · Co-Learning · participant 05",
+      "description": "Three scenarios in Co-Learning mode with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-colearning-p06": {
+      "name": "Round 2 · Co-Learning · participant 06",
+      "description": "Three scenarios in Co-Learning mode with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-colearning-p07": {
+      "name": "Round 2 · Co-Learning · participant 07",
+      "description": "Three scenarios in Co-Learning mode with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-colearning-p08": {
+      "name": "Round 2 · Co-Learning · participant 08",
+      "description": "Three scenarios in Co-Learning mode with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-recommendation-p01": {
+      "name": "Round 2 · Recommendation · participant 01",
+      "description": "Three scenarios in Recommendation mode (control group) with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-recommendation-p02": {
+      "name": "Round 2 · Recommendation · participant 02",
+      "description": "Three scenarios in Recommendation mode (control group) with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-recommendation-p03": {
+      "name": "Round 2 · Recommendation · participant 03",
+      "description": "Three scenarios in Recommendation mode (control group) with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-recommendation-p04": {
+      "name": "Round 2 · Recommendation · participant 04",
+      "description": "Three scenarios in Recommendation mode (control group) with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-recommendation-p05": {
+      "name": "Round 2 · Recommendation · participant 05",
+      "description": "Three scenarios in Recommendation mode (control group) with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-recommendation-p06": {
+      "name": "Round 2 · Recommendation · participant 06",
+      "description": "Three scenarios in Recommendation mode (control group) with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-recommendation-p07": {
+      "name": "Round 2 · Recommendation · participant 07",
+      "description": "Three scenarios in Recommendation mode (control group) with the round 2 study UI, then the shift summary and the questionnaire."
+    },
+    "plan-b-r2-recommendation-p08": {
+      "name": "Round 2 · Recommendation · participant 08",
+      "description": "Three scenarios in Recommendation mode (control group) with the round 2 study UI, then the shift summary and the questionnaire."
     },
     "plan-b-uc2": {
       "name": "Plan B · UC2-01",
@@ -1975,6 +2047,7 @@
       "module": "Co-Learning module",
       "afterEpisode": "after the episode",
       "step": "Step {{n}}",
+      "stepMin": "Minute {{n}}",
       "afterLive": "All steps during the run are done. End the shift: the shift summary, event simulation and what the AI learned follow.",
       "afterLiveNoShiftSummary": "All steps during the run are done. Finish the scenario when you are ready.",
       "allDone": "All nine steps are done.",
@@ -2001,7 +2074,8 @@
         "arrived": "arrived",
         "delayed": "delayed",
         "totalDelay": "steps of delay in total",
-        "malfunctions": "disruption(s) at the end"
+        "totalDelayMin": "minutes of delay in total",
+        "malfunctions": "still disrupted at the finish"
       },
       "interventions": "Your interventions ({{n}})",
       "noInterventions": "You did not intervene yourself in this shift.",
@@ -2508,12 +2582,16 @@
     "meta": "Scenarios: {{n}} · then the shift summary and a questionnaire",
     "summaryNoShiftSummary": "{{name}}: {{n}} scenarios in {{mode}} mode, then a questionnaire.",
     "summaryOneNoShiftSummary": "{{name}}: one scenario in {{mode}} mode, then a questionnaire.",
+    "summaryNoSurvey": "{{name}}: {{n}} scenarios in {{mode}} mode, then the shift summary, no questionnaire.",
+    "summaryOneNoSurvey": "{{name}}: one scenario in {{mode}} mode, then the shift summary, no questionnaire.",
     "metaNoShiftSummary": "Scenarios: {{n}} · then a questionnaire",
+    "metaNoSurvey": "Scenarios: {{n}} · then the shift summary, no questionnaire",
     "finish": {
       "toQuestionnaire": "Finish scenario → questionnaire",
       "toLeg": "Finish scenario → {{next}}",
       "toReview": "Finish scenario → shift summary",
-      "toFinalSurvey": "On to the questionnaire"
+      "toFinalSurvey": "On to the questionnaire",
+      "complete": "Finish"
     },
     "finishConfirm": {
       "title": "Finish the current scenario?",
@@ -2550,7 +2628,12 @@
       "leg": "Scenario",
       "interventions": "Interventions",
       "total": "Total",
-      "lastLeg": "Below, the last scenario in detail."
+      "overviewTitle": "Your decisions and reflections",
+      "overviewTitleNoReflection": "Your decisions",
+      "events": "Events",
+      "decisions": "Decisions",
+      "reflection": "Reflection",
+      "noDecisions": "No interventions"
     },
     "media": {
       "workingScreenAlt": "The working screen: the situation on the left, the track map in the centre, the Co-Learning modules on the right.",

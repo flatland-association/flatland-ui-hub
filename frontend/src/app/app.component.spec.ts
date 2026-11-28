@@ -86,6 +86,22 @@ describe('AppComponent', () => {
   });
 
   // docs/plans/hide-scenario-bar.md §4.4: Plan B hides the strip, the toolbar stays at the top.
+  // docs/plans/plan-b-control-group.md D-14, F-13: a tour too.
+  it('names the mode in a tour\'s footer only where the mode strip is shown', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const cmp = fixture.componentInstance;
+    const store = TestBed.inject(SessionStore);
+    store.startDemo(['co-learning'], false);
+    store.session.set({ id: 'sess-1', width: 1, height: 1, num_agents: 0 } as SessionInfo);
+    const footer = () => {
+      fixture.detectChanges();
+      return (fixture.nativeElement.querySelector('.footer-demo-progress')?.textContent ?? '').replace(/\s+/g, ' ');
+    };
+    expect(footer()).toContain(cmp.currentModeLabel());
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.modeTabs'] });
+    expect(footer()).not.toContain(cmp.currentModeLabel());
+  });
+
   it('leaves the guide strip out where the condition hides it, and keeps the toolbar at the top', () => {
     const cmp = TestBed.createComponent(AppComponent).componentInstance;
     const store = TestBed.inject(SessionStore);
@@ -311,6 +327,21 @@ describe('AppComponent', () => {
       store.startDemo(CONDITION.legs!.map(() => CONDITION.mode), false);
     });
 
+    // docs/plans/plan-b-control-group.md D-14: where the layout hides the mode
+    // strip, the footer doesn't name the mode either.
+    it('names the mode in the footer only where the mode strip is shown', () => {
+      store.session.set({ id: 's1', width: 1, height: 1, num_agents: 0 } as any);
+      const footer = () => {
+        fixture.detectChanges();
+        return (fixture.nativeElement.querySelector('.footer-demo-progress')?.textContent ?? '').replace(/\s+/g, ' ');
+      };
+      expect(footer()).toContain(app.currentModeLabel());
+      TestBed.inject(UiConfigService).apply({ hidden: ['control.modeTabs'] });
+      const hidden = footer();
+      expect(hidden).toContain(app.experimentRun.currentLegLabel());
+      expect(hidden).not.toContain(app.currentModeLabel());
+    });
+
     it('pins the condition policy at a leg start and enables it on the session', () => {
       store.setActivePolicy('shortest_path' as any);
       app.startConditionLeg();
@@ -506,6 +537,41 @@ describe('AppComponent', () => {
       app.startGuidedCondition(CONDITION);
       expect(created.length).toBe(1);
       expect(app.missingExperimentScenario()).toBeNull();
+    });
+  });
+
+  // docs/plans/plan-b-round2-experiments.md items 1, 2, 5.
+  describe('Plan B round 2 in the picker and without a questionnaire', () => {
+    it('offers round 2 and round 1\'s example, not round 1\'s other participants, who still open by id', () => {
+      const app: any = TestBed.createComponent(AppComponent).componentInstance;
+      const offered = app.guidedConditions.map((c: StudyCondition) => c.id);
+      expect(offered).toContain('plan-b-r2-colearning-p01');
+      expect(offered).toContain('plan-b-r2-tutorial-recommendation');
+      expect(offered).toContain('plan-b-p01');
+      expect(offered).not.toContain('plan-b-p02');
+      app.setStudyCondition('plan-b-p02');
+      expect(app.selectedStudyCondition().id).toBe('plan-b-p02');
+    });
+
+    it('ends a tutorial after its Schichtbilanz, without a questionnaire', () => {
+      const app: any = TestBed.createComponent(AppComponent).componentInstance;
+      const store = TestBed.inject(SessionStore);
+      const tutorial: StudyCondition = {
+        id: 'spec-tutorial', layoutId: 'preset-plan-b-colearning', mode: 'co-learning', label: 'Spec tutorial',
+        briefingIds: { en: 'plan-b-r2-colearning' }, surveyParts: [],
+        legs: [{ id: 'tutorial', scenarioId: 'tutorial', disturbanceIds: [], seed: 42 }],
+      };
+      spyOn(app, 'createSession');
+      spyOn(app, 'resolveWelcomeSessionOpts').and.returnValue({ scenarioPresetId: 'x', policyControlIds: ['plan'] });
+      const finish = spyOn(app.experimentRun, 'finish');
+      app.activeExperiment.set(tutorial);
+      app.experimentRun.start(tutorial, false);
+      store.startDemo(['co-learning'], false);
+      app.advanceExperiment('clicked');
+      expect(app.experimentRun.phase()).toBe('review');
+      app.advanceExperiment('clicked');
+      expect(app.surveyActive()).toBeFalse();
+      expect(finish).toHaveBeenCalledWith('completed');
     });
   });
 });

@@ -13,7 +13,7 @@ or not). The work is split into six PRs. Each has its own plan.
 | A | [plan-b-round2-general.md](plan-b-round2-general.md) | Fixes for every mode: ZWL, "Episode beendet", reflection, "Halten bis frei", decision log, "Kein Eingriff" | — |
 | B | [plan-b-round2-colearning.md](plan-b-round2-colearning.md) | New preset `preset-plan-b-colearning`: layout, minutes, Mensch options in the Mensch box | A |
 | C | [plan-b-round2-recommendation.md](plan-b-round2-recommendation.md) | New preset `preset-plan-b-recommendation` for the control group | B |
-| D | [plan-b-round2-experiments.md](plan-b-round2-experiments.md) | Two tutorial experiments, 8 + 8 round 2 experiments, round 1 hidden | B, C, #201 (merged first) |
+| D | [plan-b-round2-experiments.md](plan-b-round2-experiments.md) | Two tutorial experiments, 8 + 8 round 2 experiments, round 1 hidden | B, C, #201 (merged in; see the end of this page) |
 | E | [plan-b-round2-preview.md](plan-b-round2-preview.md) | "Vorschau": the KI or Mensch course in the ZWL and on the map before taking it | B |
 
 ## Decisions taken with the study lead
@@ -27,3 +27,29 @@ or not). The work is split into six PRs. Each has its own plan.
   screen. #201's Schichtbilanz with reflection overview is reused.
 - The preview (E) is wanted for round 2, but in its own PR, so A to D can
   merge without it.
+
+## Where round 2 differs from #201
+
+Checked against #201 at b9e36359 (27 November 2026); #201 was then taken
+over and adjusted up to 7853cc2e. D includes it with a merge commit, so the
+stack doesn't wait for it to land on `main`. "Done" means implemented on our stack.
+
+| # | #201 | Round 2 | Where | Status |
+| --- | --- | --- | --- | --- |
+| 1 | `plan-b-summative-colearning-p01`: 2 of uc2-1…4 (Latin square), `p02`…`p08` and the Recommendation ones later | `plan-b-r2-{colearning,recommendation}-p01`…`p08`: uc2-1, uc2-2, uc2-4 in balanced orders | D | Template removed in #201 (11a70720) |
+| 2 | Briefing `plan-b-summative` with an opening page ("das erste von zwei Szenarien") | Briefings `plan-b-r2-*` without an opening page; the scenario card opens directly | D | Planned |
+| 3 | No tutorial in the summative experiments | Two tutorial experiments, one per group | D | Planned |
+| 4 | Both settings on `preset-plan-b` | Own presets `preset-plan-b-colearning` / `-recommendation` | B, C | Done |
+| 5 | D-5: Mensch course and option chips hidden by mode (`recommending`) | Hidden by preset (`widget.proposal-compare.human`) | C | Done |
+| 6 | D-5: KI course tagged "Empfehlung" | No tag | C | Done |
+| 7 | D-5: no "Vergleich" in Recommendation | "Vergleich" stays (Kein Eingriff vs KI) | C | Done |
+| 8 | D-6: map option strip off by mode | `control.mapTrainActions` by preset; also hides the decision pills | C | Done |
+| 9 | D-7: `decisionMoment: 'hold'` | Taken as is | C (flag), D (set in the briefing) | Flag done |
+| 10 | D-12: Recommendation briefing without module badges, `plan-b`'s guide hints without `reflect`, `modeIntros.recommendation` = Plan B's card | Taken | D | Planned |
+| 11 | D-22: no "Reflexion" column where the briefing has no `reasonDialog` | Taken, replacing D's planned `reflectionOverview` condition field | #201 (7853cc2e) | Done |
+| 12 | Schichtbilanz in steps: "Schritt n" (overview), "Schritte Verspätung gesamt" (table) | Minutes in both groups (PR B) | D: `…Min` siblings in `MINUTE_KEYS` | Planned |
+| 13 | Overview action from the log's word: "Kein Eingriff" (`proposals` + `proceed`) reads "Weiterfahren", like the human's own option | "Nicht eingreifen", as the panel words it (PR A) | #201 (f9d00093): new log field `proposal`, the overview uses the button's label | Done |
+| 14 | Last Schichtbilanz button "Weiter zum Fragebogen" in every experiment | The tutorials have no questionnaire: "Abschliessen" | D | Planned |
+| 15 | Reflection lines from `reflectionPrompt.*` | "Weiss nicht" and "Nichts" (PR A) have their keys, so they read correctly | — | Nothing to do |
+| 16 | §4.3 designs the Recommendation setting for a later PR | Replaced by [plan-b-round2-recommendation.md](plan-b-round2-recommendation.md) | #201: note in its §4.3 | Done |
+| 17 | D-14: footer without the mode name where `control.modeTabs` is hidden | Taken as is (both presets hide it) | — | Nothing to do |

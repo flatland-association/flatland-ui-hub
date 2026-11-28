@@ -40,7 +40,7 @@
                 <th scope="col">{{ 'experimentRun.review.leg' | transloco }}</th>
                 <th scope="col">{{ 'tourUi.debrief.kpi.arrived' | transloco }}</th>
                 <th scope="col">{{ 'tourUi.debrief.kpi.delayed' | transloco }}</th>
-                <th scope="col">{{ 'tourUi.debrief.kpi.totalDelay' | transloco }}</th>
+                <th scope="col">{{ 'tourUi.debrief.kpi.totalDelay' | timeKey | transloco }}</th>
                 <th scope="col">{{ 'tourUi.debrief.kpi.malfunctions' | transloco }}</th>
                 <th scope="col">{{ 'experimentRun.review.interventions' | transloco }}</th>
               </tr>
@@ -70,17 +70,26 @@
               </tr>
             </tbody>
           </table>
-          <p class="db-note">{{ 'experimentRun.review.lastLeg' | transloco }}</p>
         }
 
         @if (review(); as r) {
+          <!-- In an experiment with several scenarios the table has the last one's row already. -->
+          @if (!(inExperiment() && legRows().length)) {
           <div class="db-kpis">
             <span class="db-kpi"><strong>{{ r.kpis.arrived }}/{{ r.kpis.total }}</strong> {{ 'tourUi.debrief.kpi.arrived' | transloco }}</span>
             <span class="db-kpi" [class.is-warn]="r.kpis.delayed > 0"><strong>{{ r.kpis.delayed }}</strong> {{ 'tourUi.debrief.kpi.delayed' | transloco }}</span>
-            <span class="db-kpi"><strong>{{ r.kpis.totalDelay }}</strong> {{ 'tourUi.debrief.kpi.totalDelay' | transloco }}</span>
+            <span class="db-kpi"><strong>{{ r.kpis.totalDelay }}</strong> {{ 'tourUi.debrief.kpi.totalDelay' | timeKey | transloco }}</span>
             <span class="db-kpi" [class.is-alert]="r.kpis.malfunctions > 0"><strong>{{ r.kpis.malfunctions }}</strong> {{ 'tourUi.debrief.kpi.malfunctions' | transloco }}</span>
           </div>
+          }
 
+          @if (inExperiment()) {
+          <!-- Every scenario's decisions with their events and reflections (docs/plans/plan-b-control-group.md §4.5). -->
+          <div class="db-block">
+            <!-- No system-hold count: the decision log holds only the last scenario's (F-6). -->
+            <app-reflection-overview [legs]="overviewLegs()" [showReflection]="showReflection()" />
+          </div>
+          } @else {
           <div class="db-block">
             <span class="db-block__title">{{ 'tourUi.debrief.interventions' | transloco: { n: interventions().length } }}</span>
             @if (interventions().length === 0) {
@@ -108,6 +117,7 @@
               <p class="db-note">{{ 'tourUi.debrief.systemHolds' | transloco: { n: systemHolds() } }}</p>
             }
           </div>
+          }
 
           <div class="db-block">
             <span class="db-block__title" id="db-insight-title">{{ 'tourUi.debrief.insightTitle' | transloco }}</span>
@@ -134,9 +144,11 @@
           }
         }
 
-        <p class="db-concept">
-          {{ 'tourUi.debrief.summaryConcept' | transloco }}
-        </p>
+        @if (!inExperiment()) {
+          <p class="db-concept">
+            {{ 'tourUi.debrief.summaryConcept' | transloco }}
+          </p>
+        }
       </section>
     }
 
@@ -319,6 +331,8 @@
         {{ 'tourUi.debrief.next' | transloco: { n: n.n, title: ('tourUi.debrief.section.' + n.id | transloco) } }}
       } @else if (!store.demoIsLast()) {
         {{ 'tourUi.debrief.toNextShift' | transloco }}
+      } @else if (inExperiment()) {
+        {{ (hasFinalSurvey() ? 'experimentRun.finish.toFinalSurvey' : 'experimentRun.finish.complete') | transloco }}
       } @else if (store.demoSurveyEnabled()) {
         {{ 'tourUi.debrief.toSurvey' | transloco }}
       } @else {

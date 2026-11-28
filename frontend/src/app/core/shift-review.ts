@@ -1,4 +1,4 @@
-import { DecisionAction, DecisionLogEntry } from './decision-log';
+import { DecisionAction, DecisionEvent, DecisionLogEntry } from './decision-log';
 import type { AgentDTO } from './models';
 import { LearningRecord } from './learning-store.service';
 import { ValueAxis } from './operator-model.service';
@@ -157,6 +157,42 @@ export interface ShiftIntervention {
   response: 'yes' | 'once' | 'no' | null;
   /** Guided reflection answers, question id → answer (see DecisionLogEntry.reflection). */
   reflection: Record<string, string> | null;
+  /** The disturbance messages open at the decision (DecisionLogEntry.events). */
+  events: DecisionEvent[];
+  /** The Handlungsoptionen course taken, if any (DecisionLogEntry.proposal). */
+  proposal: 'plan' | 'ai' | null;
+}
+
+/** A decision as the reflection overview lists it: live from a leg's
+ *  `ShiftRecord`, in a replay from the leg's recorded decision log. */
+export type OverviewDecision = Pick<ShiftIntervention, 'step' | 'handle' | 'action' | 'reason' | 'reflection' | 'events' | 'proposal'>;
+
+/** One scenario's row group in the overview. */
+export interface OverviewLeg {
+  label: string;
+  /** The leg's scenario (preset id), whose own names its trains had (F-5). */
+  scenarioId: string | null;
+  decisions: OverviewDecision[];
+}
+
+/**
+ * The guided reflection answers as short lines ("Bauchgefühl: …", "Gefehlt:
+ * …", "In Kauf genommen: «…»"), worded by `t` in the viewer's language. Shared
+ * by the live Schichtbilanz and the reflection overview.
+ */
+export function reflectionLines(
+  r: Record<string, string> | null | undefined,
+  t: (key: string, params?: Record<string, unknown>) => string,
+): string[] {
+  if (!r) return [];
+  const lines: string[] = [];
+  if (r['gut']) lines.push(t('tourUi.debrief.reflection.gut', { v: t(`reflectionPrompt.gut.${r['gut']}`) }));
+  if (r['missing']) {
+    const items = r['missing'].split(',').map((id) => t(`reflectionPrompt.missing.${id}`));
+    lines.push(t('tourUi.debrief.reflection.missing', { v: items.join(', ') }));
+  }
+  if (r['tradeoff']) lines.push(t('tourUi.debrief.reflection.tradeoff', { v: r['tradeoff'] }));
+  return lines;
 }
 
 /**
@@ -176,7 +212,44 @@ export function interventionsFrom(decisionLog: DecisionLogEntry[]): ShiftInterve
       reason: statedReason(e.rationale),
       response: e.hypothesisResponse ?? null,
       reflection: e.reflection ?? null,
+      events: e.events ?? [],
+      proposal: e.proposal ?? null,
     }));
+}
+
+/** A decision on a single train as a leg's record keeps it
+ *  (`ShiftRecord.decisions`). `reason`, `reflection` and `events` are absent in
+ *  records made before 2026-11-25. */
+export interface ShiftDecision {
+  handle: number;
+  action: string;
+  simStep: number;
+  decisionTimeMs: number | null;
+  reason?: string | null;
+  reflection?: Record<string, string> | null;
+  events?: DecisionEvent[];
+  /** The Handlungsoptionen course taken; absent for any other decision. */
+  proposal?: 'plan' | 'ai';
+}
+
+/**
+ * A shift's decisions as its record keeps them: the interventions with their
+ * decision time, reason, reflection and events. One place for the finished
+ * leg (`ExperimentRunService.finishLeg`) and the debrief's current shift
+ * (docs/plans/plan-b-control-group.md S-13, F-17).
+ */
+export function shiftDecisionsFrom(decisionLog: DecisionLogEntry[]): ShiftDecision[] {
+  const bySeq = new Map(decisionLog.map((e) => [e.seq, e]));
+  return interventionsFrom(decisionLog).map((i) => ({
+    handle: i.handle,
+    action: i.action,
+    simStep: i.step,
+    decisionTimeMs: bySeq.get(i.seq)?.decisionTimeMs ?? null,
+    reason: i.reason,
+    reflection: i.reflection,
+    events: i.events,
+    ...(i.proposal ? { proposal: i.proposal } : {}),
+  }));
 }
 
 export function buildShiftReview(input: {

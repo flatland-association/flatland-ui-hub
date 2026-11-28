@@ -219,7 +219,7 @@
       "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage."
     },
     "plan-b-p01": {
-      "name": "Plan B · Teilnehmer:in 01",
+      "name": "Plan B Runde 1 Beispiel",
       "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
     },
     "plan-b-p02": {
@@ -257,6 +257,78 @@
     "plan-b-p10": {
       "name": "Plan B · Teilnehmer:in 10",
       "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-r2-tutorial-colearning": {
+      "name": "Tutorial Co-Learning",
+      "description": "Das Tutorial-Szenario im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz. Ohne Fragebogen."
+    },
+    "plan-b-r2-tutorial-recommendation": {
+      "name": "Tutorial Recommendations",
+      "description": "Das Tutorial-Szenario im Recommendation-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz. Ohne Fragebogen."
+    },
+    "plan-b-r2-colearning-p01": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 01",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p02": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 02",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p03": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 03",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p04": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 04",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p05": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 05",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p06": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 06",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p07": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 07",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-colearning-p08": {
+      "name": "Runde 2 · Co-Learning · Teilnehmer:in 08",
+      "description": "Drei Szenarien im Co-Learning-Modus mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p01": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 01",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p02": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 02",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p03": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 03",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p04": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 04",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p05": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 05",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p06": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 06",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p07": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 07",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
+    },
+    "plan-b-r2-recommendation-p08": {
+      "name": "Runde 2 · Recommendation · Teilnehmer:in 08",
+      "description": "Drei Szenarien im Recommendation-Modus (Kontrollgruppe) mit der Studien-Oberfläche von Runde 2, dann die Schichtbilanz und der Fragebogen."
     },
     "plan-b-uc2": {
       "name": "Plan B · UC2-01",
@@ -1975,6 +2047,7 @@
       "module": "Co-Learning-Modul",
       "afterEpisode": "nach der Episode",
       "step": "Schritt {{n}}",
+      "stepMin": "Minute {{n}}",
       "afterLive": "Alle Schritte während der Fahrt sind abgeschlossen. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
       "afterLiveNoShiftSummary": "Alle Schritte während der Fahrt sind abgeschlossen. Schliesse das Szenario ab, wenn du fertig bist.",
       "allDone": "Alle neun Schritte sind abgeschlossen.",
@@ -2001,7 +2074,8 @@
         "arrived": "angekommen",
         "delayed": "verspätet",
         "totalDelay": "Schritte Verspätung gesamt",
-        "malfunctions": "Störung(en) am Ende"
+        "totalDelayMin": "Minuten Verspätung gesamt",
+        "malfunctions": "bei Abschluss noch gestört"
       },
       "interventions": "Deine Eingriffe ({{n}})",
       "noInterventions": "Du hast in dieser Schicht nicht selbst eingegriffen.",
@@ -2508,12 +2582,16 @@
     "meta": "Szenarien: {{n}} · danach Schichtbilanz und Fragebogen",
     "summaryNoShiftSummary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach ein Fragebogen.",
     "summaryOneNoShiftSummary": "{{name}}: ein Szenario im Modus {{mode}}, danach ein Fragebogen.",
+    "summaryNoSurvey": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach die Schichtbilanz, ohne Fragebogen.",
+    "summaryOneNoSurvey": "{{name}}: ein Szenario im Modus {{mode}}, danach die Schichtbilanz, ohne Fragebogen.",
     "metaNoShiftSummary": "Szenarien: {{n}} · danach Fragebogen",
+    "metaNoSurvey": "Szenarien: {{n}} · danach Schichtbilanz, ohne Fragebogen",
     "finish": {
       "toQuestionnaire": "Szenario abschliessen → Fragebogen",
       "toLeg": "Szenario abschliessen → {{next}}",
       "toReview": "Szenario abschliessen → Schichtbilanz",
-      "toFinalSurvey": "Weiter zum Fragebogen"
+      "toFinalSurvey": "Weiter zum Fragebogen",
+      "complete": "Abschliessen"
     },
     "finishConfirm": {
       "title": "Aktuelles Szenario abschliessen?",
@@ -2550,7 +2628,12 @@
       "leg": "Szenario",
       "interventions": "Eingriffe",
       "total": "Total",
-      "lastLeg": "Darunter das letzte Szenario im Detail."
+      "overviewTitle": "Deine Entscheidungen und Reflexionen",
+      "overviewTitleNoReflection": "Deine Entscheidungen",
+      "events": "Ereignisse",
+      "decisions": "Entscheidungen",
+      "reflection": "Reflexion",
+      "noDecisions": "Keine Eingriffe"
     },
     "media": {
       "workingScreenAlt": "Die Arbeitsansicht: links die Lage, in der Mitte der Streckenspiegel, rechts die Co-Learning-Module.",
